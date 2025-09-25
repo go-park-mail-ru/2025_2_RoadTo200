@@ -4,7 +4,7 @@ package main
 
 import (
 	"fmt"
-	//"golang.org/x/crypto/bcrypt"
+	"golang.org/x/crypto/bcrypt"
 	"net/http"
 	"strings"
 	"time"
@@ -36,7 +36,7 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 
 	//проверка пароля
 	if len(req.Password) < 6 {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid password"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "password is too short"})
 		return
 	}
 	if req.Password != req.PasswordConfirm {
@@ -79,7 +79,45 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
 		return
 	}
-	writeJSON(w, http.StatusOK, map[string]string{"message": "login endpoint (stub)"})
+
+	var req struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+
+	if err := readJSON(r, &req); err != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid request body"})
+		return
+	}
+
+	user, exists := findUser(req.Email)
+	if !exists {
+		writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "invalid email or password"})
+		return
+	}
+
+	//проверяем пароль
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {
+		writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "invalid password"})
+		return
+	}
+
+	session := createSession(user.Email, 3600*time.Second)
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "session_token",
+		Value:    session.Token,
+		Path:     "/",
+		HttpOnly: true,
+		MaxAge:   3600,
+	})
+
+	writeJSON(w, http.StatusCreated, map[string]interface{}{
+		"id":    user.ID,
+		"email": user.Email,
+	})
+
+	fmt.Println("Login user:", user.Email, user.Password)
 }
 
 func sessionHandler(w http.ResponseWriter, r *http.Request) {
