@@ -125,7 +125,38 @@ func sessionHandler(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
 		return
 	}
-	writeJSON(w, http.StatusOK, map[string]string{"authenticated": "false", "message": "session endpoint (stub)"})
+
+	cookie, err := r.Cookie("session_token")
+	if err != nil {
+		writeJSON(w, http.StatusUnauthorized, map[string]interface{}{
+			"authenticated": false,
+		})
+		return
+	}
+
+	session, ok := getSession(cookie.Value)
+	if !ok {
+		writeJSON(w, http.StatusUnauthorized, map[string]interface{}{
+			"authenticated": false,
+		})
+		return
+	}
+
+	user, ok := findUser(session.UserEmail)
+	if !ok {
+		writeJSON(w, http.StatusUnauthorized, map[string]interface{}{
+			"authenticated": false,
+		})
+		return
+	}
+
+	writeJSON(w, http.StatusOK, map[string]interface{}{
+		"authenticated": true,
+		"user": map[string]interface{}{
+			"id":    user.ID,
+			"email": user.Email,
+		},
+	})
 }
 
 func logoutHandler(w http.ResponseWriter, r *http.Request) {
@@ -133,7 +164,27 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
 		return
 	}
-	writeJSON(w, http.StatusOK, map[string]string{"message": "logout endpoint (stub)"})
+
+	// читаем куку
+	cookie, err := r.Cookie("session_token")
+	if err != nil {
+		writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "no session"})
+		return
+	}
+
+	// удаляем сессию
+	deleteSession(cookie.Value)
+
+	// очищаем куку
+	http.SetCookie(w, &http.Cookie{
+		Name:     "session_token",
+		Value:    "",
+		Path:     "/",
+		HttpOnly: true,
+		MaxAge:   -1, // удалить
+	})
+
+	writeJSON(w, http.StatusOK, map[string]string{"message": "logged out"})
 }
 
 func main() {
