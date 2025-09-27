@@ -187,11 +187,65 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]string{"message": "logged out"})
 }
 
+func feedHandler(w http.ResponseWriter, r *http.Request) {
+	// Проверка сессии (использует твой getSession)
+	cookie, err := r.Cookie("session_token")
+	if err != nil {
+		writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "unauthorized"})
+		return
+	}
+	_, ok := getSession(cookie.Value)
+	if !ok {
+		writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "unauthorized"})
+		return
+	}
+
+	// Возвращаем мокнутый список профилей
+	feed := []map[string]string{
+		{"id": "1", "name": "Alice"},
+		{"id": "2", "name": "Bob"},
+		{"id": "3", "name": "Charlie"},
+	}
+
+	writeJSON(w, http.StatusOK, feed)
+}
+
+func swipeHandler(w http.ResponseWriter, r *http.Request) {
+	// Проверка авторизации
+	cookie, err := r.Cookie("session_token")
+	if err != nil {
+		writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "unauthorized"})
+		return
+	}
+	session, ok := getSession(cookie.Value)
+	if !ok {
+		writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "unauthorized"})
+		return
+	}
+
+	// Считываем свайп
+	var req struct {
+		TargetID  string `json:"target_id"`
+		Direction string `json:"direction"` // "left" или "right"
+	}
+	if err := readJSON(r, &req); err != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "bad request"})
+		return
+	}
+
+	// Пока просто логируем — без логики
+	fmt.Printf("%s swiped %s %s\n", session.UserEmail, req.Direction, req.TargetID)
+
+	writeJSON(w, http.StatusOK, map[string]string{"message": "ok"})
+}
+
 func main() {
 	http.HandleFunc("/api/register", registerHandler)
 	http.HandleFunc("/api/login", loginHandler)
 	http.HandleFunc("/api/session", sessionHandler)
 	http.HandleFunc("/api/logout", logoutHandler)
+	http.HandleFunc("/api/feed", feedHandler)
+	http.HandleFunc("/api/swipe", swipeHandler)
 
 	fmt.Println("Server running on http://localhost:8080")
 	if err := http.ListenAndServe(":8080", nil); err != nil {
