@@ -248,15 +248,19 @@ func swipeHandler(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]string{"message": "ok"})
 }
 
+func addHandler(path string, f func(w http.ResponseWriter, r *http.Request)) {
+	http.Handle(path, CORSMiddleware(http.HandlerFunc(f)))
+}
+
 // main - это точка входа приложения
 // Она устанавливает HTTP-маршруты и запускает сервер
 func main() {
-	http.HandleFunc("/api/register", registerHandler)
-	http.HandleFunc("/api/login", loginHandler)
-	http.HandleFunc("/api/session", sessionHandler)
-	http.HandleFunc("/api/logout", logoutHandler)
-	http.HandleFunc("/api/feed", feedHandler)
-	http.HandleFunc("/api/swipe", swipeHandler)
+	addHandler("/api/register", registerHandler)
+	addHandler("/api/login", loginHandler)
+	addHandler("/api/session", sessionHandler)
+	addHandler("/api/logout", logoutHandler)
+	addHandler("/api/feed", feedHandler)
+	addHandler("/api/swipe", swipeHandler)
 
 	fmt.Println("Server running on http://localhost:8080")
 	if err := http.ListenAndServe(":8080", nil); err != nil {
