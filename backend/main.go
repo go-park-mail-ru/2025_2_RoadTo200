@@ -4,12 +4,16 @@ package main
 
 import (
 	"fmt"
-	"golang.org/x/crypto/bcrypt"
 	"net/http"
 	"strings"
 	"time"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
+// registerHandler обрабатывает запросы на регистрацию пользователей
+// Он ожидает POST-запрос с адресом электронной почты, паролем и passwordConfirm в теле JSON
+// В случае успеха он создает нового пользователя, запускает сеанс и устанавливает сессионный файл cookie
 func registerHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
@@ -74,6 +78,9 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Registered user:", user.Email, user.Password)
 }
 
+// loginHandler обрабатывает запросы пользователя на вход в систему
+// Он ожидает POST-запрос с адресом электронной почты и паролем в формате JSON
+// При успешной аутентификации он запускает сеанс и устанавливает сессионный файл cookie
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
@@ -120,6 +127,9 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Login user:", user.Email, user.Password)
 }
 
+// SessionHandler проверяет статус сеанса текущего пользователя
+// Он ожидает запрос GET с файлом cookie "session_token"
+// Он возвращает, прошел ли пользователь проверку подлинности, и информацию о пользователе, если да
 func sessionHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
@@ -159,6 +169,9 @@ func sessionHandler(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// LogoutHandler обрабатывает запросы пользователя на выход из системы
+// Он ожидает POST-запрос с файлом cookie "session_token"
+// Он удаляет сеанс и очищает файл cookie сеансd
 func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "method not allowed"})
@@ -187,6 +200,8 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]string{"message": "logged out"})
 }
 
+// feedHandler предоставляет доступ к профилям пользователей для прошедшего проверку подлинности пользователя
+// Для этого требуется действительный сеанс
 func feedHandler(w http.ResponseWriter, r *http.Request) {
 	// Проверка сессии (использует твой getSession)
 	cookie, err := r.Cookie("session_token")
@@ -199,17 +214,11 @@ func feedHandler(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "unauthorized"})
 		return
 	}
-
-	// Возвращаем мокнутый список профилей
-	feed := []map[string]string{
-		{"id": "1", "name": "Alice"},
-		{"id": "2", "name": "Bob"},
-		{"id": "3", "name": "Charlie"},
-	}
-
-	writeJSON(w, http.StatusOK, feed)
+	writeJSON(w, http.StatusOK, nil)
 }
 
+// swipeHandler обрабатывает действия пользователя по переходу в другой профиль
+// Для этого требуется действительный сеанс и ожидается запрос POST с идентификатором цели и направлением
 func swipeHandler(w http.ResponseWriter, r *http.Request) {
 	// Проверка авторизации
 	cookie, err := r.Cookie("session_token")
@@ -239,6 +248,8 @@ func swipeHandler(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]string{"message": "ok"})
 }
 
+// main - это точка входа приложения
+// Она устанавливает HTTP-маршруты и запускает сервер
 func main() {
 	http.HandleFunc("/api/register", registerHandler)
 	http.HandleFunc("/api/login", loginHandler)

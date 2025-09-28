@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 )
 
+// Сессия
 type Session struct {
 	Token     string
 	UserEmail string
@@ -20,6 +21,7 @@ var (
 	sessionsMu sync.Mutex
 )
 
+// CreateSession создает новый сеанс для пользователя с заданным сроком действия (ttl)
 func createSession(userEmail string, ttl time.Duration) *Session {
 	token := uuid.NewString()
 	s := &Session{
@@ -33,6 +35,9 @@ func createSession(userEmail string, ttl time.Duration) *Session {
 	return s
 }
 
+// getSession извлекает сеанс по его токену
+// Он возвращает сеанс и логическое значение, указывающее, был ли он найден и не истек ли срок его действия
+// Сеансы с истекшим сроком действия удаляются
 func getSession(token string) (*Session, bool) {
 	sessionsMu.Lock()
 	defer sessionsMu.Unlock()
@@ -47,12 +52,14 @@ func getSession(token string) (*Session, bool) {
 	return s, true
 }
 
+// deleteSession удаляет сеанс по его токену
 func deleteSession(token string) {
 	sessionsMu.Lock()
 	delete(sessions, token)
 	sessionsMu.Unlock()
 }
 
+// setSessionCookie устанавливает файл cookie сеанса в HTTP-ответе
 func setSessionCookie(w http.ResponseWriter, token string, ttl time.Duration) {
 	cookie := &http.Cookie{
 		Name:     "session_token",
@@ -64,6 +71,7 @@ func setSessionCookie(w http.ResponseWriter, token string, ttl time.Duration) {
 	http.SetCookie(w, cookie)
 }
 
+// clearSessionCookie очищает сессионный файл cookie в HTTP-ответе, устанавливая его максимальное значение равным -1
 func clearSessionCookie(w http.ResponseWriter) {
 	cookie := &http.Cookie{
 		Name:     "session_token",
