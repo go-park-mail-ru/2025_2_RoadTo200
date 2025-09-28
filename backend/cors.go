@@ -4,14 +4,13 @@ import (
 	"net/http"
 )
 
-const origin = "http://127.0.0.1:8001"
+const origin = "http://217.16.17.116:8001"
 
 func CORSMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		origin := r.Header.Get("Origin")
-		// Устанавливаем КОНКРЕТНЫЙ origin (не "*")
+
 		w.Header().Set("Access-Control-Allow-Origin", origin)
-		// ОБЯЗАТЕЛЬНО для credentials
+
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
 
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
