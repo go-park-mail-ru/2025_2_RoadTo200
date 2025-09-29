@@ -155,12 +155,13 @@ func sessionHandler(w http.ResponseWriter, r *http.Request) {
 
 	user, ok := findUser(session.UserEmail)
 	if !ok {
+		fmt.Printf("%v: Error: User %s not found\n", time.Now(), session.UserEmail)
 		writeJSON(w, http.StatusUnauthorized, map[string]interface{}{
 			"authenticated": false,
 		})
 		return
 	}
-
+	fmt.Printf("%v: User: %s entered with session: %s\n", time.Now(), user.ID, session.Token)
 	writeJSON(w, http.StatusOK, map[string]interface{}{
 		"authenticated": true,
 		"user": map[string]interface{}{
