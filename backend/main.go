@@ -5,6 +5,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -217,7 +218,11 @@ func feedHandler(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "unauthorized"})
 		return
 	}
-	writeJSON(w, http.StatusOK, nil)
+	data, err := os.ReadFile("cards.json")
+	if err != nil {
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "internal error"})
+	}
+	writeJSON(w, http.StatusOK, data)
 }
 
 // swipeHandler обрабатывает действия пользователя по переходу в другой профиль

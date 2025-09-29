@@ -16,10 +16,17 @@ func writeJSON(w http.ResponseWriter, status int, payload interface{}) {
 		return
 	}
 
-	data, err := json.Marshal(payload)
-	if err != nil {
-		http.Error(w, `{"error":"internal error"}`, http.StatusInternalServerError)
-		return
+	var data []byte
+	var err error
+	switch payload.(type) {
+	case []byte:
+		data = payload.([]byte)
+	default:
+		data, err = json.Marshal(payload)
+		if err != nil {
+			http.Error(w, `{"error":"internal error"}`, http.StatusInternalServerError)
+			return
+		}
 	}
 	w.Write(data)
 }
