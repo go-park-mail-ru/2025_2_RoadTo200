@@ -262,7 +262,7 @@ func main() {
 	addHandler("/api/feed", feedHandler)
 	addHandler("/api/swipe", swipeHandler)
 
-	fmt.Println("Server running on http://localhost:8080")
+	fmt.Println("Server running on http://:8080")
 	if err := http.ListenAndServe(":8080", nil); err != nil {
 		panic(err)
 	}
