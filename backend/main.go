@@ -275,6 +275,6 @@ func main() {
 
 	fmt.Println("Server running on http://:8080")
 	if err := http.ListenAndServe(":8080", nil); err != nil {
-		panic(err)
+		return
 	}
 }
