@@ -217,6 +217,7 @@ func feedHandler(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "unauthorized"})
 		return
 	}
+	fmt.Printf("%v: Session - %s data sending.\n", time.Now(), cookie.Value)
 	writeJSON(w, http.StatusOK, []byte(cards))
 }
 
