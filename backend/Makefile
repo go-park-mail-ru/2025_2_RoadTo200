@@ -8,7 +8,7 @@ test-coverage:
 	go test ./... -cover
 
 build:
-	go build -o app ./
+	go build -o ./../build
 
 clean:
 	rm -f app coverage.out
