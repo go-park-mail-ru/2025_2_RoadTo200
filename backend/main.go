@@ -16,7 +16,7 @@ import (
 // В случае успеха он создает нового пользователя, запускает сеанс и устанавливает сессионный файл cookie
 func registerHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "метод не разрешен"})
+		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "Метод не разрешен"})
 		return
 	}
 
@@ -28,43 +28,43 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 
 	//проверка, пришел ли вообще json и читаем его
 	if err := readJSON(r, &req); err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "неверное тело запроса"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Неверное тело запроса"})
 		return
 	}
 
 	//проверка email
 	if req.Email == "" || !strings.Contains(req.Email, "@") {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "неверный email"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Неверный email"})
 		return
 	}
 
 	//проверка пароля
 	if len(req.Password) < 6 {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "пароль слишком короткий"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Пароль слишком короткий"})
 		return
 	}
 	// проверка что пароль содержит буквы и цифры
 	hasLetter := strings.ContainsAny(req.Password, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 	hasDigit := strings.ContainsAny(req.Password, "0123456789")
 	if !hasLetter || !hasDigit {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "пароль должен содержать буквы и цифры"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Пароль должен содержать буквы и цифры"})
 		return
 	}
 	if req.Password != req.PasswordConfirm {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "пароли не совпадают"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Пароли не совпадают"})
 		return
 	}
 
 	//проверка что пользователь существует
 	_, exists := findUser(req.Email)
 	if exists {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "пользователь уже зарегистрирован"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Пользователь уже зарегистрирован"})
 		return
 	}
 
 	user, err := createUser(req.Email, req.Password)
 	if err != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "внутренняя ошибка"})
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Внутренняя ошибка"})
 		return
 	}
 
@@ -90,7 +90,7 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 // При успешной аутентификации он запускает сеанс и устанавливает сессионный файл cookie
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "метод не разрешен"})
+		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "Метод не разрешен"})
 		return
 	}
 
@@ -100,19 +100,19 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := readJSON(r, &req); err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "неверное тело запроса"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Неверное тело запроса"})
 		return
 	}
 
 	user, exists := findUser(req.Email)
 	if !exists {
-		writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "неверный email или пароль"})
+		writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "Неверный email или пароль"})
 		return
 	}
 
 	//проверяем пароль
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {
-		writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "неверный пароль"})
+		writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "Неверный пароль"})
 		return
 	}
 
@@ -140,7 +140,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 // Он возвращает, прошел ли пользователь проверку подлинности, и информацию о пользователе, если да
 func sessionHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "метод не разрешен"})
+		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "Метод не разрешен"})
 		return
 	}
 
@@ -183,14 +183,14 @@ func sessionHandler(w http.ResponseWriter, r *http.Request) {
 // Он удаляет сеанс и очищает файл cookie сеансd
 func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "метод не разрешен"})
+		writeJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "Метод не разрешен"})
 		return
 	}
 
 	// читаем куку
 	cookie, err := r.Cookie("session_token")
 	if err != nil {
-		writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "нет сессии"})
+		writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "Нет сессии"})
 		return
 	}
 
@@ -207,7 +207,7 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 		MaxAge:   -1, // удалить
 	})
 
-	writeJSON(w, http.StatusOK, map[string]string{"message": "выход выполнен"})
+	writeJSON(w, http.StatusOK, map[string]string{"message": "Выход выполнен"})
 }
 
 // feedHandler предоставляет доступ к профилям пользователей для прошедшего проверку подлинности пользователя
@@ -216,12 +216,12 @@ func feedHandler(w http.ResponseWriter, r *http.Request) {
 	// Проверка сессии (использует твой getSession)
 	cookie, err := r.Cookie("session_token")
 	if err != nil {
-		writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "не авторизован"})
+		writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "Не авторизован"})
 		return
 	}
 	_, ok := getSession(cookie.Value)
 	if !ok {
-		writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "не авторизован"})
+		writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "Не авторизован"})
 		return
 	}
 	fmt.Printf("%v: Session - %s data sending.\n", time.Now(), cookie.Value)
@@ -234,12 +234,12 @@ func swipeHandler(w http.ResponseWriter, r *http.Request) {
 	// Проверка авторизации
 	cookie, err := r.Cookie("session_token")
 	if err != nil {
-		writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "не авторизован"})
+		writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "Не авторизован"})
 		return
 	}
 	session, ok := getSession(cookie.Value)
 	if !ok {
-		writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "не авторизован"})
+		writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "Не авторизован"})
 		return
 	}
 
@@ -249,7 +249,7 @@ func swipeHandler(w http.ResponseWriter, r *http.Request) {
 		Direction string `json:"direction"` // "left" или "right"
 	}
 	if err := readJSON(r, &req); err != nil {
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "неверный запрос"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Неверный запрос"})
 		return
 	}
 
