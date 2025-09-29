@@ -75,7 +75,7 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 		"email": user.Email,
 	})
 
-	fmt.Println("Registered user:", user.Email, user.Password)
+	fmt.Printf("%v: Registered user: %s, %s\n", time.Now(), user.Email, user.Password)
 }
 
 // loginHandler обрабатывает запросы пользователя на вход в систему
@@ -111,6 +111,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 
 	session := createSession(user.Email, 3600*time.Second)
 
+	fmt.Printf("%v: User: %s entered with session: %s\n", time.Now(), user.Email, session.Token)
 	http.SetCookie(w, &http.Cookie{
 		Name:     "session_token",
 		Value:    session.Token,
@@ -188,6 +189,7 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	// удаляем сессию
 	deleteSession(cookie.Value)
 
+	fmt.Printf("%v: Session - %s closed.\n", time.Now(), cookie.Value)
 	// очищаем куку
 	http.SetCookie(w, &http.Cookie{
 		Name:     "session_token",
