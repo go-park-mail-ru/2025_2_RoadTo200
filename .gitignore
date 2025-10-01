@@ -1,0 +1,7 @@
+/bin
+/vendor
+*.exe
+*.log
+*.env
+.vscode
+.DS_Store
