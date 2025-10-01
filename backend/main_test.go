@@ -23,7 +23,7 @@ func TestRegisterHandler(t *testing.T) {
 	cleanup()
 	t.Cleanup(cleanup)
 
-	payload := []byte(`{"email":"alice@test.com","password":"123456","passwordConfirm":"123456"}`)
+	payload := []byte(`{"email":"alice@test.com","password":"123456qwert","passwordConfirm":"123456qwert"}`)
 	req := httptest.NewRequest(http.MethodPost, "/api/register", bytes.NewBuffer(payload))
 	req.Header.Set("Content-Type", "application/json")
 
