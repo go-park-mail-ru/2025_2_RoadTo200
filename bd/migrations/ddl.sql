@@ -91,18 +91,17 @@ CREATE TABLE message (
     match_id UUID NOT NULL REFERENCES match(id) ON DELETE CASCADE,
     sender_id UUID NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
     message_text TEXT NOT NULL,
-    is_read BOOLEAN NOT NULL DEFAULT FALSE,
-    is_delivered BOOLEAN NOT NULL DEFAULT FALSE,
+    status SMALLINT NOT NULL DEFAULT 0,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    CONSTRAINT message_text_length_check CHECK (char_length(message_text) > 0 AND char_length(message_text) <= 1000)
+    CONSTRAINT message_text_length_check CHECK (char_length(message_text) > 0 AND char_length(message_text) <= 1000),
+    CONSTRAINT user_preference_age_range_check CHECK (0 <= status AND status <= 2),
 );
 
 CREATE INDEX ON message (match_id, created_at DESC);
 
 -- Таблица: subscription
 CREATE TABLE subscription (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
+    user_id UUID PRIMARY KEY REFERENCES "user"(id) ON DELETE CASCADE,
     plan_type plan_type_enum NOT NULL,
     start_date TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     end_date TIMESTAMPTZ NOT NULL,
@@ -110,5 +109,3 @@ CREATE TABLE subscription (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     CONSTRAINT subscription_date_check CHECK (end_date > start_date)
 );
-
-CREATE INDEX ON subscription (user_id);```

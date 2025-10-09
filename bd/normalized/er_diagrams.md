@@ -9,13 +9,13 @@ erDiagram
     user {
         UUID id PK
         TEXT email UK
-        TEXT phone UK
+        TEXT phone UK, N
         TEXT name
         DATE birth_date
         gender_enum gender
-        TEXT bio
-        DECIMAL latitude
-        DECIMAL longitude
+        TEXT bio N
+        DECIMAL latitude N
+        DECIMAL longitude N
         BOOLEAN is_verified
         BOOLEAN is_premium
         TIMESTAMPTZ last_active
@@ -63,14 +63,12 @@ erDiagram
         UUID match_id FK
         UUID sender_id FK
         TEXT message_text
-        BOOLEAN is_read
-        BOOLEAN is_delivered
+        INTEGER status
         TIMESTAMPTZ created_at
     }
 
     subscription {
-        UUID id PK
-        UUID user_id FK
+        UUID user_id PK,FK
         plan_type_enum plan_type
         TIMESTAMPTZ start_date
         TIMESTAMPTZ end_date
