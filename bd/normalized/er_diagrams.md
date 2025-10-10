@@ -9,13 +9,13 @@ erDiagram
     user {
         UUID id PK
         TEXT email UK
-        TEXT phone UK, N
+        TEXT phone UK "NN"
         TEXT name
         DATE birth_date
         gender_enum gender
-        TEXT bio N
-        DECIMAL latitude N
-        DECIMAL longitude N
+        TEXT bio "NN"
+        DECIMAL latitude "NN"
+        DECIMAL longitude "NN"
         BOOLEAN is_verified
         BOOLEAN is_premium
         TIMESTAMPTZ last_active
