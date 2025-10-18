@@ -11,13 +11,13 @@ erDiagram
         TEXT email UK
         TEXT phone UK "NN"
         TEXT name
+        TEXT password
         DATE birth_date
         gender_enum gender
         TEXT bio "NN"
         DECIMAL latitude "NN"
         DECIMAL longitude "NN"
         BOOLEAN is_verified
-        BOOLEAN is_premium
         TIMESTAMPTZ last_active
         TIMESTAMPTZ created_at
         TIMESTAMPTZ updated_at

@@ -28,7 +28,7 @@
 
 #### **Отношение: `user` (Пользователь)**
 
-*   **Атрибуты:** `{id, email, phone, name, birth_date, gender, bio, latitude, longitude, is_verified, is_premium, last_active, created_at, updated_at}`
+*   **Атрибуты:** `{id, email, phone, name, password, birth_date, gender, bio, latitude, longitude, is_verified, last_active, created_at, updated_at}`
 
 *   **Потенциальные ключи:**
     *   `{id}` - Уникальный идентификатор пользователя (UUID).
@@ -38,9 +38,9 @@
 *   **Первичный ключ:** `{id}` выбран в качестве первичного ключа как стабильный и уникальный идентификатор, не зависящий от изменяемой пользовательской информации (email или телефон могут быть изменены).
 
 *   **Функциональные зависимости:**
-    *   `{id} -> {email, phone, name, birth_date, gender, bio, latitude, longitude, is_verified, is_premium, last_active, created_at, updated_at}`
-    *   `{email} -> {id, phone, name, birth_date, gender, bio, latitude, longitude, is_verified, is_premium, last_active, created_at, updated_at}`
-    *   `{phone} -> {id, email, name, birth_date, gender, bio, latitude, longitude, is_verified, is_premium, last_active, created_at, updated_at}`
+    *   `{id} -> {email, phone, name, password, birth_date, gender, bio, latitude, longitude, is_verified, last_active, created_at, updated_at}`
+    *   `{email} -> {id, phone, name, password, birth_date, gender, bio, latitude, longitude, is_verified, last_active, created_at, updated_at}`
+    *   `{phone} -> {id, email, name, password, birth_date, gender, bio, latitude, longitude, is_verified, last_active, created_at, updated_at}`
 
 *   **Доказательство соответствия нормальным формам:**
     1.  **1НФ:** Все атрибуты являются атомарными, так как каждое поле хранит единственное скалярное значение.
