@@ -1,0 +1,119 @@
+basePath: /api
+host: localhost:8080
+info:
+  contact:
+    email: support@datingapp.com
+    name: API Support
+  description: API для dating приложения
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: http://swagger.io/terms/
+  title: Terabithia API
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Аутентифицирует пользователя и устанавливает сессию
+      parameters:
+      - description: Учетные данные для входа
+        in: body
+        name: request
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешный вход" example:{"id":"123","email":"user@example.com"}
+          schema:
+            type: object
+        "400":
+          description: Неверный формат запроса" example:{"error":"invalid request
+            body"}
+          schema:
+            type: object
+        "401":
+          description: Неверный email или пароль" example:{"error":"invalid email
+            or password"}
+          schema:
+            type: object
+      summary: Вход в систему
+      tags:
+      - auth
+  /auth/logout:
+    post:
+      description: Завершает текущую сессию пользователя
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешный выход" example:{"message":"logged out"}
+          schema:
+            type: object
+        "401":
+          description: Сессия не найдена" example:{"error":"no session"}
+          schema:
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера" example:{"error":"internal error"}
+          schema:
+            type: object
+      summary: Выход из системы
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Создает нового пользователя и устанавливает сессию
+      parameters:
+      - description: Данные для регистрации
+        in: body
+        name: request
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Пользователь создан" example:{"id":"123","email":"user@example.com"}
+          schema:
+            type: object
+        "400":
+          description: Неверный формат запроса" example:{"error":"invalid request
+            body"}
+          schema:
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера" example:{"error":"internal error"}
+          schema:
+            type: object
+      summary: Регистрация пользователя
+      tags:
+      - auth
+  /auth/session:
+    get:
+      description: Проверяет валидность текущей сессии и возвращает статус аутентификации
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Сессия не валидна" example:{"authenticated":false}
+          schema:
+            type: object
+      summary: Проверка сессии
+      tags:
+      - auth
+schemes:
+- http
+securityDefinitions:
+  SessionToken:
+    in: cookie
+    name: session_token
+    type: apiKey
+swagger: "2.0"
