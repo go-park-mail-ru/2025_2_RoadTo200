@@ -17,6 +17,14 @@ func NewSessionHandler(authService *service.AuthService) *SessionHandler {
 	}
 }
 
+// GetSession godoc
+// @Summary Проверка сессии
+// @Description Проверяет валидность текущей сессии пользователя
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Success 200 {object} SessionResponse
+// @Router /api/session [get]
 func (h *SessionHandler) GetSession(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("session_token")
 	if err != nil {

@@ -10,6 +10,24 @@ import (
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
 )
 
+// @title Terabithia API
+// @version 1.0
+// @description API для dating приложения
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name API Support
+// @contact.email support@datingapp.com
+
+// @license.name MIT
+// @license.url https://opensource.org/licenses/MIT
+
+// @host localhost:8080
+// @BasePath /api
+// @schemes http
+
+// @securityDefinitions.apikey SessionToken
+// @in cookie
+// @name session_token
 func main() {
 	// Инициализация репозиториев
 	userRepo := repository.NewInMemoryUserRepository()
