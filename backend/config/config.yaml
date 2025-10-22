@@ -1,0 +1,20 @@
+app:
+  host: localhost
+  port: 8080
+  prefix: /api/v1
+
+  logger:
+    level: debug
+
+  postgres:
+    host: PG_HOST
+    port: PG_PORT
+    base: PG_BASE
+    user: PG_USER
+    password: PG_PSWD
+
+  redis:
+    host: RD_HOST
+    port: RD_PORT
+    base: RD_BASE
+    password: RD_PSWD
