@@ -5,6 +5,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/joho/godotenv"
 	"gopkg.in/yaml.v2"
 )
 
@@ -52,6 +53,10 @@ type RedisConfig struct {
 func NewConfig() (*Config, error) {
 	configPath := "config/config.yaml"
 
+	err := godotenv.Load(".env")
+	if err != nil {
+		return nil, err
+	}
 	data, err := os.ReadFile(configPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read config file: %w", err)
@@ -69,7 +74,7 @@ func NewConfig() (*Config, error) {
 		MaxConn:     5,
 		MaxIdle:     10,
 		MaxActive:   0,
-		IdleTimeout: 240 * time.Second,
+		IdleTimeout: 4 * time.Minute,
 	}
 	if err := yaml.Unmarshal(data, &config); err != nil {
 		return nil, fmt.Errorf("failed to parse config: %w", err)

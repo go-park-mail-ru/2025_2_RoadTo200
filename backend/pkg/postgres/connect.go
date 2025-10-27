@@ -3,13 +3,11 @@ package postgres
 import (
 	"context"
 	"fmt"
-
-	"github.com/jackc/pgx/v5/pgxpool"
-
 	"os"
 	"strconv"
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/config"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func NewConnect(ctx context.Context, cfg *config.PostgresConfig) (*pgxpool.Pool, error) {
