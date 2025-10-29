@@ -1,20 +1,18 @@
 package interfaces
 
 import (
-	"context"
-
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/dto"
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	"github.com/google/uuid"
 )
 
 type MessageRepository interface {
-	Create(ctx context.Context, message *domain.Message) error
-	GetByID(ctx context.Context, id uuid.UUID) (*domain.Message, error)
-	GetByMatchID(ctx context.Context, matchID uuid.UUID, limit, offset int) ([]domain.Message, error)
-	UpdateStatus(ctx context.Context, id uuid.UUID, status int) error
-	Delete(ctx context.Context, id uuid.UUID) error
-	MarkMessagesAsRead(ctx context.Context, matchID, userID uuid.UUID) error
-	GetUnreadCount(ctx context.Context, userID uuid.UUID) (int, error)
-	GetConversations(ctx context.Context, userID uuid.UUID) ([]dto.Conversation, error)
+	Create(message *domain.Message) error
+	GetByID(id uuid.UUID) (*domain.Message, error)
+	GetByMatchID(matchID uuid.UUID, limit, offset int) ([]domain.Message, error)
+	UpdateStatus(id uuid.UUID, status int) error
+	Delete(id uuid.UUID) error
+	MarkMessagesAsRead(matchID, userID uuid.UUID) error
+	GetUnreadCount(userID uuid.UUID) (int, error)
+	GetConversations(userID uuid.UUID) ([]dto.Conversation, error)
 }

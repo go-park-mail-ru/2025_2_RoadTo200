@@ -20,13 +20,13 @@ func NewMessageRepository(pool *pgxpool.Pool) interfaces.MessageRepository {
 	return &messageRepository{pool: pool}
 }
 
-func (r *messageRepository) Create(ctx context.Context, message *domain.Message) error {
+func (r *messageRepository) Create(message *domain.Message) error {
 	query := `
 		INSERT INTO message (match_id, sender_id, message_text, status)
 		VALUES ($1, $2, $3, $4)
 		RETURNING id, created_at`
 
-	err := r.pool.QueryRow(ctx, query,
+	err := r.pool.QueryRow(context.Background(), query,
 		message.MatchID, message.SenderID, message.MessageText, message.Status).
 		Scan(&message.ID, &message.CreatedAt)
 
@@ -36,11 +36,11 @@ func (r *messageRepository) Create(ctx context.Context, message *domain.Message)
 	return nil
 }
 
-func (r *messageRepository) GetByID(ctx context.Context, id uuid.UUID) (*domain.Message, error) {
+func (r *messageRepository) GetByID(id uuid.UUID) (*domain.Message, error) {
 	var message domain.Message
 	query := `SELECT * FROM message WHERE id = $1`
 
-	err := r.pool.QueryRow(ctx, query, id).Scan(
+	err := r.pool.QueryRow(context.Background(), query, id).Scan(
 		&message.ID, &message.MatchID, &message.SenderID, &message.MessageText,
 		&message.Status, &message.CreatedAt,
 	)
@@ -54,14 +54,14 @@ func (r *messageRepository) GetByID(ctx context.Context, id uuid.UUID) (*domain.
 	return &message, nil
 }
 
-func (r *messageRepository) GetByMatchID(ctx context.Context, matchID uuid.UUID, limit, offset int) ([]domain.Message, error) {
+func (r *messageRepository) GetByMatchID(matchID uuid.UUID, limit, offset int) ([]domain.Message, error) {
 	query := `
 		SELECT * FROM message 
 		WHERE match_id = $1 
 		ORDER BY created_at ASC 
 		LIMIT $2 OFFSET $3`
 
-	rows, err := r.pool.Query(ctx, query, matchID, limit, offset)
+	rows, err := r.pool.Query(context.Background(), query, matchID, limit, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -83,40 +83,40 @@ func (r *messageRepository) GetByMatchID(ctx context.Context, matchID uuid.UUID,
 	return messages, nil
 }
 
-func (r *messageRepository) UpdateStatus(ctx context.Context, id uuid.UUID, status int) error {
+func (r *messageRepository) UpdateStatus(id uuid.UUID, status int) error {
 	query := `UPDATE message SET status = $1 WHERE id = $2`
 
-	_, err := r.pool.Exec(ctx, query, status, id)
+	_, err := r.pool.Exec(context.Background(), query, status, id)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (r *messageRepository) Delete(ctx context.Context, id uuid.UUID) error {
+func (r *messageRepository) Delete(id uuid.UUID) error {
 	query := `DELETE FROM message WHERE id = $1`
 
-	_, err := r.pool.Exec(ctx, query, id)
+	_, err := r.pool.Exec(context.Background(), query, id)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (r *messageRepository) MarkMessagesAsRead(ctx context.Context, matchID, userID uuid.UUID) error {
+func (r *messageRepository) MarkMessagesAsRead(matchID, userID uuid.UUID) error {
 	query := `
 		UPDATE message 
 		SET status = 1 
 		WHERE match_id = $1 AND sender_id != $2 AND status = 0`
 
-	_, err := r.pool.Exec(ctx, query, matchID, userID)
+	_, err := r.pool.Exec(context.Background(), query, matchID, userID)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (r *messageRepository) GetUnreadCount(ctx context.Context, userID uuid.UUID) (int, error) {
+func (r *messageRepository) GetUnreadCount(userID uuid.UUID) (int, error) {
 	query := `
 		SELECT COUNT(*) 
 		FROM message m
@@ -126,14 +126,14 @@ func (r *messageRepository) GetUnreadCount(ctx context.Context, userID uuid.UUID
 		AND m.status = 0`
 
 	var count int
-	err := r.pool.QueryRow(ctx, query, userID).Scan(&count)
+	err := r.pool.QueryRow(context.Background(), query, userID).Scan(&count)
 	if err != nil {
 		return 0, err
 	}
 	return count, nil
 }
 
-func (r *messageRepository) GetConversations(ctx context.Context, userID uuid.UUID) ([]dto.Conversation, error) {
+func (r *messageRepository) GetConversations(userID uuid.UUID) ([]dto.Conversation, error) {
 	query := `
 		SELECT 
 			m.id as match_id,
@@ -161,7 +161,7 @@ func (r *messageRepository) GetConversations(ctx context.Context, userID uuid.UU
 		WHERE (m.user1_id = $1 OR m.user2_id = $1) AND m.is_active = true
 		ORDER BY msg.created_at DESC NULLS LAST`
 
-	rows, err := r.pool.Query(ctx, query, userID)
+	rows, err := r.pool.Query(context.Background(), query, userID)
 	if err != nil {
 		return nil, err
 	}
