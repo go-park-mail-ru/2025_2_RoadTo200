@@ -3,6 +3,7 @@ package redis
 import (
 	"fmt"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/config"
@@ -11,9 +12,15 @@ import (
 
 func NewConnection(cfg *config.RedisConfig) (*redis.Pool, error) {
 	host := os.Getenv(cfg.Host)
-	port := os.Getenv(cfg.Port)
+	port, err := strconv.Atoi(os.Getenv(cfg.Port))
+	if err != nil {
+		return nil, err
+	}
 	password := os.Getenv(cfg.Password)
-	base := os.Getenv(cfg.Base)
+	base, err := strconv.Atoi(os.Getenv(cfg.Base))
+	if err != nil {
+		return nil, err
+	}
 	address := fmt.Sprintf("%s:%d", host, port)
 
 	pool := &redis.Pool{
