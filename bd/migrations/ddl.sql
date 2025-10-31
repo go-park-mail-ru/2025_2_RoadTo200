@@ -2,7 +2,7 @@
 
 -- Подключаем расширение для генерации UUID
 CREATE
-EXTENSION IF NOT EXISTS "pgcrypto";
+    EXTENSION IF NOT EXISTS "pgcrypto";
 
 -- Создаем пользовательские ENUM типы для повышения целостности данных
 CREATE TYPE gender_enum AS ENUM ('male', 'female');
@@ -29,9 +29,9 @@ CREATE TABLE "user"
     created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     CONSTRAINT user_email_check CHECK (email ~* '^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$'
-) ,
+        ),
     CONSTRAINT user_age_check CHECK (birth_date <= (NOW() - INTERVAL '18 years')::date),
-    CONSTRAINT user_name_length_check CHECK (LENGTH(TRIM(name)) BETWEEN 5 AND 100),
+    CONSTRAINT user_name_length_check CHECK (LENGTH(TRIM(name)) BETWEEN 1 AND 50),
     CONSTRAINT user_password_length_check CHECK (LENGTH(TRIM(password)) BETWEEN 8 AND 30),
     CONSTRAINT user_phone_format_check CHECK (phone IS NULL OR phone ~ '^\+?[0-9\s\-\(\)]{10,20}$'),
     CONSTRAINT user_bio_length_check CHECK (LENGTH(TRIM(bio)) < 255),
@@ -55,7 +55,7 @@ CREATE TABLE user_photo
 CREATE TABLE user_preference
 (
     user_id       UUID PRIMARY KEY REFERENCES "user" (id) ON DELETE CASCADE,
-    show_gender   gender_preference_enum NOT NULL DEFAULT 'both',
+    show_gender   gender_preference_enum NOT NULL DEFAULT 'male',
     age_min       SMALLINT               NOT NULL DEFAULT 18,
     age_max       SMALLINT               NOT NULL DEFAULT 99,
     max_distance  INT                    NOT NULL DEFAULT 100,
@@ -81,12 +81,12 @@ CREATE TABLE swipe
 -- Таблица: match
 CREATE TABLE match
 (
+    id         UUID PRIMARY KEY     DEFAULT gen_random_uuid(),
     user1_id   UUID        NOT NULL REFERENCES "user" (id) ON DELETE CASCADE,
     user2_id   UUID        NOT NULL REFERENCES "user" (id) ON DELETE CASCADE,
     is_active  BOOLEAN     NOT NULL DEFAULT TRUE,
     matched_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
-    PRIMARY KEY (user1_id, user2_id),
     CONSTRAINT match_no_self_match_check CHECK (user1_id <> user2_id)
 );
 
@@ -100,7 +100,7 @@ CREATE TABLE message
     status       SMALLINT    NOT NULL DEFAULT 0,
     created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     CONSTRAINT message_text_length_check CHECK (char_length(message_text) > 0 AND char_length(message_text) <= 1000),
-    CONSTRAINT user_preference_age_range_check CHECK (0 <= status AND status <= 2),
+    CONSTRAINT user_preference_age_range_check CHECK (0 <= status AND status <= 2)
 );
 
 -- Таблица: subscription
@@ -117,18 +117,23 @@ CREATE TABLE subscription
 
 -- Функция для обновления updated_at
 CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER AS $$
+    RETURNS TRIGGER AS
+$$
 BEGIN
     NEW.updated_at = NOW();
-RETURN NEW;
+    RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
 -- Триггеры для автоматического обновления updated_at
 CREATE TRIGGER update_user_updated_at
-    BEFORE UPDATE ON "user"
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+    BEFORE UPDATE
+    ON "user"
+    FOR EACH ROW
+EXECUTE FUNCTION update_updated_at_column();
 
 CREATE TRIGGER update_user_preference_updated_at
-    BEFORE UPDATE ON user_preference
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+    BEFORE UPDATE
+    ON user_preference
+    FOR EACH ROW
+EXECUTE FUNCTION update_updated_at_column();

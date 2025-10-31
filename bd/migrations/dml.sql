@@ -1,10 +1,10 @@
 -- Миграция 002: Наполнение базы данных начальными данными
 
 -- Создание пользователей
-INSERT INTO "user" (email, phone, name, birth_date, gender) VALUES
-        ('ivan.petrov@example.com', '+79161234567', 'Иван', '1993-03-22', 'male'),
-        ('maria.sidorova@example.com', '+79267654321', 'Мария', '1996-07-11', 'female'),
-        ('alexey.smirnov@example.com', '+79035558899', 'Алексей', '1990-12-01', 'male');
+INSERT INTO "user" (email, password, phone, name, birth_date, gender) VALUES
+        ('ivan.petrov@example.com', 'ivan1111', '+79161234567', 'Иванdd', '1993-03-22', 'male'),
+        ('maria.sidorova@example.com', 'maria111', '+79267654321', 'Марddия', '1996-07-11', 'female'),
+        ('alexey.smirnov@example.com', 'alexey1111', '+79035558899', 'Алексddей', '1990-12-01', 'male');
 
 -- Создание их предпочтений
 INSERT INTO user_preference (user_id, show_gender, age_min, age_max) VALUES
@@ -20,7 +20,7 @@ INSERT INTO swipe (swiper_user_id, target_user_id, swipe_type) VALUES
 
 -- Создание мэтча между Иваном и Марией
 INSERT INTO match (user1_id, user2_id) VALUES
-    ((SELECT id FROM "user" WHERE email = 'ivan.petrov@example.com'), (SELECT id FROM "user" WHERE email = 'maria.sidorova@example.com'));
+        ((SELECT id FROM "user" WHERE email = 'ivan.petrov@example.com'), (SELECT id FROM "user" WHERE email = 'maria.sidorova@example.com'));
 
 -- Добавление сообщений в их мэтч
 WITH chat_data AS (
