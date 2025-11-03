@@ -25,13 +25,10 @@ func (r *subscriptionRepository) Create(subscription *domain.Subscription) error
 		VALUES ($1, $2, $3, $4, $5)`
 	ctx := context.Background()
 
-	r.pool.QueryRow(ctx, query,
+	_, err := r.pool.Exec(ctx, query,
 		subscription.UserID, subscription.PlanType, subscription.StartDate, subscription.EndDate, subscription.IsActive)
 
-	if ctx.Err() != nil {
-		return context.Background().Err()
-	}
-	return nil
+	return err
 }
 
 func (r *subscriptionRepository) GetByUserID(userID uuid.UUID) (*domain.Subscription, error) {

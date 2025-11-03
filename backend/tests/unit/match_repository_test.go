@@ -20,8 +20,8 @@ func TestMatchRepository_Create(t *testing.T) {
 
 	repo := repository.NewMatchRepository(mock)
 
-	user1ID := uuid.New()
-	user2ID := uuid.New()
+	user2ID, _ := uuid.Parse("a1fe064b-b020-4efd-be2f-d86b031431c2")
+	user1ID, _ := uuid.Parse("6fa17495-76eb-4cf8-b6f9-a4f9b525377c")
 
 	match := &domain.Match{
 		User1ID:  user1ID,
@@ -81,8 +81,8 @@ func TestMatchRepository_GetByUsers(t *testing.T) {
 
 	repo := repository.NewMatchRepository(mock)
 
-	user1ID := uuid.New()
-	user2ID := uuid.New()
+	user2ID, _ := uuid.Parse("a1fe064b-b020-4efd-be2f-d86b031431c2")
+	user1ID, _ := uuid.Parse("6fa17495-76eb-4cf8-b6f9-a4f9b525377c")
 
 	expectedMatch := &domain.Match{
 		User1ID:   user1ID,
@@ -152,11 +152,11 @@ func TestMatchRepository_GetByUsers_NotFound(t *testing.T) {
 
 	repo := repository.NewMatchRepository(mock)
 
-	user1ID := uuid.New()
-	user2ID := uuid.New()
+	user1ID := uuid.MustParse("ffffffff-ffff-ffff-ffff-ffffffffffff")
+	user2ID := uuid.MustParse("00000000-0000-0000-0000-000000000000")
 
 	mock.ExpectQuery("SELECT \\* FROM match WHERE user1_id = \\$1 AND user2_id = \\$2").
-		WithArgs(user1ID, user2ID).
+		WithArgs(user2ID, user1ID).
 		WillReturnError(pgx.ErrNoRows)
 
 	match, err := repo.GetByUsers(user1ID, user2ID)
@@ -242,8 +242,8 @@ func TestMatchRepository_UpdateActive(t *testing.T) {
 
 	repo := repository.NewMatchRepository(mock)
 
-	user1ID := uuid.New()
-	user2ID := uuid.New()
+	user2ID, _ := uuid.Parse("a1fe064b-b020-4efd-be2f-d86b031431c2")
+	user1ID, _ := uuid.Parse("6fa17495-76eb-4cf8-b6f9-a4f9b525377c")
 	isActive := false
 
 	mock.ExpectExec("UPDATE match SET is_active = \\$1 WHERE user1_id = \\$2 AND user2_id = \\$3").
@@ -263,8 +263,8 @@ func TestMatchRepository_UpdateActive_WithOrderNormalization(t *testing.T) {
 	repo := repository.NewMatchRepository(mock)
 
 	// user1ID будет "больше" user2ID в лексикографическом порядке
-	user1ID := uuid.MustParse("ffffffff-ffff-ffff-ffff-ffffffffffff")
-	user2ID := uuid.MustParse("00000000-0000-0000-0000-000000000000")
+	user1ID, _ := uuid.Parse("a1fe064b-b020-4efd-be2f-d86b031431c2")
+	user2ID, _ := uuid.Parse("6fa17495-76eb-4cf8-b6f9-a4f9b525377c")
 	isActive := false
 
 	// Ожидаем, что в запросе IDs будут в нормализованном порядке
@@ -284,8 +284,8 @@ func TestMatchRepository_Delete(t *testing.T) {
 
 	repo := repository.NewMatchRepository(mock)
 
-	user1ID := uuid.New()
-	user2ID := uuid.New()
+	user2ID, _ := uuid.Parse("a1fe064b-b020-4efd-be2f-d86b031431c2")
+	user1ID, _ := uuid.Parse("6fa17495-76eb-4cf8-b6f9-a4f9b525377c")
 
 	mock.ExpectExec("DELETE FROM match WHERE user1_id = \\$1 AND user2_id = \\$2").
 		WithArgs(user1ID, user2ID).
@@ -370,8 +370,8 @@ func TestMatchRepository_Create_Error(t *testing.T) {
 
 	repo := repository.NewMatchRepository(mock)
 
-	user1ID := uuid.New()
-	user2ID := uuid.New()
+	user2ID, _ := uuid.Parse("a1fe064b-b020-4efd-be2f-d86b031431c2")
+	user1ID, _ := uuid.Parse("6fa17495-76eb-4cf8-b6f9-a4f9b525377c")
 
 	match := &domain.Match{
 		User1ID:  user1ID,
@@ -395,8 +395,8 @@ func TestMatchRepository_UpdateActive_Error(t *testing.T) {
 
 	repo := repository.NewMatchRepository(mock)
 
-	user1ID := uuid.New()
-	user2ID := uuid.New()
+	user2ID, _ := uuid.Parse("a1fe064b-b020-4efd-be2f-d86b031431c2")
+	user1ID, _ := uuid.Parse("6fa17495-76eb-4cf8-b6f9-a4f9b525377c")
 	isActive := false
 
 	mock.ExpectExec("UPDATE match SET is_active = \\$1 WHERE user1_id = \\$2 AND user2_id = \\$3").
