@@ -35,6 +35,7 @@ require (
 	github.com/kr/pretty v0.3.0 // indirect
 	github.com/mailru/easyjson v0.7.6 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/rafaeljusto/redigomock v2.4.0+incompatible // indirect
 	github.com/rogpeppe/go-internal v1.14.1 // indirect
 	golang.org/x/mod v0.27.0 // indirect
 	golang.org/x/net v0.43.0 // indirect
