@@ -9,8 +9,10 @@ import (
 	//"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/http"
 	handler "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/http"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/middleware"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/implementations/minio"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/implementations/postgres"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/implementations/redis"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/utils"
 
 	//"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/config"
@@ -62,7 +64,15 @@ func main() {
 	}
 	defer redisPool.Close()
 
+	// Инициализация MinIO
+	minioStorage, err := minio.NewMinIOStorage(&cfg.MinIO)
+	if err != nil {
+		log.Fatal("Failed to connect to MinIO: ", err)
+	}
+	log.Println("✅ MinIO connected successfully")
+
 	log.Println("✅ All connections established")
+
 	// Репозитории
 	userRepo := postgres.NewUserRepository(pool)
 	sessionRepo := redis.NewSessionRepository(redisPool)
@@ -70,12 +80,21 @@ func main() {
 	// Сервисы
 	authService := service.NewAuthService(userRepo, sessionRepo)
 
+	profileService := service.NewProfileService(
+		userRepo,
+		postgres.NewUserPhotoRepository(pool),      // нужно создать эту реализацию
+		postgres.NewUserPreferenceRepository(pool), // и эту
+		minioStorage,
+	)
+
 	// Обработчики
 	authHandler := handler.NewAuthHandler(authService)
 	sessionHandler := handler.NewSessionHandler(authService)
+	profileHandler := handler.NewProfileHandler(profileService)
 
 	// Middleware
 	corsMiddleware := middleware.CORSMiddleware
+	authMiddleware := middleware.AuthMiddleware(authService)
 
 	// Маршруты
 	http.Handle("/api/register", corsMiddleware(http.HandlerFunc(authHandler.Register)))
@@ -83,9 +102,9 @@ func main() {
 	http.Handle("/api/session", corsMiddleware(http.HandlerFunc(sessionHandler.GetSession)))
 	http.Handle("/api/logout", corsMiddleware(http.HandlerFunc(authHandler.Logout)))
 
-	// Защищенные маршруты (добавятся позже)
-	// http.Handle("/api/feed", corsMiddleware(authMiddleware(http.HandlerFunc(feedHandler.Feed))))
-	// http.Handle("/api/swipe", corsMiddleware(authMiddleware(http.HandlerFunc(swipeHandler.Swipe))))
+	// Защищенные маршруты профиля
+	http.Handle("/api/profile/profile", corsMiddleware(authMiddleware(http.HandlerFunc(profileHandler.GetProfile))))
+	http.Handle("/api/profile/changeProfile", corsMiddleware(authMiddleware(http.HandlerFunc(profileHandler.ChangeProfile))))
 
 	addr := fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)
 	log.Printf("Server starting on %s", addr)
@@ -93,4 +112,12 @@ func main() {
 	if err := http.ListenAndServe(addr, nil); err != nil {
 		log.Fatal("Server failed: ", err)
 	}
+}
+
+// Health handler
+func healthHandler(w http.ResponseWriter, r *http.Request) {
+	utils.WriteJSON(w, http.StatusOK, map[string]string{
+		"status": "ok",
+		"app":    "terabithia app",
+	})
 }

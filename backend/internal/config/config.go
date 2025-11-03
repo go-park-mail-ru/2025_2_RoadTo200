@@ -21,6 +21,7 @@ type Config struct {
 	Logger   LoggerConfig   `yaml:"logger"`
 	Postgres PostgresConfig `yaml:"postgres"`
 	Redis    RedisConfig    `yaml:"redis"`
+	MinIO    MinIOConfig    `yaml:"minio"`
 }
 
 type LoggerConfig struct {
@@ -49,6 +50,15 @@ type RedisConfig struct {
 	MaxIdle     int           `yaml:"max_idle"`
 	MaxActive   int           `yaml:"max_active"`
 	IdleTimeout time.Duration `yaml:"idle_timeout"`
+}
+
+type MinIOConfig struct {
+	Endpoint        string `yaml:"endpoint"`
+	AccessKeyID     string `yaml:"access_key_id"`
+	SecretAccessKey string `yaml:"secret_access_key"`
+	UseSSL          bool   `yaml:"use_ssl"`
+	BucketName      string `yaml:"bucket_name"`
+	Region          string `yaml:"region"`
 }
 
 func NewConfig() (*Config, error) {

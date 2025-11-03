@@ -7,7 +7,7 @@ app:
   postgres:
     host: "localhost"
     port: "5435"  # ← убедись что порт указан как строка
-    base: "dating_app"
+    base: "terabithia_app"
     user: "postgres"
     password: "password"
     min_conns: 1
@@ -24,3 +24,10 @@ app:
     max_idle: 10
     max_active: 0
     idle_timeout: 4m
+  minio:
+    endpoint: "localhost:9000"
+    access_key_id: "minioadmin"
+    secret_access_key: "minioadmin"
+    use_ssl: false
+    bucket_name: "terabithia-photos"
+    region: "us-east-1"
