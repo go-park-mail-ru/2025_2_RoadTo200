@@ -1,20 +1,26 @@
 app:
-  host: localhost
+  host: "localhost"
   port: 8080
-  prefix: /api/v1
-
+  prefix: "/api/v1"
   logger:
-    level: debug
-
+    level: "debug"
   postgres:
-    host: PG_HOST
-    port: PG_PORT
-    base: PG_BASE
-    user: PG_USER
-    password: PG_PSWD
-
+    host: "localhost"
+    port: "5435"  # ← убедись что порт указан как строка
+    base: "dating_app"
+    user: "postgres"
+    password: "password"
+    min_conns: 1
+    max_conns: 5
+    max_life: 1h
+    max_idle: 30m
+    health_check_interval: 1m
   redis:
-    host: RD_HOST
-    port: RD_PORT
-    base: RD_BASE
-    password: RD_PSWD
+    host: "localhost"
+    port: "6377"  # ← и здесь тоже как строка
+    base: "0"
+    password: ""
+    max_conn: 5
+    max_idle: 10
+    max_active: 0
+    idle_timeout: 4m

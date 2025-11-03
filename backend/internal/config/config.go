@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"time"
 
@@ -55,30 +56,27 @@ func NewConfig() (*Config, error) {
 
 	err := godotenv.Load(".env")
 	if err != nil {
-		return nil, err
+		log.Printf("⚠️  No .env file found: %v", err)
+	} else {
+		log.Println("✅ .env file loaded")
 	}
 	data, err := os.ReadFile(configPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read config file: %w", err)
 	}
 
+	log.Printf("✅ Config file read: %s", configPath)
+
 	var config appConfig
-	config.App.Postgres = PostgresConfig{
-		MinConns:            1,
-		MaxConns:            5,
-		MaxLife:             time.Hour,
-		MaxIdle:             30 * time.Minute,
-		HealthCheckInterval: time.Minute,
-	}
-	config.App.Redis = RedisConfig{
-		MaxConn:     5,
-		MaxIdle:     10,
-		MaxActive:   0,
-		IdleTimeout: 4 * time.Minute,
-	}
 	if err := yaml.Unmarshal(data, &config); err != nil {
 		return nil, fmt.Errorf("failed to parse config: %w", err)
 	}
+
+	log.Printf("🔍 Config after YAML parse: Host=%s, Port=%d", config.App.Host, config.App.Port)
+	log.Printf("🔍 PostgreSQL Config: Host=%s, Port=%s, User=%s",
+		config.App.Postgres.Host, config.App.Postgres.Port, config.App.Postgres.User)
+	log.Printf("🔍 Redis Config: Host=%s, Port=%s",
+		config.App.Redis.Host, config.App.Redis.Port)
 
 	return &config.App, nil
 }

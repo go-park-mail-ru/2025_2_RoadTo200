@@ -46,10 +46,10 @@ func New(cfg *config.LoggerConfig) *Logger {
 		}
 	}
 	return &Logger{
-		out:       os.Stdout,
-		level:     lvl,
-		prefix:    cfg.Prefix,
-		color:     cfg.Color,
-		timestamp: cfg.Timestamp,
+		out:   os.Stdout,
+		level: lvl,
+		// prefix:    cfg.Prefix,
+		// color:     cfg.Color,
+		// timestamp: cfg.Timestamp,
 	}
 }

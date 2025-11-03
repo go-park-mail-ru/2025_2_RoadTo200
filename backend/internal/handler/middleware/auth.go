@@ -3,7 +3,7 @@ package middleware
 import (
 	"net/http"
 
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/implementations"
 )
 
 func AuthMiddleware(authService *service.AuthService) func(http.Handler) http.Handler {
