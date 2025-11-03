@@ -21,7 +21,10 @@ type Config struct {
 }
 
 type LoggerConfig struct {
-	Level string `yaml:"level"`
+	Level     string
+	Prefix    string
+	Color     bool
+	Timestamp bool
 }
 
 type PostgresConfig struct {
@@ -48,6 +51,12 @@ func NewConfig() (*Config, error) {
 	}
 
 	var config appConfig
+	config.App.Logger = LoggerConfig{
+		Level:     "info",
+		Prefix:    "",
+		Color:     true,
+		Timestamp: true,
+	}
 	if err := yaml.Unmarshal(data, &config); err != nil {
 		return nil, fmt.Errorf("failed to parse config: %w", err)
 	}
