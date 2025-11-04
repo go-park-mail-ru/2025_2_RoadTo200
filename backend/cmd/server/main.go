@@ -3,12 +3,12 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 
 	//"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/http"
 	handler "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/http"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/middleware"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/implementations/minio"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/implementations/postgres"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/implementations/redis"
@@ -47,37 +47,39 @@ import (
 // @name session_token
 func main() {
 	// Загрузка конфигурации
-	log.Println("🚀 Starting server...")
+	logger.Println("🚀 Starting server...")
 	cfg, err := config.NewConfig()
 	if err != nil {
-		log.Fatal("❌ Failed to load config: ", err)
+		logger.Fatal("❌ Failed to load config: ", err)
 	}
-	log.Printf("✅ Config loaded: %s:%d", cfg.Host, cfg.Port)
+	logger.Printf("✅ Config loaded: %s:%d", cfg.Host, cfg.Port)
+
+	_ = logger.New(&cfg.Logger)
 
 	// Инициализация PostgreSQL через pkg/postgres
-	log.Println("🔌 Connecting to PostgreSQL...")
+	logger.Println("🔌 Connecting to PostgreSQL...")
 	pool, err := postgres_connect.NewConnect(context.Background(), &cfg.Postgres)
 	if err != nil {
-		log.Fatal("❌ Failed to connect to PostgreSQL: ", err)
+		logger.Fatal("❌ Failed to connect to PostgreSQL: ", err)
 	}
 	defer pool.Close()
 
 	// Инициализация Redis через pkg/redis
-	log.Println("🔌 Connecting to Redis...")
+	logger.Println("🔌 Connecting to Redis...")
 	redisPool, err := redis_connect.NewConnection(&cfg.Redis)
 	if err != nil {
-		log.Fatal("❌ Failed to connect to Redis: ", err)
+		logger.Fatal("❌ Failed to connect to Redis: ", err)
 	}
 	defer redisPool.Close()
 
 	// Инициализация MinIO
 	minioStorage, err := minio.NewMinIOStorage(&cfg.MinIO)
 	if err != nil {
-		log.Fatal("Failed to connect to MinIO: ", err)
+		logger.Fatal("Failed to connect to MinIO: ", err)
 	}
-	log.Println("✅ MinIO connected successfully")
+	logger.Println("✅ MinIO connected successfully")
 
-	log.Println("✅ All connections established")
+	logger.Println("✅ All connections established")
 
 	// Репозитории
 	userRepo := postgres.NewUserRepository(pool)
@@ -133,10 +135,10 @@ func main() {
 	))
 
 	addr := fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)
-	log.Printf("Server starting on %s", addr)
+	logger.Printf("Server starting on %s", addr)
 
 	if err := http.ListenAndServe(addr, nil); err != nil {
-		log.Fatal("Server failed: ", err)
+		logger.Fatal("Server failed: ", err)
 	}
 }
 
