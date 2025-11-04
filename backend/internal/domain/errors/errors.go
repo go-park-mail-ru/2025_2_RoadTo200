@@ -36,4 +36,7 @@ var (
 	// Swipe errors
 	ErrInvalidSwipeAction = errors.New("invalid swipe action")
 	ErrCannotSwipeSelf    = errors.New("cannot swipe yourself")
+
+	// Match errors
+	ErrMatchNotFound = errors.New("match not found")
 )

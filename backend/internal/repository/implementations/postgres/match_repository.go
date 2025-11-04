@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
@@ -67,14 +68,16 @@ func (r *matchRepository) GetByUsers(user1ID, user2ID uuid.UUID) (*domain.Match,
 
 func (r *matchRepository) GetUserMatches(userID uuid.UUID, limit, offset int) ([]domain.Match, error) {
 	query := `
-		SELECT * FROM match 
-		WHERE (user1_id = $1 OR user2_id = $1) AND is_active = true
-		ORDER BY matched_at DESC 
-		LIMIT $2 OFFSET $3`
+        SELECT id, user1_id, user2_id, is_active, matched_at 
+        FROM match 
+        WHERE (user1_id = $1 OR user2_id = $1) 
+        AND is_active = true
+        ORDER BY matched_at DESC 
+        LIMIT $2 OFFSET $3`
 
 	rows, err := r.pool.Query(context.Background(), query, userID, limit, offset)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get user matches: %w", err)
 	}
 	defer rows.Close()
 
@@ -82,10 +85,14 @@ func (r *matchRepository) GetUserMatches(userID uuid.UUID, limit, offset int) ([
 	for rows.Next() {
 		var match domain.Match
 		err := rows.Scan(
-			&match.User1ID, &match.User2ID, &match.IsActive, &match.MatchedAt,
+			&match.ID,
+			&match.User1ID,
+			&match.User2ID,
+			&match.IsActive,
+			&match.MatchedAt,
 		)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to scan match: %w", err)
 		}
 		matches = append(matches, match)
 	}

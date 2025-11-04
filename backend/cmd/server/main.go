@@ -96,6 +96,11 @@ func main() {
 		postgres.NewSwipeRepository(pool),
 		postgres.NewMatchRepository(pool),
 	)
+	matchService := service.NewMatchService(
+		postgres.NewMatchRepository(pool),
+		userRepo,
+		postgres.NewSwipeRepository(pool),
+	)
 
 	// Обработчики
 	authHandler := handler.NewAuthHandler(authService)
@@ -103,6 +108,7 @@ func main() {
 	feedHandler := handler.NewFeedHandler(feedService)
 	profileHandler := handler.NewProfileHandler(profileService)
 	swipeHandler := handler.NewSwipeHandler(swipeService)
+	matchHandler := handler.NewMatchHandler(matchService)
 
 	// Middleware
 	corsMiddleware := middleware.CORSMiddleware
@@ -119,6 +125,8 @@ func main() {
 	http.Handle("/api/profile/changeProfile", corsMiddleware(authMiddleware(http.HandlerFunc(profileHandler.ChangeProfile))))
 	http.Handle("/api/feed", corsMiddleware(authMiddleware(http.HandlerFunc(feedHandler.GetFeed))))
 	http.Handle("/api/swipe", corsMiddleware(authMiddleware(http.HandlerFunc(swipeHandler.ProcessSwipe))))
+	http.Handle("/api/matches", corsMiddleware(authMiddleware(http.HandlerFunc(matchHandler.GetUserMatches))))
+	http.Handle("/api/matches/unmatch", corsMiddleware(authMiddleware(http.HandlerFunc(matchHandler.Unmatch))))
 
 	http.Handle("/swagger/", httpSwagger.Handler(
 		httpSwagger.URL("http://localhost:8080/swagger/doc.json"), // URL для doc.json
