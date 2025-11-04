@@ -6,7 +6,7 @@ CREATE
 
 -- Создаем пользовательские ENUM типы для повышения целостности данных
 CREATE TYPE gender_enum AS ENUM ('male', 'female');
-CREATE TYPE gender_preference_enum AS ENUM ('male', 'female');
+CREATE TYPE gender_preference_enum AS ENUM ('male', 'female', 'both');
 CREATE TYPE swipe_type_enum AS ENUM ('like', 'dislike', 'super_like');
 CREATE TYPE plan_type_enum AS ENUM ('premium', 'gold', 'platinum');
 
@@ -28,8 +28,7 @@ CREATE TABLE "user"
     last_active TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    CONSTRAINT user_email_check CHECK (email ~* '^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$'
-        ),
+    CONSTRAINT user_email_check CHECK (email ~* '^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$'),
     CONSTRAINT user_age_check CHECK (birth_date <= (NOW() - INTERVAL '18 years')::date),
     CONSTRAINT user_name_length_check CHECK (LENGTH(TRIM(name)) BETWEEN 1 AND 50),
     CONSTRAINT user_password_length_check CHECK (LENGTH(TRIM(password)) BETWEEN 8 AND 30),
