@@ -77,7 +77,7 @@ func NewConfig() (*Config, error) {
 
 	var config appConfig
 	config.App.Logger = LoggerConfig{
-		Level:     "info",
+		Level:     "INFO",
 		Prefix:    "",
 		Color:     true,
 		Timestamp: true,

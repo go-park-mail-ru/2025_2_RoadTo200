@@ -6,6 +6,7 @@ import (
 	//"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/errors"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
@@ -14,12 +15,14 @@ import (
 type AuthService struct {
 	userRepo    interfaces.UserRepository
 	sessionRepo interfaces.SessionRepository
+	logger      *logger.Logger
 }
 
-func NewAuthService(userRepo interfaces.UserRepository, sessionRepo interfaces.SessionRepository) *AuthService {
+func NewAuthService(userRepo interfaces.UserRepository, sessionRepo interfaces.SessionRepository, l *logger.Logger) *AuthService {
 	return &AuthService{
 		userRepo:    userRepo,
 		sessionRepo: sessionRepo,
+		logger:      l,
 	}
 }
 
@@ -53,12 +56,13 @@ func (s *AuthService) Register(email, password, passwordConfirm string) (*domain
 		ID:         uuid.New(),
 		Email:      email,
 		Password:   string(hashedPassword),
-		Name:       "",     // можно генерировать или оставить пустым
-		Gender:     "male", // ← пустая строка вместо NULL
+		Name:       "NAAAAAAne", // можно генерировать или оставить пустым
+		Gender:     "male",      // ← пустая строка вместо NULL
 		IsVerified: true,
 		CreatedAt:  time.Now(),
 		UpdatedAt:  time.Now(),
 	}
+	s.logger.Debugf("User registered: %v", user)
 
 	if err := s.userRepo.Create(user); err != nil {
 		return nil, nil, err

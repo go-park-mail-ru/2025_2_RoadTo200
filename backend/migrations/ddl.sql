@@ -29,7 +29,7 @@ CREATE TABLE "user"
     CONSTRAINT user_email_check CHECK (email ~* '^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$'),
     CONSTRAINT user_age_check CHECK (birth_date <= (NOW() - INTERVAL '18 years')::date),
     CONSTRAINT user_name_length_check CHECK (LENGTH(TRIM(name)) BETWEEN 1 AND 50),
-    CONSTRAINT user_password_length_check CHECK (LENGTH(TRIM(password)) BETWEEN 8 AND 30),
+    CONSTRAINT user_password_length_check CHECK (LENGTH(TRIM(password)) BETWEEN 8 AND 60),
     CONSTRAINT user_phone_format_check CHECK (phone IS NULL OR phone ~ '^\+?[0-9\s\-\(\)]{10,20}$'),
     CONSTRAINT user_bio_length_check CHECK (LENGTH(TRIM(bio)) < 255),
     CONSTRAINT user_latitude_check CHECK (latitude IS NULL OR (latitude BETWEEN -90 AND 90)),

@@ -12,7 +12,9 @@ import (
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/implementations/minio"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/implementations/postgres"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/implementations/redis"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/httpserver"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/utils"
+	httpSwagger "github.com/swaggo/http-swagger"
 
 	//"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/config"
@@ -21,7 +23,6 @@ import (
 	redis_connect "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/redis"
 
 	_ "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/api/docs" // импорт сгенерированной docs
-	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 // @title Terabithia API
@@ -35,7 +36,7 @@ import (
 // @license.name MIT
 // @license.url https://opensource.org/licenses/MIT
 
-// @host 0.0.0.0:8080
+// @host localhost:8080
 // @BasePath /api
 // @securityDefinitions.apikey ApiKeyAuth
 // @schemes http
@@ -54,7 +55,7 @@ func main() {
 	}
 	logger.Printf("✅ Config loaded: %s:%d", cfg.Host, cfg.Port)
 
-	_ = logger.New(&cfg.Logger)
+	logg := logger.New(&cfg.Logger)
 
 	// Инициализация PostgreSQL через pkg/postgres
 	logger.Println("🔌 Connecting to PostgreSQL...")
@@ -86,7 +87,7 @@ func main() {
 	sessionRepo := redis.NewSessionRepository(redisPool)
 
 	// Сервисы
-	authService := service.NewAuthService(userRepo, sessionRepo)
+	authService := service.NewAuthService(userRepo, sessionRepo, logg)
 	feedService := service.NewFeedService(userRepo)
 	profileService := service.NewProfileService(
 		userRepo,
@@ -112,32 +113,34 @@ func main() {
 	swipeHandler := handler.NewSwipeHandler(swipeService)
 	matchHandler := handler.NewMatchHandler(matchService)
 
+	server := httpserver.NewServer()
 	// Middleware
-	corsMiddleware := middleware.CORSMiddleware
-	authMiddleware := middleware.AuthMiddleware(authService)
+	server.AddMiddleware(middleware.LogMiddleware(logg))
+	server.AddMiddleware(middleware.CORSMiddleware)
 
 	// Маршруты
-	http.Handle("/api/register", corsMiddleware(http.HandlerFunc(authHandler.Register)))
-	http.Handle("/api/login", corsMiddleware(http.HandlerFunc(authHandler.Login)))
-	http.Handle("/api/session", corsMiddleware(http.HandlerFunc(sessionHandler.GetSession)))
-	http.Handle("/api/logout", corsMiddleware(http.HandlerFunc(authHandler.Logout)))
+	server.AddHandler("/api/register", http.HandlerFunc(authHandler.Register))
+	server.AddHandler("/api/login", http.HandlerFunc(authHandler.Login))
+	server.AddHandler("/api/session", http.HandlerFunc(sessionHandler.GetSession))
+	server.AddHandler("/api/logout", http.HandlerFunc(authHandler.Logout))
 
+	server.AddMiddleware(middleware.AuthMiddleware(authService))
 	// Защищенные маршруты
-	http.Handle("/api/profile/profile", corsMiddleware(authMiddleware(http.HandlerFunc(profileHandler.GetProfile))))
-	http.Handle("/api/profile/changeProfile", corsMiddleware(authMiddleware(http.HandlerFunc(profileHandler.ChangeProfile))))
-	http.Handle("/api/feed", corsMiddleware(authMiddleware(http.HandlerFunc(feedHandler.GetFeed))))
-	http.Handle("/api/swipe", corsMiddleware(authMiddleware(http.HandlerFunc(swipeHandler.ProcessSwipe))))
-	http.Handle("/api/matches", corsMiddleware(authMiddleware(http.HandlerFunc(matchHandler.GetUserMatches))))
-	http.Handle("/api/matches/unmatch", corsMiddleware(authMiddleware(http.HandlerFunc(matchHandler.Unmatch))))
+	server.AddHandler("/api/profile/profile", http.HandlerFunc(profileHandler.GetProfile))
+	server.AddHandler("/api/profile/changeProfile", http.HandlerFunc(profileHandler.ChangeProfile))
+	server.AddHandler("/api/feed", http.HandlerFunc(feedHandler.GetFeed))
+	server.AddHandler("/api/swipe", http.HandlerFunc(swipeHandler.ProcessSwipe))
+	server.AddHandler("/api/matches", http.HandlerFunc(matchHandler.GetUserMatches))
+	server.AddHandler("/api/matches/unmatch", http.HandlerFunc(matchHandler.Unmatch))
 
-	http.Handle("/swagger/", corsMiddleware(httpSwagger.Handler(
+	server.AddHandler("/swagger/", httpSwagger.Handler(
 		httpSwagger.URL(fmt.Sprintf("http://%s:%d/swagger/doc.json", cfg.Host, cfg.Port)), // URL для doc.json
-	)))
+	))
 
 	addr := fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)
 	logger.Printf("Server starting on %s", addr)
 
-	if err := http.ListenAndServe(addr, nil); err != nil {
+	if err := server.Run(addr); err != nil {
 		logger.Fatal("Server failed: ", err)
 	}
 }
