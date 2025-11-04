@@ -8,11 +8,14 @@ import (
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v4"
 )
 
-func NewSubscriptionRepository(pool *pgxpool.Pool) interfaces.SubscriptionRepository {
+type subscriptionRepository struct {
+	pool interfaces.PgxIface
+}
+
+func NewSubscriptionRepository(pool interfaces.PgxIface) interfaces.SubscriptionRepository {
 	return &subscriptionRepository{pool: pool}
 }
 
@@ -22,13 +25,10 @@ func (r *subscriptionRepository) Create(subscription *domain.Subscription) error
 		VALUES ($1, $2, $3, $4, $5)`
 	ctx := context.Background()
 
-	r.pool.QueryRow(ctx, query,
+	_, err := r.pool.Exec(ctx, query,
 		subscription.UserID, subscription.PlanType, subscription.StartDate, subscription.EndDate, subscription.IsActive)
 
-	if ctx.Err() != nil {
-		return context.Background().Err()
-	}
-	return nil
+	return err
 }
 
 func (r *subscriptionRepository) GetByUserID(userID uuid.UUID) (*domain.Subscription, error) {

@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"fmt"
 	"strings"
@@ -10,19 +9,14 @@ import (
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v4"
 )
 
-type user_repository struct {
-	db *sql.DB
-}
-
 type userRepository struct {
-	pool *pgxpool.Pool
+	pool interfaces.PgxIface
 }
 
-func NewUserRepository(pool *pgxpool.Pool) interfaces.UserRepository {
+func NewUserRepository(pool interfaces.PgxIface) interfaces.UserRepository {
 	return &userRepository{pool: pool}
 }
 
@@ -236,10 +230,10 @@ func (r *userRepository) GetUsersForFeed(userID uuid.UUID, limit, offset int) ([
 }
 
 type userPhotoRepository struct {
-	pool *pgxpool.Pool
+	pool interfaces.PgxIface
 }
 
-func NewUserPhotoRepository(pool *pgxpool.Pool) interfaces.UserPhotoRepository {
+func NewUserPhotoRepository(pool interfaces.PgxIface) interfaces.UserPhotoRepository {
 	return &userPhotoRepository{pool: pool}
 }
 
@@ -359,10 +353,10 @@ func (r *userPhotoRepository) UpdateDisplayOrder(userID uuid.UUID, photos []doma
 }
 
 type userPreferenceRepository struct {
-	pool *pgxpool.Pool
+	pool interfaces.PgxIface
 }
 
-func NewUserPreferenceRepository(pool *pgxpool.Pool) interfaces.UserPreferenceRepository {
+func NewUserPreferenceRepository(pool interfaces.PgxIface) interfaces.UserPreferenceRepository {
 	return &userPreferenceRepository{pool: pool}
 }
 
@@ -427,8 +421,4 @@ func (r *userPreferenceRepository) Delete(userID uuid.UUID) error {
 		return err
 	}
 	return nil
-}
-
-type subscriptionRepository struct {
-	pool *pgxpool.Pool
 }

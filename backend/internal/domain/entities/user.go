@@ -24,12 +24,6 @@ type User struct {
 	UpdatedAt  time.Time        `json:"updated_at" db:"updated_at"`
 }
 
-type UserWithPreferences struct {
-	User
-	Preferences *UserPreference `json:"preferences,omitempty"`
-	Photos      []UserPhoto     `json:"photos,omitempty"`
-}
-
 func NewUser(email, passwordHash string) *User {
 	return &User{
 		Email:    email,
