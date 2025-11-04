@@ -92,12 +92,17 @@ func main() {
 		postgres.NewUserPreferenceRepository(pool), // и эту
 		minioStorage,
 	)
+	swipeService := service.NewSwipeService(
+		postgres.NewSwipeRepository(pool),
+		postgres.NewMatchRepository(pool),
+	)
 
 	// Обработчики
 	authHandler := handler.NewAuthHandler(authService)
 	sessionHandler := handler.NewSessionHandler(authService)
 	feedHandler := handler.NewFeedHandler(feedService)
 	profileHandler := handler.NewProfileHandler(profileService)
+	swipeHandler := handler.NewSwipeHandler(swipeService)
 
 	// Middleware
 	corsMiddleware := middleware.CORSMiddleware
@@ -109,12 +114,11 @@ func main() {
 	http.Handle("/api/session", corsMiddleware(http.HandlerFunc(sessionHandler.GetSession)))
 	http.Handle("/api/logout", corsMiddleware(http.HandlerFunc(authHandler.Logout)))
 
-	// Защищенные маршруты профиля
+	// Защищенные маршруты
 	http.Handle("/api/profile/profile", corsMiddleware(authMiddleware(http.HandlerFunc(profileHandler.GetProfile))))
 	http.Handle("/api/profile/changeProfile", corsMiddleware(authMiddleware(http.HandlerFunc(profileHandler.ChangeProfile))))
-
-	// Защищенные маршруты ленты
 	http.Handle("/api/feed", corsMiddleware(authMiddleware(http.HandlerFunc(feedHandler.GetFeed))))
+	http.Handle("/api/swipe", corsMiddleware(authMiddleware(http.HandlerFunc(swipeHandler.ProcessSwipe))))
 
 	http.Handle("/swagger/", httpSwagger.Handler(
 		httpSwagger.URL("http://localhost:8080/swagger/doc.json"), // URL для doc.json

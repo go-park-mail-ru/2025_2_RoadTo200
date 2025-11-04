@@ -32,4 +32,8 @@ var (
 	ErrInvalidProfileData = errors.New("invalid profile data")
 	ErrPhotoNotOwned      = errors.New("photo does not belong to user")
 	ErrInvalidPreferences = errors.New("invalid preferences data")
+
+	// Swipe errors
+	ErrInvalidSwipeAction = errors.New("invalid swipe action")
+	ErrCannotSwipeSelf    = errors.New("cannot swipe yourself")
 )

@@ -187,24 +187,27 @@ func (r *userRepository) GetUsersByIDs(ids []uuid.UUID) ([]domain.User, error) {
 func (r *userRepository) GetUsersForFeed(userID uuid.UUID, limit, offset int) ([]domain.User, error) {
 	fmt.Println("GetUsersForFeed called with userID:", userID, "limit:", limit, "offset:", offset)
 	query := `
-		SELECT u.* FROM "user" u
-		LEFT JOIN user_preference up ON u.id = up.user_id
-		WHERE u.id != $1
-		AND u.is_verified = true
-		AND u.gender::text IN (
-			CASE 
-				WHEN up.show_gender = 'male'::gender_preference_enum THEN 'male'
-				WHEN up.show_gender = 'female'::gender_preference_enum THEN 'female'
-				ELSE 'male'
-    		END
-		)
-		AND EXTRACT(YEAR FROM AGE(u.birth_date)) BETWEEN up.age_min AND up.age_max
-		AND NOT EXISTS (
-			SELECT 1 FROM swipe s 
-			WHERE s.swiper_user_id = $1 AND s.target_user_id = u.id
-		)
-		ORDER BY u.last_active DESC
-		LIMIT $2 OFFSET $3`
+    WITH myuser AS (
+      SELECT show_gender, age_min, age_max FROM user_preference
+      WHERE user_id = $1
+    )
+    SELECT u.* FROM "user" u
+    JOIN public.user_preference up ON u.id = up.user_id
+    WHERE u.id != $1
+    AND u.gender::text IN (
+      CASE
+        WHEN (SELECT show_gender FROM myuser)::text = 'both' THEN u.gender::text
+        ELSE (SELECT show_gender FROM myuser)::text
+      END
+    )
+        AND EXTRACT(YEAR FROM AGE(u.birth_date)) BETWEEN (SELECT age_min FROM myuser) AND (SELECT age_max FROM myuser)
+        AND NOT EXISTS (
+            SELECT 1 FROM swipe s
+            WHERE s.swiper_user_id = $1 AND s.target_user_id = u.id
+        )
+
+    ORDER BY u.last_active DESC
+    LIMIT $2 OFFSET $3`
 
 	rows, err := r.pool.Query(context.Background(), query, userID, limit, offset)
 	if err != nil {
