@@ -80,6 +80,7 @@ func (s *AuthService) Register(email, password, passwordConfirm string) (*domain
 }
 
 func (s *AuthService) Login(email, password string) (*domain.User, *domain.Session, error) {
+	s.logger.Debugf("Login: %v", email)
 	user, err := s.userRepo.GetByEmail(email)
 	if err != nil {
 		return nil, nil, err
@@ -109,6 +110,7 @@ func (s *AuthService) Login(email, password string) (*domain.User, *domain.Sessi
 }
 
 func (s *AuthService) Logout(token string) error {
+	s.logger.Debugf("Logout: %v", token)
 	session, err := s.sessionRepo.Get(token)
 	if err != nil {
 		return err

@@ -3,12 +3,14 @@ package handler
 import (
 	"net/http"
 
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/implementations"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/utils"
 )
 
 type SessionHandler struct {
 	authService *service.AuthService
+	logger      *logger.Logger
 }
 
 func NewSessionHandler(authService *service.AuthService) *SessionHandler {
@@ -41,7 +43,7 @@ func (h *SessionHandler) GetSession(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-
+	h.logger.Debugf("GetSession: %v", user)
 	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
 		"authenticated": true,
 		"user": map[string]interface{}{
