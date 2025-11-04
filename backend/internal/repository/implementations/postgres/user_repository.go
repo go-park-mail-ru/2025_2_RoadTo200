@@ -185,17 +185,18 @@ func (r *userRepository) GetUsersByIDs(ids []uuid.UUID) ([]domain.User, error) {
 }
 
 func (r *userRepository) GetUsersForFeed(userID uuid.UUID, limit, offset int) ([]domain.User, error) {
+	fmt.Println("GetUsersForFeed called with userID:", userID, "limit:", limit, "offset:", offset)
 	query := `
 		SELECT u.* FROM "user" u
 		LEFT JOIN user_preference up ON u.id = up.user_id
 		WHERE u.id != $1
 		AND u.is_verified = true
-		AND u.gender IN (
+		AND u.gender::text IN (
 			CASE 
-				WHEN up.show_gender = 'male' THEN 'male'
-				WHEN up.show_gender = 'female' THEN 'female'
+				WHEN up.show_gender = 'male'::gender_preference_enum THEN 'male'
+				WHEN up.show_gender = 'female'::gender_preference_enum THEN 'female'
 				ELSE 'male'
-			END
+    		END
 		)
 		AND EXTRACT(YEAR FROM AGE(u.birth_date)) BETWEEN up.age_min AND up.age_max
 		AND NOT EXISTS (
@@ -210,21 +211,24 @@ func (r *userRepository) GetUsersForFeed(userID uuid.UUID, limit, offset int) ([
 		return nil, err
 	}
 	defer rows.Close()
-
+	fmt.Println("Query executed successfully in GetUsersForFeed")
 	var users []domain.User
 	for rows.Next() {
+		fmt.Println("Scanning a user row in GetUsersForFeed")
 		var user domain.User
 		err := rows.Scan(
 			&user.ID, &user.Email, &user.Phone, &user.Name, &user.Password,
 			&user.BirthDate, &user.Gender, &user.Bio, &user.Latitude, &user.Longitude,
 			&user.IsVerified, &user.LastActive, &user.CreatedAt, &user.UpdatedAt,
 		)
+		fmt.Printf("Scanned user: %+v\n", user)
 		if err != nil {
+			fmt.Printf("Error scanning user: %v\n", err)
 			return nil, err
 		}
 		users = append(users, user)
 	}
-
+	fmt.Println("Finished scanning users in GetUsersForFeed")
 	return users, nil
 }
 

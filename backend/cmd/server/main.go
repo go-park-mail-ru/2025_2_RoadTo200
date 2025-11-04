@@ -85,7 +85,7 @@ func main() {
 
 	// Сервисы
 	authService := service.NewAuthService(userRepo, sessionRepo)
-
+	feedService := service.NewFeedService(userRepo)
 	profileService := service.NewProfileService(
 		userRepo,
 		postgres.NewUserPhotoRepository(pool),      // нужно создать эту реализацию
@@ -96,6 +96,7 @@ func main() {
 	// Обработчики
 	authHandler := handler.NewAuthHandler(authService)
 	sessionHandler := handler.NewSessionHandler(authService)
+	feedHandler := handler.NewFeedHandler(feedService)
 	profileHandler := handler.NewProfileHandler(profileService)
 
 	// Middleware
@@ -111,6 +112,9 @@ func main() {
 	// Защищенные маршруты профиля
 	http.Handle("/api/profile/profile", corsMiddleware(authMiddleware(http.HandlerFunc(profileHandler.GetProfile))))
 	http.Handle("/api/profile/changeProfile", corsMiddleware(authMiddleware(http.HandlerFunc(profileHandler.ChangeProfile))))
+
+	// Защищенные маршруты ленты
+	http.Handle("/api/feed", corsMiddleware(authMiddleware(http.HandlerFunc(feedHandler.GetFeed))))
 
 	http.Handle("/swagger/", httpSwagger.Handler(
 		httpSwagger.URL("http://localhost:8080/swagger/doc.json"), // URL для doc.json
