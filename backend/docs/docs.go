@@ -23,7 +23,329 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/profile/changeProfile": {
+        "/api/feed": {
+            "get": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Get feed of potential matches with pagination",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "feed"
+                ],
+                "summary": "Get user feed",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 15,
+                        "description": "Number of users to return",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "Offset for pagination",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/service.FeedResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/service.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/service.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/service.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/matches": {
+            "get": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Get list of user's matches with user details",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "matches"
+                ],
+                "summary": "Get user matches",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 20,
+                        "description": "Number of matches to return",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "Offset for pagination",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/service.MatchesResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/service.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/service.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/service.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/matches/unmatch": {
+            "post": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Remove match with another user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "matches"
+                ],
+                "summary": "Unmatch user",
+                "parameters": [
+                    {
+                        "description": "Unmatch data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.UnmatchRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.SuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/service.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/service.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/service.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/service.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/swipe": {
+            "post": {
+                "security": [
+                    {
+                        "CookieAuth": []
+                    }
+                ],
+                "description": "Process like/dislike swipe and check for matches",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "swipe"
+                ],
+                "summary": "Process swipe",
+                "parameters": [
+                    {
+                        "description": "Swipe data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.SwipeRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.SwipeResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/service.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/service.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/service.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/login": {
+            "post": {
+                "description": "Аутентифицирует пользователя и устанавливает сессию",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Вход в систему",
+                "parameters": [
+                    {
+                        "description": "Учетные данные для входа",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Успешный вход\" example:{\"id\":\"123\",\"email\":\"user@example.com\"}",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный формат запроса\" example:{\"error\":\"invalid request body\"}",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "401": {
+                        "description": "Неверный email или пароль\" example:{\"error\":\"invalid email or password\"}",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                }
+            }
+        },
+        "/logout": {
+            "post": {
+                "description": "Завершает текущую сессию пользователя",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Выход из системы",
+                "responses": {
+                    "200": {
+                        "description": "Успешный выход\" example:{\"message\":\"logged out\"}",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "401": {
+                        "description": "Сессия не найдена\" example:{\"error\":\"no session\"}",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера\" example:{\"error\":\"internal error\"}",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                }
+            }
+        },
+        "/profile/changeProfile": {
             "post": {
                 "security": [
                     {
@@ -161,7 +483,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/profile/profile": {
+        "/profile/profile": {
             "get": {
                 "security": [
                     {
@@ -201,85 +523,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/auth/login": {
-            "post": {
-                "description": "Аутентифицирует пользователя и устанавливает сессию",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "auth"
-                ],
-                "summary": "Вход в систему",
-                "parameters": [
-                    {
-                        "description": "Учетные данные для входа",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "object"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Успешный вход\" example:{\"id\":\"123\",\"email\":\"user@example.com\"}",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "400": {
-                        "description": "Неверный формат запроса\" example:{\"error\":\"invalid request body\"}",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "401": {
-                        "description": "Неверный email или пароль\" example:{\"error\":\"invalid email or password\"}",
-                        "schema": {
-                            "type": "object"
-                        }
-                    }
-                }
-            }
-        },
-        "/auth/logout": {
-            "post": {
-                "description": "Завершает текущую сессию пользователя",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "auth"
-                ],
-                "summary": "Выход из системы",
-                "responses": {
-                    "200": {
-                        "description": "Успешный выход\" example:{\"message\":\"logged out\"}",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "401": {
-                        "description": "Сессия не найдена\" example:{\"error\":\"no session\"}",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "500": {
-                        "description": "Внутренняя ошибка сервера\" example:{\"error\":\"internal error\"}",
-                        "schema": {
-                            "type": "object"
-                        }
-                    }
-                }
-            }
-        },
-        "/auth/register": {
+        "/register": {
             "post": {
                 "description": "Создает нового пользователя и устанавливает сессию",
                 "consumes": [
@@ -325,7 +569,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/auth/session": {
+        "/session": {
             "get": {
                 "description": "Проверяет валидность текущей сессии и возвращает статус аутентификации",
                 "produces": [
@@ -347,11 +591,146 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "constants.Gender": {
+            "type": "string",
+            "enum": [
+                "male",
+                "female"
+            ],
+            "x-enum-varnames": [
+                "GenderMale",
+                "GenderFemale"
+            ]
+        },
+        "domain.Match": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "matched_at": {
+                    "type": "string"
+                },
+                "user1_id": {
+                    "type": "string"
+                },
+                "user2_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.SwipeResponse": {
+            "type": "object",
+            "properties": {
+                "match": {
+                    "type": "boolean"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.User": {
+            "type": "object",
+            "properties": {
+                "bio": {
+                    "type": "string"
+                },
+                "birth_date": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "gender": {
+                    "$ref": "#/definitions/constants.Gender"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_verified": {
+                    "type": "boolean"
+                },
+                "last_active": {
+                    "type": "string"
+                },
+                "latitude": {
+                    "type": "number"
+                },
+                "longitude": {
+                    "type": "number"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
         "service.ErrorResponse": {
             "type": "object",
             "properties": {
                 "error": {
                     "type": "string"
+                }
+            }
+        },
+        "service.FeedResponse": {
+            "type": "object",
+            "properties": {
+                "limit": {
+                    "type": "integer"
+                },
+                "offset": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                },
+                "users": {
+                    "type": "array",
+                    "items": {}
+                }
+            }
+        },
+        "service.MatchResponse": {
+            "type": "object",
+            "properties": {
+                "match": {
+                    "$ref": "#/definitions/domain.Match"
+                },
+                "user": {
+                    "$ref": "#/definitions/domain.User"
+                }
+            }
+        },
+        "service.MatchesResponse": {
+            "type": "object",
+            "properties": {
+                "limit": {
+                    "type": "integer"
+                },
+                "matches": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/service.MatchResponse"
+                    }
+                },
+                "offset": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
                 }
             }
         },
@@ -362,9 +741,43 @@ const docTemplate = `{
                 "preferences": {},
                 "user": {}
             }
+        },
+        "service.SwipeRequest": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "description": "'like', 'dislike'",
+                    "type": "string"
+                },
+                "card_id": {
+                    "description": "target_user_id",
+                    "type": "string"
+                }
+            }
+        },
+        "service.UnmatchRequest": {
+            "type": "object",
+            "properties": {
+                "target_user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "utils.SuccessResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
         }
     },
     "securityDefinitions": {
+        "ApiKeyAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        },
         "SessionToken": {
             "type": "apiKey",
             "name": "session_token",
@@ -376,9 +789,9 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:8080",
+	Host:             "0.0.0.0:8080",
 	BasePath:         "/api",
-	Schemes:          []string{"http"},
+	Schemes:          []string{},
 	Title:            "Terabithia API",
 	Description:      "API для dating приложения",
 	InfoInstanceName: "swagger",

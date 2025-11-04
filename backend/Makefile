@@ -1,5 +1,5 @@
 run:
-	go run ./
+	go run ./cmd/server/main.go
 
 test:
 	go test ./... -v
@@ -8,7 +8,7 @@ test-coverage:
 	go test ./... -cover
 
 build:
-	go build -o ./../build
+	go build -o ./../build/ ./cmd/server/main.go
 
 clean:
 	rm -f app coverage.out

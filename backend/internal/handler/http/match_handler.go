@@ -29,10 +29,10 @@ func NewMatchHandler(matchService service.MatchService) *MatchHandler {
 // @Security CookieAuth
 // @Param limit query int false "Number of matches to return" default(20)
 // @Param offset query int false "Offset for pagination" default(0)
-// @Success 200 {object} interfaces.MatchesResponse
-// @Failure 400 {object} utils.ErrorResponse
-// @Failure 401 {object} utils.ErrorResponse
-// @Failure 500 {object} utils.ErrorResponse
+// @Success 200 {object} service.MatchesResponse
+// @Failure 400 {object} service.ErrorResponse
+// @Failure 401 {object} service.ErrorResponse
+// @Failure 500 {object} service.ErrorResponse
 // @Router /api/matches [get]
 func (h *MatchHandler) GetUserMatches(w http.ResponseWriter, r *http.Request) {
 	userID, err := middleware.GetUserIDFromContext(r.Context())
@@ -61,12 +61,12 @@ func (h *MatchHandler) GetUserMatches(w http.ResponseWriter, r *http.Request) {
 // @Accept json
 // @Produce json
 // @Security CookieAuth
-// @Param request body dto.UnmatchRequest true "Unmatch data"
+// @Param request body service.UnmatchRequest true "Unmatch data"
 // @Success 200 {object} utils.SuccessResponse
-// @Failure 400 {object} utils.ErrorResponse
-// @Failure 401 {object} utils.ErrorResponse
-// @Failure 404 {object} utils.ErrorResponse
-// @Failure 500 {object} utils.ErrorResponse
+// @Failure 400 {object} service.ErrorResponse
+// @Failure 401 {object} service.ErrorResponse
+// @Failure 404 {object} service.ErrorResponse
+// @Failure 500 {object} service.ErrorResponse
 // @Router /api/matches/unmatch [post]
 func (h *MatchHandler) Unmatch(w http.ResponseWriter, r *http.Request) {
 	userID, err := middleware.GetUserIDFromContext(r.Context())

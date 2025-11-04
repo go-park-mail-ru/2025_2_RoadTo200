@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 
-	//"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/errors"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/middleware"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
@@ -28,11 +27,11 @@ func NewSwipeHandler(swipeService service.SwipeService) *SwipeHandler {
 // @Accept json
 // @Produce json
 // @Security CookieAuth
-// @Param request body dto.SwipeRequest true "Swipe data"
-// @Success 200 {object} entities.SwipeResponse
-// @Failure 400 {object} utils.ErrorResponse
-// @Failure 401 {object} utils.ErrorResponse
-// @Failure 500 {object} utils.ErrorResponse
+// @Param request body service.SwipeRequest true "Swipe data"
+// @Success 200 {object} domain.SwipeResponse
+// @Failure 400 {object} service.ErrorResponse
+// @Failure 401 {object} service.ErrorResponse
+// @Failure 500 {object} service.ErrorResponse
 // @Router /api/swipe [post]
 func (h *SwipeHandler) ProcessSwipe(w http.ResponseWriter, r *http.Request) {
 	userID, err := middleware.GetUserIDFromContext(r.Context())

@@ -1,9 +1,98 @@
 basePath: /api
 definitions:
+  constants.Gender:
+    enum:
+    - male
+    - female
+    type: string
+    x-enum-varnames:
+    - GenderMale
+    - GenderFemale
+  domain.Match:
+    properties:
+      id:
+        type: string
+      is_active:
+        type: boolean
+      matched_at:
+        type: string
+      user1_id:
+        type: string
+      user2_id:
+        type: string
+    type: object
+  domain.SwipeResponse:
+    properties:
+      match:
+        type: boolean
+      message:
+        type: string
+    type: object
+  domain.User:
+    properties:
+      bio:
+        type: string
+      birth_date:
+        type: string
+      created_at:
+        type: string
+      email:
+        type: string
+      gender:
+        $ref: '#/definitions/constants.Gender'
+      id:
+        type: string
+      is_verified:
+        type: boolean
+      last_active:
+        type: string
+      latitude:
+        type: number
+      longitude:
+        type: number
+      name:
+        type: string
+      phone:
+        type: string
+      updated_at:
+        type: string
+    type: object
   service.ErrorResponse:
     properties:
       error:
         type: string
+    type: object
+  service.FeedResponse:
+    properties:
+      limit:
+        type: integer
+      offset:
+        type: integer
+      total:
+        type: integer
+      users:
+        items: {}
+        type: array
+    type: object
+  service.MatchResponse:
+    properties:
+      match:
+        $ref: '#/definitions/domain.Match'
+      user:
+        $ref: '#/definitions/domain.User'
+    type: object
+  service.MatchesResponse:
+    properties:
+      limit:
+        type: integer
+      matches:
+        items:
+          $ref: '#/definitions/service.MatchResponse'
+        type: array
+      offset:
+        type: integer
+      total:
+        type: integer
     type: object
   service.ProfileResponse:
     properties:
@@ -11,7 +100,26 @@ definitions:
       preferences: {}
       user: {}
     type: object
-host: localhost:8080
+  service.SwipeRequest:
+    properties:
+      action:
+        description: '''like'', ''dislike'''
+        type: string
+      card_id:
+        description: target_user_id
+        type: string
+    type: object
+  service.UnmatchRequest:
+    properties:
+      target_user_id:
+        type: string
+    type: object
+  utils.SuccessResponse:
+    properties:
+      message:
+        type: string
+    type: object
+host: 0.0.0.0:8080
 info:
   contact:
     email: support@datingapp.com
@@ -24,7 +132,216 @@ info:
   title: Terabithia API
   version: "1.0"
 paths:
-  /api/profile/changeProfile:
+  /api/feed:
+    get:
+      consumes:
+      - application/json
+      description: Get feed of potential matches with pagination
+      parameters:
+      - default: 15
+        description: Number of users to return
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Offset for pagination
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/service.FeedResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/service.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/service.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/service.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Get user feed
+      tags:
+      - feed
+  /api/matches:
+    get:
+      consumes:
+      - application/json
+      description: Get list of user's matches with user details
+      parameters:
+      - default: 20
+        description: Number of matches to return
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Offset for pagination
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/service.MatchesResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/service.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/service.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/service.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Get user matches
+      tags:
+      - matches
+  /api/matches/unmatch:
+    post:
+      consumes:
+      - application/json
+      description: Remove match with another user
+      parameters:
+      - description: Unmatch data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/service.UnmatchRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/service.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/service.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/service.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/service.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Unmatch user
+      tags:
+      - matches
+  /api/swipe:
+    post:
+      consumes:
+      - application/json
+      description: Process like/dislike swipe and check for matches
+      parameters:
+      - description: Swipe data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/service.SwipeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.SwipeResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/service.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/service.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/service.ErrorResponse'
+      security:
+      - CookieAuth: []
+      summary: Process swipe
+      tags:
+      - swipe
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Аутентифицирует пользователя и устанавливает сессию
+      parameters:
+      - description: Учетные данные для входа
+        in: body
+        name: request
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешный вход" example:{"id":"123","email":"user@example.com"}
+          schema:
+            type: object
+        "400":
+          description: Неверный формат запроса" example:{"error":"invalid request
+            body"}
+          schema:
+            type: object
+        "401":
+          description: Неверный email или пароль" example:{"error":"invalid email
+            or password"}
+          schema:
+            type: object
+      summary: Вход в систему
+      tags:
+      - auth
+  /logout:
+    post:
+      description: Завершает текущую сессию пользователя
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешный выход" example:{"message":"logged out"}
+          schema:
+            type: object
+        "401":
+          description: Сессия не найдена" example:{"error":"no session"}
+          schema:
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера" example:{"error":"internal error"}
+          schema:
+            type: object
+      summary: Выход из системы
+      tags:
+      - auth
+  /profile/changeProfile:
     post:
       consumes:
       - multipart/form-data
@@ -117,7 +434,7 @@ paths:
       summary: Update profile
       tags:
       - profile
-  /api/profile/profile:
+  /profile/profile:
     get:
       consumes:
       - application/json
@@ -142,60 +459,7 @@ paths:
       summary: Get user profile
       tags:
       - profile
-  /auth/login:
-    post:
-      consumes:
-      - application/json
-      description: Аутентифицирует пользователя и устанавливает сессию
-      parameters:
-      - description: Учетные данные для входа
-        in: body
-        name: request
-        required: true
-        schema:
-          type: object
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Успешный вход" example:{"id":"123","email":"user@example.com"}
-          schema:
-            type: object
-        "400":
-          description: Неверный формат запроса" example:{"error":"invalid request
-            body"}
-          schema:
-            type: object
-        "401":
-          description: Неверный email или пароль" example:{"error":"invalid email
-            or password"}
-          schema:
-            type: object
-      summary: Вход в систему
-      tags:
-      - auth
-  /auth/logout:
-    post:
-      description: Завершает текущую сессию пользователя
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Успешный выход" example:{"message":"logged out"}
-          schema:
-            type: object
-        "401":
-          description: Сессия не найдена" example:{"error":"no session"}
-          schema:
-            type: object
-        "500":
-          description: Внутренняя ошибка сервера" example:{"error":"internal error"}
-          schema:
-            type: object
-      summary: Выход из системы
-      tags:
-      - auth
-  /auth/register:
+  /register:
     post:
       consumes:
       - application/json
@@ -226,7 +490,7 @@ paths:
       summary: Регистрация пользователя
       tags:
       - auth
-  /auth/session:
+  /session:
     get:
       description: Проверяет валидность текущей сессии и возвращает статус аутентификации
       produces:
@@ -239,9 +503,11 @@ paths:
       summary: Проверка сессии
       tags:
       - auth
-schemes:
-- http
 securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
   SessionToken:
     in: cookie
     name: session_token

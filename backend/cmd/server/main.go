@@ -35,7 +35,7 @@ import (
 // @license.name MIT
 // @license.url https://opensource.org/licenses/MIT
 
-// @host localhost:8080
+// @host 0.0.0.0:8080
 // @BasePath /api
 // @securityDefinitions.apikey ApiKeyAuth
 // @schemes http
@@ -130,9 +130,9 @@ func main() {
 	http.Handle("/api/matches", corsMiddleware(authMiddleware(http.HandlerFunc(matchHandler.GetUserMatches))))
 	http.Handle("/api/matches/unmatch", corsMiddleware(authMiddleware(http.HandlerFunc(matchHandler.Unmatch))))
 
-	http.Handle("/swagger/", httpSwagger.Handler(
-		httpSwagger.URL("http://localhost:8080/swagger/doc.json"), // URL для doc.json
-	))
+	http.Handle("/swagger/", corsMiddleware(httpSwagger.Handler(
+		httpSwagger.URL(fmt.Sprintf("http://%s:%d/swagger/doc.json", cfg.Host, cfg.Port)), // URL для doc.json
+	)))
 
 	addr := fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)
 	logger.Printf("Server starting on %s", addr)
