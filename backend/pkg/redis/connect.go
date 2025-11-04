@@ -2,7 +2,6 @@ package redis
 
 import (
 	"fmt"
-	"os"
 	"strconv"
 	"time"
 
@@ -11,17 +10,24 @@ import (
 )
 
 func NewConnection(cfg *config.RedisConfig) (*redis.Pool, error) {
-	host := os.Getenv(cfg.Host)
-	port, err := strconv.Atoi(os.Getenv(cfg.Port))
+	// Используем значения НАПРЯМУЮ из конфига
+	host := cfg.Host         // "localhost"
+	port := cfg.Port         // "6377"
+	password := cfg.Password // твой пароль
+	base := cfg.Base         // "0"
+
+	// Преобразуем порт и базу в числа
+	portNum, err := strconv.Atoi(port)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to convert port to int: %w", err)
 	}
-	password := os.Getenv(cfg.Password)
-	base, err := strconv.Atoi(os.Getenv(cfg.Base))
+
+	baseNum, err := strconv.Atoi(base)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to convert base to int: %w", err)
 	}
-	address := fmt.Sprintf("%s:%d", host, port)
+
+	address := fmt.Sprintf("%s:%d", host, portNum)
 
 	pool := &redis.Pool{
 		MaxIdle:     cfg.MaxIdle,
@@ -43,7 +49,7 @@ func NewConnection(cfg *config.RedisConfig) (*redis.Pool, error) {
 			}
 
 			// Выбор базы данных
-			if _, err := c.Do("SELECT", base); err != nil {
+			if _, err := c.Do("SELECT", baseNum); err != nil {
 				c.Close()
 				return nil, fmt.Errorf("failed to select redis db: %w", err)
 			}

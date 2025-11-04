@@ -23,7 +23,85 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/profile/changeProfile": {
+        "/login": {
+            "post": {
+                "description": "Аутентифицирует пользователя и устанавливает сессию",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Вход в систему",
+                "parameters": [
+                    {
+                        "description": "Учетные данные для входа",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Успешный вход\" example:{\"id\":\"123\",\"email\":\"user@example.com\"}",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный формат запроса\" example:{\"error\":\"invalid request body\"}",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "401": {
+                        "description": "Неверный email или пароль\" example:{\"error\":\"invalid email or password\"}",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                }
+            }
+        },
+        "/logout": {
+            "post": {
+                "description": "Завершает текущую сессию пользователя",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Выход из системы",
+                "responses": {
+                    "200": {
+                        "description": "Успешный выход\" example:{\"message\":\"logged out\"}",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "401": {
+                        "description": "Сессия не найдена\" example:{\"error\":\"no session\"}",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера\" example:{\"error\":\"internal error\"}",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                }
+            }
+        },
+        "/profile/changeProfile": {
             "post": {
                 "security": [
                     {
@@ -161,7 +239,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/profile/profile": {
+        "/profile/profile": {
             "get": {
                 "security": [
                     {
@@ -201,85 +279,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/auth/login": {
-            "post": {
-                "description": "Аутентифицирует пользователя и устанавливает сессию",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "auth"
-                ],
-                "summary": "Вход в систему",
-                "parameters": [
-                    {
-                        "description": "Учетные данные для входа",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "object"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Успешный вход\" example:{\"id\":\"123\",\"email\":\"user@example.com\"}",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "400": {
-                        "description": "Неверный формат запроса\" example:{\"error\":\"invalid request body\"}",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "401": {
-                        "description": "Неверный email или пароль\" example:{\"error\":\"invalid email or password\"}",
-                        "schema": {
-                            "type": "object"
-                        }
-                    }
-                }
-            }
-        },
-        "/auth/logout": {
-            "post": {
-                "description": "Завершает текущую сессию пользователя",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "auth"
-                ],
-                "summary": "Выход из системы",
-                "responses": {
-                    "200": {
-                        "description": "Успешный выход\" example:{\"message\":\"logged out\"}",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "401": {
-                        "description": "Сессия не найдена\" example:{\"error\":\"no session\"}",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "500": {
-                        "description": "Внутренняя ошибка сервера\" example:{\"error\":\"internal error\"}",
-                        "schema": {
-                            "type": "object"
-                        }
-                    }
-                }
-            }
-        },
-        "/auth/register": {
+        "/register": {
             "post": {
                 "description": "Создает нового пользователя и устанавливает сессию",
                 "consumes": [
@@ -325,7 +325,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/auth/session": {
+        "/session": {
             "get": {
                 "description": "Проверяет валидность текущей сессии и возвращает статус аутентификации",
                 "produces": [
@@ -365,6 +365,11 @@ const docTemplate = `{
         }
     },
     "securityDefinitions": {
+        "ApiKeyAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        },
         "SessionToken": {
             "type": "apiKey",
             "name": "session_token",
@@ -378,7 +383,7 @@ var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
 	Host:             "localhost:8080",
 	BasePath:         "/api",
-	Schemes:          []string{"http"},
+	Schemes:          []string{},
 	Title:            "Terabithia API",
 	Description:      "API для dating приложения",
 	InfoInstanceName: "swagger",

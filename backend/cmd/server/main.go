@@ -1,13 +1,27 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"net/http"
 
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/http"
+	//"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/http"
+	handler "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/http"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/middleware"
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/implementations/minio"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/implementations/postgres"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/implementations/redis"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/utils"
+
+	//"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/config"
+	service "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/implementations"
+	postgres_connect "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/postgres"
+	redis_connect "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/redis"
+
+	_ "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/api/docs" // импорт сгенерированной docs
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 // @title Terabithia API
@@ -23,26 +37,82 @@ import (
 
 // @host localhost:8080
 // @BasePath /api
+// @securityDefinitions.apikey ApiKeyAuth
 // @schemes http
+// @in header
+// @name Authorization
 
 // @securityDefinitions.apikey SessionToken
 // @in cookie
 // @name session_token
 func main() {
-	// Инициализация репозиториев
-	userRepo := repository.NewInMemoryUserRepository()
-	sessionRepo := repository.NewInMemorySessionRepository()
+	// Загрузка конфигурации
+	log.Println("🚀 Starting server...")
+	cfg, err := config.NewConfig()
+	if err != nil {
+		log.Fatal("❌ Failed to load config: ", err)
+	}
+	log.Printf("✅ Config loaded: %s:%d", cfg.Host, cfg.Port)
 
-	// Инициализация сервисов
+	// Инициализация PostgreSQL через pkg/postgres
+	log.Println("🔌 Connecting to PostgreSQL...")
+	pool, err := postgres_connect.NewConnect(context.Background(), &cfg.Postgres)
+	if err != nil {
+		log.Fatal("❌ Failed to connect to PostgreSQL: ", err)
+	}
+	defer pool.Close()
+
+	// Инициализация Redis через pkg/redis
+	log.Println("🔌 Connecting to Redis...")
+	redisPool, err := redis_connect.NewConnection(&cfg.Redis)
+	if err != nil {
+		log.Fatal("❌ Failed to connect to Redis: ", err)
+	}
+	defer redisPool.Close()
+
+	// Инициализация MinIO
+	minioStorage, err := minio.NewMinIOStorage(&cfg.MinIO)
+	if err != nil {
+		log.Fatal("Failed to connect to MinIO: ", err)
+	}
+	log.Println("✅ MinIO connected successfully")
+
+	log.Println("✅ All connections established")
+
+	// Репозитории
+	userRepo := postgres.NewUserRepository(pool)
+	sessionRepo := redis.NewSessionRepository(redisPool)
+
+	// Сервисы
 	authService := service.NewAuthService(userRepo, sessionRepo)
+	feedService := service.NewFeedService(userRepo)
+	profileService := service.NewProfileService(
+		userRepo,
+		postgres.NewUserPhotoRepository(pool),      // нужно создать эту реализацию
+		postgres.NewUserPreferenceRepository(pool), // и эту
+		minioStorage,
+	)
+	swipeService := service.NewSwipeService(
+		postgres.NewSwipeRepository(pool),
+		postgres.NewMatchRepository(pool),
+	)
+	matchService := service.NewMatchService(
+		postgres.NewMatchRepository(pool),
+		userRepo,
+		postgres.NewSwipeRepository(pool),
+	)
 
-	// Инициализация обработчиков
+	// Обработчики
 	authHandler := handler.NewAuthHandler(authService)
 	sessionHandler := handler.NewSessionHandler(authService)
+	feedHandler := handler.NewFeedHandler(feedService)
+	profileHandler := handler.NewProfileHandler(profileService)
+	swipeHandler := handler.NewSwipeHandler(swipeService)
+	matchHandler := handler.NewMatchHandler(matchService)
 
 	// Middleware
 	corsMiddleware := middleware.CORSMiddleware
-	//authMiddleware := middleware.AuthMiddleware(authService)
+	authMiddleware := middleware.AuthMiddleware(authService)
 
 	// Маршруты
 	http.Handle("/api/register", corsMiddleware(http.HandlerFunc(authHandler.Register)))
@@ -51,11 +121,29 @@ func main() {
 	http.Handle("/api/logout", corsMiddleware(http.HandlerFunc(authHandler.Logout)))
 
 	// Защищенные маршруты
-	//http.Handle("/api/feed", corsMiddleware(authMiddleware(http.HandlerFunc(handler.FeedHandler))))
-	//http.Handle("/api/swipe", corsMiddleware(authMiddleware(http.HandlerFunc(handler.SwipeHandler))))
+	http.Handle("/api/profile/profile", corsMiddleware(authMiddleware(http.HandlerFunc(profileHandler.GetProfile))))
+	http.Handle("/api/profile/changeProfile", corsMiddleware(authMiddleware(http.HandlerFunc(profileHandler.ChangeProfile))))
+	http.Handle("/api/feed", corsMiddleware(authMiddleware(http.HandlerFunc(feedHandler.GetFeed))))
+	http.Handle("/api/swipe", corsMiddleware(authMiddleware(http.HandlerFunc(swipeHandler.ProcessSwipe))))
+	http.Handle("/api/matches", corsMiddleware(authMiddleware(http.HandlerFunc(matchHandler.GetUserMatches))))
+	http.Handle("/api/matches/unmatch", corsMiddleware(authMiddleware(http.HandlerFunc(matchHandler.Unmatch))))
 
-	fmt.Println("Server running on http://:8080")
-	if err := http.ListenAndServe(":8080", nil); err != nil {
-		panic(err)
+	http.Handle("/swagger/", httpSwagger.Handler(
+		httpSwagger.URL("http://localhost:8080/swagger/doc.json"), // URL для doc.json
+	))
+
+	addr := fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)
+	log.Printf("Server starting on %s", addr)
+
+	if err := http.ListenAndServe(addr, nil); err != nil {
+		log.Fatal("Server failed: ", err)
 	}
+}
+
+// Health handler
+func healthHandler(w http.ResponseWriter, r *http.Request) {
+	utils.WriteJSON(w, http.StatusOK, map[string]string{
+		"status": "ok",
+		"app":    "terabithia app",
+	})
 }

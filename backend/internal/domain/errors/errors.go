@@ -23,4 +23,20 @@ var (
 
 	// General errors
 	ErrInternalError = errors.New("internal error")
+
+	// Profile errors
+	ErrProfileNotFound    = errors.New("profile not found")
+	ErrPhotoNotFound      = errors.New("photo not found")
+	ErrInvalidPhoto       = errors.New("invalid photo")
+	ErrPhotoLimitExceeded = errors.New("photo limit exceeded")
+	ErrInvalidProfileData = errors.New("invalid profile data")
+	ErrPhotoNotOwned      = errors.New("photo does not belong to user")
+	ErrInvalidPreferences = errors.New("invalid preferences data")
+
+	// Swipe errors
+	ErrInvalidSwipeAction = errors.New("invalid swipe action")
+	ErrCannotSwipeSelf    = errors.New("cannot swipe yourself")
+
+	// Match errors
+	ErrMatchNotFound = errors.New("match not found")
 )

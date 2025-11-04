@@ -13,3 +13,13 @@ type Swipe struct {
 	SwipeType    constants.SwipeType `json:"swipe_type" db:"swipe_type"`
 	CreatedAt    time.Time           `json:"created_at" db:"created_at"`
 }
+
+type SwipeRequest struct {
+	CardID uuid.UUID `json:"card_id"` // target_user_id
+	Action string    `json:"action"`  // 'like', 'dislike'
+}
+
+type SwipeResponse struct {
+	Match   bool   `json:"match,omitempty"`
+	Message string `json:"message"`
+}

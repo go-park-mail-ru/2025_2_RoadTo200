@@ -3,7 +3,7 @@ package handler
 import (
 	"net/http"
 
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/implementations"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/utils"
 )
 
@@ -24,7 +24,7 @@ func NewSessionHandler(authService *service.AuthService) *SessionHandler {
 // @Produce json
 // @Success 200 {object} object "Статус сессии" example:{"authenticated":true,"user":{"id":"123","email":"user@example.com"}}
 // @Success 200 {object} object "Сессия не валидна" example:{"authenticated":false}
-// @Router /auth/session [get]
+// @Router /session [get]
 func (h *SessionHandler) GetSession(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("session_token")
 	if err != nil {

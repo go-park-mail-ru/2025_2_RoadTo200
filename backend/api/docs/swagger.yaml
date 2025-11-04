@@ -24,7 +24,60 @@ info:
   title: Terabithia API
   version: "1.0"
 paths:
-  /api/profile/changeProfile:
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Аутентифицирует пользователя и устанавливает сессию
+      parameters:
+      - description: Учетные данные для входа
+        in: body
+        name: request
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешный вход" example:{"id":"123","email":"user@example.com"}
+          schema:
+            type: object
+        "400":
+          description: Неверный формат запроса" example:{"error":"invalid request
+            body"}
+          schema:
+            type: object
+        "401":
+          description: Неверный email или пароль" example:{"error":"invalid email
+            or password"}
+          schema:
+            type: object
+      summary: Вход в систему
+      tags:
+      - auth
+  /logout:
+    post:
+      description: Завершает текущую сессию пользователя
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешный выход" example:{"message":"logged out"}
+          schema:
+            type: object
+        "401":
+          description: Сессия не найдена" example:{"error":"no session"}
+          schema:
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера" example:{"error":"internal error"}
+          schema:
+            type: object
+      summary: Выход из системы
+      tags:
+      - auth
+  /profile/changeProfile:
     post:
       consumes:
       - multipart/form-data
@@ -117,7 +170,7 @@ paths:
       summary: Update profile
       tags:
       - profile
-  /api/profile/profile:
+  /profile/profile:
     get:
       consumes:
       - application/json
@@ -142,60 +195,7 @@ paths:
       summary: Get user profile
       tags:
       - profile
-  /auth/login:
-    post:
-      consumes:
-      - application/json
-      description: Аутентифицирует пользователя и устанавливает сессию
-      parameters:
-      - description: Учетные данные для входа
-        in: body
-        name: request
-        required: true
-        schema:
-          type: object
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Успешный вход" example:{"id":"123","email":"user@example.com"}
-          schema:
-            type: object
-        "400":
-          description: Неверный формат запроса" example:{"error":"invalid request
-            body"}
-          schema:
-            type: object
-        "401":
-          description: Неверный email или пароль" example:{"error":"invalid email
-            or password"}
-          schema:
-            type: object
-      summary: Вход в систему
-      tags:
-      - auth
-  /auth/logout:
-    post:
-      description: Завершает текущую сессию пользователя
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Успешный выход" example:{"message":"logged out"}
-          schema:
-            type: object
-        "401":
-          description: Сессия не найдена" example:{"error":"no session"}
-          schema:
-            type: object
-        "500":
-          description: Внутренняя ошибка сервера" example:{"error":"internal error"}
-          schema:
-            type: object
-      summary: Выход из системы
-      tags:
-      - auth
-  /auth/register:
+  /register:
     post:
       consumes:
       - application/json
@@ -226,7 +226,7 @@ paths:
       summary: Регистрация пользователя
       tags:
       - auth
-  /auth/session:
+  /session:
     get:
       description: Проверяет валидность текущей сессии и возвращает статус аутентификации
       produces:
@@ -239,9 +239,11 @@ paths:
       summary: Проверка сессии
       tags:
       - auth
-schemes:
-- http
 securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
   SessionToken:
     in: cookie
     name: session_token

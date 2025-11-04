@@ -50,3 +50,8 @@ func ClearSessionCookie(w http.ResponseWriter) {
 		MaxAge:   -1,
 	})
 }
+
+// SuccessResponse represents a successful operation response
+type SuccessResponse struct {
+	Message string `json:"message"`
+}
