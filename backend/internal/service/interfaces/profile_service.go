@@ -70,3 +70,8 @@ type UploadPhotosResponse struct {
 type SuccessResponse struct {
 	Message string `json:"message"`
 }
+
+// ErrorResponse ответ с ошибкой
+type ErrorResponse struct {
+	Error string `json:"error"`
+}

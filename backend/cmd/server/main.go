@@ -19,6 +19,9 @@ import (
 	service "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/implementations"
 	postgres_connect "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/postgres"
 	redis_connect "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/redis"
+
+	_ "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/api/docs" // импорт сгенерированной docs
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 // @title Terabithia API
@@ -34,7 +37,10 @@ import (
 
 // @host localhost:8080
 // @BasePath /api
+// @securityDefinitions.apikey ApiKeyAuth
 // @schemes http
+// @in header
+// @name Authorization
 
 // @securityDefinitions.apikey SessionToken
 // @in cookie
@@ -105,6 +111,10 @@ func main() {
 	// Защищенные маршруты профиля
 	http.Handle("/api/profile/profile", corsMiddleware(authMiddleware(http.HandlerFunc(profileHandler.GetProfile))))
 	http.Handle("/api/profile/changeProfile", corsMiddleware(authMiddleware(http.HandlerFunc(profileHandler.ChangeProfile))))
+
+	http.Handle("/swagger/", httpSwagger.Handler(
+		httpSwagger.URL("http://localhost:8080/swagger/doc.json"), // URL для doc.json
+	))
 
 	addr := fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)
 	log.Printf("Server starting on %s", addr)

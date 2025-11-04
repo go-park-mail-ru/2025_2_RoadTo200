@@ -33,10 +33,10 @@ func NewProfileHandler(profileService service.ProfileService) *ProfileHandler {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Success 200 {object} dto.ProfileResponse
-// @Failure 401 {object} utils.ErrorResponse
-// @Failure 500 {object} utils.ErrorResponse
-// @Router /api/profile/profile [get]
+// @Success 200 {object} service.ProfileResponse
+// @Failure 401 {object} service.ErrorResponse
+// @Failure 500 {object} service.ErrorResponse
+// @Router /profile/profile [get]
 func (h *ProfileHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
 	userID, err := h.getUserIDFromContext(r)
 	if err != nil {
@@ -87,10 +87,10 @@ func (h *ProfileHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
 // @Param photo_id formData string false "Photo ID for delete/set primary"
 // @Param photos formData file false "Photos to upload"
 // @Success 200 {object} interface{}
-// @Failure 400 {object} utils.ErrorResponse
-// @Failure 401 {object} utils.ErrorResponse
-// @Failure 500 {object} utils.ErrorResponse
-// @Router /api/profile/changeProfile [post]
+// @Failure 400 {object} service.ErrorResponse
+// @Failure 401 {object} service.ErrorResponse
+// @Failure 500 {object} service.ErrorResponse
+// @Router /profile/changeProfile [post]
 func (h *ProfileHandler) ChangeProfile(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("Content-Type: %s\n", r.Header.Get("Content-Type"))
 	fmt.Printf("Method: %s\n", r.Method)

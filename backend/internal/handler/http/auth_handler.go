@@ -28,7 +28,7 @@ func NewAuthHandler(authService *service.AuthService) *AuthHandler {
 // @Success 201 {object} object "Пользователь создан" example:{"id":"123","email":"user@example.com"}
 // @Failure 400 {object} object "Неверный формат запроса" example:{"error":"invalid request body"}
 // @Failure 500 {object} object "Внутренняя ошибка сервера" example:{"error":"internal error"}
-// @Router /auth/register [post]
+// @Router /register [post]
 func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	var req struct {
 		Email           string `json:"email"`
@@ -69,7 +69,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {object} object "Успешный вход" example:{"id":"123","email":"user@example.com"}
 // @Failure 400 {object} object "Неверный формат запроса" example:{"error":"invalid request body"}
 // @Failure 401 {object} object "Неверный email или пароль" example:{"error":"invalid email or password"}
-// @Router /auth/login [post]
+// @Router /login [post]
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	var req struct {
 		Email    string `json:"email"`
@@ -103,7 +103,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {object} object "Успешный выход" example:{"message":"logged out"}
 // @Failure 401 {object} object "Сессия не найдена" example:{"error":"no session"}
 // @Failure 500 {object} object "Внутренняя ошибка сервера" example:{"error":"internal error"}
-// @Router /auth/logout [post]
+// @Router /logout [post]
 func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("session_token")
 	if err != nil {
