@@ -23,15 +23,15 @@ func NewFeedHandler(feedService service.FeedService) *FeedHandler {
 
 // FeedResponse represents feed response
 type FeedResponse struct {
-	Users  []interface{} `json:"users"`
-	Limit  int           `json:"limit"`
-	Offset int           `json:"offset"`
-	Total  int           `json:"total"`
+	Users  []service.FeedUser `json:"users"`
+	Limit  int                `json:"limit"`
+	Offset int                `json:"offset"`
+	Total  int                `json:"total"`
 }
 
 // GetFeed godoc
 // @Summary Получить ленту пользователей
-// @Description Возвращает ленту пользователей для свайпинга на основе предпочтений и местоположения
+// @Description Возвращает ленту пользователей для свайпинга с основной информацией и фотографиями
 // @Tags feed
 // @Produce json
 // @Security SessionToken
@@ -59,14 +59,8 @@ func (h *FeedHandler) GetFeed(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Преобразуем в интерфейс для ответа
-	usersResponse := make([]interface{}, len(users))
-	for i, user := range users {
-		usersResponse[i] = user
-	}
-
 	response := FeedResponse{
-		Users:  usersResponse,
+		Users:  users,
 		Limit:  limit,
 		Offset: offset,
 		Total:  len(users),
