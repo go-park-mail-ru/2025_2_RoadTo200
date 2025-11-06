@@ -17,17 +17,27 @@ type Config struct {
 	Host     string         `yaml:"host"`
 	Port     int            `yaml:"port"`
 	Prefix   string         `yaml:"prefix"`
+	Cors     CORSConfig     `yaml:"cors"`
 	Logger   LoggerConfig   `yaml:"logger"`
 	Postgres PostgresConfig `yaml:"postgres"`
 	Redis    RedisConfig    `yaml:"redis"`
 	MinIO    MinIOConfig    `yaml:"minio"`
 }
 
+type CORSConfig struct {
+	AllowedOrigins   []string `yaml:"allowed_origins"`
+	AllowedMethods   []string `yaml:"allowed_methods"`
+	AllowedHeaders   []string `yaml:"allowed_headers"`
+	ExposeHeaders    []string `yaml:"expose_headers"`
+	AllowCredentials bool     `yaml:"allow_credentials"`
+	MaxAgeSeconds    int      `yaml:"max_age_seconds"`
+}
+
 type LoggerConfig struct {
 	Level     string `yaml:"level"`
-	Prefix    string
-	Color     bool
-	Timestamp bool
+	Prefix    string `yaml:"prefix"`
+	Color     bool   `yaml:"color"`
+	Timestamp bool   `yaml:"timestamp"`
 }
 
 type PostgresConfig struct {
@@ -76,6 +86,14 @@ func NewConfig() (*Config, error) {
 	}
 
 	var config appConfig
+	config.App.Cors = CORSConfig{
+		AllowedOrigins:   []string{},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"},
+		AllowedHeaders:   []string{"Content-Type", "Authorization", "X-Requested-With", "Accept", "Origin"},
+		ExposeHeaders:    []string{"Content-Length", "Authorization"},
+		AllowCredentials: true,
+		MaxAgeSeconds:    86400,
+	}
 	config.App.Logger = LoggerConfig{
 		Level:     "INFO",
 		Prefix:    "",
@@ -89,7 +107,6 @@ func NewConfig() (*Config, error) {
 		MaxIdle:             30 * time.Minute,
 		HealthCheckInterval: time.Minute,
 	}
-
 	config.App.Redis = RedisConfig{
 		MaxConn:     5,
 		MaxIdle:     10,

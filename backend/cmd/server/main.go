@@ -117,7 +117,11 @@ func main() {
 
 	// Global middleware
 	server.AddMiddleware(middleware.LogMiddleware(logg))
-	server.AddMiddleware(middleware.CORSMiddleware)
+	server.AddMiddleware(middleware.CORSMiddleware(&cfg.Cors))
+
+	server.AddHandler("/swagger/", httpSwagger.Handler(
+		httpSwagger.URL(fmt.Sprintf("http://217.16.17.116:%d/swagger/doc.json", cfg.Port)), // URL для doc.json
+	))
 
 	// Public routes (no auth required)
 	server.AddHandler("/api/register", http.HandlerFunc(authHandler.Register))
