@@ -1,12 +1,15 @@
 {
+    "schemes": [
+        "http"
+    ],
     "swagger": "2.0",
     "info": {
-        "description": "API для dating приложения",
-        "title": "Terabithia API",
+        "description": "API для dating приложения Terabithia",
+        "title": "Terabithia Dating App API",
         "termsOfService": "http://swagger.io/terms/",
         "contact": {
             "name": "API Support",
-            "email": "support@datingapp.com"
+            "email": "support@terabithia.com"
         },
         "license": {
             "name": "MIT",
@@ -15,16 +18,73 @@
         "version": "1.0"
     },
     "host": "localhost:8080",
-    "basePath": "/api",
+    "basePath": "/",
     "paths": {
         "/api/feed": {
             "get": {
                 "security": [
                     {
-                        "CookieAuth": []
+                        "SessionToken": []
                     }
                 ],
-                "description": "Get feed of potential matches with pagination",
+                "description": "Возвращает ленту пользователей для свайпинга на основе предпочтений и местоположения",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "feed"
+                ],
+                "summary": "Получить ленту пользователей",
+                "parameters": [
+                    {
+                        "maximum": 50,
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 15,
+                        "description": "Лимит пользователей (максимум 50)",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 0,
+                        "type": "integer",
+                        "default": 0,
+                        "description": "Смещение для пагинации",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Лента пользователей",
+                        "schema": {
+                            "$ref": "#/definitions/handler.FeedResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Не авторизован",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/login": {
+            "post": {
+                "description": "Вход пользователя в систему и установка сессии",
                 "consumes": [
                     "application/json"
                 ],
@@ -32,48 +92,89 @@
                     "application/json"
                 ],
                 "tags": [
-                    "feed"
+                    "auth"
                 ],
-                "summary": "Get user feed",
+                "summary": "Аутентификация пользователя",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "default": 15,
-                        "description": "Number of users to return",
-                        "name": "limit",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "default": 0,
-                        "description": "Offset for pagination",
-                        "name": "offset",
-                        "in": "query"
+                        "description": "Данные для входа",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.LoginRequest"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Успешный вход",
                         "schema": {
-                            "$ref": "#/definitions/service.FeedResponse"
+                            "$ref": "#/definitions/handler.LoginResponse"
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Неверный формат запроса",
                         "schema": {
-                            "$ref": "#/definitions/service.ErrorResponse"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     },
                     "401": {
-                        "description": "Unauthorized",
+                        "description": "Неверный email или пароль",
                         "schema": {
-                            "$ref": "#/definitions/service.ErrorResponse"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/logout": {
+            "post": {
+                "security": [
+                    {
+                        "SessionToken": []
+                    }
+                ],
+                "description": "Завершает сессию пользователя",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Выход пользователя",
+                "responses": {
+                    "200": {
+                        "description": "Успешный выход",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Сессия не найдена",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Внутренняя ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/service.ErrorResponse"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
@@ -83,59 +184,57 @@
             "get": {
                 "security": [
                     {
-                        "CookieAuth": []
+                        "SessionToken": []
                     }
                 ],
-                "description": "Get list of user's matches with user details",
-                "consumes": [
-                    "application/json"
-                ],
+                "description": "Возвращает список мэтчей текущего пользователя",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "matches"
                 ],
-                "summary": "Get user matches",
+                "summary": "Получить мэтчи пользователя",
                 "parameters": [
                     {
+                        "maximum": 50,
+                        "minimum": 1,
                         "type": "integer",
                         "default": 20,
-                        "description": "Number of matches to return",
+                        "description": "Лимит мэтчей (максимум 50)",
                         "name": "limit",
                         "in": "query"
                     },
                     {
+                        "minimum": 0,
                         "type": "integer",
                         "default": 0,
-                        "description": "Offset for pagination",
+                        "description": "Смещение для пагинации",
                         "name": "offset",
                         "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/service.MatchesResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/service.ErrorResponse"
-                        }
+                        "description": "Список мэтчей",
+                        "schema": {}
                     },
                     "401": {
-                        "description": "Unauthorized",
+                        "description": "Не авторизован",
                         "schema": {
-                            "$ref": "#/definitions/service.ErrorResponse"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Внутренняя ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/service.ErrorResponse"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
@@ -145,10 +244,10 @@
             "post": {
                 "security": [
                     {
-                        "CookieAuth": []
+                        "SessionToken": []
                     }
                 ],
-                "description": "Remove match with another user",
+                "description": "Удаляет мэтч с указанным пользователем",
                 "consumes": [
                     "application/json"
                 ],
@@ -158,197 +257,73 @@
                 "tags": [
                     "matches"
                 ],
-                "summary": "Unmatch user",
+                "summary": "Удалить мэтч",
                 "parameters": [
                     {
-                        "description": "Unmatch data",
+                        "description": "Данные для удаления мэтча",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/service.UnmatchRequest"
+                            "$ref": "#/definitions/handler.UnmatchRequest"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Мэтч успешно удален",
                         "schema": {
-                            "$ref": "#/definitions/utils.SuccessResponse"
+                            "$ref": "#/definitions/handler.SuccessResponse"
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Неверный запрос",
                         "schema": {
-                            "$ref": "#/definitions/service.ErrorResponse"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     },
                     "401": {
-                        "description": "Unauthorized",
+                        "description": "Не авторизован",
                         "schema": {
-                            "$ref": "#/definitions/service.ErrorResponse"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     },
                     "404": {
-                        "description": "Not Found",
+                        "description": "Мэтч не найден",
                         "schema": {
-                            "$ref": "#/definitions/service.ErrorResponse"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Внутренняя ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/service.ErrorResponse"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
             }
         },
-        "/api/swipe": {
+        "/api/profile/changeProfile": {
             "post": {
                 "security": [
                     {
-                        "CookieAuth": []
+                        "SessionToken": []
                     }
                 ],
-                "description": "Process like/dislike swipe and check for matches",
+                "description": "Изменение профиля через JSON для всех действий кроме загрузки фото\n- updateInfo: обновление основной информации\n- updatePreferences: обновление предпочтений",
                 "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "swipe"
-                ],
-                "summary": "Process swipe",
-                "parameters": [
-                    {
-                        "description": "Swipe data",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/service.SwipeRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/domain.SwipeResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/service.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/service.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/service.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/login": {
-            "post": {
-                "description": "Аутентифицирует пользователя и устанавливает сессию",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "auth"
-                ],
-                "summary": "Вход в систему",
-                "parameters": [
-                    {
-                        "description": "Учетные данные для входа",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "object"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Успешный вход\" example:{\"id\":\"123\",\"email\":\"user@example.com\"}",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "400": {
-                        "description": "Неверный формат запроса\" example:{\"error\":\"invalid request body\"}",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "401": {
-                        "description": "Неверный email или пароль\" example:{\"error\":\"invalid email or password\"}",
-                        "schema": {
-                            "type": "object"
-                        }
-                    }
-                }
-            }
-        },
-        "/logout": {
-            "post": {
-                "description": "Завершает текущую сессию пользователя",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "auth"
-                ],
-                "summary": "Выход из системы",
-                "responses": {
-                    "200": {
-                        "description": "Успешный выход\" example:{\"message\":\"logged out\"}",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "401": {
-                        "description": "Сессия не найдена\" example:{\"error\":\"no session\"}",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "500": {
-                        "description": "Внутренняя ошибка сервера\" example:{\"error\":\"internal error\"}",
-                        "schema": {
-                            "type": "object"
-                        }
-                    }
-                }
-            }
-        },
-        "/profile/changeProfile": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Update user profile information, upload photos, delete photos, set primary photo",
-                "consumes": [
-                    "multipart/form-data",
                     "application/json"
                 ],
                 "produces": [
@@ -357,136 +332,108 @@
                 "tags": [
                     "profile"
                 ],
-                "summary": "Update profile",
+                "summary": "Изменить профиль (JSON)",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "Action type: updateInfo, uploadPhotos, deletePhoto, setPrimaryPhoto, updatePreferences",
-                        "name": "action",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "User name",
-                        "name": "name",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Phone number",
-                        "name": "phone",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Birth date (YYYY-MM-DD)",
-                        "name": "birth_date",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Gender",
-                        "name": "gender",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Bio",
-                        "name": "bio",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "number",
-                        "description": "Latitude",
-                        "name": "latitude",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "number",
-                        "description": "Longitude",
-                        "name": "longitude",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Gender preference",
-                        "name": "show_gender",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Minimum age preference",
-                        "name": "age_min",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Maximum age preference",
-                        "name": "age_max",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Maximum distance preference",
-                        "name": "max_distance",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "boolean",
-                        "description": "Global search preference",
-                        "name": "global_search",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Photo ID for delete/set primary",
-                        "name": "photo_id",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "file",
-                        "description": "Photos to upload",
-                        "name": "photos",
-                        "in": "formData"
+                        "description": "Данные для изменения",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.UpdateProfileRequest"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
-                        "schema": {}
+                        "description": "Успешное обновление",
+                        "schema": {
+                            "$ref": "#/definitions/service.SuccessResponse"
+                        }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Неверный запрос",
                         "schema": {
-                            "$ref": "#/definitions/service.ErrorResponse"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     },
                     "401": {
-                        "description": "Unauthorized",
+                        "description": "Не авторизован",
                         "schema": {
-                            "$ref": "#/definitions/service.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/service.ErrorResponse"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
             }
         },
-        "/profile/profile": {
+        "/api/profile/profile": {
             "get": {
                 "security": [
                     {
-                        "ApiKeyAuth": []
+                        "SessionToken": []
                     }
                 ],
-                "description": "Get current user's profile with photos and preferences",
-                "consumes": [
+                "description": "Возвращает полную информацию о профиле текущего пользователя",
+                "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "profile"
+                ],
+                "summary": "Получить профиль пользователя",
+                "responses": {
+                    "200": {
+                        "description": "Профиль пользователя",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ProfileResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Не авторизован",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Профиль не найден",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/profile/uploadPhotos": {
+            "post": {
+                "security": [
+                    {
+                        "SessionToken": []
+                    }
+                ],
+                "description": "Загрузка фотографий профиля",
+                "consumes": [
+                    "multipart/form-data"
                 ],
                 "produces": [
                     "application/json"
@@ -494,30 +441,54 @@
                 "tags": [
                     "profile"
                 ],
-                "summary": "Get user profile",
+                "summary": "Загрузить фотографии",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "Фотографии для загрузки",
+                        "name": "photos",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Успешная загрузка фото",
                         "schema": {
-                            "$ref": "#/definitions/service.ProfileResponse"
+                            "$ref": "#/definitions/service.UploadPhotosResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     },
                     "401": {
-                        "description": "Unauthorized",
+                        "description": "Не авторизован",
                         "schema": {
-                            "$ref": "#/definitions/service.ErrorResponse"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "403": {
+                        "description": "Превышен лимит фото",
                         "schema": {
-                            "$ref": "#/definitions/service.ErrorResponse"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
             }
         },
-        "/register": {
+        "/api/register": {
             "post": {
                 "description": "Создает нового пользователя и устанавливает сессию",
                 "consumes": [
@@ -529,7 +500,7 @@
                 "tags": [
                     "auth"
                 ],
-                "summary": "Регистрация пользователя",
+                "summary": "Регистрация нового пользователя",
                 "parameters": [
                     {
                         "description": "Данные для регистрации",
@@ -537,47 +508,136 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "object"
+                            "$ref": "#/definitions/handler.RegisterRequest"
                         }
                     }
                 ],
                 "responses": {
                     "201": {
-                        "description": "Пользователь создан\" example:{\"id\":\"123\",\"email\":\"user@example.com\"}",
+                        "description": "Пользователь создан",
                         "schema": {
-                            "type": "object"
+                            "$ref": "#/definitions/handler.RegisterResponse"
                         }
                     },
                     "400": {
-                        "description": "Неверный формат запроса\" example:{\"error\":\"invalid request body\"}",
+                        "description": "Ошибка валидации данных",
                         "schema": {
-                            "type": "object"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     },
                     "500": {
-                        "description": "Внутренняя ошибка сервера\" example:{\"error\":\"internal error\"}",
+                        "description": "Внутренняя ошибка сервера",
                         "schema": {
-                            "type": "object"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
             }
         },
-        "/session": {
+        "/api/session": {
             "get": {
-                "description": "Проверяет валидность текущей сессии и возвращает статус аутентификации",
+                "description": "Проверяет валидность текущей сессии и возвращает информацию о пользователе",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "auth"
                 ],
-                "summary": "Проверка сессии",
+                "summary": "Проверка сессии пользователя",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session token",
+                        "name": "X-Session-Token",
+                        "in": "header"
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "Сессия не валидна\" example:{\"authenticated\":false}",
+                        "description": "Сессия не валидна",
                         "schema": {
-                            "type": "object"
+                            "$ref": "#/definitions/handler.SessionResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/swipe": {
+            "post": {
+                "security": [
+                    {
+                        "SessionToken": []
+                    }
+                ],
+                "description": "Обрабатывает действие пользователя (лайк, дизлайк, суперлайк) и возвращает результат",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "swipe"
+                ],
+                "summary": "Обработать свайп",
+                "parameters": [
+                    {
+                        "description": "Данные свайпа",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.SwipeRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Результат свайпа",
+                        "schema": {
+                            "$ref": "#/definitions/handler.SwipeResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Не авторизован",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Нельзя свайпнуть себя",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Неверное действие свайпа",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
@@ -596,90 +656,18 @@
                 "GenderFemale"
             ]
         },
-        "domain.Match": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "string"
-                },
-                "is_active": {
-                    "type": "boolean"
-                },
-                "matched_at": {
-                    "type": "string"
-                },
-                "user1_id": {
-                    "type": "string"
-                },
-                "user2_id": {
-                    "type": "string"
-                }
-            }
+        "constants.GenderPreference": {
+            "type": "string",
+            "enum": [
+                "male",
+                "female"
+            ],
+            "x-enum-varnames": [
+                "GenderPrefMale",
+                "GenderPrefFemale"
+            ]
         },
-        "domain.SwipeResponse": {
-            "type": "object",
-            "properties": {
-                "match": {
-                    "type": "boolean"
-                },
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "domain.User": {
-            "type": "object",
-            "properties": {
-                "bio": {
-                    "type": "string"
-                },
-                "birth_date": {
-                    "type": "string"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "gender": {
-                    "$ref": "#/definitions/constants.Gender"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "is_verified": {
-                    "type": "boolean"
-                },
-                "last_active": {
-                    "type": "string"
-                },
-                "latitude": {
-                    "type": "number"
-                },
-                "longitude": {
-                    "type": "number"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "phone": {
-                    "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
-                }
-            }
-        },
-        "service.ErrorResponse": {
-            "type": "object",
-            "properties": {
-                "error": {
-                    "type": "string"
-                }
-            }
-        },
-        "service.FeedResponse": {
+        "handler.FeedResponse": {
             "type": "object",
             "properties": {
                 "limit": {
@@ -697,38 +685,33 @@
                 }
             }
         },
-        "service.MatchResponse": {
+        "handler.LoginRequest": {
             "type": "object",
             "properties": {
-                "match": {
-                    "$ref": "#/definitions/domain.Match"
+                "email": {
+                    "type": "string",
+                    "example": "user@example.com"
                 },
-                "user": {
-                    "$ref": "#/definitions/domain.User"
+                "password": {
+                    "type": "string",
+                    "example": "securepassword123"
                 }
             }
         },
-        "service.MatchesResponse": {
+        "handler.LoginResponse": {
             "type": "object",
             "properties": {
-                "limit": {
-                    "type": "integer"
+                "email": {
+                    "type": "string",
+                    "example": "user@example.com"
                 },
-                "matches": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/service.MatchResponse"
-                    }
-                },
-                "offset": {
-                    "type": "integer"
-                },
-                "total": {
-                    "type": "integer"
+                "id": {
+                    "type": "string",
+                    "example": "550e8400-e29b-41d4-a716-446655440000"
                 }
             }
         },
-        "service.ProfileResponse": {
+        "handler.ProfileResponse": {
             "type": "object",
             "properties": {
                 "photos": {},
@@ -736,46 +719,204 @@
                 "user": {}
             }
         },
-        "service.SwipeRequest": {
+        "handler.RegisterRequest": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "user@example.com"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "securepassword123"
+                },
+                "passwordConfirm": {
+                    "type": "string",
+                    "example": "securepassword123"
+                }
+            }
+        },
+        "handler.RegisterResponse": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "user@example.com"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "550e8400-e29b-41d4-a716-446655440000"
+                }
+            }
+        },
+        "handler.SessionResponse": {
+            "type": "object",
+            "properties": {
+                "authenticated": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "user": {
+                    "$ref": "#/definitions/handler.SessionUserResponse"
+                }
+            }
+        },
+        "handler.SessionUserResponse": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "user@example.com"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "550e8400-e29b-41d4-a716-446655440000"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Алексей"
+                }
+            }
+        },
+        "handler.SuccessResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "Operation completed successfully"
+                }
+            }
+        },
+        "handler.SwipeRequest": {
             "type": "object",
             "properties": {
                 "action": {
-                    "description": "'like', 'dislike'",
-                    "type": "string"
+                    "type": "string",
+                    "enum": [
+                        "like",
+                        "dislike",
+                        "super_like"
+                    ],
+                    "example": "like"
                 },
                 "card_id": {
-                    "description": "target_user_id",
-                    "type": "string"
+                    "type": "string",
+                    "example": "550e8400-e29b-41d4-a716-446655440000"
                 }
             }
         },
-        "service.UnmatchRequest": {
+        "handler.SwipeResponse": {
+            "type": "object",
+            "properties": {
+                "is_match": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "match_id": {
+                    "type": "string",
+                    "example": "660e8400-e29b-41d4-a716-446655440000"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "It's a match!"
+                }
+            }
+        },
+        "handler.UnmatchRequest": {
             "type": "object",
             "properties": {
                 "target_user_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "550e8400-e29b-41d4-a716-446655440000"
                 }
             }
         },
-        "utils.SuccessResponse": {
+        "service.SuccessResponse": {
             "type": "object",
             "properties": {
                 "message": {
                     "type": "string"
                 }
             }
+        },
+        "service.UpdateProfileRequest": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "description": "\"updateInfo\", \"updatePreferences\", \"deletePhoto\", \"setPrimaryPhoto\"",
+                    "type": "string"
+                },
+                "age_max": {
+                    "type": "integer"
+                },
+                "age_min": {
+                    "type": "integer"
+                },
+                "bio": {
+                    "type": "string"
+                },
+                "birth_date": {
+                    "type": "string"
+                },
+                "gender": {
+                    "$ref": "#/definitions/constants.Gender"
+                },
+                "global_search": {
+                    "type": "boolean"
+                },
+                "latitude": {
+                    "type": "number"
+                },
+                "longitude": {
+                    "type": "number"
+                },
+                "max_distance": {
+                    "type": "integer"
+                },
+                "name": {
+                    "description": "Для updateInfo",
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "photo_id": {
+                    "description": "Для deletePhoto и setPrimaryPhoto",
+                    "type": "string"
+                },
+                "photo_ids": {
+                    "description": "Для reorderPhotos",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "show_gender": {
+                    "description": "Для updatePreferences",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/constants.GenderPreference"
+                        }
+                    ]
+                }
+            }
+        },
+        "service.UploadPhotosResponse": {
+            "type": "object",
+            "properties": {
+                "photos": {
+                    "type": "array",
+                    "items": {}
+                }
+            }
         }
     },
     "securityDefinitions": {
-        "ApiKeyAuth": {
-            "type": "apiKey",
-            "name": "Authorization",
-            "in": "header"
-        },
         "SessionToken": {
+            "description": "Токен сессии для аутентификации пользователя (альтернатива cookie)",
             "type": "apiKey",
-            "name": "session_token",
-            "in": "cookie"
+            "name": "X-Session-Token",
+            "in": "header"
         }
     }
 }

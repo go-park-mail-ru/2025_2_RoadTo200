@@ -21,19 +21,25 @@ func NewFeedHandler(feedService service.FeedService) *FeedHandler {
 	}
 }
 
-// GetFeed returns feed of users
-// @Summary Get user feed
-// @Description Get feed of potential matches with pagination
+// FeedResponse represents feed response
+type FeedResponse struct {
+	Users  []interface{} `json:"users"`
+	Limit  int           `json:"limit"`
+	Offset int           `json:"offset"`
+	Total  int           `json:"total"`
+}
+
+// GetFeed godoc
+// @Summary Получить ленту пользователей
+// @Description Возвращает ленту пользователей для свайпинга на основе предпочтений и местоположения
 // @Tags feed
-// @Accept json
 // @Produce json
-// @Security CookieAuth
-// @Param limit query int false "Number of users to return" default(15)
-// @Param offset query int false "Offset for pagination" default(0)
-// @Success 200 {object} service.FeedResponse
-// @Failure 400 {object} service.ErrorResponse
-// @Failure 401 {object} service.ErrorResponse
-// @Failure 500 {object} service.ErrorResponse
+// @Security SessionToken
+// @Param limit query int false "Лимит пользователей (максимум 50)" default(15) minimum(1) maximum(50)
+// @Param offset query int false "Смещение для пагинации" default(0) minimum(0)
+// @Success 200 {object} FeedResponse "Лента пользователей"
+// @Failure 401 {object} map[string]string "Не авторизован"
+// @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
 // @Router /api/feed [get]
 func (h *FeedHandler) GetFeed(w http.ResponseWriter, r *http.Request) {
 	userID, err := h.getUserIDFromContext(r)
@@ -59,7 +65,7 @@ func (h *FeedHandler) GetFeed(w http.ResponseWriter, r *http.Request) {
 		usersResponse[i] = user
 	}
 
-	response := service.FeedResponse{
+	response := FeedResponse{
 		Users:  usersResponse,
 		Limit:  limit,
 		Offset: offset,

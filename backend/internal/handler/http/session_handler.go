@@ -21,34 +21,66 @@ func NewSessionHandler(authService *service.AuthService) *SessionHandler {
 	}
 }
 
+// SessionResponse represents session check response
+type SessionResponse struct {
+	Authenticated bool                 `json:"authenticated" example:"true"`
+	User          *SessionUserResponse `json:"user,omitempty"`
+}
+
+// SessionUserResponse represents user data in session response
+type SessionUserResponse struct {
+	ID    string `json:"id" example:"550e8400-e29b-41d4-a716-446655440000"`
+	Email string `json:"email" example:"user@example.com"`
+	Name  string `json:"name" example:"Алексей"`
+}
+
+// GetSession godoc
+// @Summary Проверка сессии пользователя
+// @Description Проверяет валидность текущей сессии и возвращает информацию о пользователе
+// @Tags auth
+// @Produce json
+// @Param X-Session-Token header string false "Session token"
+// @Success 200 {object} SessionResponse "Сессия валидна"
+// @Success 200 {object} SessionResponse "Сессия не валидна"
+// @Router /api/session [get]
 func (h *SessionHandler) GetSession(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie("session_token")
-	if err != nil {
-		utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
-			"authenticated": false,
+	var token string
+
+	// Пробуем получить токен из заголовка
+	if authHeader := r.Header.Get("X-Session-Token"); authHeader != "" {
+		token = authHeader
+	} else {
+		// Пробуем получить токен из куки
+		if cookie, err := r.Cookie("session_token"); err == nil {
+			token = cookie.Value
+		}
+	}
+
+	if token == "" {
+		utils.WriteJSON(w, http.StatusOK, SessionResponse{
+			Authenticated: false,
 		})
 		return
 	}
 
 	// Валидируем сессию
-	user, err := h.authService.ValidateSession(cookie.Value)
+	user, err := h.authService.ValidateSession(token)
 	if err != nil {
-		utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
-			"authenticated": false,
+		utils.WriteJSON(w, http.StatusOK, SessionResponse{
+			Authenticated: false,
 		})
 		return
 	}
 
 	// Формируем успешный ответ
-	response := map[string]interface{}{
-		"authenticated": true,
-		"user": map[string]interface{}{
-			"id":    user.ID,
-			"email": user.Email,
-			"name":  user.Name,
+	response := SessionResponse{
+		Authenticated: true,
+		User: &SessionUserResponse{
+			ID:    user.ID.String(),
+			Email: user.Email,
+			Name:  user.Name,
 		},
 	}
 
-	// ВАЖНО: используем WriteJSON который устанавливает заголовки
 	utils.WriteJSON(w, http.StatusOK, response)
 }

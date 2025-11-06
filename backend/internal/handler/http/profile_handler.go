@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	//"time"
 
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/constants"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/errors"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/middleware"
@@ -26,17 +28,58 @@ func NewProfileHandler(profileService service.ProfileService) *ProfileHandler {
 	}
 }
 
-// GetProfile возвращает профиль текущего пользователя
-// @Summary Get user profile
-// @Description Get current user's profile with photos and preferences
+// ProfileResponse represents profile response
+type ProfileResponse struct {
+	User        interface{} `json:"user"`
+	Preferences interface{} `json:"preferences,omitempty"`
+	Photos      interface{} `json:"photos,omitempty"`
+}
+
+// UpdateProfileInfoRequest запрос на обновление информации
+type UpdateProfileInfoRequest struct {
+	Action    string           `json:"action" example:"updateInfo"`
+	Name      string           `json:"name,omitempty" example:"Алексей"`
+	Phone     *string          `json:"phone,omitempty" example:"+79991234567"`
+	BirthDate *time.Time       `json:"birth_date,omitempty" example:"1990-01-01T00:00:00Z"`
+	Gender    constants.Gender `json:"gender,omitempty" example:"male"`
+	Bio       *string          `json:"bio,omitempty" example:"Люблю путешествия и спорт"`
+	Latitude  *float64         `json:"latitude,omitempty" example:"55.7558"`
+	Longitude *float64         `json:"longitude,omitempty" example:"37.6173"`
+}
+
+// UpdatePreferencesRequest запрос на обновление предпочтений
+type UpdatePreferencesRequest struct {
+	Action       string                     `json:"action" example:"updatePreferences"`
+	ShowGender   constants.GenderPreference `json:"show_gender,omitempty" example:"female"`
+	AgeMin       int                        `json:"age_min,omitempty" example:"18"`
+	AgeMax       int                        `json:"age_max,omitempty" example:"35"`
+	MaxDistance  int                        `json:"max_distance,omitempty" example:"50"`
+	GlobalSearch bool                       `json:"global_search,omitempty" example:"false"`
+}
+
+// DeletePhotoRequest запрос на удаление фото
+type DeletePhotoRequest struct {
+	Action  string    `json:"action" example:"deletePhoto"`
+	PhotoID uuid.UUID `json:"photo_id" example:"550e8400-e29b-41d4-a716-446655440000"`
+}
+
+// SetPrimaryPhotoRequest запрос на установку основного фото
+type SetPrimaryPhotoRequest struct {
+	Action  string    `json:"action" example:"setPrimaryPhoto"`
+	PhotoID uuid.UUID `json:"photo_id" example:"550e8400-e29b-41d4-a716-446655440000"`
+}
+
+// GetProfile godoc
+// @Summary Получить профиль пользователя
+// @Description Возвращает полную информацию о профиле текущего пользователя
 // @Tags profile
-// @Accept json
 // @Produce json
-// @Security ApiKeyAuth
-// @Success 200 {object} service.ProfileResponse
-// @Failure 401 {object} service.ErrorResponse
-// @Failure 500 {object} service.ErrorResponse
-// @Router /profile/profile [get]
+// @Security SessionToken
+// @Success 200 {object} ProfileResponse "Профиль пользователя"
+// @Failure 401 {object} map[string]string "Не авторизован"
+// @Failure 404 {object} map[string]string "Профиль не найден"
+// @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
+// @Router /api/profile/profile [get]
 func (h *ProfileHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
 	userID, err := h.getUserIDFromContext(r)
 	if err != nil {
@@ -63,54 +106,62 @@ func (h *ProfileHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
 	utils.WriteJSON(w, http.StatusOK, response)
 }
 
-// ChangeProfile обрабатывает все операции изменения профиля
-// @Summary Update profile
-// @Description Update user profile information, upload photos, delete photos, set primary photo
+// ChangeProfileJSON godoc
+// @Summary Изменить профиль (JSON)
+// @Description Изменение профиля через JSON для всех действий кроме загрузки фото
+// @Description - updateInfo: обновление основной информации
+// @Description - updatePreferences: обновление предпочтений
 // @Tags profile
-// @Accept multipart/form-data
 // @Accept json
 // @Produce json
-// @Security ApiKeyAuth
-// @Param action formData string true "Action type: updateInfo, uploadPhotos, deletePhoto, setPrimaryPhoto, updatePreferences"
-// @Param name formData string false "User name"
-// @Param phone formData string false "Phone number"
-// @Param birth_date formData string false "Birth date (YYYY-MM-DD)"
-// @Param gender formData string false "Gender"
-// @Param bio formData string false "Bio"
-// @Param latitude formData number false "Latitude"
-// @Param longitude formData number false "Longitude"
-// @Param show_gender formData string false "Gender preference"
-// @Param age_min formData int false "Minimum age preference"
-// @Param age_max formData int false "Maximum age preference"
-// @Param max_distance formData int false "Maximum distance preference"
-// @Param global_search formData bool false "Global search preference"
-// @Param photo_id formData string false "Photo ID for delete/set primary"
-// @Param photos formData file false "Photos to upload"
-// @Success 200 {object} interface{}
-// @Failure 400 {object} service.ErrorResponse
-// @Failure 401 {object} service.ErrorResponse
-// @Failure 500 {object} service.ErrorResponse
-// @Router /profile/changeProfile [post]
+// @Security SessionToken
+// @Param request body service.UpdateProfileRequest true "Данные для изменения"
+// @Success 200 {object} service.SuccessResponse "Успешное обновление"
+// @Failure 400 {object} map[string]string "Неверный запрос"
+// @Failure 401 {object} map[string]string "Не авторизован"
+// @Router /api/profile/changeProfile [post]
 func (h *ProfileHandler) ChangeProfile(w http.ResponseWriter, r *http.Request) {
-	fmt.Printf("Content-Type: %s\n", r.Header.Get("Content-Type"))
-	fmt.Printf("Method: %s\n", r.Method)
 	userID, err := h.getUserIDFromContext(r)
 	if err != nil {
 		utils.WriteJSONError(w, http.StatusUnauthorized, "unauthorized")
 		return
 	}
 
-	contentType := r.Header.Get("Content-Type")
-	fmt.Printf("Content-Type: %s\n", contentType)
-
-	// Используем strings.Contains вместо строгого сравнения
-	if strings.Contains(contentType, "application/json") {
-		h.handleJSONRequest(w, r, userID)
-	} else if strings.Contains(contentType, "multipart/form-data") {
-		h.handleMultipartRequest(w, r, userID)
-	} else {
-		utils.WriteJSONError(w, http.StatusBadRequest, "unsupported content type: "+contentType)
+	// Только JSON запросы
+	if !strings.Contains(r.Header.Get("Content-Type"), "application/json") {
+		utils.WriteJSONError(w, http.StatusBadRequest, "only JSON content type supported for this endpoint")
+		return
 	}
+
+	h.handleJSONRequest(w, r, userID)
+}
+
+// UploadPhotos godoc
+// @Summary Загрузить фотографии
+// @Description Загрузка фотографий профиля
+// @Tags profile
+// @Accept multipart/form-data
+// @Produce json
+// @Security SessionToken
+// @Param photos formData file true "Фотографии для загрузки"
+// @Success 200 {object} service.UploadPhotosResponse "Успешная загрузка фото"
+// @Failure 400 {object} map[string]string "Неверный запрос"
+// @Failure 401 {object} map[string]string "Не авторизован"
+// @Failure 403 {object} map[string]string "Превышен лимит фото"
+// @Router /api/profile/uploadPhotos [post]
+func (h *ProfileHandler) UploadPhotos(w http.ResponseWriter, r *http.Request) {
+	userID, err := h.getUserIDFromContext(r)
+	if err != nil {
+		utils.WriteJSONError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	if err := r.ParseMultipartForm(32 << 20); err != nil {
+		utils.WriteJSONError(w, http.StatusBadRequest, "failed to parse form data")
+		return
+	}
+
+	h.uploadPhotos(w, r, userID)
 }
 
 // handleJSONRequest обрабатывает JSON запросы

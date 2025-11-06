@@ -3,9 +3,11 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 
-	//"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/http"
 	handler "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/http"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/middleware"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
@@ -16,36 +18,34 @@ import (
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/utils"
 	httpSwagger "github.com/swaggo/http-swagger"
 
-	//"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/config"
 	service "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/implementations"
 	postgres_connect "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/postgres"
 	redis_connect "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/redis"
 
-	_ "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/api/docs" // импорт сгенерированной docs
+	_ "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/api/docs"
 )
 
-// @title Terabithia API
+// @title Terabithia Dating App API
 // @version 1.0
-// @description API для dating приложения
+// @description API для dating приложения Terabithia
 // @termsOfService http://swagger.io/terms/
 
 // @contact.name API Support
-// @contact.email support@datingapp.com
+// @contact.email support@terabithia.com
 
 // @license.name MIT
 // @license.url https://opensource.org/licenses/MIT
 
-// @host 0.0.0.0:8080
-// @BasePath /api
-// @securityDefinitions.apikey ApiKeyAuth
+// @host localhost:8080
+// @BasePath /
 // @schemes http
-// @in header
-// @name Authorization
 
 // @securityDefinitions.apikey SessionToken
-// @in cookie
-// @name session_token
+// @in header
+// @name X-Session-Token
+// @description Токен сессии для аутентификации пользователя (альтернатива cookie)
+
 func main() {
 	// Загрузка конфигурации
 	logger.Println("🚀 Starting server...")
@@ -91,8 +91,8 @@ func main() {
 	feedService := service.NewFeedService(userRepo)
 	profileService := service.NewProfileService(
 		userRepo,
-		postgres.NewUserPhotoRepository(pool),      // нужно создать эту реализацию
-		postgres.NewUserPreferenceRepository(pool), // и эту
+		postgres.NewUserPhotoRepository(pool),
+		postgres.NewUserPreferenceRepository(pool),
 		minioStorage,
 	)
 	swipeService := service.NewSwipeService(
@@ -114,28 +114,48 @@ func main() {
 	matchHandler := handler.NewMatchHandler(matchService)
 
 	server := httpserver.NewServer()
-	// Middleware
+
+	// Global middleware
 	server.AddMiddleware(middleware.LogMiddleware(logg))
 	server.AddMiddleware(middleware.CORSMiddleware)
 
-	// Маршруты
+	// Public routes (no auth required)
 	server.AddHandler("/api/register", http.HandlerFunc(authHandler.Register))
 	server.AddHandler("/api/login", http.HandlerFunc(authHandler.Login))
 	server.AddHandler("/api/session", http.HandlerFunc(sessionHandler.GetSession))
-	server.AddHandler("/api/logout", http.HandlerFunc(authHandler.Logout))
 
+	// Swagger should be accessible without auth
+	server.AddHandler("/swagger/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/swagger/doc.json" {
+			data, err := os.ReadFile(getSwaggerPath())
+			if err != nil {
+				log.Printf("Error reading swagger.json: %v", err)
+				utils.WriteJSONError(w, http.StatusInternalServerError, "Swagger docs not found: "+err.Error())
+				return
+			}
+			w.Header().Set("Content-Type", "application/json")
+			w.Write(data)
+			return
+		}
+
+		httpSwagger.Handler(httpSwagger.URL("/swagger/doc.json")).ServeHTTP(w, r)
+	}))
+
+	// Health check
+	server.AddHandler("/health", http.HandlerFunc(healthHandler))
+
+	// Auth middleware for protected routes
 	server.AddMiddleware(middleware.AuthMiddleware(authService))
-	// Защищенные маршруты
+
+	// Protected routes (require auth)
+	server.AddHandler("/api/logout", http.HandlerFunc(authHandler.Logout))
 	server.AddHandler("/api/profile/profile", http.HandlerFunc(profileHandler.GetProfile))
-	server.AddHandler("/api/profile/changeProfile", http.HandlerFunc(profileHandler.ChangeProfile))
+	server.AddHandler("/api/profile/changeProfile", http.HandlerFunc(profileHandler.ChangeProfile)) // JSON only
+	server.AddHandler("/api/profile/uploadPhotos", http.HandlerFunc(profileHandler.UploadPhotos))   // Multipart only
 	server.AddHandler("/api/feed", http.HandlerFunc(feedHandler.GetFeed))
 	server.AddHandler("/api/swipe", http.HandlerFunc(swipeHandler.ProcessSwipe))
 	server.AddHandler("/api/matches", http.HandlerFunc(matchHandler.GetUserMatches))
 	server.AddHandler("/api/matches/unmatch", http.HandlerFunc(matchHandler.Unmatch))
-
-	server.AddHandler("/swagger/", httpSwagger.Handler(
-		httpSwagger.URL(fmt.Sprintf("http://%s:%d/swagger/doc.json", cfg.Host, cfg.Port)), // URL для doc.json
-	))
 
 	addr := fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)
 	logger.Printf("Server starting on %s", addr)
@@ -151,4 +171,36 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 		"status": "ok",
 		"app":    "terabithia app",
 	})
+}
+
+// Добавьте функцию для получения абсолютного пути
+func getSwaggerPath() string {
+	// Пробуем несколько возможных путей
+	paths := []string{
+		"docs/swagger.json",
+		"./docs/swagger.json",
+		"../docs/swagger.json",
+		"../../docs/swagger.json",
+	}
+
+	// Получаем директорию где запущен бинарник
+	exe, err := os.Executable()
+	if err == nil {
+		exeDir := filepath.Dir(exe)
+		paths = append(paths, filepath.Join(exeDir, "docs/swagger.json"))
+	}
+
+	// Текущая рабочая директория
+	if wd, err := os.Getwd(); err == nil {
+		paths = append(paths, filepath.Join(wd, "docs/swagger.json"))
+	}
+
+	for _, path := range paths {
+		if _, err := os.Stat(path); err == nil {
+			log.Printf("Found swagger.json at: %s", path)
+			return path
+		}
+	}
+
+	return "docs/swagger.json" // fallback
 }
