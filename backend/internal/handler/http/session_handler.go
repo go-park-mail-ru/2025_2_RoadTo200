@@ -15,9 +15,10 @@ type SessionHandler struct {
 	logger      *logger.Logger
 }
 
-func NewSessionHandler(authService *service.AuthService) *SessionHandler {
+func NewSessionHandler(authService *service.AuthService, l *logger.Logger) *SessionHandler {
 	return &SessionHandler{
 		authService: authService,
+		logger:      l,
 	}
 }
 
@@ -57,6 +58,7 @@ func (h *SessionHandler) GetSession(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if token == "" {
+		h.logger.Warnf("token is empty")
 		utils.WriteJSON(w, http.StatusOK, SessionResponse{
 			Authenticated: false,
 		})
@@ -66,12 +68,13 @@ func (h *SessionHandler) GetSession(w http.ResponseWriter, r *http.Request) {
 	// Валидируем сессию
 	user, err := h.authService.ValidateSession(token)
 	if err != nil {
+		h.logger.Warnf("SessionHandler.ValidateSession: %v", err)
 		utils.WriteJSON(w, http.StatusOK, SessionResponse{
 			Authenticated: false,
 		})
 		return
 	}
-
+	h.logger.Debugf("SessionHandler.ValidateSession: %v", user)
 	// Формируем успешный ответ
 	response := SessionResponse{
 		Authenticated: true,
