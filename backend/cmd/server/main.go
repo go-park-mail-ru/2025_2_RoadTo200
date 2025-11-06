@@ -36,7 +36,7 @@ import (
 // @license.name MIT
 // @license.url https://opensource.org/licenses/MIT
 
-// @host 0.0.0.0:8080
+// @host 217.16.17.116:8080
 // @BasePath /api
 // @securityDefinitions.apikey ApiKeyAuth
 // @schemes http
@@ -116,7 +116,11 @@ func main() {
 	server := httpserver.NewServer()
 	// Middleware
 	server.AddMiddleware(middleware.LogMiddleware(logg))
-	server.AddMiddleware(middleware.CORSMiddleware)
+	server.AddMiddleware(middleware.CORSMiddleware(&cfg.Cors))
+
+	server.AddHandler("/swagger/", httpSwagger.Handler(
+		httpSwagger.URL(fmt.Sprintf("http://217.16.17.116:%d/swagger/doc.json", cfg.Port)), // URL для doc.json
+	))
 
 	// Маршруты
 	server.AddHandler("/api/register", http.HandlerFunc(authHandler.Register))
@@ -132,10 +136,6 @@ func main() {
 	server.AddHandler("/api/swipe", http.HandlerFunc(swipeHandler.ProcessSwipe))
 	server.AddHandler("/api/matches", http.HandlerFunc(matchHandler.GetUserMatches))
 	server.AddHandler("/api/matches/unmatch", http.HandlerFunc(matchHandler.Unmatch))
-
-	server.AddHandler("/swagger/", httpSwagger.Handler(
-		httpSwagger.URL(fmt.Sprintf("http://%s:%d/swagger/doc.json", cfg.Host, cfg.Port)), // URL для doc.json
-	))
 
 	addr := fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)
 	logger.Printf("Server starting on %s", addr)
