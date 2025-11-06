@@ -20,18 +20,32 @@ func NewSwipeHandler(swipeService service.SwipeService) *SwipeHandler {
 	}
 }
 
-// ProcessSwipe handles swipe actions
-// @Summary Process swipe
-// @Description Process like/dislike swipe and check for matches
+// SwipeRequest represents swipe request
+type SwipeRequest struct {
+	CardID string `json:"card_id" example:"550e8400-e29b-41d4-a716-446655440000"`
+	Action string `json:"action" example:"like" enums:"like,dislike,super_like"`
+}
+
+// SwipeResponse represents swipe response
+type SwipeResponse struct {
+	IsMatch bool   `json:"is_match" example:"true"`
+	MatchID string `json:"match_id,omitempty" example:"660e8400-e29b-41d4-a716-446655440000"`
+	Message string `json:"message,omitempty" example:"It's a match!"`
+}
+
+// ProcessSwipe godoc
+// @Summary Обработать свайп
+// @Description Обрабатывает действие пользователя (лайк, дизлайк, суперлайк) и возвращает результат
 // @Tags swipe
 // @Accept json
 // @Produce json
-// @Security CookieAuth
-// @Param request body service.SwipeRequest true "Swipe data"
-// @Success 200 {object} domain.SwipeResponse
-// @Failure 400 {object} service.ErrorResponse
-// @Failure 401 {object} service.ErrorResponse
-// @Failure 500 {object} service.ErrorResponse
+// @Security SessionToken
+// @Param request body SwipeRequest true "Данные свайпа"
+// @Success 200 {object} SwipeResponse "Результат свайпа"
+// @Failure 400 {object} map[string]string "Неверный запрос"
+// @Failure 401 {object} map[string]string "Не авторизован"
+// @Failure 403 {object} map[string]string "Нельзя свайпнуть себя"
+// @Failure 422 {object} map[string]string "Неверное действие свайпа"
 // @Router /api/swipe [post]
 func (h *SwipeHandler) ProcessSwipe(w http.ResponseWriter, r *http.Request) {
 	userID, err := middleware.GetUserIDFromContext(r.Context())

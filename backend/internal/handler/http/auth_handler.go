@@ -18,23 +18,45 @@ func NewAuthHandler(authService *service.AuthService) *AuthHandler {
 	}
 }
 
-// Register регистрирует нового пользователя
-// @Summary Регистрация пользователя
+// RegisterRequest represents registration request
+type RegisterRequest struct {
+	Email           string `json:"email" example:"user@example.com"`
+	Password        string `json:"password" example:"securepassword123"`
+	PasswordConfirm string `json:"passwordConfirm" example:"securepassword123"`
+}
+
+// RegisterResponse represents registration response
+type RegisterResponse struct {
+	ID    string `json:"id" example:"550e8400-e29b-41d4-a716-446655440000"`
+	Email string `json:"email" example:"user@example.com"`
+}
+
+// LoginRequest represents login request
+type LoginRequest struct {
+	Email    string `json:"email" example:"user@example.com"`
+	Password string `json:"password" example:"securepassword123"`
+}
+
+// LoginResponse represents login response
+type LoginResponse struct {
+	ID    string `json:"id" example:"550e8400-e29b-41d4-a716-446655440000"`
+	Email string `json:"email" example:"user@example.com"`
+}
+
+// Register godoc
+// @Summary Регистрация нового пользователя
 // @Description Создает нового пользователя и устанавливает сессию
 // @Tags auth
 // @Accept json
 // @Produce json
-// @Param request body object true "Данные для регистрации" example:{"email":"user@example.com","password":"password123","passwordConfirm":"password123"}
-// @Success 201 {object} object "Пользователь создан" example:{"id":"123","email":"user@example.com"}
-// @Failure 400 {object} object "Неверный формат запроса" example:{"error":"invalid request body"}
-// @Failure 500 {object} object "Внутренняя ошибка сервера" example:{"error":"internal error"}
-// @Router /register [post]
+// @Param request body RegisterRequest true "Данные для регистрации"
+// @Success 201 {object} RegisterResponse "Пользователь создан"
+// @Failure 400 {object} map[string]string "Неверный формат запроса"
+// @Failure 400 {object} map[string]string "Ошибка валидации данных"
+// @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
+// @Router /api/register [post]
 func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
-	var req struct {
-		Email           string `json:"email"`
-		Password        string `json:"password"`
-		PasswordConfirm string `json:"passwordConfirm"`
-	}
+	var req RegisterRequest
 
 	if err := utils.ReadJSON(r, &req); err != nil {
 		utils.WriteJSONError(w, http.StatusBadRequest, "invalid request body")
@@ -53,28 +75,25 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 
 	utils.SetSessionCookie(w, session.Token, 3600)
 
-	utils.WriteJSON(w, http.StatusCreated, map[string]interface{}{
-		"id":    user.ID,
-		"email": user.Email,
+	utils.WriteJSON(w, http.StatusCreated, RegisterResponse{
+		ID:    user.ID.String(),
+		Email: user.Email,
 	})
 }
 
-// Login аутентифицирует пользователя
-// @Summary Вход в систему
-// @Description Аутентифицирует пользователя и устанавливает сессию
+// Login godoc
+// @Summary Аутентификация пользователя
+// @Description Вход пользователя в систему и установка сессии
 // @Tags auth
 // @Accept json
 // @Produce json
-// @Param request body object true "Учетные данные для входа" example:{"email":"user@example.com","password":"password123"}
-// @Success 200 {object} object "Успешный вход" example:{"id":"123","email":"user@example.com"}
-// @Failure 400 {object} object "Неверный формат запроса" example:{"error":"invalid request body"}
-// @Failure 401 {object} object "Неверный email или пароль" example:{"error":"invalid email or password"}
-// @Router /login [post]
+// @Param request body LoginRequest true "Данные для входа"
+// @Success 200 {object} LoginResponse "Успешный вход"
+// @Failure 400 {object} map[string]string "Неверный формат запроса"
+// @Failure 401 {object} map[string]string "Неверный email или пароль"
+// @Router /api/login [post]
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
-	var req struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
-	}
+	var req LoginRequest
 
 	if err := utils.ReadJSON(r, &req); err != nil {
 		utils.WriteJSONError(w, http.StatusBadRequest, "invalid request body")
@@ -89,21 +108,22 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	utils.SetSessionCookie(w, session.Token, 3600)
 
-	utils.WriteJSON(w, http.StatusOK, map[string]interface{}{
-		"id":    user.ID,
-		"email": user.Email,
+	utils.WriteJSON(w, http.StatusOK, LoginResponse{
+		ID:    user.ID.String(),
+		Email: user.Email,
 	})
 }
 
-// Logout завершает сессию пользователя
-// @Summary Выход из системы
-// @Description Завершает текущую сессию пользователя
+// Logout godoc
+// @Summary Выход пользователя
+// @Description Завершает сессию пользователя
 // @Tags auth
 // @Produce json
-// @Success 200 {object} object "Успешный выход" example:{"message":"logged out"}
-// @Failure 401 {object} object "Сессия не найдена" example:{"error":"no session"}
-// @Failure 500 {object} object "Внутренняя ошибка сервера" example:{"error":"internal error"}
-// @Router /logout [post]
+// @Security SessionToken
+// @Success 200 {object} map[string]string "Успешный выход"
+// @Failure 401 {object} map[string]string "Сессия не найдена"
+// @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
+// @Router /api/logout [post]
 func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("session_token")
 	if err != nil {

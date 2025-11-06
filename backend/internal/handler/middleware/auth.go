@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/implementations"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/utils"
@@ -16,28 +17,71 @@ const (
 	UserIDKey contextKey = "userID"
 )
 
+// Public endpoints that don't require authentication
+var publicEndpoints = map[string]bool{
+	"/api/register":       true,
+	"/api/login":          true,
+	"/api/session":        true,
+	"/health":             true,
+	"/swagger/":           true,
+	"/swagger":            true,
+	"/swagger/doc.json":   true,
+	"/swagger/index.html": true,
+}
+
 func AuthMiddleware(authService *service.AuthService) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			// Получаем session_token из cookie
-			cookie, err := r.Cookie("session_token")
-			if err != nil {
+			// Check if this is a public endpoint
+			if isPublicEndpoint(r.URL.Path) {
+				next.ServeHTTP(w, r)
+				return
+			}
+
+			var token string
+
+			// Try to get token from header first (for Swagger)
+			if authHeader := r.Header.Get("X-Session-Token"); authHeader != "" {
+				token = authHeader
+			} else {
+				// Try to get token from cookie (for browser)
+				if cookie, err := r.Cookie("session_token"); err == nil {
+					token = cookie.Value
+				}
+			}
+
+			if token == "" {
 				utils.WriteJSONError(w, http.StatusUnauthorized, "unauthorized: no session token")
 				return
 			}
 
-			// Валидируем сессию
-			user, err := authService.ValidateSession(cookie.Value)
+			// Validate session
+			user, err := authService.ValidateSession(token)
 			if err != nil {
 				utils.WriteJSONError(w, http.StatusUnauthorized, "unauthorized: invalid session")
 				return
 			}
 
-			// Добавляем userID в контекст
+			// Add userID to context
 			ctx := context.WithValue(r.Context(), UserIDKey, user.ID)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
+}
+
+// isPublicEndpoint checks if the requested path is a public endpoint
+func isPublicEndpoint(path string) bool {
+	// Exact match
+	if publicEndpoints[path] {
+		return true
+	}
+
+	// Prefix match for Swagger
+	if strings.HasPrefix(path, "/swagger/") {
+		return true
+	}
+
+	return false
 }
 
 // GetUserIDFromContext извлекает userID из контекста

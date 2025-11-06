@@ -20,19 +20,27 @@ func NewMatchHandler(matchService service.MatchService) *MatchHandler {
 	}
 }
 
-// GetUserMatches returns user's matches
-// @Summary Get user matches
-// @Description Get list of user's matches with user details
+// UnmatchRequest represents unmatch request
+type UnmatchRequest struct {
+	TargetUserID string `json:"target_user_id" example:"550e8400-e29b-41d4-a716-446655440000"`
+}
+
+// SuccessResponse represents success response
+type SuccessResponse struct {
+	Message string `json:"message" example:"Operation completed successfully"`
+}
+
+// GetUserMatches godoc
+// @Summary Получить мэтчи пользователя
+// @Description Возвращает список мэтчей текущего пользователя
 // @Tags matches
-// @Accept json
 // @Produce json
-// @Security CookieAuth
-// @Param limit query int false "Number of matches to return" default(20)
-// @Param offset query int false "Offset for pagination" default(0)
-// @Success 200 {object} service.MatchesResponse
-// @Failure 400 {object} service.ErrorResponse
-// @Failure 401 {object} service.ErrorResponse
-// @Failure 500 {object} service.ErrorResponse
+// @Security SessionToken
+// @Param limit query int false "Лимит мэтчей (максимум 50)" default(20) minimum(1) maximum(50)
+// @Param offset query int false "Смещение для пагинации" default(0) minimum(0)
+// @Success 200 {object} interface{} "Список мэтчей"
+// @Failure 401 {object} map[string]string "Не авторизован"
+// @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
 // @Router /api/matches [get]
 func (h *MatchHandler) GetUserMatches(w http.ResponseWriter, r *http.Request) {
 	userID, err := middleware.GetUserIDFromContext(r.Context())
@@ -54,19 +62,19 @@ func (h *MatchHandler) GetUserMatches(w http.ResponseWriter, r *http.Request) {
 	utils.WriteJSON(w, http.StatusOK, matches)
 }
 
-// Unmatch removes a match
-// @Summary Unmatch user
-// @Description Remove match with another user
+// Unmatch godoc
+// @Summary Удалить мэтч
+// @Description Удаляет мэтч с указанным пользователем
 // @Tags matches
 // @Accept json
 // @Produce json
-// @Security CookieAuth
-// @Param request body service.UnmatchRequest true "Unmatch data"
-// @Success 200 {object} utils.SuccessResponse
-// @Failure 400 {object} service.ErrorResponse
-// @Failure 401 {object} service.ErrorResponse
-// @Failure 404 {object} service.ErrorResponse
-// @Failure 500 {object} service.ErrorResponse
+// @Security SessionToken
+// @Param request body UnmatchRequest true "Данные для удаления мэтча"
+// @Success 200 {object} SuccessResponse "Мэтч успешно удален"
+// @Failure 400 {object} map[string]string "Неверный запрос"
+// @Failure 401 {object} map[string]string "Не авторизован"
+// @Failure 404 {object} map[string]string "Мэтч не найден"
+// @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
 // @Router /api/matches/unmatch [post]
 func (h *MatchHandler) Unmatch(w http.ResponseWriter, r *http.Request) {
 	userID, err := middleware.GetUserIDFromContext(r.Context())
