@@ -62,7 +62,9 @@ func (s *AuthService) Register(email, password, passwordConfirm string) (*domain
 		CreatedAt:  time.Now(),
 		UpdatedAt:  time.Now(),
 	}
-	s.logger.Debugf("User registered: %v", user)
+	if s.logger != nil {
+		s.logger.Debugf("User registered: %v", user)
+	}
 
 	if err := s.userRepo.Create(user); err != nil {
 		return nil, nil, err
@@ -80,7 +82,9 @@ func (s *AuthService) Register(email, password, passwordConfirm string) (*domain
 }
 
 func (s *AuthService) Login(email, password string) (*domain.User, *domain.Session, error) {
-	s.logger.Debugf("Login: %v", email)
+	if s.logger != nil {
+		s.logger.Debugf("Login: %v", email)
+	}
 	user, err := s.userRepo.GetByEmail(email)
 	if err != nil {
 		return nil, nil, err
@@ -110,7 +114,9 @@ func (s *AuthService) Login(email, password string) (*domain.User, *domain.Sessi
 }
 
 func (s *AuthService) Logout(token string) error {
-	s.logger.Debugf("Logout: %v", token)
+	if s.logger != nil {
+		s.logger.Debugf("Logout: %v", token)
+	}
 	session, err := s.sessionRepo.Get(token)
 	if err != nil {
 		return err
