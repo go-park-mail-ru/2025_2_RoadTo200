@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
+
 	//"os"
 	"strconv"
 
@@ -22,18 +24,18 @@ func NewConnect(ctx context.Context, cfg *config.PostgresConfig) (*pgxpool.Pool,
 	}
 
 	// УБЕРИ эти строки - они пытаются получить значения из env переменных
-	// host := os.Getenv(cfg.Host)   // ❌ Это ищет env переменную с именем "localhost"
-	// sport := os.Getenv(cfg.Port)  // ❌ Это ищет env переменную с именем "5435"
-	// user := os.Getenv(cfg.User)   // ❌ Это ищет env переменную с именем "postgres"
-	// password := os.Getenv(cfg.Password) // ❌ Это ищет env переменную с именем "password"
-	// base := os.Getenv(cfg.Base)   // ❌ Это ищет env переменную с именем "dating_app"
+	host := os.Getenv(cfg.Host)         // ❌ Это ищет env переменную с именем "localhost"
+	sport := os.Getenv(cfg.Port)        // ❌ Это ищет env переменную с именем "5435"
+	user := os.Getenv(cfg.User)         // ❌ Это ищет env переменную с именем "postgres"
+	password := os.Getenv(cfg.Password) // ❌ Это ищет env переменную с именем "password"
+	base := os.Getenv(cfg.Base)         // ❌ Это ищет env переменную с именем "dating_app"
 
 	// Вместо этого используй значения НАПРЯМУЮ из конфига:
-	host := cfg.Host         // ✅ "localhost"
-	sport := cfg.Port        // ✅ "5435"
-	user := cfg.User         // ✅ "postgres"
-	password := cfg.Password // ✅ твой пароль
-	base := cfg.Base         // ✅ "dating_app"
+	//host := cfg.Host         // ✅ "localhost"
+	//sport := cfg.Port        // ✅ "5435"
+	//user := cfg.User         // ✅ "postgres"
+	//password := cfg.Password // ✅ твой пароль
+	//base := cfg.Base         // ✅ "dating_app"
 
 	// Преобразуем порт в число
 	port, err := strconv.Atoi(sport)

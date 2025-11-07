@@ -2,6 +2,7 @@ package redis
 
 import (
 	"fmt"
+	"os"
 	"strconv"
 	"time"
 
@@ -10,14 +11,19 @@ import (
 )
 
 func NewConnection(cfg *config.RedisConfig) (*redis.Pool, error) {
+	host := os.Getenv(cfg.Host)         // ❌ Это ищет env переменную с именем "localhost"
+	sport := os.Getenv(cfg.Port)        // ❌ Это ищет env переменную с именем "5435"
+	password := os.Getenv(cfg.Password) // ❌ Это ищет env переменную с именем "password"
+	base := os.Getenv(cfg.Base)         // ❌ Это ищет env переменную с именем "dating_app"
+
 	// Используем значения НАПРЯМУЮ из конфига
-	host := cfg.Host         // "localhost"
-	port := cfg.Port         // "6377"
-	password := cfg.Password // твой пароль
-	base := cfg.Base         // "0"
+	//host := cfg.Host         // "localhost"
+	//sport := cfg.Port         // "6377"
+	//password := cfg.Password // твой пароль
+	//base := cfg.Base         // "0"
 
 	// Преобразуем порт и базу в числа
-	portNum, err := strconv.Atoi(port)
+	port, err := strconv.Atoi(sport)
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert port to int: %w", err)
 	}
@@ -27,7 +33,7 @@ func NewConnection(cfg *config.RedisConfig) (*redis.Pool, error) {
 		return nil, fmt.Errorf("failed to convert base to int: %w", err)
 	}
 
-	address := fmt.Sprintf("%s:%d", host, portNum)
+	address := fmt.Sprintf("%s:%d", host, port)
 
 	pool := &redis.Pool{
 		MaxIdle:     cfg.MaxIdle,
