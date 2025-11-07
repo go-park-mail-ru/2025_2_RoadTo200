@@ -9,11 +9,11 @@ import (
 	"time"
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/constants"
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
+	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	expectation "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/errors"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/middleware"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
+	service "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/utils"
 	"github.com/google/uuid"
 )
@@ -39,14 +39,24 @@ type ProfileResponse struct {
 
 // UpdateProfileInfoRequest запрос на обновление информации
 type UpdateProfileInfoRequest struct {
-	Action    string           `json:"action" example:"updateInfo"`
-	Name      string           `json:"name,omitempty" example:"Алексей"`
-	Phone     *string          `json:"phone,omitempty" example:"+79991234567"`
-	BirthDate *time.Time       `json:"birth_date,omitempty" example:"1990-01-01T00:00:00Z"`
-	Gender    constants.Gender `json:"gender,omitempty" example:"male"`
-	Bio       *string          `json:"bio,omitempty" example:"Люблю путешествия и спорт"`
-	Latitude  *float64         `json:"latitude,omitempty" example:"55.7558"`
-	Longitude *float64         `json:"longitude,omitempty" example:"37.6173"`
+	Action     string           `json:"action" example:"updateInfo"`
+	Name       string           `json:"name,omitempty" example:"Алексей"`
+	Phone      *string          `json:"phone,omitempty" example:"+79991234567"`
+	BirthDate  *time.Time       `json:"birth_date,omitempty" example:"1990-01-01T00:00:00Z"`
+	Gender     constants.Gender `json:"gender,omitempty" example:"male"`
+	Bio        *string          `json:"bio,omitempty" example:"Люблю путешествия и спорт"`
+	Latitude   *float64         `json:"latitude,omitempty" example:"55.7558"`
+	Longitude  *float64         `json:"longitude,omitempty" example:"37.6173"`
+	Workout    *bool            `json:"workout,omitempty" example:"true"`
+	Fun        *bool            `json:"fun,omitempty" example:"false"`
+	Party      *bool            `json:"party,omitempty" example:"true"`
+	Chill      *bool            `json:"chill,omitempty" example:"false"`
+	Love       *bool            `json:"love,omitempty" example:"true"`
+	Relax      *bool            `json:"relax,omitempty" example:"false"`
+	Yoga       *bool            `json:"yoga,omitempty" example:"true"`
+	Friendship *bool            `json:"friendship,omitempty" example:"false"`
+	Culture    *bool            `json:"culture,omitempty" example:"true"`
+	Cinema     *bool            `json:"cinema,omitempty" example:"false"`
 }
 
 // UpdatePreferencesRequest запрос на обновление предпочтений
@@ -217,12 +227,22 @@ func (h *ProfileHandler) handleMultipartRequest(w http.ResponseWriter, r *http.R
 // updateProfileInfo обновляет основную информацию профиля
 func (h *ProfileHandler) updateProfileInfo(w http.ResponseWriter, userID uuid.UUID, req service.UpdateProfileRequest) {
 	updateData := domain.ProfileUpdateRequest{
-		Name:      req.Name,
-		Phone:     req.Phone,
-		Gender:    req.Gender,
-		Bio:       req.Bio,
-		Latitude:  req.Latitude,
-		Longitude: req.Longitude,
+		Name:       req.Name,
+		Phone:      req.Phone,
+		Gender:     req.Gender,
+		Bio:        req.Bio,
+		Latitude:   req.Latitude,
+		Longitude:  req.Longitude,
+		Workout:    req.Workout,
+		Fun:        req.Fun,
+		Party:      req.Party,
+		Chill:      req.Chill,
+		Love:       req.Love,
+		Relax:      req.Relax,
+		Yoga:       req.Yoga,
+		Friendship: req.Friendship,
+		Culture:    req.Culture,
+		Cinema:     req.Cinema,
 	}
 
 	// Обработка даты рождения

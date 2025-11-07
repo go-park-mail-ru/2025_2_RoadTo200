@@ -15,13 +15,23 @@ type ProfileResponse struct {
 
 // ProfileUpdateRequest запрос на обновление профиля
 type ProfileUpdateRequest struct {
-	Name      string           `json:"name,omitempty"`
-	Phone     *string          `json:"phone,omitempty"`
-	BirthDate *time.Time       `json:"birth_date,omitempty"`
-	Gender    constants.Gender `json:"gender,omitempty"`
-	Bio       *string          `json:"bio,omitempty"`
-	Latitude  *float64         `json:"latitude,omitempty"`
-	Longitude *float64         `json:"longitude,omitempty"`
+	Name       string           `json:"name,omitempty"`
+	Phone      *string          `json:"phone,omitempty"`
+	BirthDate  *time.Time       `json:"birth_date,omitempty"`
+	Gender     constants.Gender `json:"gender,omitempty"`
+	Bio        *string          `json:"bio,omitempty"`
+	Workout    *bool            `json:"workout,omitempty"`
+	Fun        *bool            `json:"fun,omitempty"`
+	Party      *bool            `json:"party,omitempty"`
+	Chill      *bool            `json:"chill,omitempty"`
+	Love       *bool            `json:"love,omitempty"`
+	Relax      *bool            `json:"relax,omitempty"`
+	Yoga       *bool            `json:"yoga,omitempty"`
+	Friendship *bool            `json:"friendship,omitempty"`
+	Culture    *bool            `json:"culture,omitempty"`
+	Cinema     *bool            `json:"cinema,omitempty"`
+	Latitude   *float64         `json:"latitude,omitempty"`
+	Longitude  *float64         `json:"longitude,omitempty"`
 }
 
 // PreferencesUpdateRequest запрос на обновление предпочтений

@@ -22,6 +22,16 @@ type User struct {
 	LastActive time.Time        `json:"last_active" db:"last_active"`
 	CreatedAt  time.Time        `json:"created_at" db:"created_at"`
 	UpdatedAt  time.Time        `json:"updated_at" db:"updated_at"`
+	Workout    bool             `json:"workout" db:"workout"`
+	Fun        bool             `json:"fun" db:"fun"`
+	Party      bool             `json:"party" db:"party"`
+	Chill      bool             `json:"chill" db:"chill"`
+	Love       bool             `json:"love" db:"love"`
+	Relax      bool             `json:"relax" db:"relax"`
+	Yoga       bool             `json:"yoga" db:"yoga"`
+	Friendship bool             `json:"friendship" db:"friendship"`
+	Culture    bool             `json:"culture" db:"culture"`
+	Cinema     bool             `json:"cinema" db:"cinema"`
 }
 
 func NewUser(email, passwordHash string) *User {

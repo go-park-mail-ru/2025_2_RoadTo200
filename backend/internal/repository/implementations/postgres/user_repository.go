@@ -101,6 +101,9 @@ func (r *userRepository) Update(user *domain.User) error {
 		UPDATE "user" 
 		SET email = $1, phone = $2, name = $3, password = $4, birth_date = $5, 
 			gender = $6, bio = $7, latitude = $8, longitude = $9, is_verified = $10,
+			workout = NOT workout, fun = NOT fun, party = NOT party, chill = NOT chill,
+			love = NOT love, relax = NOT relax, yoga = NOT yoga, friendship = NOT friendship,
+			culture = NOT culture, cinema = NOT cinema,
 			updated_at = NOW()
 		WHERE id = $11
 		RETURNING updated_at`
