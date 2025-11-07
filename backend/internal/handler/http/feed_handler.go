@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/middleware"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/utils"
 	"github.com/google/uuid"
@@ -13,11 +14,13 @@ import (
 
 type FeedHandler struct {
 	feedService service.FeedService
+	logger      *logger.Logger
 }
 
-func NewFeedHandler(feedService service.FeedService) *FeedHandler {
+func NewFeedHandler(feedService service.FeedService, l *logger.Logger) *FeedHandler {
 	return &FeedHandler{
 		feedService: feedService,
+		logger:      l,
 	}
 }
 
@@ -45,6 +48,7 @@ func (h *FeedHandler) GetFeed(w http.ResponseWriter, r *http.Request) {
 	userID, err := h.getUserIDFromContext(r)
 	fmt.Printf("UserID from context: %v, err: %v\n", userID, err)
 	if err != nil {
+		h.logger.Warnf("GetFeed err: %v\n", err)
 		utils.WriteJSONError(w, http.StatusUnauthorized, "unauthorized")
 		return
 	}
@@ -55,9 +59,11 @@ func (h *FeedHandler) GetFeed(w http.ResponseWriter, r *http.Request) {
 	// Получаем ленту
 	users, err := h.feedService.GetFeed(userID, limit, offset)
 	if err != nil {
+		h.logger.Warnf("GetFeed err: %v\n", err)
 		utils.WriteJSONError(w, http.StatusInternalServerError, "failed to get feed")
 		return
 	}
+	h.logger.Debugf("GetFeed users: %v\n", users)
 
 	// Преобразуем в интерфейс для ответа
 	usersResponse := make([]interface{}, len(users))

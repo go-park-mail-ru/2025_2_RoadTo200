@@ -7,17 +7,19 @@ import (
 	"strings"
 
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v4"
 )
 
 type userRepository struct {
-	pool interfaces.PgxIface
+	pool   interfaces.PgxIface
+	logger *logger.Logger
 }
 
-func NewUserRepository(pool interfaces.PgxIface) interfaces.UserRepository {
-	return &userRepository{pool: pool}
+func NewUserRepository(pool interfaces.PgxIface, l *logger.Logger) interfaces.UserRepository {
+	return &userRepository{pool: pool, logger: l}
 }
 
 func (r *userRepository) Create(user *domain.User) error {
@@ -208,24 +210,23 @@ func (r *userRepository) GetUsersForFeed(userID uuid.UUID, limit, offset int) ([
 		return nil, err
 	}
 	defer rows.Close()
-	fmt.Println("Query executed successfully in GetUsersForFeed")
+	r.logger.Debugf("Getting users for feed with userID: %v", userID)
 	var users []domain.User
 	for rows.Next() {
-		fmt.Println("Scanning a user row in GetUsersForFeed")
+		r.logger.Trace("Scanning a user row in GetUsersForFeed")
 		var user domain.User
 		err := rows.Scan(
 			&user.ID, &user.Email, &user.Phone, &user.Name, &user.Password,
 			&user.BirthDate, &user.Gender, &user.Bio, &user.Latitude, &user.Longitude,
 			&user.IsVerified, &user.LastActive, &user.CreatedAt, &user.UpdatedAt,
 		)
-		fmt.Printf("Scanned user: %+v\n", user)
+		r.logger.Debugf("Scanned user: %+v\n", user)
 		if err != nil {
-			fmt.Printf("Error scanning user: %v\n", err)
 			return nil, err
 		}
 		users = append(users, user)
 	}
-	fmt.Println("Finished scanning users in GetUsersForFeed")
+	r.logger.Trace("Finished scanning users in GetUsersForFeed")
 	return users, nil
 }
 

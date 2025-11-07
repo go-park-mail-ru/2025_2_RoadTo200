@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
 	"github.com/google/uuid"
@@ -11,11 +12,13 @@ import (
 
 type feedService struct {
 	userRepo interfaces.UserRepository
+	logger   *logger.Logger
 }
 
-func NewFeedService(userRepo interfaces.UserRepository) service.FeedService {
+func NewFeedService(userRepo interfaces.UserRepository, l *logger.Logger) service.FeedService {
 	return &feedService{
 		userRepo: userRepo,
+		logger:   l,
 	}
 }
 
@@ -32,11 +35,11 @@ func (s *feedService) GetFeed(userID uuid.UUID, limit, offset int) ([]domain.Use
 
 	// Получаем пользователей для ленты
 	users, err := s.userRepo.GetUsersForFeed(userID, limit, offset)
-	fmt.Printf("Retrieved %d users for feed\n", len(users))
 	if err != nil {
-		fmt.Printf("Error retrieving users for feed: %v\n", err)
+		s.logger.Warnf("Getting users for feed failed: %v", err)
 		return nil, err
 	}
+	s.logger.Warnf("Retrieved %d users for feed\n", len(users))
 
 	// Обновляем время последней активности текущего пользователя
 	go s.userRepo.UpdateLastActive(userID)
