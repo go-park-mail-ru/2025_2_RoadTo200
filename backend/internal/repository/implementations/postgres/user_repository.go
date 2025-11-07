@@ -24,12 +24,16 @@ func NewUserRepository(pool interfaces.PgxIface, l logger.Log) interfaces.UserRe
 
 func (r *userRepository) Create(user *domain.User) error {
 	query := `
-		INSERT INTO "user" (email, phone, name, password, birth_date, gender, bio, latitude, longitude, is_verified)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-		RETURNING id, created_at, updated_at, last_active`
+	INSERT INTO "user" (email, phone, name, password, birth_date, gender, bio, 
+					   workout, fun, party, chill, love, relax, yoga, friendship, culture, cinema,
+					   latitude, longitude, is_verified)
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
+	RETURNING id, created_at, updated_at, last_active`
 
 	err := r.pool.QueryRow(context.Background(), query,
 		user.Email, user.Phone, user.Name, user.Password, user.BirthDate, user.Gender, user.Bio,
+		user.Workout, user.Fun, user.Party, user.Chill, user.Love, user.Relax,
+		user.Yoga, user.Friendship, user.Culture, user.Cinema,
 		user.Latitude, user.Longitude, user.IsVerified).
 		Scan(&user.ID, &user.CreatedAt, &user.UpdatedAt, &user.LastActive)
 
@@ -41,12 +45,19 @@ func (r *userRepository) Create(user *domain.User) error {
 
 func (r *userRepository) GetByID(id uuid.UUID) (*domain.User, error) {
 	var user domain.User
-	query := `SELECT * FROM "user" WHERE id = $1`
+	query := `
+        SELECT id, email, phone, name, password, birth_date, gender, bio, 
+               workout, fun, party, chill, love, relax, yoga, friendship, culture, cinema,
+               latitude, longitude, is_verified, last_active, created_at, updated_at 
+        FROM "user" WHERE id = $1`
 
 	err := r.pool.QueryRow(context.Background(), query, id).Scan(
 		&user.ID, &user.Email, &user.Phone, &user.Name, &user.Password,
-		&user.BirthDate, &user.Gender, &user.Bio, &user.Latitude, &user.Longitude,
-		&user.IsVerified, &user.LastActive, &user.CreatedAt, &user.UpdatedAt,
+		&user.BirthDate, &user.Gender, &user.Bio,
+		&user.Workout, &user.Fun, &user.Party, &user.Chill, &user.Love, &user.Relax,
+		&user.Yoga, &user.Friendship, &user.Culture, &user.Cinema,
+		&user.Latitude, &user.Longitude, &user.IsVerified, &user.LastActive,
+		&user.CreatedAt, &user.UpdatedAt,
 	)
 
 	if err != nil {
@@ -60,12 +71,19 @@ func (r *userRepository) GetByID(id uuid.UUID) (*domain.User, error) {
 
 func (r *userRepository) GetByEmail(email string) (*domain.User, error) {
 	var user domain.User
-	query := `SELECT * FROM "user" WHERE email = $1`
+	query := `
+        SELECT id, email, phone, name, password, birth_date, gender, bio, 
+               workout, fun, party, chill, love, relax, yoga, friendship, culture, cinema,
+               latitude, longitude, is_verified, last_active, created_at, updated_at 
+        FROM "user" WHERE email = $1`
 
 	err := r.pool.QueryRow(context.Background(), query, email).Scan(
 		&user.ID, &user.Email, &user.Phone, &user.Name, &user.Password,
-		&user.BirthDate, &user.Gender, &user.Bio, &user.Latitude, &user.Longitude,
-		&user.IsVerified, &user.LastActive, &user.CreatedAt, &user.UpdatedAt,
+		&user.BirthDate, &user.Gender, &user.Bio,
+		&user.Workout, &user.Fun, &user.Party, &user.Chill, &user.Love, &user.Relax,
+		&user.Yoga, &user.Friendship, &user.Culture, &user.Cinema,
+		&user.Latitude, &user.Longitude, &user.IsVerified, &user.LastActive,
+		&user.CreatedAt, &user.UpdatedAt,
 	)
 
 	if err != nil {
@@ -98,19 +116,21 @@ func (r *userRepository) GetByPhone(phone string) (*domain.User, error) {
 
 func (r *userRepository) Update(user *domain.User) error {
 	query := `
-		UPDATE "user" 
-		SET email = $1, phone = $2, name = $3, password = $4, birth_date = $5, 
-			gender = $6, bio = $7, latitude = $8, longitude = $9, is_verified = $10,
-			workout = NOT workout, fun = NOT fun, party = NOT party, chill = NOT chill,
-			love = NOT love, relax = NOT relax, yoga = NOT yoga, friendship = NOT friendship,
-			culture = NOT culture, cinema = NOT cinema,
-			updated_at = NOW()
-		WHERE id = $11
-		RETURNING updated_at`
+        UPDATE "user" 
+        SET email = $1, phone = $2, name = $3, password = $4, birth_date = $5, 
+            gender = $6, bio = $7, latitude = $8, longitude = $9, is_verified = $10,
+            workout = $11, fun = $12, party = $13, chill = $14, love = $15, 
+            relax = $16, yoga = $17, friendship = $18, culture = $19, cinema = $20,
+            updated_at = NOW()
+        WHERE id = $21
+        RETURNING updated_at`
 
 	err := r.pool.QueryRow(context.Background(), query,
 		user.Email, user.Phone, user.Name, user.Password, user.BirthDate, user.Gender,
-		user.Bio, user.Latitude, user.Longitude, user.IsVerified, user.ID).
+		user.Bio, user.Latitude, user.Longitude, user.IsVerified,
+		user.Workout, user.Fun, user.Party, user.Chill, user.Love,
+		user.Relax, user.Yoga, user.Friendship, user.Culture, user.Cinema,
+		user.ID).
 		Scan(&user.UpdatedAt)
 
 	if err != nil {
@@ -187,8 +207,9 @@ func (r *userRepository) GetUsersForFeed(userID uuid.UUID, limit, offset int) ([
 	r.logger.Tracef("GetUsersForFeed called with userID:", userID, "limit:", limit, "offset:", offset)
 
 	query := `
-        SELECT u.id, u.email, u.phone, u.name, u.password, u.birth_date, u.gender, u.bio, 
-               u.latitude, u.longitude, u.is_verified, u.last_active, u.created_at, u.updated_at
+        SELECT id, email, phone, name, password, birth_date, gender, bio, 
+               workout, fun, party, chill, love, relax, yoga, friendship, culture, cinema,
+               latitude, longitude, is_verified, last_active, created_at, updated_at
         FROM "user" u
         WHERE u.id != $1
           AND NOT EXISTS (
