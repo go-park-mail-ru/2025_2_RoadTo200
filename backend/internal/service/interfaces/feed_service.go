@@ -14,6 +14,7 @@ type FeedUser struct {
 	ID          string   `json:"id"`
 	Name        string   `json:"name"`
 	Age         int      `json:"age"`
+	Gender      string   `json:"gender"`
 	Description string   `json:"description"`
 	Images      []string `json:"images"`
 	PhotosCount int      `json:"photosCount"`

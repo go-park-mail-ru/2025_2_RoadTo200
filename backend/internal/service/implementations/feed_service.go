@@ -80,6 +80,7 @@ func (s *feedService) convertToFeedUser(user domain.User) (service.FeedUser, err
 		ID:          user.ID.String(),
 		Name:        user.Name,
 		Age:         age,
+		Gender:      string(user.Gender),
 		Description: getDescription(user.Bio),
 		Images:      images,
 		PhotosCount: len(images),
