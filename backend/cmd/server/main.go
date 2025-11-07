@@ -20,6 +20,7 @@ import (
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/config"
 	service "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/implementations"
+	minio_connect "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/minio"
 	postgres_connect "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/postgres"
 	redis_connect "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/redis"
 
@@ -74,7 +75,7 @@ func main() {
 	defer redisPool.Close()
 
 	// Инициализация MinIO
-	minioStorage, err := minio.NewMinIOStorage(&cfg.MinIO)
+	minioPool, err := minio_connect.NewMinioPool(&cfg.MinIO)
 	if err != nil {
 		logger.Fatal("Failed to connect to MinIO: ", err)
 	}
@@ -83,6 +84,7 @@ func main() {
 	logger.Println("✅ All connections established")
 
 	// Репозитории
+	storageRepo := minio.NewStorageRepository(minioPool, &cfg.MinIO)
 	userRepo := postgres.NewUserRepository(pool, logg)
 	sessionRepo := redis.NewSessionRepository(redisPool)
 
@@ -93,7 +95,7 @@ func main() {
 		userRepo,
 		postgres.NewUserPhotoRepository(pool),
 		postgres.NewUserPreferenceRepository(pool),
-		minioStorage,
+		storageRepo,
 	)
 	swipeService := service.NewSwipeService(
 		postgres.NewSwipeRepository(pool),
