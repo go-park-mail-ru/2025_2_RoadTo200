@@ -11,11 +11,12 @@ import (
 )
 
 func main() {
+	log.Printf("Args amount %d", len(os.Args)-1)
 	// Замените на свои данные подключения
 	connStr := "postgres://admin:12345@localhost:5431/Tinder?sslmode=disable"
 	fileToRun := "migrations/%s.sql"
-	if len(os.Args) == 0 {
-		fileToRun = fmt.Sprintf(fileToRun, os.Args[0])
+	if len(os.Args) == 2 && os.Args[1] != "" {
+		fileToRun = fmt.Sprintf(fileToRun, os.Args[1])
 	} else {
 		log.Fatalln("Enter arg")
 	}

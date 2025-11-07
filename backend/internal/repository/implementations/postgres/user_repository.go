@@ -182,12 +182,17 @@ func (r *userRepository) GetUsersByIDs(ids []uuid.UUID) ([]domain.User, error) {
 
 func (r *userRepository) GetUsersForFeed(userID uuid.UUID, limit, offset int) ([]domain.User, error) {
 	r.logger.Tracef("GetUsersForFeed called with userID:", userID, "limit:", limit, "offset:", offset)
+
 	query := `
-        SELECT id, email, phone, name, password, birth_date, gender, bio, 
-               latitude, longitude, is_verified, last_active, created_at, updated_at
-        FROM "user" 
-        WHERE id != $1 
-        ORDER BY created_at DESC 
+        SELECT u.id, u.email, u.phone, u.name, u.password, u.birth_date, u.gender, u.bio, 
+               u.latitude, u.longitude, u.is_verified, u.last_active, u.created_at, u.updated_at
+        FROM "user" u
+        WHERE u.id != $1
+          AND NOT EXISTS (
+              SELECT 1 FROM swipe s
+              WHERE s.swiper_user_id = $1 AND s.target_user_id = u.id
+          )
+        ORDER BY u.last_active DESC
         LIMIT $2 OFFSET $3`
 
 	rows, err := r.pool.Query(context.Background(), query, userID, limit, offset)
