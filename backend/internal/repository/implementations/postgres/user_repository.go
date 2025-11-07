@@ -15,10 +15,10 @@ import (
 
 type userRepository struct {
 	pool   interfaces.PgxIface
-	logger *logger.Logger
+	logger logger.Log
 }
 
-func NewUserRepository(pool interfaces.PgxIface, l *logger.Logger) interfaces.UserRepository {
+func NewUserRepository(pool interfaces.PgxIface, l logger.Log) interfaces.UserRepository {
 	return &userRepository{pool: pool, logger: l}
 }
 

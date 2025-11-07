@@ -2,16 +2,15 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
 	"time"
 
-	//"time"
-
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/constants"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/errors"
+	expectation "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/errors"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/middleware"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
@@ -21,10 +20,10 @@ import (
 
 type ProfileHandler struct {
 	profileService service.ProfileService
-	logger         *logger.Logger
+	logger         logger.Log
 }
 
-func NewProfileHandler(profileService service.ProfileService, l *logger.Logger) *ProfileHandler {
+func NewProfileHandler(profileService service.ProfileService, l logger.Log) *ProfileHandler {
 	return &ProfileHandler{
 		profileService: profileService,
 		logger:         l,
@@ -94,7 +93,7 @@ func (h *ProfileHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
 	profile, err := h.profileService.GetProfile(userID)
 	if err != nil {
 		h.logger.Warnf("GetProfile: %v", err)
-		if err == errors.ErrProfileNotFound {
+		if err == expectation.ErrProfileNotFound {
 			utils.WriteJSONError(w, http.StatusNotFound, "profile not found")
 			return
 		}
@@ -233,7 +232,7 @@ func (h *ProfileHandler) updateProfileInfo(w http.ResponseWriter, userID uuid.UU
 
 	if err := h.profileService.UpdateProfileInfo(userID, &updateData); err != nil {
 		status := http.StatusBadRequest
-		if err == errors.ErrProfileNotFound {
+		if errors.Is(err, expectation.ErrProfileNotFound) {
 			status = http.StatusNotFound
 		}
 		h.logger.Warnf("updateProfileInfo: %v", err)
@@ -275,7 +274,7 @@ func (h *ProfileHandler) uploadPhotos(w http.ResponseWriter, r *http.Request, us
 	uploadedPhotos, err := h.profileService.UploadPhotos(userID, files)
 	if err != nil {
 		status := http.StatusBadRequest
-		if err == errors.ErrPhotoLimitExceeded {
+		if err == expectation.ErrPhotoLimitExceeded {
 			status = http.StatusForbidden
 		}
 		h.logger.Warnf("uploadPhotos: %v", err)
@@ -299,9 +298,9 @@ func (h *ProfileHandler) deletePhoto(w http.ResponseWriter, userID uuid.UUID, re
 
 	if err := h.profileService.DeletePhoto(userID, req.PhotoID); err != nil {
 		status := http.StatusBadRequest
-		if err == errors.ErrPhotoNotFound {
+		if err == expectation.ErrPhotoNotFound {
 			status = http.StatusNotFound
-		} else if err == errors.ErrPhotoNotOwned {
+		} else if err == expectation.ErrPhotoNotOwned {
 			status = http.StatusForbidden
 		}
 		h.logger.Warnf("deletePhoto: %v", err)
@@ -321,9 +320,9 @@ func (h *ProfileHandler) setPrimaryPhoto(w http.ResponseWriter, userID uuid.UUID
 
 	if err := h.profileService.SetPrimaryPhoto(userID, req.PhotoID); err != nil {
 		status := http.StatusBadRequest
-		if err == errors.ErrPhotoNotFound {
+		if err == expectation.ErrPhotoNotFound {
 			status = http.StatusNotFound
-		} else if err == errors.ErrPhotoNotOwned {
+		} else if err == expectation.ErrPhotoNotOwned {
 			status = http.StatusForbidden
 		}
 		h.logger.Warnf("setPrimaryPhoto: %v", err)

@@ -12,10 +12,10 @@ import (
 
 type SessionHandler struct {
 	authService *service.AuthService
-	logger      *logger.Logger
+	logger      logger.Log
 }
 
-func NewSessionHandler(authService *service.AuthService, l *logger.Logger) *SessionHandler {
+func NewSessionHandler(authService *service.AuthService, l logger.Log) *SessionHandler {
 	return &SessionHandler{
 		authService: authService,
 		logger:      l,

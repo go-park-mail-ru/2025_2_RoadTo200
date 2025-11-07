@@ -13,10 +13,10 @@ import (
 
 type FeedHandler struct {
 	feedService service.FeedService
-	logger      *logger.Logger
+	logger      logger.Log
 }
 
-func NewFeedHandler(feedService service.FeedService, l *logger.Logger) *FeedHandler {
+func NewFeedHandler(feedService service.FeedService, l logger.Log) *FeedHandler {
 	return &FeedHandler{
 		feedService: feedService,
 		logger:      l,
