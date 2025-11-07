@@ -1,13 +1,14 @@
 #!/usr/bin/bash
 
 HOST=ubuntu.vk # Хост ОС. Пример: user@ххх.хх.хх.ххх
-DOCS=false     # Флаг сборки документации
+DOCS=true     # Флаг сборки документации
 CONF=false     # Флаг отправки конфигурации
 
 # Запускать из ./backend
 
 if $DOCS; then
-  make build-docs
+  make build-docs &&
+  scp ./docs/swagger.json $HOST:/home/ubuntu/app/back/docs/
 fi
 
 make build
