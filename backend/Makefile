@@ -7,6 +7,9 @@ test:
 test-coverage:
 	go test ./... -cover
 
+build-docs:
+	swag init -g /cmd/server/main.go -o docs/
+
 build:
 	go build -o ./../build/ ./cmd/server/main.go
 
