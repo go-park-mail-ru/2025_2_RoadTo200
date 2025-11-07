@@ -111,7 +111,7 @@ func (m *minioStorage) GetURL(filename string) string {
 		protocol = "https"
 	}
 
-	return fmt.Sprintf("%s://%s/%s/%s", protocol, m.endpoint, m.bucketName, filename)
+	return fmt.Sprintf("%s://217.16.17.116:8099/%s/%s", protocol, m.bucketName, filename)
 }
 
 // PresignedURL генерирует URL с временным доступом (опционально)

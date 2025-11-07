@@ -37,7 +37,7 @@ import (
 // @license.name MIT
 // @license.url https://opensource.org/licenses/MIT
 
-// @host localhost:8080
+// @host 217.16.17.116:8080
 // @BasePath /
 // @schemes http
 
@@ -109,7 +109,7 @@ func main() {
 	authHandler := handler.NewAuthHandler(authService, logg)
 	sessionHandler := handler.NewSessionHandler(authService, logg)
 	feedHandler := handler.NewFeedHandler(feedService, logg)
-	profileHandler := handler.NewProfileHandler(profileService)
+	profileHandler := handler.NewProfileHandler(profileService, logg)
 	swipeHandler := handler.NewSwipeHandler(swipeService)
 	matchHandler := handler.NewMatchHandler(matchService)
 

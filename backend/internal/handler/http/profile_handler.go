@@ -13,6 +13,7 @@ import (
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/errors"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/middleware"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/utils"
 	"github.com/google/uuid"
@@ -20,11 +21,13 @@ import (
 
 type ProfileHandler struct {
 	profileService service.ProfileService
+	logger         *logger.Logger
 }
 
-func NewProfileHandler(profileService service.ProfileService) *ProfileHandler {
+func NewProfileHandler(profileService service.ProfileService, l *logger.Logger) *ProfileHandler {
 	return &ProfileHandler{
 		profileService: profileService,
+		logger:         l,
 	}
 }
 
@@ -83,12 +86,14 @@ type SetPrimaryPhotoRequest struct {
 func (h *ProfileHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
 	userID, err := h.getUserIDFromContext(r)
 	if err != nil {
+		h.logger.Warnf("GetUserFromContext: %v", err)
 		utils.WriteJSONError(w, http.StatusUnauthorized, "unauthorized")
 		return
 	}
 
 	profile, err := h.profileService.GetProfile(userID)
 	if err != nil {
+		h.logger.Warnf("GetProfile: %v", err)
 		if err == errors.ErrProfileNotFound {
 			utils.WriteJSONError(w, http.StatusNotFound, "profile not found")
 			return
@@ -123,6 +128,7 @@ func (h *ProfileHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
 func (h *ProfileHandler) ChangeProfile(w http.ResponseWriter, r *http.Request) {
 	userID, err := h.getUserIDFromContext(r)
 	if err != nil {
+		h.logger.Warnf("GetUserFromContext: %v", err)
 		utils.WriteJSONError(w, http.StatusUnauthorized, "unauthorized")
 		return
 	}
@@ -152,11 +158,13 @@ func (h *ProfileHandler) ChangeProfile(w http.ResponseWriter, r *http.Request) {
 func (h *ProfileHandler) UploadPhotos(w http.ResponseWriter, r *http.Request) {
 	userID, err := h.getUserIDFromContext(r)
 	if err != nil {
+		h.logger.Warnf("GetUserFromContext: %v", err)
 		utils.WriteJSONError(w, http.StatusUnauthorized, "unauthorized")
 		return
 	}
 
 	if err := r.ParseMultipartForm(32 << 20); err != nil {
+		h.logger.Warnf("ParseMultipartForm: %v", err)
 		utils.WriteJSONError(w, http.StatusBadRequest, "failed to parse form data")
 		return
 	}
@@ -168,10 +176,12 @@ func (h *ProfileHandler) UploadPhotos(w http.ResponseWriter, r *http.Request) {
 func (h *ProfileHandler) handleJSONRequest(w http.ResponseWriter, r *http.Request, userID uuid.UUID) {
 	var req service.UpdateProfileRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		h.logger.Warnf("handleJSONRequest: %v", err)
 		utils.WriteJSONError(w, http.StatusBadRequest, "invalid JSON")
 		return
 	}
 
+	h.logger.Debugf("handleJSONRequest: %v", req)
 	switch req.Action {
 	case "updateInfo":
 		h.updateProfileInfo(w, userID, req)
@@ -190,12 +200,14 @@ func (h *ProfileHandler) handleJSONRequest(w http.ResponseWriter, r *http.Reques
 func (h *ProfileHandler) handleMultipartRequest(w http.ResponseWriter, r *http.Request, userID uuid.UUID) {
 	fmt.Printf("Handling multipart request\n")
 	if err := r.ParseMultipartForm(32 << 20); err != nil { // 32MB max
+		h.logger.Warnf("handleMultipartRequest: %v", err)
 		utils.WriteJSONError(w, http.StatusBadRequest, "failed to parse form data")
 		return
 	}
 
 	action := r.FormValue("action")
 	if action != "uploadPhotos" {
+		h.logger.Warnf("handleMultipartRequest: invalid action: %v", action)
 		utils.WriteJSONError(w, http.StatusBadRequest, "invalid action for multipart request")
 		return
 	}
@@ -224,6 +236,7 @@ func (h *ProfileHandler) updateProfileInfo(w http.ResponseWriter, userID uuid.UU
 		if err == errors.ErrProfileNotFound {
 			status = http.StatusNotFound
 		}
+		h.logger.Warnf("updateProfileInfo: %v", err)
 		utils.WriteJSONError(w, status, err.Error())
 		return
 	}
@@ -242,6 +255,7 @@ func (h *ProfileHandler) updatePreferences(w http.ResponseWriter, userID uuid.UU
 	}
 
 	if err := h.profileService.UpdatePreferences(userID, &updateData); err != nil {
+		h.logger.Warnf("updatePreferences: %v", err)
 		utils.WriteJSONError(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -253,6 +267,7 @@ func (h *ProfileHandler) updatePreferences(w http.ResponseWriter, userID uuid.UU
 func (h *ProfileHandler) uploadPhotos(w http.ResponseWriter, r *http.Request, userID uuid.UUID) {
 	files := r.MultipartForm.File["photos"]
 	if len(files) == 0 {
+		h.logger.Warnf("uploadPhotos: no files uploaded")
 		utils.WriteJSONError(w, http.StatusBadRequest, "no photos provided")
 		return
 	}
@@ -263,6 +278,7 @@ func (h *ProfileHandler) uploadPhotos(w http.ResponseWriter, r *http.Request, us
 		if err == errors.ErrPhotoLimitExceeded {
 			status = http.StatusForbidden
 		}
+		h.logger.Warnf("uploadPhotos: %v", err)
 		utils.WriteJSONError(w, status, err.Error())
 		return
 	}
@@ -288,6 +304,7 @@ func (h *ProfileHandler) deletePhoto(w http.ResponseWriter, userID uuid.UUID, re
 		} else if err == errors.ErrPhotoNotOwned {
 			status = http.StatusForbidden
 		}
+		h.logger.Warnf("deletePhoto: %v", err)
 		utils.WriteJSONError(w, status, err.Error())
 		return
 	}
@@ -309,6 +326,7 @@ func (h *ProfileHandler) setPrimaryPhoto(w http.ResponseWriter, userID uuid.UUID
 		} else if err == errors.ErrPhotoNotOwned {
 			status = http.StatusForbidden
 		}
+		h.logger.Warnf("setPrimaryPhoto: %v", err)
 		utils.WriteJSONError(w, status, err.Error())
 		return
 	}

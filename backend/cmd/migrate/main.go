@@ -13,7 +13,12 @@ import (
 func main() {
 	// Замените на свои данные подключения
 	connStr := "postgres://admin:12345@localhost:5431/Tinder?sslmode=disable"
-	fileToRun := "migrations/dml.sql" // Путь к вашему SQL-файлу
+	fileToRun := "migrations/%s.sql"
+	if len(os.Args) == 0 {
+		fileToRun = fmt.Sprintf(fileToRun, os.Args[0])
+	} else {
+		log.Fatalln("Enter arg")
+	}
 
 	// Подключение к базе данных
 	ctx := context.Background()
@@ -49,7 +54,7 @@ func main() {
 			// Можно прервать выполнение или продолжить
 			// return
 		} else {
-			fmt.Printf("Запрос успешно выполнен: %s\n", query)
+			log.Printf("Запрос успешно выполнен: %s\n", query)
 		}
 	}
 }

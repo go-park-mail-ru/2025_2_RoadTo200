@@ -183,27 +183,12 @@ func (r *userRepository) GetUsersByIDs(ids []uuid.UUID) ([]domain.User, error) {
 func (r *userRepository) GetUsersForFeed(userID uuid.UUID, limit, offset int) ([]domain.User, error) {
 	r.logger.Tracef("GetUsersForFeed called with userID:", userID, "limit:", limit, "offset:", offset)
 	query := `
-    WITH myuser AS (
-      SELECT show_gender, age_min, age_max FROM user_preference
-      WHERE user_id = $1
-    )
-    SELECT u.* FROM "user" u
-    JOIN public.user_preference up ON u.id = up.user_id
-    WHERE u.id != $1
-    AND u.gender::text IN (
-      CASE
-        WHEN (SELECT show_gender FROM myuser)::text = 'both' THEN u.gender::text
-        ELSE (SELECT show_gender FROM myuser)::text
-      END
-    )
-        AND EXTRACT(YEAR FROM AGE(u.birth_date)) BETWEEN (SELECT age_min FROM myuser) AND (SELECT age_max FROM myuser)
-        AND NOT EXISTS (
-            SELECT 1 FROM swipe s
-            WHERE s.swiper_user_id = $1 AND s.target_user_id = u.id
-        )
-
-    ORDER BY u.last_active DESC
-    LIMIT $2 OFFSET $3`
+        SELECT id, email, phone, name, password, birth_date, gender, bio, 
+               latitude, longitude, is_verified, last_active, created_at, updated_at
+        FROM "user" 
+        WHERE id != $1 
+        ORDER BY created_at DESC 
+        LIMIT $2 OFFSET $3`
 
 	rows, err := r.pool.Query(context.Background(), query, userID, limit, offset)
 	if err != nil {
