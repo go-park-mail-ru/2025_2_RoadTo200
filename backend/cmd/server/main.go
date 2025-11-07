@@ -83,12 +83,12 @@ func main() {
 	logger.Println("✅ All connections established")
 
 	// Репозитории
-	userRepo := postgres.NewUserRepository(pool)
+	userRepo := postgres.NewUserRepository(pool, logg)
 	sessionRepo := redis.NewSessionRepository(redisPool)
 
 	// Сервисы
 	authService := service.NewAuthService(userRepo, sessionRepo, logg)
-	feedService := service.NewFeedService(userRepo)
+	feedService := service.NewFeedService(userRepo, postgres.NewUserPhotoRepository(pool), logg)
 	profileService := service.NewProfileService(
 		userRepo,
 		postgres.NewUserPhotoRepository(pool),
@@ -106,9 +106,9 @@ func main() {
 	)
 
 	// Обработчики
-	authHandler := handler.NewAuthHandler(authService)
-	sessionHandler := handler.NewSessionHandler(authService)
-	feedHandler := handler.NewFeedHandler(feedService)
+	authHandler := handler.NewAuthHandler(authService, logg)
+	sessionHandler := handler.NewSessionHandler(authService, logg)
+	feedHandler := handler.NewFeedHandler(feedService, logg)
 	profileHandler := handler.NewProfileHandler(profileService)
 	swipeHandler := handler.NewSwipeHandler(swipeService)
 	matchHandler := handler.NewMatchHandler(matchService)
@@ -118,10 +118,6 @@ func main() {
 	// Global middleware
 	server.AddMiddleware(middleware.LogMiddleware(logg))
 	server.AddMiddleware(middleware.CORSMiddleware(&cfg.Cors))
-
-	server.AddHandler("/swagger/", httpSwagger.Handler(
-		httpSwagger.URL(fmt.Sprintf("http://217.16.17.116:%d/swagger/doc.json", cfg.Port)), // URL для doc.json
-	))
 
 	// Public routes (no auth required)
 	server.AddHandler("/api/register", http.HandlerFunc(authHandler.Register))

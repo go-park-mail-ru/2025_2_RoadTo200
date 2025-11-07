@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -26,15 +25,15 @@ func NewFeedHandler(feedService service.FeedService, l *logger.Logger) *FeedHand
 
 // FeedResponse represents feed response
 type FeedResponse struct {
-	Users  []interface{} `json:"users"`
-	Limit  int           `json:"limit"`
-	Offset int           `json:"offset"`
-	Total  int           `json:"total"`
+	Users  []service.FeedUser `json:"users"`
+	Limit  int                `json:"limit"`
+	Offset int                `json:"offset"`
+	Total  int                `json:"total"`
 }
 
 // GetFeed godoc
 // @Summary Получить ленту пользователей
-// @Description Возвращает ленту пользователей для свайпинга на основе предпочтений и местоположения
+// @Description Возвращает ленту пользователей для свайпинга с основной информацией и фотографиями
 // @Tags feed
 // @Produce json
 // @Security SessionToken
@@ -46,7 +45,7 @@ type FeedResponse struct {
 // @Router /api/feed [get]
 func (h *FeedHandler) GetFeed(w http.ResponseWriter, r *http.Request) {
 	userID, err := h.getUserIDFromContext(r)
-	fmt.Printf("UserID from context: %v, err: %v\n", userID, err)
+	h.logger.Debugf("UserID from context: %v, err: %v\n", userID, err)
 	if err != nil {
 		h.logger.Warnf("GetFeed err: %v\n", err)
 		utils.WriteJSONError(w, http.StatusUnauthorized, "unauthorized")
@@ -65,14 +64,8 @@ func (h *FeedHandler) GetFeed(w http.ResponseWriter, r *http.Request) {
 	}
 	h.logger.Debugf("GetFeed users: %v\n", users)
 
-	// Преобразуем в интерфейс для ответа
-	usersResponse := make([]interface{}, len(users))
-	for i, user := range users {
-		usersResponse[i] = user
-	}
-
 	response := FeedResponse{
-		Users:  usersResponse,
+		Users:  users,
 		Limit:  limit,
 		Offset: offset,
 		Total:  len(users),

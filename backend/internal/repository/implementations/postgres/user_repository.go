@@ -181,7 +181,7 @@ func (r *userRepository) GetUsersByIDs(ids []uuid.UUID) ([]domain.User, error) {
 }
 
 func (r *userRepository) GetUsersForFeed(userID uuid.UUID, limit, offset int) ([]domain.User, error) {
-	fmt.Println("GetUsersForFeed called with userID:", userID, "limit:", limit, "offset:", offset)
+	r.logger.Tracef("GetUsersForFeed called with userID:", userID, "limit:", limit, "offset:", offset)
 	query := `
     WITH myuser AS (
       SELECT show_gender, age_min, age_max FROM user_preference
