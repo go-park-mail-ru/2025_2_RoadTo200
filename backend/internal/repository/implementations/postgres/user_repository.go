@@ -231,8 +231,11 @@ func (r *userRepository) GetUsersForFeed(userID uuid.UUID, limit, offset int) ([
 		var user domain.User
 		err := rows.Scan(
 			&user.ID, &user.Email, &user.Phone, &user.Name, &user.Password,
-			&user.BirthDate, &user.Gender, &user.Bio, &user.Latitude, &user.Longitude,
-			&user.IsVerified, &user.LastActive, &user.CreatedAt, &user.UpdatedAt,
+			&user.BirthDate, &user.Gender, &user.Bio,
+			&user.Workout, &user.Fun, &user.Party, &user.Chill, &user.Love, &user.Relax,
+			&user.Yoga, &user.Friendship, &user.Culture, &user.Cinema,
+			&user.Latitude, &user.Longitude, &user.IsVerified, &user.LastActive,
+			&user.CreatedAt, &user.UpdatedAt,
 		)
 		r.logger.Debugf("Scanned user: %+v\n", user)
 		if err != nil {
