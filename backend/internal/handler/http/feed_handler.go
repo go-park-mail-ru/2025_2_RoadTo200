@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/dto"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/middleware"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
@@ -21,14 +22,6 @@ func NewFeedHandler(feedService service.FeedService, l logger.Log) *FeedHandler 
 		feedService: feedService,
 		logger:      l,
 	}
-}
-
-// FeedResponse represents feed response
-type FeedResponse struct {
-	Users  []service.FeedUser `json:"users"`
-	Limit  int                `json:"limit"`
-	Offset int                `json:"offset"`
-	Total  int                `json:"total"`
 }
 
 // GetFeed godoc
@@ -64,7 +57,7 @@ func (h *FeedHandler) GetFeed(w http.ResponseWriter, r *http.Request) {
 	}
 	h.logger.Debugf("GetFeed users: %v\n", users)
 
-	response := FeedResponse{
+	response := dto.FeedResponse{
 		Users:  users,
 		Limit:  limit,
 		Offset: offset,

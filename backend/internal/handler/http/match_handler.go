@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/dto"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/errors"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/middleware"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
@@ -19,16 +20,6 @@ func NewMatchHandler(matchService service.MatchService) *MatchHandler {
 	return &MatchHandler{
 		matchService: matchService,
 	}
-}
-
-// UnmatchRequest represents unmatch request
-type UnmatchRequest struct {
-	TargetUserID string `json:"target_user_id" example:"550e8400-e29b-41d4-a716-446655440000"`
-}
-
-// SuccessResponse represents success response
-type SuccessResponse struct {
-	Message string `json:"message" example:"Operation completed successfully"`
 }
 
 // GetUserMatches godoc
@@ -84,7 +75,7 @@ func (h *MatchHandler) Unmatch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var req service.UnmatchRequest
+	var req dto.UnmatchRequest
 	if err := utils.ReadJSON(r, &req); err != nil {
 		utils.WriteJSONError(w, http.StatusBadRequest, "invalid JSON")
 		return

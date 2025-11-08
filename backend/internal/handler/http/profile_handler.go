@@ -6,9 +6,8 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-	"time"
 
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/constants"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/dto"
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	expectation "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/errors"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/middleware"
@@ -29,59 +28,6 @@ func NewProfileHandler(profileService service.ProfileService, l logger.Log) *Pro
 		profileService: profileService,
 		logger:         l,
 	}
-}
-
-// ProfileResponse represents profile response
-type ProfileResponse struct {
-	User        interface{} `json:"user"`
-	Preferences interface{} `json:"preferences,omitempty"`
-	Photos      interface{} `json:"photos,omitempty"`
-}
-
-// UpdateProfileInfoRequest запрос на обновление информации
-type UpdateProfileInfoRequest struct {
-	Action     string           `json:"action" example:"updateInfo"`
-	Name       string           `json:"name,omitempty" example:"Алексей"`
-	Phone      *string          `json:"phone,omitempty" example:"+79991234567"`
-	BirthDate  *time.Time       `json:"birth_date,omitempty" example:"1990-01-01T00:00:00Z"`
-	Gender     constants.Gender `json:"gender,omitempty" example:"male"`
-	Bio        *string          `json:"bio,omitempty" example:"Люблю путешествия и спорт"`
-	Artist     *string          `json:"artist,omitempty"`
-	Quote      *string          `json:"quote,omitempty"`
-	Latitude   *float64         `json:"latitude,omitempty" example:"55.7558"`
-	Longitude  *float64         `json:"longitude,omitempty" example:"37.6173"`
-	Workout    *bool            `json:"workout,omitempty" example:"true"`
-	Fun        *bool            `json:"fun,omitempty" example:"false"`
-	Party      *bool            `json:"party,omitempty" example:"true"`
-	Chill      *bool            `json:"chill,omitempty" example:"false"`
-	Love       *bool            `json:"love,omitempty" example:"true"`
-	Relax      *bool            `json:"relax,omitempty" example:"false"`
-	Yoga       *bool            `json:"yoga,omitempty" example:"true"`
-	Friendship *bool            `json:"friendship,omitempty" example:"false"`
-	Culture    *bool            `json:"culture,omitempty" example:"true"`
-	Cinema     *bool            `json:"cinema,omitempty" example:"false"`
-}
-
-// UpdatePreferencesRequest запрос на обновление предпочтений
-type UpdatePreferencesRequest struct {
-	Action       string                     `json:"action" example:"updatePreferences"`
-	ShowGender   constants.GenderPreference `json:"show_gender,omitempty" example:"female"`
-	AgeMin       int                        `json:"age_min,omitempty" example:"18"`
-	AgeMax       int                        `json:"age_max,omitempty" example:"35"`
-	MaxDistance  int                        `json:"max_distance,omitempty" example:"50"`
-	GlobalSearch bool                       `json:"global_search,omitempty" example:"false"`
-}
-
-// DeletePhotoRequest запрос на удаление фото
-type DeletePhotoRequest struct {
-	Action  string    `json:"action" example:"deletePhoto"`
-	PhotoID uuid.UUID `json:"photo_id" example:"550e8400-e29b-41d4-a716-446655440000"`
-}
-
-// SetPrimaryPhotoRequest запрос на установку основного фото
-type SetPrimaryPhotoRequest struct {
-	Action  string    `json:"action" example:"setPrimaryPhoto"`
-	PhotoID uuid.UUID `json:"photo_id" example:"550e8400-e29b-41d4-a716-446655440000"`
 }
 
 // GetProfile godoc
@@ -114,7 +60,7 @@ func (h *ProfileHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := service.ProfileResponse{
+	response := dto.ProfileResponse{
 		User:        profile.User,
 		Preferences: profile.Preferences,
 		Photos:      profile.Photos,
@@ -132,8 +78,8 @@ func (h *ProfileHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
 // @Accept json
 // @Produce json
 // @Security SessionToken
-// @Param request body service.UpdateProfileRequest true "Данные для изменения"
-// @Success 200 {object} service.SuccessResponse "Успешное обновление"
+// @Param request body dto.UpdateProfileRequest true "Данные для изменения"
+// @Success 200 {object} dto.SuccessResponse "Успешное обновление"
 // @Failure 400 {object} map[string]string "Неверный запрос"
 // @Failure 401 {object} map[string]string "Не авторизован"
 // @Router /api/profile/changeProfile [post]
@@ -162,7 +108,7 @@ func (h *ProfileHandler) ChangeProfile(w http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Security SessionToken
 // @Param photos formData file true "Фотографии для загрузки"
-// @Success 200 {object} service.UploadPhotosResponse "Успешная загрузка фото"
+// @Success 200 {object} dto.UploadPhotosResponse "Успешная загрузка фото"
 // @Failure 400 {object} map[string]string "Неверный запрос"
 // @Failure 401 {object} map[string]string "Не авторизован"
 // @Failure 403 {object} map[string]string "Превышен лимит фото"
@@ -186,7 +132,7 @@ func (h *ProfileHandler) UploadPhotos(w http.ResponseWriter, r *http.Request) {
 
 // handleJSONRequest обрабатывает JSON запросы
 func (h *ProfileHandler) handleJSONRequest(w http.ResponseWriter, r *http.Request, userID uuid.UUID) {
-	var req service.UpdateProfileRequest
+	var req dto.UpdateProfileRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		h.logger.Warnf("handleJSONRequest: %v", err)
 		utils.WriteJSONError(w, http.StatusBadRequest, "invalid JSON")
@@ -228,7 +174,7 @@ func (h *ProfileHandler) handleMultipartRequest(w http.ResponseWriter, r *http.R
 }
 
 // updateProfileInfo обновляет основную информацию профиля
-func (h *ProfileHandler) updateProfileInfo(w http.ResponseWriter, userID uuid.UUID, req service.UpdateProfileRequest) {
+func (h *ProfileHandler) updateProfileInfo(w http.ResponseWriter, userID uuid.UUID, req dto.UpdateProfileRequest) {
 	updateData := domain.ProfileUpdateRequest{
 		Name:      req.Name,
 		Phone:     req.Phone,
@@ -255,11 +201,11 @@ func (h *ProfileHandler) updateProfileInfo(w http.ResponseWriter, userID uuid.UU
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, service.SuccessResponse{Message: "Profile updated successfully"})
+	utils.WriteJSON(w, http.StatusOK, dto.SuccessResponse{Message: "Profile updated successfully"})
 }
 
 // updatePreferences обновляет предпочтения пользователя
-func (h *ProfileHandler) updatePreferences(w http.ResponseWriter, userID uuid.UUID, req service.UpdateProfileRequest) {
+func (h *ProfileHandler) updatePreferences(w http.ResponseWriter, userID uuid.UUID, req dto.UpdateProfileRequest) {
 	updateData := domain.PreferencesUpdateRequest{
 		ShowGender:   req.ShowGender,
 		AgeMin:       req.AgeMin,
@@ -274,7 +220,7 @@ func (h *ProfileHandler) updatePreferences(w http.ResponseWriter, userID uuid.UU
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, service.SuccessResponse{Message: "Preferences updated successfully"})
+	utils.WriteJSON(w, http.StatusOK, dto.SuccessResponse{Message: "Preferences updated successfully"})
 }
 
 // uploadPhotos загружает фотографии
@@ -297,7 +243,7 @@ func (h *ProfileHandler) uploadPhotos(w http.ResponseWriter, r *http.Request, us
 		return
 	}
 
-	response := service.UploadPhotosResponse{
+	response := dto.UploadPhotosResponse{
 		Photos: convertToInterfaceSlice(uploadedPhotos),
 	}
 
@@ -305,7 +251,7 @@ func (h *ProfileHandler) uploadPhotos(w http.ResponseWriter, r *http.Request, us
 }
 
 // deletePhoto удаляет фотографию
-func (h *ProfileHandler) deletePhoto(w http.ResponseWriter, userID uuid.UUID, req service.UpdateProfileRequest) {
+func (h *ProfileHandler) deletePhoto(w http.ResponseWriter, userID uuid.UUID, req dto.UpdateProfileRequest) {
 	if req.PhotoID == uuid.Nil {
 		utils.WriteJSONError(w, http.StatusBadRequest, "photo ID is required")
 		return
@@ -323,11 +269,11 @@ func (h *ProfileHandler) deletePhoto(w http.ResponseWriter, userID uuid.UUID, re
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, service.SuccessResponse{Message: "Photo deleted successfully"})
+	utils.WriteJSON(w, http.StatusOK, dto.SuccessResponse{Message: "Photo deleted successfully"})
 }
 
 // setPrimaryPhoto устанавливает основное фото
-func (h *ProfileHandler) setPrimaryPhoto(w http.ResponseWriter, userID uuid.UUID, req service.UpdateProfileRequest) {
+func (h *ProfileHandler) setPrimaryPhoto(w http.ResponseWriter, userID uuid.UUID, req dto.UpdateProfileRequest) {
 	if req.PhotoID == uuid.Nil {
 		utils.WriteJSONError(w, http.StatusBadRequest, "photo ID is required")
 		return
@@ -345,7 +291,7 @@ func (h *ProfileHandler) setPrimaryPhoto(w http.ResponseWriter, userID uuid.UUID
 		return
 	}
 
-	utils.WriteJSON(w, http.StatusOK, service.SuccessResponse{Message: "Primary photo set successfully"})
+	utils.WriteJSON(w, http.StatusOK, dto.SuccessResponse{Message: "Primary photo set successfully"})
 }
 
 // getUserIDFromContext извлекает userID из контекста (будет установлен в middleware)

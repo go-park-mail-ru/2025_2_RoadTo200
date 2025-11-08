@@ -4,7 +4,7 @@ import (
 	//"encoding/json"
 	"net/http"
 
-	//"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/dto"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/implementations"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/utils"
@@ -22,27 +22,14 @@ func NewSessionHandler(authService *service.AuthService, l logger.Log) *SessionH
 	}
 }
 
-// SessionResponse represents session check response
-type SessionResponse struct {
-	Authenticated bool                 `json:"authenticated" example:"true"`
-	User          *SessionUserResponse `json:"user,omitempty"`
-}
-
-// SessionUserResponse represents user data in session response
-type SessionUserResponse struct {
-	ID    string `json:"id" example:"550e8400-e29b-41d4-a716-446655440000"`
-	Email string `json:"email" example:"user@example.com"`
-	Name  string `json:"name" example:"Алексей"`
-}
-
 // GetSession godoc
 // @Summary Проверка сессии пользователя
 // @Description Проверяет валидность текущей сессии и возвращает информацию о пользователе
 // @Tags auth
 // @Produce json
 // @Param X-Session-Token header string false "Session token"
-// @Success 200 {object} SessionResponse "Сессия валидна"
-// @Success 200 {object} SessionResponse "Сессия не валидна"
+// @Success 200 {object} dto.SessionResponse "Сессия валидна"
+// @Success 200 {object} dto.SessionResponse "Сессия не валидна"
 // @Router /api/session [get]
 func (h *SessionHandler) GetSession(w http.ResponseWriter, r *http.Request) {
 	var token string
@@ -59,7 +46,7 @@ func (h *SessionHandler) GetSession(w http.ResponseWriter, r *http.Request) {
 
 	if token == "" {
 		h.logger.Warnf("token is empty")
-		utils.WriteJSON(w, http.StatusOK, SessionResponse{
+		utils.WriteJSON(w, http.StatusOK, dto.SessionResponse{
 			Authenticated: false,
 		})
 		return
@@ -69,16 +56,16 @@ func (h *SessionHandler) GetSession(w http.ResponseWriter, r *http.Request) {
 	user, err := h.authService.ValidateSession(token)
 	if err != nil {
 		h.logger.Warnf("SessionHandler.ValidateSession: %v", err)
-		utils.WriteJSON(w, http.StatusOK, SessionResponse{
+		utils.WriteJSON(w, http.StatusOK, dto.SessionResponse{
 			Authenticated: false,
 		})
 		return
 	}
 	h.logger.Debugf("SessionHandler.ValidateSession: %v", user)
 	// Формируем успешный ответ
-	response := SessionResponse{
+	response := dto.SessionResponse{
 		Authenticated: true,
-		User: &SessionUserResponse{
+		User: &dto.SessionUserResponse{
 			ID:    user.ID.String(),
 			Email: user.Email,
 			Name:  user.Name,
