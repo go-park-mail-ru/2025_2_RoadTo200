@@ -16,6 +16,8 @@ type User struct {
 	BirthDate time.Time        `json:"birth_date" db:"birth_date"`
 	Gender    constants.Gender `json:"gender" db:"gender"`
 	Bio       *string          `json:"bio,omitempty" db:"bio"`
+	Artist    *string          `db:"artist" json:"artist,omitempty"` // ДОБАВИТЬ
+	Quote     *string          `db:"quote" json:"quote,omitempty"`   // ДОБАВИТЬ
 	// Новые поля интересов
 	Workout    bool `db:"workout" json:"workout"`
 	Fun        bool `db:"fun" json:"fun"`
