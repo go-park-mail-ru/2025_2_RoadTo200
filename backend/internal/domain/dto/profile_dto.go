@@ -10,8 +10,6 @@ import (
 // TODO: Разбить на составляющие
 // UpdateProfileRequest общий запрос на изменение профиля
 type UpdateProfileRequest struct {
-	Action string `json:"action"` // "updateInfo", "updatePreferences", "deletePhoto", "setPrimaryPhoto"
-
 	// Для updateInfo
 	Name      string           `json:"name,omitempty"`
 	Phone     *string          `json:"phone,omitempty"`
@@ -34,7 +32,7 @@ type UpdateProfileRequest struct {
 	PhotoID uuid.UUID `json:"photo_id,omitempty"`
 
 	// Для reorderPhotos
-	PhotoIDs []uuid.UUID `json:"photo_ids,omitempty"`
+	//PhotoIDs []uuid.UUID `json:"photo_ids,omitempty"`
 }
 
 // ProfileResponse ответ профиля
@@ -42,9 +40,4 @@ type ProfileResponse struct {
 	User        interface{} `json:"user"`
 	Preferences interface{} `json:"preferences,omitempty"`
 	Photos      interface{} `json:"photos,omitempty"`
-}
-
-// UploadPhotosResponse ответ загрузки фото
-type UploadPhotosResponse struct {
-	Photos []interface{} `json:"photos"`
 }

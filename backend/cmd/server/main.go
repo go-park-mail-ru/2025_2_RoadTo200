@@ -156,8 +156,11 @@ func main() {
 	// Protected routes (require auth)
 	server.AddHandler("/api/logout", http.HandlerFunc(authHandler.Logout))
 	server.AddHandler("/api/profile/profile", http.HandlerFunc(profileHandler.GetProfile))
-	server.AddHandler("/api/profile/changeProfile", http.HandlerFunc(profileHandler.ChangeProfile)) // JSON only
-	server.AddHandler("/api/profile/uploadPhotos", http.HandlerFunc(profileHandler.UploadPhotos))   // Multipart only
+	server.AddHandler("/api/profile/changeProfile", http.HandlerFunc(profileHandler.UpdateProfileInfo))    // JSON only
+	server.AddHandler("/api/profile/changePreference", http.HandlerFunc(profileHandler.UpdatePreferences)) // JSON only
+	//server.AddHandler("/api/profile/changeInterest", http.HandlerFunc(profileHandler.ChangeProfile))       // JSON only
+	server.AddHandler("/api/profile/photo/{id}", http.HandlerFunc(profileHandler.HandlePhoto))    // JSON only
+	server.AddHandler("/api/profile/uploadPhotos", http.HandlerFunc(profileHandler.UploadPhotos)) // Multipart only
 	server.AddHandler("/api/feed", http.HandlerFunc(feedHandler.GetFeed))
 	server.AddHandler("/api/swipe", http.HandlerFunc(swipeHandler.ProcessSwipe))
 	server.AddHandler("/api/matches", http.HandlerFunc(matchHandler.GetUserMatches))
