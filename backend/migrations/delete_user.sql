@@ -1,0 +1,3 @@
+DELETE FROM "user" WHERE id IN (
+    '65b1c564-1f77-4ee9-b23b-339803f694e1'
+);
