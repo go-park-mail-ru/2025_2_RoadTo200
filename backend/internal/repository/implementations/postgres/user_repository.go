@@ -25,7 +25,7 @@ func NewUserRepository(pool interfaces.PgxIface, l logger.Log) interfaces.UserRe
 func (r *userRepository) Create(user *domain.User) error {
 	query := `
         INSERT INTO "user" (email, phone, name, password, birth_date, gender, bio, 
-                           artist, quote,  // ДОБАВИТЬ
+                           artist, quote,
                            latitude, longitude, is_verified)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`
 
