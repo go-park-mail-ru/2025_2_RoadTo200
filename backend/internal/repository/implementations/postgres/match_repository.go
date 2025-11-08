@@ -67,7 +67,7 @@ func (r *matchRepository) GetByUsers(user1ID, user2ID uuid.UUID) (*domain.Match,
 
 func (r *matchRepository) GetUserMatches(userID uuid.UUID, limit, offset int) ([]domain.Match, error) {
 	query := `
-        SELECT id, user1_id, user2_id, is_active, matched_at 
+        SELECT user1_id, user2_id, is_active, matched_at 
         FROM match 
         WHERE (user1_id = $1 OR user2_id = $1) 
         AND is_active = true
@@ -84,7 +84,6 @@ func (r *matchRepository) GetUserMatches(userID uuid.UUID, limit, offset int) ([
 	for rows.Next() {
 		var match domain.Match
 		err := rows.Scan(
-			&match.ID,
 			&match.User1ID,
 			&match.User2ID,
 			&match.IsActive,
