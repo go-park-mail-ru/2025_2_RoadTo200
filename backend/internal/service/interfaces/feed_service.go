@@ -17,7 +17,18 @@ type FeedUser struct {
 	Gender      string   `json:"gender"`
 	Description string   `json:"description"`
 	Images      []string `json:"images"`
-	PhotosCount int      `json:"photosCount"`
+	PhotosCount int      `json:"photos_count"`
+	// Добавляем поля интересов
+	Workout    bool `json:"workout"`
+	Fun        bool `json:"fun"`
+	Party      bool `json:"party"`
+	Chill      bool `json:"chill"`
+	Love       bool `json:"love"`
+	Relax      bool `json:"relax"`
+	Yoga       bool `json:"yoga"`
+	Friendship bool `json:"friendship"`
+	Culture    bool `json:"culture"`
+	Cinema     bool `json:"cinema"`
 }
 
 type FeedRequest struct {

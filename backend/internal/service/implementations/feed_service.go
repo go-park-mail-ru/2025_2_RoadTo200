@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/constants"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
@@ -80,11 +81,30 @@ func (s *feedService) convertToFeedUser(user domain.User) (service.FeedUser, err
 		ID:          user.ID.String(),
 		Name:        user.Name,
 		Age:         age,
-		Gender:      string(user.Gender),
+		Gender:      getGenderString(user.Gender),
 		Description: getDescription(user.Bio),
 		Images:      images,
 		PhotosCount: len(images),
+		// Добавляем интересы
+		Workout:    user.Workout,
+		Fun:        user.Fun,
+		Party:      user.Party,
+		Chill:      user.Chill,
+		Love:       user.Love,
+		Relax:      user.Relax,
+		Yoga:       user.Yoga,
+		Friendship: user.Friendship,
+		Culture:    user.Culture,
+		Cinema:     user.Cinema,
 	}, nil
+}
+
+// getGenderString возвращает строковое представление gender
+func getGenderString(gender constants.Gender) string {
+	if gender != "" {
+		return string(gender)
+	}
+	return "not_specified"
 }
 
 // calculateAge вычисляет возраст по дате рождения

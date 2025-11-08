@@ -40,16 +40,11 @@ func (s *matchService) GetUserMatches(userID uuid.UUID, limit, offset int) (*ser
 		offset = 0
 	}
 
-	fmt.Printf("DEBUG: Getting matches for userID: %s, limit: %d, offset: %d\n", userID, limit, offset)
-
 	// Получаем мэтчи пользователя
 	matches, err := s.matchRepo.GetUserMatches(userID, limit, offset)
 	if err != nil {
-		fmt.Printf("ERROR: Failed to get matches from repo: %v\n", err)
 		return nil, err
 	}
-
-	fmt.Printf("DEBUG: Retrieved %d matches from repository\n", len(matches))
 
 	// Если нет мэтчей, возвращаем пустой ответ
 	if len(matches) == 0 {
@@ -70,22 +65,15 @@ func (s *matchService) GetUserMatches(userID uuid.UUID, limit, offset int) (*ser
 			userIDs = append(userIDs, match.User1ID)
 		}
 	}
-
-	fmt.Printf("DEBUG: Getting user info for IDs: %v\n", userIDs)
-
 	// Получаем информацию о пользователях
 	users, err := s.userRepo.GetUsersByIDs(userIDs)
 	if err != nil {
-		fmt.Printf("ERROR: Failed to get users by IDs: %v\n", err)
 		return nil, err
 	}
-
-	fmt.Printf("DEBUG: Retrieved %d users\n", len(users))
 
 	// Получаем фотографии для всех пользователей
 	userPhotos, err := s.getUsersPhotos(userIDs)
 	if err != nil {
-		fmt.Printf("ERROR: Failed to get users photos: %v\n", err)
 		return nil, err
 	}
 
