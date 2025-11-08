@@ -9,6 +9,8 @@ import (
 	"github.com/minio/minio-go/v7/pkg/credentials"
 )
 
+// TODO: пределать под енв
+
 func NewMinioPool(cfg *config.MinIOConfig) (*minio.Client, error) {
 	// Инициализация MinIO клиента
 	client, err := minio.New(cfg.Endpoint, &minio.Options{

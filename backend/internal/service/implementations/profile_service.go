@@ -5,7 +5,6 @@ import (
 	"io"
 	"mime/multipart"
 
-	//"net/http"
 	"path/filepath"
 	"strings"
 	"time"
@@ -16,10 +15,10 @@ import (
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
 	service "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
 
-	//"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repost/interfaces"
 	"github.com/google/uuid"
 )
 
+// TODO: Изучить подробней
 type profileService struct {
 	userRepo       interfaces.UserRepository
 	userPhotoRepo  interfaces.UserPhotoRepository
@@ -111,36 +110,6 @@ func (s *profileService) UpdateProfileInfo(userID uuid.UUID, updateData *domain.
 	}
 	if updateData.Longitude != nil {
 		user.Longitude = updateData.Longitude
-	}
-	if updateData.Workout != nil {
-		user.Workout = *updateData.Workout
-	}
-	if updateData.Fun != nil {
-		user.Fun = *updateData.Fun
-	}
-	if updateData.Party != nil {
-		user.Party = *updateData.Party
-	}
-	if updateData.Chill != nil {
-		user.Chill = *updateData.Chill
-	}
-	if updateData.Love != nil {
-		user.Love = *updateData.Love
-	}
-	if updateData.Relax != nil {
-		user.Relax = *updateData.Relax
-	}
-	if updateData.Yoga != nil {
-		user.Yoga = *updateData.Yoga
-	}
-	if updateData.Friendship != nil {
-		user.Friendship = *updateData.Friendship
-	}
-	if updateData.Culture != nil {
-		user.Culture = *updateData.Culture
-	}
-	if updateData.Cinema != nil {
-		user.Cinema = *updateData.Cinema
 	}
 
 	user.UpdatedAt = time.Now()

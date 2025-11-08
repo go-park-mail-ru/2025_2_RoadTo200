@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 )
 
+// TODO: Изучить подробней
 type matchService struct {
 	matchRepo interfaces.MatchRepository
 	userRepo  interfaces.UserRepository

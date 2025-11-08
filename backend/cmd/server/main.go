@@ -118,6 +118,7 @@ func main() {
 	swipeHandler := handler.NewSwipeHandler(swipeService)
 	matchHandler := handler.NewMatchHandler(matchService)
 
+	// TODO: Отдельный файл для хендлеров
 	server := httpserver.NewServer()
 
 	// Global middleware

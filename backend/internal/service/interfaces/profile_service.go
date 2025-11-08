@@ -28,6 +28,7 @@ type ProfileService interface {
 	ValidatePreferencesUpdate(updateData *domain.PreferencesUpdateRequest) error
 }
 
+// TODO: Разбить на составляющие
 // UpdateProfileRequest общий запрос на изменение профиля
 type UpdateProfileRequest struct {
 	Action string `json:"action"` // "updateInfo", "updatePreferences", "deletePhoto", "setPrimaryPhoto"

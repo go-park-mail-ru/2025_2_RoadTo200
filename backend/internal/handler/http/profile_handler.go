@@ -18,6 +18,7 @@ import (
 	"github.com/google/uuid"
 )
 
+// TODO: Переписать нахрен
 type ProfileHandler struct {
 	profileService service.ProfileService
 	logger         logger.Log

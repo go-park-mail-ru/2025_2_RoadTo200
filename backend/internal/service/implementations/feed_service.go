@@ -85,17 +85,6 @@ func (s *feedService) convertToFeedUser(user domain.User) (service.FeedUser, err
 		Description: getDescription(user.Bio),
 		Images:      images,
 		PhotosCount: len(images),
-		// Добавляем интересы
-		Workout:    user.Workout,
-		Fun:        user.Fun,
-		Party:      user.Party,
-		Chill:      user.Chill,
-		Love:       user.Love,
-		Relax:      user.Relax,
-		Yoga:       user.Yoga,
-		Friendship: user.Friendship,
-		Culture:    user.Culture,
-		Cinema:     user.Cinema,
 	}, nil
 }
 
