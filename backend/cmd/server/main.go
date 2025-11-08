@@ -107,6 +107,7 @@ func main() {
 		postgres.NewMatchRepository(pool),
 		userRepo,
 		postgres.NewSwipeRepository(pool),
+		postgres.NewUserPhotoRepository(pool), // Добавляем photoRepo
 	)
 
 	// Обработчики

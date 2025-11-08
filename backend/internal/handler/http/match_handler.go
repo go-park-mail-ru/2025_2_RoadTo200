@@ -8,6 +8,7 @@ import (
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/middleware"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/utils"
+	"github.com/google/uuid"
 )
 
 type MatchHandler struct {
@@ -89,7 +90,14 @@ func (h *MatchHandler) Unmatch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.matchService.Unmatch(userID, req.TargetUserID); err != nil {
+	// Преобразуем строку в UUID
+	targetUserID, err := uuid.Parse(req.TargetUserID)
+	if err != nil {
+		utils.WriteJSONError(w, http.StatusBadRequest, "invalid user ID format")
+		return
+	}
+
+	if err := h.matchService.Unmatch(userID, targetUserID); err != nil {
 		status := http.StatusInternalServerError
 		if err == errors.ErrMatchNotFound {
 			status = http.StatusNotFound

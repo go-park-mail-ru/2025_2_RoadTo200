@@ -14,17 +14,20 @@ type matchService struct {
 	matchRepo interfaces.MatchRepository
 	userRepo  interfaces.UserRepository
 	swipeRepo interfaces.SwipeRepository
+	photoRepo interfaces.UserPhotoRepository // Добавляем репозиторий фотографий
 }
 
 func NewMatchService(
 	matchRepo interfaces.MatchRepository,
 	userRepo interfaces.UserRepository,
 	swipeRepo interfaces.SwipeRepository,
+	photoRepo interfaces.UserPhotoRepository, // Добавляем параметр
 ) service.MatchService {
 	return &matchService{
 		matchRepo: matchRepo,
 		userRepo:  userRepo,
 		swipeRepo: swipeRepo,
+		photoRepo: photoRepo, // Инициализируем
 	}
 }
 
@@ -37,11 +40,25 @@ func (s *matchService) GetUserMatches(userID uuid.UUID, limit, offset int) (*ser
 		offset = 0
 	}
 
+	fmt.Printf("DEBUG: Getting matches for userID: %s, limit: %d, offset: %d\n", userID, limit, offset)
+
 	// Получаем мэтчи пользователя
 	matches, err := s.matchRepo.GetUserMatches(userID, limit, offset)
 	if err != nil {
-		fmt.Printf("Error retrieving matches: %v\n", err)
+		fmt.Printf("ERROR: Failed to get matches from repo: %v\n", err)
 		return nil, err
+	}
+
+	fmt.Printf("DEBUG: Retrieved %d matches from repository\n", len(matches))
+
+	// Если нет мэтчей, возвращаем пустой ответ
+	if len(matches) == 0 {
+		return &service.MatchesResponse{
+			Matches: []service.MatchResponse{},
+			Total:   0,
+			Limit:   limit,
+			Offset:  offset,
+		}, nil
 	}
 
 	// Собираем ID всех пользователей из мэтчей
@@ -54,9 +71,21 @@ func (s *matchService) GetUserMatches(userID uuid.UUID, limit, offset int) (*ser
 		}
 	}
 
+	fmt.Printf("DEBUG: Getting user info for IDs: %v\n", userIDs)
+
 	// Получаем информацию о пользователях
 	users, err := s.userRepo.GetUsersByIDs(userIDs)
 	if err != nil {
+		fmt.Printf("ERROR: Failed to get users by IDs: %v\n", err)
+		return nil, err
+	}
+
+	fmt.Printf("DEBUG: Retrieved %d users\n", len(users))
+
+	// Получаем фотографии для всех пользователей
+	userPhotos, err := s.getUsersPhotos(userIDs)
+	if err != nil {
+		fmt.Printf("ERROR: Failed to get users photos: %v\n", err)
 		return nil, err
 	}
 
@@ -70,15 +99,37 @@ func (s *matchService) GetUserMatches(userID uuid.UUID, limit, offset int) (*ser
 	var matchResponses []service.MatchResponse
 	for _, match := range matches {
 		var matchedUser domain.User
+		var ok bool
+		var matchedUserID uuid.UUID
+
 		if match.User1ID == userID {
-			matchedUser = userMap[match.User2ID]
+			matchedUserID = match.User2ID
 		} else {
-			matchedUser = userMap[match.User1ID]
+			matchedUserID = match.User1ID
 		}
 
+		matchedUser, ok = userMap[matchedUserID]
+		if !ok {
+			fmt.Printf("WARN: User not found for match: %v\n", match)
+			continue
+		}
+
+		// Получаем фотографии для этого пользователя
+		photos := userPhotos[matchedUserID]
+
+		// Вычисляем возраст
+		age := calculateAge(matchedUser.BirthDate)
+
+		// Получаем описание
+		description := getDescription(matchedUser.Bio)
+
 		matchResponses = append(matchResponses, service.MatchResponse{
-			Match: match,
-			User:  matchedUser,
+			Match:       match,
+			User:        matchedUser,
+			Photos:      photos,      // Добавляем фотографии
+			Age:         age,         // Добавляем возраст
+			Description: description, // Добавляем описание
+			PhotosCount: len(photos), // Добавляем количество фото
 		})
 	}
 
@@ -89,7 +140,31 @@ func (s *matchService) GetUserMatches(userID uuid.UUID, limit, offset int) (*ser
 		Offset:  offset,
 	}
 
+	fmt.Printf("DEBUG: Successfully formed response with %d matches\n", len(matchResponses))
 	return response, nil
+}
+
+// getUsersPhotos возвращает фотографии для списка пользователей
+func (s *matchService) getUsersPhotos(userIDs []uuid.UUID) (map[uuid.UUID][]string, error) {
+	userPhotos := make(map[uuid.UUID][]string)
+
+	for _, userID := range userIDs {
+		photos, err := s.photoRepo.GetByUserID(userID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get photos for user %s: %w", userID, err)
+		}
+
+		urls := make([]string, 0, len(photos))
+		for _, photo := range photos {
+			// Добавляем только approved фото
+			if photo.IsApproved {
+				urls = append(urls, photo.PhotoURL)
+			}
+		}
+		userPhotos[userID] = urls
+	}
+
+	return userPhotos, nil
 }
 
 func (s *matchService) Unmatch(userID, targetUserID uuid.UUID) error {
