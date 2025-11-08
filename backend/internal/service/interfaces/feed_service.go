@@ -18,6 +18,8 @@ type FeedUser struct {
 	Description string   `json:"description"`
 	Images      []string `json:"images"`
 	PhotosCount int      `json:"photos_count"`
+	Artist      *string  `db:"artist" json:"artist,omitempty"`
+	Quote       *string  `db:"quote" json:"quote,omitempty"`
 	// Добавляем поля интересов
 	Workout    bool `json:"workout"`
 	Fun        bool `json:"fun"`

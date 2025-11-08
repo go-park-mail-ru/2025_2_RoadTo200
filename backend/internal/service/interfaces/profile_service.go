@@ -38,6 +38,8 @@ type UpdateProfileRequest struct {
 	BirthDate  *time.Time       `json:"birth_date,omitempty"`
 	Gender     constants.Gender `json:"gender,omitempty"`
 	Bio        *string          `json:"bio,omitempty"`
+	Artist     *string          `json:"artist,omitempty"`
+	Quote      *string          `json:"quote,omitempty"`
 	Latitude   *float64         `json:"latitude,omitempty"`
 	Longitude  *float64         `json:"longitude,omitempty"`
 	Workout    *bool            `json:"workout,omitempty"`

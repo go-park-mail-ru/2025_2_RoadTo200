@@ -45,6 +45,8 @@ type UpdateProfileInfoRequest struct {
 	BirthDate  *time.Time       `json:"birth_date,omitempty" example:"1990-01-01T00:00:00Z"`
 	Gender     constants.Gender `json:"gender,omitempty" example:"male"`
 	Bio        *string          `json:"bio,omitempty" example:"Люблю путешествия и спорт"`
+	Artist     *string          `json:"artist,omitempty"`
+	Quote      *string          `json:"quote,omitempty"`
 	Latitude   *float64         `json:"latitude,omitempty" example:"55.7558"`
 	Longitude  *float64         `json:"longitude,omitempty" example:"37.6173"`
 	Workout    *bool            `json:"workout,omitempty" example:"true"`
@@ -231,6 +233,8 @@ func (h *ProfileHandler) updateProfileInfo(w http.ResponseWriter, userID uuid.UU
 		Phone:      req.Phone,
 		Gender:     req.Gender,
 		Bio:        req.Bio,
+		Artist:     req.Artist,
+		Quote:      req.Quote,
 		Latitude:   req.Latitude,
 		Longitude:  req.Longitude,
 		Workout:    req.Workout,

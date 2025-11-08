@@ -26,6 +26,7 @@ func (r *userRepository) Create(user *domain.User) error {
 	query := `
 	INSERT INTO "user" (email, phone, name, password, birth_date, gender, bio, 
 					   workout, fun, party, chill, love, relax, yoga, friendship, culture, cinema,
+					   artist, quote,
 					   latitude, longitude, is_verified)
 	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
 	RETURNING id, created_at, updated_at, last_active`
@@ -34,6 +35,7 @@ func (r *userRepository) Create(user *domain.User) error {
 		user.Email, user.Phone, user.Name, user.Password, user.BirthDate, user.Gender, user.Bio,
 		user.Workout, user.Fun, user.Party, user.Chill, user.Love, user.Relax,
 		user.Yoga, user.Friendship, user.Culture, user.Cinema,
+		user.Artist, user.Quote,
 		user.Latitude, user.Longitude, user.IsVerified).
 		Scan(&user.ID, &user.CreatedAt, &user.UpdatedAt, &user.LastActive)
 
@@ -48,6 +50,7 @@ func (r *userRepository) GetByID(id uuid.UUID) (*domain.User, error) {
 	query := `
         SELECT id, email, phone, name, password, birth_date, gender, bio, 
                workout, fun, party, chill, love, relax, yoga, friendship, culture, cinema,
+			   artist, quote,
                latitude, longitude, is_verified, last_active, created_at, updated_at 
         FROM "user" WHERE id = $1`
 
@@ -56,6 +59,7 @@ func (r *userRepository) GetByID(id uuid.UUID) (*domain.User, error) {
 		&user.BirthDate, &user.Gender, &user.Bio,
 		&user.Workout, &user.Fun, &user.Party, &user.Chill, &user.Love, &user.Relax,
 		&user.Yoga, &user.Friendship, &user.Culture, &user.Cinema,
+		&user.Artist, &user.Quote,
 		&user.Latitude, &user.Longitude, &user.IsVerified, &user.LastActive,
 		&user.CreatedAt, &user.UpdatedAt,
 	)
@@ -74,6 +78,7 @@ func (r *userRepository) GetByEmail(email string) (*domain.User, error) {
 	query := `
         SELECT id, email, phone, name, password, birth_date, gender, bio, 
                workout, fun, party, chill, love, relax, yoga, friendship, culture, cinema,
+			   artist, quote,
                latitude, longitude, is_verified, last_active, created_at, updated_at 
         FROM "user" WHERE email = $1`
 
@@ -82,6 +87,7 @@ func (r *userRepository) GetByEmail(email string) (*domain.User, error) {
 		&user.BirthDate, &user.Gender, &user.Bio,
 		&user.Workout, &user.Fun, &user.Party, &user.Chill, &user.Love, &user.Relax,
 		&user.Yoga, &user.Friendship, &user.Culture, &user.Cinema,
+		&user.Artist, &user.Quote,
 		&user.Latitude, &user.Longitude, &user.IsVerified, &user.LastActive,
 		&user.CreatedAt, &user.UpdatedAt,
 	)
@@ -121,6 +127,7 @@ func (r *userRepository) Update(user *domain.User) error {
             gender = $6, bio = $7, latitude = $8, longitude = $9, is_verified = $10,
             workout = $11, fun = $12, party = $13, chill = $14, love = $15, 
             relax = $16, yoga = $17, friendship = $18, culture = $19, cinema = $20,
+			artist = $21, quote = $22,
             updated_at = NOW()
         WHERE id = $21
         RETURNING updated_at`
@@ -130,6 +137,7 @@ func (r *userRepository) Update(user *domain.User) error {
 		user.Bio, user.Latitude, user.Longitude, user.IsVerified,
 		user.Workout, user.Fun, user.Party, user.Chill, user.Love,
 		user.Relax, user.Yoga, user.Friendship, user.Culture, user.Cinema,
+		user.Artist, user.Quote,
 		user.ID).
 		Scan(&user.UpdatedAt)
 
@@ -174,6 +182,7 @@ func (r *userRepository) GetUsersByIDs(ids []uuid.UUID) ([]domain.User, error) {
 	query := fmt.Sprintf(`
         SELECT id, email, phone, name, password, birth_date, gender, bio, 
                workout, fun, party, chill, love, relax, yoga, friendship, culture, cinema,
+			   artist, quote,
                latitude, longitude, is_verified, last_active, created_at, updated_at 
         FROM "user" 
         WHERE id IN (%s)
@@ -193,6 +202,7 @@ func (r *userRepository) GetUsersByIDs(ids []uuid.UUID) ([]domain.User, error) {
 			&user.BirthDate, &user.Gender, &user.Bio,
 			&user.Workout, &user.Fun, &user.Party, &user.Chill, &user.Love, &user.Relax,
 			&user.Yoga, &user.Friendship, &user.Culture, &user.Cinema,
+			&user.Artist, &user.Quote,
 			&user.Latitude, &user.Longitude, &user.IsVerified, &user.LastActive,
 			&user.CreatedAt, &user.UpdatedAt,
 		)
@@ -215,6 +225,7 @@ func (r *userRepository) GetUsersForFeed(userID uuid.UUID, limit, offset int) ([
 	query := `
         SELECT id, email, phone, name, password, birth_date, gender, bio, 
                workout, fun, party, chill, love, relax, yoga, friendship, culture, cinema,
+			   artist, quote,
                latitude, longitude, is_verified, last_active, created_at, updated_at
         FROM "user" u
         WHERE u.id != $1
@@ -240,6 +251,7 @@ func (r *userRepository) GetUsersForFeed(userID uuid.UUID, limit, offset int) ([
 			&user.BirthDate, &user.Gender, &user.Bio,
 			&user.Workout, &user.Fun, &user.Party, &user.Chill, &user.Love, &user.Relax,
 			&user.Yoga, &user.Friendship, &user.Culture, &user.Cinema,
+			&user.Artist, &user.Quote,
 			&user.Latitude, &user.Longitude, &user.IsVerified, &user.LastActive,
 			&user.CreatedAt, &user.UpdatedAt,
 		)

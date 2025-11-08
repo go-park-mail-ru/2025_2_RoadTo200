@@ -20,6 +20,8 @@ CREATE TABLE "user"
     birth_date  DATE,
     gender      gender_enum,
     bio         TEXT,
+    artist      TEXT,
+    quote       TEXT,
     latitude    DECIMAL(10, 8),
     longitude   DECIMAL(11, 8),
     is_verified BOOLEAN     NOT NULL DEFAULT FALSE,
