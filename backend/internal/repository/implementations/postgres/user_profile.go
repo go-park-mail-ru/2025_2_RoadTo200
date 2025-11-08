@@ -1,0 +1,205 @@
+package postgres
+
+import (
+	"context"
+	"errors"
+
+	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v4"
+)
+
+type userPhotoRepository struct {
+	pool interfaces.PgxIface
+}
+
+func NewUserPhotoRepository(pool interfaces.PgxIface) interfaces.UserPhotoRepository {
+	return &userPhotoRepository{pool: pool}
+}
+
+func (r *userPhotoRepository) Create(photo *domain.UserPhoto) error {
+	query := `
+		INSERT INTO user_photo (user_id, photo_url, display_order, is_approved)
+		VALUES ($1, $2, $3, $4)
+		RETURNING id, created_at`
+
+	err := r.pool.QueryRow(context.Background(), query,
+		photo.UserID, photo.PhotoURL, photo.DisplayOrder, photo.IsApproved).
+		Scan(&photo.ID, &photo.CreatedAt)
+
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *userPhotoRepository) GetByID(id uuid.UUID) (*domain.UserPhoto, error) {
+	var photo domain.UserPhoto
+	query := `SELECT * FROM user_photo WHERE id = $1`
+
+	err := r.pool.QueryRow(context.Background(), query, id).Scan(
+		&photo.ID, &photo.UserID, &photo.PhotoURL, &photo.DisplayOrder,
+		&photo.IsApproved, &photo.CreatedAt,
+	)
+
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &photo, nil
+}
+
+func (r *userPhotoRepository) GetByUserID(userID uuid.UUID) ([]domain.UserPhoto, error) {
+	query := `SELECT * FROM user_photo WHERE user_id = $1 ORDER BY display_order ASC`
+
+	rows, err := r.pool.Query(context.Background(), query, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var photos []domain.UserPhoto
+	for rows.Next() {
+		var photo domain.UserPhoto
+		err := rows.Scan(
+			&photo.ID, &photo.UserID, &photo.PhotoURL, &photo.DisplayOrder,
+			&photo.IsApproved, &photo.CreatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		photos = append(photos, photo)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return photos, nil
+}
+
+func (r *userPhotoRepository) Update(photo *domain.UserPhoto) error {
+	query := `
+		UPDATE user_photo 
+		SET photo_url = $1, display_order = $2, is_approved = $3
+		WHERE id = $4`
+
+	_, err := r.pool.Exec(context.Background(), query,
+		photo.PhotoURL, photo.DisplayOrder, photo.IsApproved, photo.ID)
+
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *userPhotoRepository) Delete(id uuid.UUID) error {
+	query := `DELETE FROM user_photo WHERE id = $1`
+
+	_, err := r.pool.Exec(context.Background(), query, id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *userPhotoRepository) UpdateDisplayOrder(userID uuid.UUID, photos []domain.UserPhoto) error {
+	tx, err := r.pool.Begin(context.Background())
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(context.Background())
+
+	// Delete existing photos for user
+	_, err = tx.Exec(context.Background(), "DELETE FROM user_photo WHERE user_id = $1", userID)
+	if err != nil {
+		return err
+	}
+
+	// Insert new photos
+	for _, photo := range photos {
+		_, err = tx.Exec(context.Background(), `
+			INSERT INTO user_photo (user_id, photo_url, display_order, is_approved)
+			VALUES ($1, $2, $3, $4)`,
+			userID, photo.PhotoURL, photo.DisplayOrder, photo.IsApproved)
+		if err != nil {
+			return err
+		}
+	}
+
+	return tx.Commit(context.Background())
+}
+
+type userPreferenceRepository struct {
+	pool interfaces.PgxIface
+}
+
+func NewUserPreferenceRepository(pool interfaces.PgxIface) interfaces.UserPreferenceRepository {
+	return &userPreferenceRepository{pool: pool}
+}
+
+func (r *userPreferenceRepository) Create(preference *domain.UserPreference) error {
+	query := `
+		INSERT INTO user_preference (user_id, show_gender, age_min, age_max, max_distance, global_search)
+		VALUES ($1, $2, $3, $4, $5, $6)
+		RETURNING created_at, updated_at`
+
+	err := r.pool.QueryRow(context.Background(), query,
+		preference.UserID, preference.ShowGender, preference.AgeMin, preference.AgeMax,
+		preference.MaxDistance, preference.GlobalSearch).
+		Scan(&preference.CreatedAt, &preference.UpdatedAt)
+
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *userPreferenceRepository) GetByUserID(userID uuid.UUID) (*domain.UserPreference, error) {
+	var preference domain.UserPreference
+	query := `SELECT * FROM user_preference WHERE user_id = $1`
+
+	err := r.pool.QueryRow(context.Background(), query, userID).Scan(
+		&preference.UserID, &preference.ShowGender, &preference.AgeMin, &preference.AgeMax,
+		&preference.MaxDistance, &preference.GlobalSearch, &preference.CreatedAt, &preference.UpdatedAt,
+	)
+
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &preference, nil
+}
+
+func (r *userPreferenceRepository) Update(preference *domain.UserPreference) error {
+	query := `
+		UPDATE user_preference 
+		SET show_gender = $1, age_min = $2, age_max = $3, max_distance = $4, global_search = $5, updated_at = NOW()
+		WHERE user_id = $6
+		RETURNING updated_at`
+
+	err := r.pool.QueryRow(context.Background(), query,
+		preference.ShowGender, preference.AgeMin, preference.AgeMax, preference.MaxDistance,
+		preference.GlobalSearch, preference.UserID).
+		Scan(&preference.UpdatedAt)
+
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *userPreferenceRepository) Delete(userID uuid.UUID) error {
+	query := `DELETE FROM user_preference WHERE user_id = $1`
+
+	_, err := r.pool.Exec(context.Background(), query, userID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
