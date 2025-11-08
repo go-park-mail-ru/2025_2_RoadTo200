@@ -26,9 +26,8 @@ app:
     password: RD_PSWD
 
   minio:
-    endpoint: "localhost:8099"
-    access_key_id: "minioadmin"
-    secret_access_key: "minioadmin"
-    use_ssl: false
+    host: localhost:8099
+    access_key_id: MN_USER
+    secret_access_key: MN_PSWD
+    address: MN_ADDRESS
     bucket_name: "terabithia-photos"
-    region: "us-east-1"

@@ -30,13 +30,6 @@ func NewConnect(ctx context.Context, cfg *config.PostgresConfig) (*pgxpool.Pool,
 	password := os.Getenv(cfg.Password) // ❌ Это ищет env переменную с именем "password"
 	base := os.Getenv(cfg.Base)         // ❌ Это ищет env переменную с именем "dating_app"
 
-	// Вместо этого используй значения НАПРЯМУЮ из конфига:
-	//host := cfg.Host         // ✅ "localhost"
-	//sport := cfg.Port        // ✅ "5435"
-	//user := cfg.User         // ✅ "postgres"
-	//password := cfg.Password // ✅ твой пароль
-	//base := cfg.Base         // ✅ "dating_app"
-
 	// Преобразуем порт в число
 	port, err := strconv.Atoi(sport)
 	if err != nil {

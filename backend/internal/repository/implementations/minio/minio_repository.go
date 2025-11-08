@@ -15,7 +15,7 @@ import (
 type storageRepository struct {
 	client     *minio.Client
 	bucketName string
-	endpoint   string
+	address    string
 	useSSL     bool
 }
 
@@ -23,7 +23,7 @@ func NewStorageRepository(cl *minio.Client, cfg *config.MinIOConfig) interfaces.
 	return &storageRepository{
 		client:     cl,
 		bucketName: cfg.BucketName,
-		endpoint:   cfg.Endpoint,
+		address:    cfg.Address,
 		useSSL:     cfg.UseSSL,
 	}
 }
@@ -66,7 +66,7 @@ func (m *storageRepository) GetURL(filename string) string {
 		protocol = "https"
 	}
 
-	return fmt.Sprintf("%s://217.16.17.116:8099/%s/%s", protocol, m.bucketName, filename)
+	return fmt.Sprintf("%s://%s/%s/%s", protocol, m.address, m.bucketName, filename)
 }
 
 // PresignedURL генерирует URL с временным доступом (опционально)
