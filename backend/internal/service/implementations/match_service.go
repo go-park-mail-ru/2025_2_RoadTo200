@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/dto"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/errors"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
@@ -32,7 +33,7 @@ func NewMatchService(
 	}
 }
 
-func (s *matchService) GetUserMatches(userID uuid.UUID, limit, offset int) (*service.MatchesResponse, error) {
+func (s *matchService) GetUserMatches(userID uuid.UUID, limit, offset int) (*dto.MatchesResponse, error) {
 	// Валидация параметров
 	if limit <= 0 || limit > 50 {
 		limit = 20
@@ -49,8 +50,8 @@ func (s *matchService) GetUserMatches(userID uuid.UUID, limit, offset int) (*ser
 
 	// Если нет мэтчей, возвращаем пустой ответ
 	if len(matches) == 0 {
-		return &service.MatchesResponse{
-			Matches: []service.MatchResponse{},
+		return &dto.MatchesResponse{
+			Matches: []dto.MatchResponse{},
 			Total:   0,
 			Limit:   limit,
 			Offset:  offset,
@@ -85,7 +86,7 @@ func (s *matchService) GetUserMatches(userID uuid.UUID, limit, offset int) (*ser
 	}
 
 	// Формируем ответ
-	var matchResponses []service.MatchResponse
+	var matchResponses []dto.MatchResponse
 	for _, match := range matches {
 		var matchedUser domain.User
 		var ok bool
@@ -112,7 +113,7 @@ func (s *matchService) GetUserMatches(userID uuid.UUID, limit, offset int) (*ser
 		// Получаем описание
 		description := getDescription(matchedUser.Bio)
 
-		matchResponses = append(matchResponses, service.MatchResponse{
+		matchResponses = append(matchResponses, dto.MatchResponse{
 			Match:       match,
 			User:        matchedUser,
 			Photos:      photos,      // Добавляем фотографии
@@ -122,7 +123,7 @@ func (s *matchService) GetUserMatches(userID uuid.UUID, limit, offset int) (*ser
 		})
 	}
 
-	response := &service.MatchesResponse{
+	response := &dto.MatchesResponse{
 		Matches: matchResponses,
 		Total:   len(matchResponses),
 		Limit:   limit,

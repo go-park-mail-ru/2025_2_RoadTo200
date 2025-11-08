@@ -25,18 +25,3 @@ type AuthService interface {
 	// GetUserByID returns user by ID
 	GetUserByID(userID uuid.UUID) (*domain.User, error)
 }
-
-// RegisterRequest represents registration request
-// @Description Запрос для регистрации нового пользователя
-type RegisterRequest struct {
-	Email           string `json:"email" binding:"required" example:"user@example.com"`
-	Password        string `json:"password" binding:"required" example:"securepassword123"`
-	PasswordConfirm string `json:"passwordConfirm" binding:"required" example:"securepassword123"`
-}
-
-// LoginRequest represents login request
-// @Description Запрос для аутентификации пользователя
-type LoginRequest struct {
-	Email    string `json:"email" binding:"required" example:"user@example.com"`
-	Password string `json:"password" binding:"required" example:"securepassword123"`
-}

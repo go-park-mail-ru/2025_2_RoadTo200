@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/constants"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/dto"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
@@ -30,7 +31,7 @@ func NewFeedService(
 	}
 }
 
-func (s *feedService) GetFeed(userID uuid.UUID, limit, offset int) ([]service.FeedUser, error) {
+func (s *feedService) GetFeed(userID uuid.UUID, limit, offset int) ([]dto.FeedUser, error) {
 	// Валидация параметров
 	if limit <= 0 || limit > 50 {
 		limit = 15 // дефолтное значение
@@ -50,7 +51,7 @@ func (s *feedService) GetFeed(userID uuid.UUID, limit, offset int) ([]service.Fe
 	s.logger.Warnf("Retrieved %d users for feed\n", len(users))
 
 	// Преобразуем в формат для ленты
-	feedUsers := make([]service.FeedUser, 0, len(users))
+	feedUsers := make([]dto.FeedUser, 0, len(users))
 	for _, user := range users {
 		feedUser, err := s.convertToFeedUser(user)
 		if err != nil {
@@ -67,17 +68,17 @@ func (s *feedService) GetFeed(userID uuid.UUID, limit, offset int) ([]service.Fe
 }
 
 // convertToFeedUser преобразует доменного пользователя в формат для ленты
-func (s *feedService) convertToFeedUser(user domain.User) (service.FeedUser, error) {
+func (s *feedService) convertToFeedUser(user domain.User) (dto.FeedUser, error) {
 	// Вычисляем возраст
 	age := calculateAge(user.BirthDate)
 
 	// Получаем фото пользователя
 	images, err := s.getUserPhotos(user.ID)
 	if err != nil {
-		return service.FeedUser{}, err
+		return dto.FeedUser{}, err
 	}
 
-	return service.FeedUser{
+	return dto.FeedUser{
 		ID:          user.ID.String(),
 		Name:        user.Name,
 		Age:         age,
