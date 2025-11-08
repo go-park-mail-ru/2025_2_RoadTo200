@@ -26,15 +26,16 @@ func (r *userRepository) Create(user *domain.User) error {
 	query := `
 INSERT INTO "user" (email, phone, name, password, birth_date, gender, bio, 
                    workout, fun, party, chill, love, relax, yoga, friendship, culture, cinema,
-                   artist, quote,
+                   -- artist, quote,  // ЗАКОММЕНТИРОВАТЬ
                    latitude, longitude, is_verified)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23)`
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)`
+	// 21 параметр вместо 23
 
 	err := r.pool.QueryRow(context.Background(), query,
-		user.Email, user.Phone, user.Name, user.Password, user.BirthDate, user.Gender, user.Bio, // 1-7
-		user.Workout, user.Fun, user.Party, user.Chill, user.Love, user.Relax, // 8-13
-		user.Yoga, user.Friendship, user.Culture, user.Cinema, // 14-17
-		user.Artist, user.Quote, // 18-19
+		user.Email, user.Phone, user.Name, user.Password, user.BirthDate, user.Gender, user.Bio,
+		user.Workout, user.Fun, user.Party, user.Chill, user.Love, user.Relax,
+		user.Yoga, user.Friendship, user.Culture, user.Cinema,
+		// user.Artist, user.Quote,  // ЗАКОММЕНТИРОВАТЬ
 		user.Latitude, user.Longitude, user.IsVerified).
 		Scan(&user.ID, &user.CreatedAt, &user.UpdatedAt, &user.LastActive)
 
