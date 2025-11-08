@@ -142,12 +142,6 @@ func (s *profileService) UpdateProfileInfo(userID uuid.UUID, updateData *domain.
 	if updateData.Cinema != nil {
 		user.Cinema = *updateData.Cinema
 	}
-	if updateData.Artist != nil {
-		user.Artist = updateData.Artist
-	}
-	if updateData.Quote != nil {
-		user.Quote = updateData.Quote
-	}
 
 	user.UpdatedAt = time.Now()
 

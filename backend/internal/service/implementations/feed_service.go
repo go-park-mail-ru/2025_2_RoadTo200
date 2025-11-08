@@ -96,8 +96,6 @@ func (s *feedService) convertToFeedUser(user domain.User) (service.FeedUser, err
 		Friendship: user.Friendship,
 		Culture:    user.Culture,
 		Cinema:     user.Cinema,
-		Artist:     user.Artist,
-		Quote:      user.Quote,
 	}, nil
 }
 
