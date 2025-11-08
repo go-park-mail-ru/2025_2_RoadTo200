@@ -33,25 +33,15 @@ type UpdateProfileRequest struct {
 	Action string `json:"action"` // "updateInfo", "updatePreferences", "deletePhoto", "setPrimaryPhoto"
 
 	// Для updateInfo
-	Name       string           `json:"name,omitempty"`
-	Phone      *string          `json:"phone,omitempty"`
-	BirthDate  *time.Time       `json:"birth_date,omitempty"`
-	Gender     constants.Gender `json:"gender,omitempty"`
-	Bio        *string          `json:"bio,omitempty"`
-	Artist     *string          `json:"artist,omitempty"`
-	Quote      *string          `json:"quote,omitempty"`
-	Latitude   *float64         `json:"latitude,omitempty"`
-	Longitude  *float64         `json:"longitude,omitempty"`
-	Workout    *bool            `json:"workout,omitempty"`
-	Fun        *bool            `json:"fun,omitempty"`
-	Party      *bool            `json:"party,omitempty"`
-	Chill      *bool            `json:"chill,omitempty"`
-	Love       *bool            `json:"love,omitempty"`
-	Relax      *bool            `json:"relax,omitempty"`
-	Yoga       *bool            `json:"yoga,omitempty"`
-	Friendship *bool            `json:"friendship,omitempty"`
-	Culture    *bool            `json:"culture,omitempty"`
-	Cinema     *bool            `json:"cinema,omitempty"`
+	Name      string           `json:"name,omitempty"`
+	Phone     *string          `json:"phone,omitempty"`
+	BirthDate *time.Time       `json:"birth_date,omitempty"`
+	Gender    constants.Gender `json:"gender,omitempty"`
+	Bio       *string          `json:"bio,omitempty"`
+	Artist    *string          `json:"artist,omitempty"`
+	Quote     *string          `json:"quote,omitempty"`
+	Latitude  *float64         `json:"latitude,omitempty"`
+	Longitude *float64         `json:"longitude,omitempty"`
 
 	// Для updatePreferences
 	ShowGender   constants.GenderPreference `json:"show_gender,omitempty"`

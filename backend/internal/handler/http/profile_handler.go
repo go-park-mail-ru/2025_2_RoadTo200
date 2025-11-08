@@ -229,24 +229,14 @@ func (h *ProfileHandler) handleMultipartRequest(w http.ResponseWriter, r *http.R
 // updateProfileInfo обновляет основную информацию профиля
 func (h *ProfileHandler) updateProfileInfo(w http.ResponseWriter, userID uuid.UUID, req service.UpdateProfileRequest) {
 	updateData := domain.ProfileUpdateRequest{
-		Name:       req.Name,
-		Phone:      req.Phone,
-		Gender:     req.Gender,
-		Bio:        req.Bio,
-		Artist:     req.Artist,
-		Quote:      req.Quote,
-		Latitude:   req.Latitude,
-		Longitude:  req.Longitude,
-		Workout:    req.Workout,
-		Fun:        req.Fun,
-		Party:      req.Party,
-		Chill:      req.Chill,
-		Love:       req.Love,
-		Relax:      req.Relax,
-		Yoga:       req.Yoga,
-		Friendship: req.Friendship,
-		Culture:    req.Culture,
-		Cinema:     req.Cinema,
+		Name:      req.Name,
+		Phone:     req.Phone,
+		Gender:    req.Gender,
+		Bio:       req.Bio,
+		Artist:    req.Artist,
+		Quote:     req.Quote,
+		Latitude:  req.Latitude,
+		Longitude: req.Longitude,
 	}
 
 	// Обработка даты рождения

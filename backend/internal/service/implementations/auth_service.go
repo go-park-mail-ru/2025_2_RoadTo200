@@ -15,10 +15,10 @@ import (
 type AuthService struct {
 	userRepo    interfaces.UserRepository
 	sessionRepo interfaces.SessionRepository
-	logger      *logger.Logger
+	logger      logger.Log
 }
 
-func NewAuthService(userRepo interfaces.UserRepository, sessionRepo interfaces.SessionRepository, l *logger.Logger) *AuthService {
+func NewAuthService(userRepo interfaces.UserRepository, sessionRepo interfaces.SessionRepository, l logger.Log) *AuthService {
 	return &AuthService{
 		userRepo:    userRepo,
 		sessionRepo: sessionRepo,

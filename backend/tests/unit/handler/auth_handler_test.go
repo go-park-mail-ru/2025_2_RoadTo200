@@ -10,7 +10,6 @@ import (
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/errors"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/http"
-	//"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/tests/mocks"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -21,8 +20,9 @@ func TestAuthHandler_Register_Success(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
+	mockLogger := mocks.NewMockLogger()
 	mockAuthService := mocks.NewMockAuthService(ctrl)
-	handler := handler.NewAuthHandler(mockAuthService)
+	handler := handler.NewAuthHandler(mockAuthService, mockLogger)
 
 	email := "test@example.com"
 	password := "123456"
