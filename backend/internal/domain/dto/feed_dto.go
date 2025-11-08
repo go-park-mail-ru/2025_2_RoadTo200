@@ -1,0 +1,27 @@
+package dto
+
+// FeedUser represents user data for feed
+type FeedUser struct {
+	ID          string   `json:"id"`
+	Name        string   `json:"name"`
+	Age         int      `json:"age"`
+	Gender      string   `json:"gender"`
+	Description string   `json:"description"`
+	Images      []string `json:"images"`
+	PhotosCount int      `json:"photos_count"`
+	Artist      *string  `db:"artist" json:"artist,omitempty"`
+	Quote       *string  `db:"quote" json:"quote,omitempty"`
+}
+
+type FeedRequest struct {
+	Limit  int `json:"limit,omitempty" form:"limit,omitempty"`
+	Offset int `json:"offset,omitempty" form:"offset,omitempty"`
+}
+
+// FeedResponse represents feed response
+type FeedResponse struct {
+	Users  []FeedUser `json:"users"`
+	Total  int        `json:"total"`
+	Limit  int        `json:"limit"`
+	Offset int        `json:"offset"`
+}
