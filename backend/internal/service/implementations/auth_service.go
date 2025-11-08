@@ -56,8 +56,8 @@ func (s *AuthService) Register(email, password, passwordConfirm string) (*domain
 		ID:         uuid.New(),
 		Email:      email,
 		Password:   string(hashedPassword),
-		Name:       "NAAAAAAne", // можно генерировать или оставить пустым
-		Gender:     "male",      // ← пустая строка вместо NULL
+		Name:       "Аноним", // можно генерировать или оставить пустым
+		Gender:     "male",   // ← пустая строка вместо NULL
 		IsVerified: true,
 		CreatedAt:  time.Now(),
 		UpdatedAt:  time.Now(),
