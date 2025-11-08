@@ -1,31 +1,32 @@
 app:
-  host: "localhost"
+  host: 0.0.0.0
   port: 8080
-  prefix: "/api/v1"
+  prefix: /api/v1
+
+  cors:
+    allowed_origins:
+      - http://127.0.0.1:8001
+      - http://localhost:8001
+      - http://217.16.17.116:8001
+
   logger:
-    level: "debug"
+    level: DEBUG
+
   postgres:
-    host: "localhost"
-    port: "5435"  # ← убедись что порт указан как строка
-    base: "terabithia_app"
-    user: "postgres"
-    password: "password"
-    min_conns: 1
-    max_conns: 5
-    max_life: 1h
-    max_idle: 30m
-    health_check_interval: 1m
+    host: PG_HOST
+    port: PG_PORT
+    base: PG_BASE
+    user: PG_USER
+    password: PG_PSWD
+
   redis:
-    host: "localhost"
-    port: "6377"  # ← и здесь тоже как строка
-    base: "0"
-    password: ""
-    max_conn: 5
-    max_idle: 10
-    max_active: 0
-    idle_timeout: 4m
+    host: RD_HOST
+    port: RD_PORT
+    base: RD_BASE
+    password: RD_PSWD
+
   minio:
-    endpoint: "localhost:9000"
+    endpoint: "localhost:8099"
     access_key_id: "minioadmin"
     secret_access_key: "minioadmin"
     use_ssl: false
