@@ -24,12 +24,11 @@ func NewUserRepository(pool interfaces.PgxIface, l logger.Log) interfaces.UserRe
 
 func (r *userRepository) Create(user *domain.User) error {
 	query := `
-	INSERT INTO "user" (email, phone, name, password, birth_date, gender, bio, 
-					   workout, fun, party, chill, love, relax, yoga, friendship, culture, cinema,
-					   artist, quote,
-					   latitude, longitude, is_verified)
-	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
-	RETURNING id, created_at, updated_at, last_active`
+    INSERT INTO "user" (email, phone, name, password, birth_date, gender, bio, 
+                       workout, fun, party, chill, love, relax, yoga, friendship, culture, cinema,
+                       artist, quote,
+                       latitude, longitude, is_verified)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23)`
 
 	err := r.pool.QueryRow(context.Background(), query,
 		user.Email, user.Phone, user.Name, user.Password, user.BirthDate, user.Gender, user.Bio,
