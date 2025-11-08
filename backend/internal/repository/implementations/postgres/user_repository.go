@@ -172,9 +172,12 @@ func (r *userRepository) GetUsersByIDs(ids []uuid.UUID) ([]domain.User, error) {
 	}
 
 	query := fmt.Sprintf(`
-		SELECT * FROM "user" 
-		WHERE id IN (%s)
-		ORDER BY created_at DESC`, strings.Join(placeholders, ","))
+        SELECT id, email, phone, name, password, birth_date, gender, bio, 
+               workout, fun, party, chill, love, relax, yoga, friendship, culture, cinema,
+               latitude, longitude, is_verified, last_active, created_at, updated_at 
+        FROM "user" 
+        WHERE id IN (%s)
+        ORDER BY created_at DESC`, strings.Join(placeholders, ","))
 
 	rows, err := r.pool.Query(context.Background(), query, args...)
 	if err != nil {
@@ -187,8 +190,11 @@ func (r *userRepository) GetUsersByIDs(ids []uuid.UUID) ([]domain.User, error) {
 		var user domain.User
 		err := rows.Scan(
 			&user.ID, &user.Email, &user.Phone, &user.Name, &user.Password,
-			&user.BirthDate, &user.Gender, &user.Bio, &user.Latitude, &user.Longitude,
-			&user.IsVerified, &user.LastActive, &user.CreatedAt, &user.UpdatedAt,
+			&user.BirthDate, &user.Gender, &user.Bio,
+			&user.Workout, &user.Fun, &user.Party, &user.Chill, &user.Love, &user.Relax,
+			&user.Yoga, &user.Friendship, &user.Culture, &user.Cinema,
+			&user.Latitude, &user.Longitude, &user.IsVerified, &user.LastActive,
+			&user.CreatedAt, &user.UpdatedAt,
 		)
 		if err != nil {
 			return nil, err
