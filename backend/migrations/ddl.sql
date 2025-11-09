@@ -8,6 +8,7 @@ CREATE TYPE gender_enum AS ENUM ('male', 'female', 'other');
 CREATE TYPE gender_preference_enum AS ENUM ('male', 'female', 'both');
 CREATE TYPE swipe_type_enum AS ENUM ('like', 'dislike', 'super_like');
 CREATE TYPE plan_type_enum AS ENUM ('premium', 'gold', 'platinum');
+CREATE TYPE interest_theme_enum AS ENUM ('workout', 'fun', 'party', 'chill', 'love', 'relax', 'yoga', 'friendship', 'culture', 'cinema');
 
 -- Таблица: user
 CREATE TABLE "user"
@@ -35,20 +36,6 @@ CREATE TABLE "user"
     CONSTRAINT user_latitude_check CHECK (latitude IS NULL OR (latitude BETWEEN -90 AND 90)),
     CONSTRAINT user_longitude_check CHECK (longitude IS NULL OR (longitude BETWEEN -180 AND 180))
 );
-
-ALTER TABLE "user" 
-ADD COLUMN IF NOT EXISTS workout BOOLEAN NOT NULL DEFAULT FALSE,
-ADD COLUMN IF NOT EXISTS fun BOOLEAN NOT NULL DEFAULT FALSE,
-ADD COLUMN IF NOT EXISTS party BOOLEAN NOT NULL DEFAULT FALSE,
-ADD COLUMN IF NOT EXISTS chill BOOLEAN NOT NULL DEFAULT FALSE,
-ADD COLUMN IF NOT EXISTS love BOOLEAN NOT NULL DEFAULT FALSE,
-ADD COLUMN IF NOT EXISTS relax BOOLEAN NOT NULL DEFAULT FALSE,
-ADD COLUMN IF NOT EXISTS yoga BOOLEAN NOT NULL DEFAULT FALSE,
-ADD COLUMN IF NOT EXISTS friendship BOOLEAN NOT NULL DEFAULT FALSE,
-ADD COLUMN IF NOT EXISTS culture BOOLEAN NOT NULL DEFAULT FALSE,
-ADD COLUMN IF NOT EXISTS cinema BOOLEAN NOT NULL DEFAULT FALSE;
--- ADD COLUMN IF NOT EXISTS artist TEXT,
--- ADD COLUMN IF NOT EXISTS quote TEXT;
 
 -- Таблица: user_photo
 CREATE TABLE user_photo
@@ -116,6 +103,14 @@ CREATE TABLE subscription
     end_date   TIMESTAMPTZ    NOT NULL,
     is_active  BOOLEAN        NOT NULL DEFAULT TRUE,
     created_at TIMESTAMPTZ    NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE interest
+(
+    user_id UUID PRIMARY KEY REFERENCES "user" (id) ON DELETE CASCADE,
+    theme   interest_theme_enum NOT NULL,
+
+    UNIQUE (user_id, theme)
 );
 
 -- Функция для обновления updated_at

@@ -1,71 +1,66 @@
-version: '3.8'
-
 services:
   postgres:
-    image: postgres:15-alpine
-    container_name: terabithia-postgres
+    image: postgres:17
+    container_name: postgres_vk
     environment:
-      POSTGRES_DB: terabithia_app
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD: ${PG_PSWD}
+      POSTGRES_DB: ${PG_BASE}
     ports:
-      - "5435:5432"
+      - "${PG_PORT}:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./migrations:/docker-entrypoint-initdb.d  # ← эта папка выполняется автоматически
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+      - postgres_vk_data:/var/lib/postgresql/data
 
   redis:
-    image: redis:7-alpine
-    container_name: terabithia-redis
+    image: redis:latest
+    container_name: redis_vk
     ports:
-      - "6377:6379"
+      - "${RD_PORT}:6379"
+    command: redis-server --save 20 1 --loglevel warning --requirepass ${RD_PSWD}
     volumes:
-      - redis_data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
-    
+      - redis_vk_data:/data
+
   minio:
     image: minio/minio:latest
-    container_name: terabithia-minio
+    container_name: minio_vk
     ports:
-      - "9000:9000"   # API порт
-      - "9001:9001"   # Web UI порт
+      - "${MN_PORT}:9000"   # API порт
+      - "${MN_ADMN}:9001"   # Web UI порт
     environment:
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin
+      MINIO_ROOT_USER: ${MN_USER}
+      MINIO_ROOT_PASSWORD: ${MN_PSWD}
     volumes:
-      - minio_data:/data
-    command: server /data --console-address ":9001"
+      - minio_vk_data:/data
+    command: server /data --console-address ":${MN_ADMN}"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      test: ["CMD", "curl", "-f", "http://localhost:${MN_PORT}/minio/health/live"]
       interval: 30s
       timeout: 20s
       retries: 3
 
   createbuckets:
     image: minio/mc:latest
-    container_name: terabithia-minio-createbuckets
+    container_name: minio_vk_createbuckets
     depends_on:
       - minio
     entrypoint: >
       /bin/sh -c "
       sleep 10;
-      /usr/bin/mc alias set myminio http://minio:9000 minioadmin minioadmin;
+      /usr/bin/mc alias set myminio http://minio:${MN_PORT} minioadmin minioadmin;
       /usr/bin/mc mb myminio/terabithia-photos;
       /usr/bin/mc anonymous set public myminio/terabithia-photos;
       echo 'Buckets created successfully';
       exit 0;
       "
 
+  adminer:
+    image: adminer:latest
+    container_name: adminer_vk
+    restart: always
+    ports:
+      - "${AD_PORT}:8080"
+
 volumes:
-  postgres_data:
-  redis_data:
-  minio_data:
+  postgres_vk_data:
+  redis_vk_data:
+  minio_vk_data:

@@ -1,124 +1,124 @@
--- -- Миграция 002: Наполнение базы данных начальными данными
+-- Миграция 002: Наполнение базы данных начальными данными
 
--- -- Создание пользователей
--- INSERT INTO "user" (email, password, phone, name, birth_date, gender) VALUES
---                                                                           ('ivan.petrov@example.com', 'ivan1111', '+79161234567', 'Иванdd', '1993-03-22', 'male'),
---                                                                           ('maria.sidorova@example.com', 'maria111', '+79267654321', 'Марddия', '1996-07-11', 'female'),
---                                                                           ('alexey.smirnov@example.com', 'alexey1111', '+79035558899', 'Алексddей', '1990-12-01', 'male'),
---                                                                           ('anna.ivanova@example.com', 'anna1111', '+79165554433', 'Анна', '1995-05-15', 'female'),
---                                                                           ('dmitry.kuznetsov@example.com', 'dmitry111', '+79036667788', 'Дмитрий', '1988-09-30', 'male'),
---                                                                           ('olga.nikolaeva@example.com', 'olga1111', '+79261112233', 'Ольга', '1992-11-20', 'female'),
---                                                                           ('sergey.vorobev@example.com', 'sergey111', '+79034445566', 'Сергей', '1991-07-08', 'male'),
---                                                                           ('ekaterina.fedorova@example.com', 'katya1111', '+79167778899', 'Екатерина', '1994-04-12', 'female'),
---                                                                           ('maxim.orlov@example.com', 'maxim1111', '+79032223344', 'Максим', '1989-12-25', 'male'),
---                                                                           ('natalia.smirnova@example.com', 'natasha11', '+79263334455', 'Наталья', '1997-01-18', 'female'),
---                                                                           ('pavel.belov@example.com', 'pavel1111', '+79168889900', 'Павел', '1993-08-05', 'male'),
---                                                                           ('irina.kozlova@example.com', 'irina1111', '+79031112299', 'Ирина', '1996-06-14', 'female');
+-- Создание пользователей
+INSERT INTO "user" (email, password, phone, name, birth_date, gender) VALUES
+                                                                          ('ivan.petrov@example.com', 'ivan1111', '+79161234567', 'Иванdd', '1993-03-22', 'male'),
+                                                                          ('maria.sidorova@example.com', 'maria111', '+79267654321', 'Марddия', '1996-07-11', 'female'),
+                                                                          ('alexey.smirnov@example.com', 'alexey1111', '+79035558899', 'Алексddей', '1990-12-01', 'male'),
+                                                                          ('anna.ivanova@example.com', 'anna1111', '+79165554433', 'Анна', '1995-05-15', 'female'),
+                                                                          ('dmitry.kuznetsov@example.com', 'dmitry111', '+79036667788', 'Дмитрий', '1988-09-30', 'male'),
+                                                                          ('olga.nikolaeva@example.com', 'olga1111', '+79261112233', 'Ольга', '1992-11-20', 'female'),
+                                                                          ('sergey.vorobev@example.com', 'sergey111', '+79034445566', 'Сергей', '1991-07-08', 'male'),
+                                                                          ('ekaterina.fedorova@example.com', 'katya1111', '+79167778899', 'Екатерина', '1994-04-12', 'female'),
+                                                                          ('maxim.orlov@example.com', 'maxim1111', '+79032223344', 'Максим', '1989-12-25', 'male'),
+                                                                          ('natalia.smirnova@example.com', 'natasha11', '+79263334455', 'Наталья', '1997-01-18', 'female'),
+                                                                          ('pavel.belov@example.com', 'pavel1111', '+79168889900', 'Павел', '1993-08-05', 'male'),
+                                                                          ('irina.kozlova@example.com', 'irina1111', '+79031112299', 'Ирина', '1996-06-14', 'female');
 
--- -- Создание их предпочтений
--- INSERT INTO user_preference (user_id, show_gender, age_min, age_max) VALUES
---                                                                          ((SELECT id FROM "user" WHERE email = 'ivan.petrov@example.com'), 'female', 22, 32),
---                                                                          ((SELECT id FROM "user" WHERE email = 'maria.sidorova@example.com'), 'male', 25, 35),
---                                                                          ((SELECT id FROM "user" WHERE email = 'alexey.smirnov@example.com'), 'female', 28, 38),
---                                                                          ((SELECT id FROM "user" WHERE email = 'anna.ivanova@example.com'), 'male', 26, 36),
---                                                                          ((SELECT id FROM "user" WHERE email = 'dmitry.kuznetsov@example.com'), 'female', 24, 34),
---                                                                          ((SELECT id FROM "user" WHERE email = 'olga.nikolaeva@example.com'), 'male', 28, 40),
---                                                                          ((SELECT id FROM "user" WHERE email = 'sergey.vorobev@example.com'), 'female', 23, 33),
---                                                                          ((SELECT id FROM "user" WHERE email = 'ekaterina.fedorova@example.com'), 'male', 27, 37),
---                                                                          ((SELECT id FROM "user" WHERE email = 'maxim.orlov@example.com'), 'female', 25, 35),
---                                                                          ((SELECT id FROM "user" WHERE email = 'natalia.smirnova@example.com'), 'male', 26, 38),
---                                                                          ((SELECT id FROM "user" WHERE email = 'pavel.belov@example.com'), 'female', 24, 32),
---                                                                          ((SELECT id FROM "user" WHERE email = 'irina.kozlova@example.com'), 'male', 25, 35);
+-- Создание их предпочтений
+INSERT INTO user_preference (user_id, show_gender, age_min, age_max) VALUES
+                                                                         ((SELECT id FROM "user" WHERE email = 'ivan.petrov@example.com'), 'female', 22, 32),
+                                                                         ((SELECT id FROM "user" WHERE email = 'maria.sidorova@example.com'), 'male', 25, 35),
+                                                                         ((SELECT id FROM "user" WHERE email = 'alexey.smirnov@example.com'), 'female', 28, 38),
+                                                                         ((SELECT id FROM "user" WHERE email = 'anna.ivanova@example.com'), 'male', 26, 36),
+                                                                         ((SELECT id FROM "user" WHERE email = 'dmitry.kuznetsov@example.com'), 'female', 24, 34),
+                                                                         ((SELECT id FROM "user" WHERE email = 'olga.nikolaeva@example.com'), 'male', 28, 40),
+                                                                         ((SELECT id FROM "user" WHERE email = 'sergey.vorobev@example.com'), 'female', 23, 33),
+                                                                         ((SELECT id FROM "user" WHERE email = 'ekaterina.fedorova@example.com'), 'male', 27, 37),
+                                                                         ((SELECT id FROM "user" WHERE email = 'maxim.orlov@example.com'), 'female', 25, 35),
+                                                                         ((SELECT id FROM "user" WHERE email = 'natalia.smirnova@example.com'), 'male', 26, 38),
+                                                                         ((SELECT id FROM "user" WHERE email = 'pavel.belov@example.com'), 'female', 24, 32),
+                                                                         ((SELECT id FROM "user" WHERE email = 'irina.kozlova@example.com'), 'male', 25, 35);
 
--- -- Создание свайпов
--- INSERT INTO swipe (swiper_user_id, target_user_id, swipe_type) VALUES
---                                                                    -- Иван лайкнул Марию и других
---                                                                    ((SELECT id FROM "user" WHERE email = 'ivan.petrov@example.com'), (SELECT id FROM "user" WHERE email = 'maria.sidorova@example.com'), 'like'),
---                                                                    ((SELECT id FROM "user" WHERE email = 'ivan.petrov@example.com'), (SELECT id FROM "user" WHERE email = 'anna.ivanova@example.com'), 'like'),
---                                                                    ((SELECT id FROM "user" WHERE email = 'ivan.petrov@example.com'), (SELECT id FROM "user" WHERE email = 'olga.nikolaeva@example.com'), 'super_like'),
+-- Создание свайпов
+INSERT INTO swipe (swiper_user_id, target_user_id, swipe_type) VALUES
+                                                                   -- Иван лайкнул Марию и других
+                                                                   ((SELECT id FROM "user" WHERE email = 'ivan.petrov@example.com'), (SELECT id FROM "user" WHERE email = 'maria.sidorova@example.com'), 'like'),
+                                                                   ((SELECT id FROM "user" WHERE email = 'ivan.petrov@example.com'), (SELECT id FROM "user" WHERE email = 'anna.ivanova@example.com'), 'like'),
+                                                                   ((SELECT id FROM "user" WHERE email = 'ivan.petrov@example.com'), (SELECT id FROM "user" WHERE email = 'olga.nikolaeva@example.com'), 'super_like'),
 
---                                                                    -- Мария лайкнула Ивана и других
---                                                                    ((SELECT id FROM "user" WHERE email = 'maria.sidorova@example.com'), (SELECT id FROM "user" WHERE email = 'ivan.petrov@example.com'), 'like'),
---                                                                    ((SELECT id FROM "user" WHERE email = 'maria.sidorova@example.com'), (SELECT id FROM "user" WHERE email = 'alexey.smirnov@example.com'), 'super_like'),
---                                                                    ((SELECT id FROM "user" WHERE email = 'maria.sidorova@example.com'), (SELECT id FROM "user" WHERE email = 'dmitry.kuznetsov@example.com'), 'like'),
+                                                                   -- Мария лайкнула Ивана и других
+                                                                   ((SELECT id FROM "user" WHERE email = 'maria.sidorova@example.com'), (SELECT id FROM "user" WHERE email = 'ivan.petrov@example.com'), 'like'),
+                                                                   ((SELECT id FROM "user" WHERE email = 'maria.sidorova@example.com'), (SELECT id FROM "user" WHERE email = 'alexey.smirnov@example.com'), 'super_like'),
+                                                                   ((SELECT id FROM "user" WHERE email = 'maria.sidorova@example.com'), (SELECT id FROM "user" WHERE email = 'dmitry.kuznetsov@example.com'), 'like'),
 
---                                                                    -- Алексей лайкнул нескольких пользователей
---                                                                    ((SELECT id FROM "user" WHERE email = 'alexey.smirnov@example.com'), (SELECT id FROM "user" WHERE email = 'maria.sidorova@example.com'), 'like'),
---                                                                    ((SELECT id FROM "user" WHERE email = 'alexey.smirnov@example.com'), (SELECT id FROM "user" WHERE email = 'ekaterina.fedorova@example.com'), 'like'),
---                                                                    ((SELECT id FROM "user" WHERE email = 'alexey.smirnov@example.com'), (SELECT id FROM "user" WHERE email = 'natalia.smirnova@example.com'), 'like'),
+                                                                   -- Алексей лайкнул нескольких пользователей
+                                                                   ((SELECT id FROM "user" WHERE email = 'alexey.smirnov@example.com'), (SELECT id FROM "user" WHERE email = 'maria.sidorova@example.com'), 'like'),
+                                                                   ((SELECT id FROM "user" WHERE email = 'alexey.smirnov@example.com'), (SELECT id FROM "user" WHERE email = 'ekaterina.fedorova@example.com'), 'like'),
+                                                                   ((SELECT id FROM "user" WHERE email = 'alexey.smirnov@example.com'), (SELECT id FROM "user" WHERE email = 'natalia.smirnova@example.com'), 'like'),
 
---                                                                    -- Другие пользователи тоже свайпают
---                                                                    ((SELECT id FROM "user" WHERE email = 'anna.ivanova@example.com'), (SELECT id FROM "user" WHERE email = 'sergey.vorobev@example.com'), 'like'),
---                                                                    ((SELECT id FROM "user" WHERE email = 'dmitry.kuznetsov@example.com'), (SELECT id FROM "user" WHERE email = 'olga.nikolaeva@example.com'), 'like'),
---                                                                    ((SELECT id FROM "user" WHERE email = 'olga.nikolaeva@example.com'), (SELECT id FROM "user" WHERE email = 'maxim.orlov@example.com'), 'like'),
---                                                                    ((SELECT id FROM "user" WHERE email = 'sergey.vorobev@example.com'), (SELECT id FROM "user" WHERE email = 'irina.kozlova@example.com'), 'like'),
---                                                                    ((SELECT id FROM "user" WHERE email = 'ekaterina.fedorova@example.com'), (SELECT id FROM "user" WHERE email = 'pavel.belov@example.com'), 'like'),
---                                                                    ((SELECT id FROM "user" WHERE email = 'maxim.orlov@example.com'), (SELECT id FROM "user" WHERE email = 'natalia.smirnova@example.com'), 'like'),
---                                                                    ((SELECT id FROM "user" WHERE email = 'natalia.smirnova@example.com'), (SELECT id FROM "user" WHERE email = 'alexey.smirnov@example.com'), 'like'),
---                                                                    ((SELECT id FROM "user" WHERE email = 'pavel.belov@example.com'), (SELECT id FROM "user" WHERE email = 'ekaterina.fedorova@example.com'), 'like'),
---                                                                    ((SELECT id FROM "user" WHERE email = 'irina.kozlova@example.com'), (SELECT id FROM "user" WHERE email = 'sergey.vorobev@example.com'), 'like');
+                                                                   -- Другие пользователи тоже свайпают
+                                                                   ((SELECT id FROM "user" WHERE email = 'anna.ivanova@example.com'), (SELECT id FROM "user" WHERE email = 'sergey.vorobev@example.com'), 'like'),
+                                                                   ((SELECT id FROM "user" WHERE email = 'dmitry.kuznetsov@example.com'), (SELECT id FROM "user" WHERE email = 'olga.nikolaeva@example.com'), 'like'),
+                                                                   ((SELECT id FROM "user" WHERE email = 'olga.nikolaeva@example.com'), (SELECT id FROM "user" WHERE email = 'maxim.orlov@example.com'), 'like'),
+                                                                   ((SELECT id FROM "user" WHERE email = 'sergey.vorobev@example.com'), (SELECT id FROM "user" WHERE email = 'irina.kozlova@example.com'), 'like'),
+                                                                   ((SELECT id FROM "user" WHERE email = 'ekaterina.fedorova@example.com'), (SELECT id FROM "user" WHERE email = 'pavel.belov@example.com'), 'like'),
+                                                                   ((SELECT id FROM "user" WHERE email = 'maxim.orlov@example.com'), (SELECT id FROM "user" WHERE email = 'natalia.smirnova@example.com'), 'like'),
+                                                                   ((SELECT id FROM "user" WHERE email = 'natalia.smirnova@example.com'), (SELECT id FROM "user" WHERE email = 'alexey.smirnov@example.com'), 'like'),
+                                                                   ((SELECT id FROM "user" WHERE email = 'pavel.belov@example.com'), (SELECT id FROM "user" WHERE email = 'ekaterina.fedorova@example.com'), 'like'),
+                                                                   ((SELECT id FROM "user" WHERE email = 'irina.kozlova@example.com'), (SELECT id FROM "user" WHERE email = 'sergey.vorobev@example.com'), 'like');
 
--- -- Создание мэтчей
--- INSERT INTO match (user1_id, user2_id) VALUES
---                                            -- Мэтч между Иваном и Марией
---                                            ((SELECT id FROM "user" WHERE email = 'ivan.petrov@example.com'), (SELECT id FROM "user" WHERE email = 'maria.sidorova@example.com')),
---                                            -- Другие мэтчи
---                                            ((SELECT id FROM "user" WHERE email = 'alexey.smirnov@example.com'), (SELECT id FROM "user" WHERE email = 'ekaterina.fedorova@example.com')),
---                                            ((SELECT id FROM "user" WHERE email = 'dmitry.kuznetsov@example.com'), (SELECT id FROM "user" WHERE email = 'olga.nikolaeva@example.com')),
---                                            ((SELECT id FROM "user" WHERE email = 'sergey.vorobev@example.com'), (SELECT id FROM "user" WHERE email = 'irina.kozlova@example.com')),
---                                            ((SELECT id FROM "user" WHERE email = 'maxim.orlov@example.com'), (SELECT id FROM "user" WHERE email = 'natalia.smirnova@example.com'));
+-- Создание мэтчей
+INSERT INTO match (user1_id, user2_id) VALUES
+                                           -- Мэтч между Иваном и Марией
+                                           ((SELECT id FROM "user" WHERE email = 'ivan.petrov@example.com'), (SELECT id FROM "user" WHERE email = 'maria.sidorova@example.com')),
+                                           -- Другие мэтчи
+                                           ((SELECT id FROM "user" WHERE email = 'alexey.smirnov@example.com'), (SELECT id FROM "user" WHERE email = 'ekaterina.fedorova@example.com')),
+                                           ((SELECT id FROM "user" WHERE email = 'dmitry.kuznetsov@example.com'), (SELECT id FROM "user" WHERE email = 'olga.nikolaeva@example.com')),
+                                           ((SELECT id FROM "user" WHERE email = 'sergey.vorobev@example.com'), (SELECT id FROM "user" WHERE email = 'irina.kozlova@example.com')),
+                                           ((SELECT id FROM "user" WHERE email = 'maxim.orlov@example.com'), (SELECT id FROM "user" WHERE email = 'natalia.smirnova@example.com'));
 
--- -- Добавление сообщений в мэтчи
--- -- Мэтч Ивана и Марии
--- WITH chat_data AS (
---     SELECT
---         m.id as match_id,
---         u1.id as user1_id,
---         u2.id as user2_id
---     FROM match m
---              JOIN "user" u1 ON u1.id = m.user1_id AND u1.email = 'ivan.petrov@example.com'
---              JOIN "user" u2 ON u2.id = m.user2_id AND u2.email = 'maria.sidorova@example.com'
--- )
--- INSERT INTO message (match_id, sender_id, message_text) VALUES
---                                                             ((SELECT match_id FROM chat_data), (SELECT user1_id FROM chat_data), 'Привет, Мария! Рад нашему мэтчу.'),
---                                                             ((SELECT match_id FROM chat_data), (SELECT user2_id FROM chat_data), 'Иван, привет! Взаимно :)'),
---                                                             ((SELECT match_id FROM chat_data), (SELECT user1_id FROM chat_data), 'Как твои дела?'),
---                                                             ((SELECT match_id FROM chat_data), (SELECT user2_id FROM chat_data), 'Отлично! А твои?');
+-- Добавление сообщений в мэтчи
+-- Мэтч Ивана и Марии
+WITH chat_data AS (
+    SELECT
+        m.id as match_id,
+        u1.id as user1_id,
+        u2.id as user2_id
+    FROM match m
+             JOIN "user" u1 ON u1.id = m.user1_id AND u1.email = 'ivan.petrov@example.com'
+             JOIN "user" u2 ON u2.id = m.user2_id AND u2.email = 'maria.sidorova@example.com'
+)
+INSERT INTO message (match_id, sender_id, message_text) VALUES
+                                                            ((SELECT match_id FROM chat_data), (SELECT user1_id FROM chat_data), 'Привет, Мария! Рад нашему мэтчу.'),
+                                                            ((SELECT match_id FROM chat_data), (SELECT user2_id FROM chat_data), 'Иван, привет! Взаимно :)'),
+                                                            ((SELECT match_id FROM chat_data), (SELECT user1_id FROM chat_data), 'Как твои дела?'),
+                                                            ((SELECT match_id FROM chat_data), (SELECT user2_id FROM chat_data), 'Отлично! А твои?');
 
--- -- Мэтч Алексея и Екатерины
--- WITH chat_data AS (
---     SELECT
---         m.id as match_id,
---         u1.id as user1_id,
---         u2.id as user2_id
---     FROM match m
---              JOIN "user" u1 ON u1.id = m.user1_id AND u1.email = 'alexey.smirnov@example.com'
---              JOIN "user" u2 ON u2.id = m.user2_id AND u2.email = 'ekaterina.fedorova@example.com'
--- )
--- INSERT INTO message (match_id, sender_id, message_text) VALUES
---                                                             ((SELECT match_id FROM chat_data), (SELECT user1_id FROM chat_data), 'Привет, Екатерина!'),
---                                                             ((SELECT match_id FROM chat_data), (SELECT user2_id FROM chat_data), 'Привет, Алексей! Как настроение?'),
---                                                             ((SELECT match_id FROM chat_data), (SELECT user1_id FROM chat_data), 'Отлично, особенно после нашего мэтча!');
+-- Мэтч Алексея и Екатерины
+WITH chat_data AS (
+    SELECT
+        m.id as match_id,
+        u1.id as user1_id,
+        u2.id as user2_id
+    FROM match m
+             JOIN "user" u1 ON u1.id = m.user1_id AND u1.email = 'alexey.smirnov@example.com'
+             JOIN "user" u2 ON u2.id = m.user2_id AND u2.email = 'ekaterina.fedorova@example.com'
+)
+INSERT INTO message (match_id, sender_id, message_text) VALUES
+                                                            ((SELECT match_id FROM chat_data), (SELECT user1_id FROM chat_data), 'Привет, Екатерина!'),
+                                                            ((SELECT match_id FROM chat_data), (SELECT user2_id FROM chat_data), 'Привет, Алексей! Как настроение?'),
+                                                            ((SELECT match_id FROM chat_data), (SELECT user1_id FROM chat_data), 'Отлично, особенно после нашего мэтча!');
 
--- -- Мэтч Дмитрия и Ольги
--- WITH chat_data AS (
---     SELECT
---         m.id as match_id,
---         u1.id as user1_id,
---         u2.id as user2_id
---     FROM match m
---              JOIN "user" u1 ON u1.id = m.user1_id AND u1.email = 'dmitry.kuznetsov@example.com'
---              JOIN "user" u2 ON u2.id = m.user2_id AND u2.email = 'olga.nikolaeva@example.com'
--- )
--- INSERT INTO message (match_id, sender_id, message_text) VALUES
---                                                             ((SELECT match_id FROM chat_data), (SELECT user1_id FROM chat_data), 'Привет! Очень рад познакомиться'),
---                                                             ((SELECT match_id FROM chat_data), (SELECT user2_id FROM chat_data), 'Привет! Я тоже :)');
+-- Мэтч Дмитрия и Ольги
+WITH chat_data AS (
+    SELECT
+        m.id as match_id,
+        u1.id as user1_id,
+        u2.id as user2_id
+    FROM match m
+             JOIN "user" u1 ON u1.id = m.user1_id AND u1.email = 'dmitry.kuznetsov@example.com'
+             JOIN "user" u2 ON u2.id = m.user2_id AND u2.email = 'olga.nikolaeva@example.com'
+)
+INSERT INTO message (match_id, sender_id, message_text) VALUES
+                                                            ((SELECT match_id FROM chat_data), (SELECT user1_id FROM chat_data), 'Привет! Очень рад познакомиться'),
+                                                            ((SELECT match_id FROM chat_data), (SELECT user2_id FROM chat_data), 'Привет! Я тоже :)');
 
--- -- Добавление подписок
--- INSERT INTO subscription (user_id, plan_type, end_date) VALUES
---                                                             ((SELECT id FROM "user" WHERE email = 'alexey.smirnov@example.com'), 'gold', NOW() + INTERVAL '1 month'),
---                                                             ((SELECT id FROM "user" WHERE email = 'ivan.petrov@example.com'), 'premium', NOW() + INTERVAL '3 months'),
---                                                             ((SELECT id FROM "user" WHERE email = 'ekaterina.fedorova@example.com'), 'gold', NOW() + INTERVAL '2 months'),
---                                                             ((SELECT id FROM "user" WHERE email = 'dmitry.kuznetsov@example.com'), 'platinum', NOW() + INTERVAL '1 month'),
---                                                             ((SELECT id FROM "user" WHERE email = 'maxim.orlov@example.com'), 'premium', NOW() + INTERVAL '6 months'),
---                                                             ((SELECT id FROM "user" WHERE email = 'natalia.smirnova@example.com'), 'gold', NOW() + INTERVAL '1 month');
+-- Добавление подписок
+INSERT INTO subscription (user_id, plan_type, end_date) VALUES
+                                                            ((SELECT id FROM "user" WHERE email = 'alexey.smirnov@example.com'), 'gold', NOW() + INTERVAL '1 month'),
+                                                            ((SELECT id FROM "user" WHERE email = 'ivan.petrov@example.com'), 'premium', NOW() + INTERVAL '3 months'),
+                                                            ((SELECT id FROM "user" WHERE email = 'ekaterina.fedorova@example.com'), 'gold', NOW() + INTERVAL '2 months'),
+                                                            ((SELECT id FROM "user" WHERE email = 'dmitry.kuznetsov@example.com'), 'platinum', NOW() + INTERVAL '1 month'),
+                                                            ((SELECT id FROM "user" WHERE email = 'maxim.orlov@example.com'), 'premium', NOW() + INTERVAL '6 months'),
+                                                            ((SELECT id FROM "user" WHERE email = 'natalia.smirnova@example.com'), 'gold', NOW() + INTERVAL '1 month');
