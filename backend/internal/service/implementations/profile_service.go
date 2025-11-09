@@ -93,23 +93,8 @@ func (s *profileService) UpdateProfileInfo(userID uuid.UUID, updateData *domain.
 	if updateData.Name != "" {
 		user.Name = updateData.Name
 	}
-	if updateData.Phone != nil {
-		user.Phone = updateData.Phone
-	}
-	if updateData.BirthDate != nil {
-		user.BirthDate = *updateData.BirthDate
-	}
 	if updateData.Gender != "" {
 		user.Gender = updateData.Gender
-	}
-	if updateData.Bio != nil {
-		user.Bio = updateData.Bio
-	}
-	if updateData.Latitude != nil {
-		user.Latitude = updateData.Latitude
-	}
-	if updateData.Longitude != nil {
-		user.Longitude = updateData.Longitude
 	}
 
 	user.UpdatedAt = time.Now()
@@ -389,16 +374,16 @@ func (s *profileService) ValidatePreferencesUpdate(updateData *domain.Preference
 // ValidateInterestsUpdat валидация интересов
 func (s *profileService) validateInterestsUpdate(updateData []domain.Interest) error {
 	validTypes := map[constants.InterestType]struct{}{
-		constants.InterestTypeWorkout:    struct{}{},
-		constants.InterestTypeFun:        struct{}{},
-		constants.InterestTypeParty:      struct{}{},
-		constants.InterestTypeChill:      struct{}{},
-		constants.InterestTypeLove:       struct{}{},
-		constants.InterestTypeRelax:      struct{}{},
-		constants.InterestTypeYoga:       struct{}{},
-		constants.InterestTypeFriendship: struct{}{},
-		constants.InterestTypeCulture:    struct{}{},
-		constants.InterestTypeCinema:     struct{}{},
+		constants.InterestTypeWorkout:    {},
+		constants.InterestTypeFun:        {},
+		constants.InterestTypeParty:      {},
+		constants.InterestTypeChill:      {},
+		constants.InterestTypeLove:       {},
+		constants.InterestTypeRelax:      {},
+		constants.InterestTypeYoga:       {},
+		constants.InterestTypeFriendship: {},
+		constants.InterestTypeCulture:    {},
+		constants.InterestTypeCinema:     {},
 	}
 	for _, el := range updateData {
 		// Проверяем, что тип интереса допустим

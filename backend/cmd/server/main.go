@@ -89,25 +89,29 @@ func main() {
 	storageRepo := minio.NewStorageRepository(minioPool, &cfg.MinIO)
 	userRepo := postgres.NewUserRepository(pool, logg)
 	sessionRepo := redis.NewSessionRepository(redisPool)
+	preferenceRepo := postgres.NewUserPreferenceRepository(pool)
+	photoRepo := postgres.NewUserPhotoRepository(pool)
+	swipeRepo := postgres.NewSwipeRepository(pool)
+	matchRepo := postgres.NewMatchRepository(pool)
 
 	// Сервисы
 	authService := service.NewAuthService(userRepo, sessionRepo, logg)
-	feedService := service.NewFeedService(userRepo, postgres.NewUserPhotoRepository(pool), logg)
+	feedService := service.NewFeedService(userRepo, preferenceRepo, photoRepo, logg)
 	profileService := service.NewProfileService(
 		userRepo,
-		postgres.NewUserPhotoRepository(pool),
-		postgres.NewUserPreferenceRepository(pool),
+		photoRepo,
+		preferenceRepo,
 		storageRepo,
 	)
 	swipeService := service.NewSwipeService(
-		postgres.NewSwipeRepository(pool),
-		postgres.NewMatchRepository(pool),
+		swipeRepo,
+		matchRepo,
 	)
 	matchService := service.NewMatchService(
-		postgres.NewMatchRepository(pool),
+		matchRepo,
 		userRepo,
-		postgres.NewSwipeRepository(pool),
-		postgres.NewUserPhotoRepository(pool), // Добавляем photoRepo
+		swipeRepo,
+		photoRepo, // Добавляем photoRepo
 	)
 
 	// Обработчики

@@ -25,13 +25,13 @@ func NewUserRepository(pool interfaces.PgxIface, l logger.Log) interfaces.UserRe
 func (r *userRepository) Create(user *domain.User) error {
 	query := `
 	INSERT INTO "user" (email, phone, name, password, birth_date, gender, bio, 
-					   latitude, longitude, is_verified)
+					   city, artist, quote, is_verified)
 	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
 	RETURNING id, created_at, updated_at, last_active`
 
 	err := r.pool.QueryRow(context.Background(), query,
 		user.Email, user.Phone, user.Name, user.Password, user.BirthDate, user.Gender, user.Bio,
-		user.Latitude, user.Longitude, user.IsVerified).
+		user.City, user.Artist, user.Quote, user.IsVerified).
 		Scan(&user.ID, &user.CreatedAt, &user.UpdatedAt, &user.LastActive)
 
 	if err != nil {
@@ -50,7 +50,7 @@ func (r *userRepository) GetByID(id uuid.UUID) (*domain.User, error) {
 	err := r.pool.QueryRow(context.Background(), query, id).Scan(
 		&user.ID, &user.Email, &user.Phone, &user.Name, &user.Password,
 		&user.BirthDate, &user.Gender, &user.Bio,
-		&user.Latitude, &user.Longitude, &user.IsVerified, &user.LastActive,
+		&user.City, &user.Artist, &user.Quote, &user.IsVerified, &user.LastActive,
 		&user.CreatedAt, &user.UpdatedAt,
 	)
 
@@ -73,7 +73,7 @@ func (r *userRepository) GetByEmail(email string) (*domain.User, error) {
 	err := r.pool.QueryRow(context.Background(), query, email).Scan(
 		&user.ID, &user.Email, &user.Phone, &user.Name, &user.Password,
 		&user.BirthDate, &user.Gender, &user.Bio,
-		&user.Latitude, &user.Longitude, &user.IsVerified, &user.LastActive,
+		&user.City, &user.Artist, &user.Quote, &user.IsVerified, &user.LastActive,
 		&user.CreatedAt, &user.UpdatedAt,
 	)
 
@@ -92,7 +92,7 @@ func (r *userRepository) GetByPhone(phone string) (*domain.User, error) {
 
 	err := r.pool.QueryRow(context.Background(), query, phone).Scan(
 		&user.ID, &user.Email, &user.Phone, &user.Name, &user.Password,
-		&user.BirthDate, &user.Gender, &user.Bio, &user.Latitude, &user.Longitude,
+		&user.BirthDate, &user.Gender, &user.Bio, &user.City, &user.Artist, &user.Quote,
 		&user.IsVerified, &user.LastActive, &user.CreatedAt, &user.UpdatedAt,
 	)
 
@@ -116,7 +116,7 @@ func (r *userRepository) Update(user *domain.User) error {
 
 	err := r.pool.QueryRow(context.Background(), query,
 		user.Email, user.Phone, user.Name, user.Password, user.BirthDate, user.Gender,
-		user.Bio, user.Latitude, user.Longitude, user.IsVerified,
+		user.Bio, user.City, user.Artist, user.Quote, user.IsVerified,
 		user.ID).
 		Scan(&user.UpdatedAt)
 
@@ -177,7 +177,7 @@ func (r *userRepository) GetUsersByIDs(ids []uuid.UUID) ([]domain.User, error) {
 		err := rows.Scan(
 			&user.ID, &user.Email, &user.Phone, &user.Name, &user.Password,
 			&user.BirthDate, &user.Gender, &user.Bio,
-			&user.Latitude, &user.Longitude, &user.IsVerified, &user.LastActive,
+			&user.City, &user.Artist, &user.Quote, &user.IsVerified, &user.LastActive,
 			&user.CreatedAt, &user.UpdatedAt,
 		)
 		if err != nil {
@@ -221,7 +221,7 @@ func (r *userRepository) GetUsersForFeed(userID uuid.UUID, limit, offset int) ([
 		err := rows.Scan(
 			&user.ID, &user.Email, &user.Phone, &user.Name, &user.Password,
 			&user.BirthDate, &user.Gender, &user.Bio,
-			&user.Latitude, &user.Longitude, &user.IsVerified, &user.LastActive,
+			&user.City, &user.Artist, &user.Quote, &user.IsVerified, &user.LastActive,
 			&user.CreatedAt, &user.UpdatedAt,
 		)
 		r.logger.Debugf("Scanned user: %+v\n", user)

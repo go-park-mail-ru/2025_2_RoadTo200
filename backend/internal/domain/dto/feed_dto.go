@@ -16,11 +16,6 @@ type FeedUser struct {
 	Interests   []domain.Interest `json:"interests"`
 }
 
-type FeedRequest struct {
-	Limit  int `json:"limit,omitempty" form:"limit,omitempty"`
-	Offset int `json:"offset,omitempty" form:"offset,omitempty"`
-}
-
 // FeedResponse represents feed response
 type FeedResponse struct {
 	Users  []FeedUser `json:"users"`
