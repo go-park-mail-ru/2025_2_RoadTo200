@@ -416,3 +416,7 @@ func (s *profileService) reorderRemainingPhotos(userID uuid.UUID) error {
 
 	return s.userPhotoRepo.UpdateDisplayOrder(userID, photos)
 }
+
+func (s *profileService) updateInterest(userID uuid.UUID, inter []domain.Interest) error {
+	return s.preferenceRepo.UpdateInterests(userID, inter)
+}

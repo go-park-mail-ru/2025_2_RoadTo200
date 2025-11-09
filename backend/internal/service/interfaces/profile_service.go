@@ -14,6 +14,7 @@ type ProfileService interface {
 
 	// Preferences
 	UpdatePreferences(userID uuid.UUID, updateData *domain.PreferencesUpdateRequest) error
+	UpdateInterests(uuid.UUID, []domain.Interest) error
 
 	// Photos
 	UploadPhotos(userID uuid.UUID, photos []*multipart.FileHeader) ([]domain.UserPhoto, error)

@@ -31,4 +31,5 @@ type UserPreferenceRepository interface {
 	GetByUserID(userID uuid.UUID) (*domain.UserPreference, error)
 	Update(preference *domain.UserPreference) error
 	Delete(userID uuid.UUID) error
+	UpdateInterests(userID uuid.UUID, interest []domain.Interest) error
 }

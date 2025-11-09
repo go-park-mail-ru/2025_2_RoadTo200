@@ -203,3 +203,32 @@ func (r *userPreferenceRepository) Delete(userID uuid.UUID) error {
 	}
 	return nil
 }
+
+func (r *userPreferenceRepository) UpdateInterests(userID uuid.UUID, inter []domain.Interest) error {
+	delQuery := `
+		DELETE FROM interest WHERE user_id = $1`
+	updQuery := `
+		INSERT INTO interest VALUES ($1, $2)`
+
+	tx, err := r.pool.Begin(context.Background())
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(context.Background())
+	_, err = tx.Exec(context.Background(), delQuery, userID)
+	if err != nil {
+		return err
+	}
+	batch := pgx.Batch{}
+	for _, el := range inter {
+		batch.Queue(updQuery, el.UserID, el.Theme)
+	}
+	res := tx.SendBatch(context.Background(), &batch)
+	defer res.Close()
+
+	_, err = res.Exec()
+	if err != nil {
+		return err
+	}
+	return tx.Commit(context.Background())
+}

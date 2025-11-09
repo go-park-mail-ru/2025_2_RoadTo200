@@ -16,7 +16,6 @@ import (
 	"github.com/google/uuid"
 )
 
-// TODO: Сделать метод для управления интересами
 type ProfileHandler struct {
 	profileService service.ProfileService
 	logger         logger.Log
@@ -195,6 +194,32 @@ func (h *ProfileHandler) UpdatePreferences(w http.ResponseWriter, r *http.Reques
 	h.logger.Debugf("handleJSONRequest: %v", req)
 
 	if err := h.profileService.UpdatePreferences(userID, &req); err != nil {
+		h.logger.Warnf("updatePreferences: %v", err)
+		utils.WriteJSONError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, dto.SuccessResponse{Message: "Preferences updated successfully"})
+}
+
+// TODO: Swagger документация для метода
+// UpdateInterest обновляет предпочтения пользователя
+func (h *ProfileHandler) UpdateInterests(w http.ResponseWriter, r *http.Request) {
+	userID, err := h.getContext(r)
+	if err != nil {
+		h.logger.Warnf("getContext: %v", err)
+		utils.WriteJSONError(w, http.StatusUnauthorized, err.Error())
+	}
+
+	var req []domain.Interest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		h.logger.Warnf("handleJSONRequest: %v", err)
+		utils.WriteJSONError(w, http.StatusBadRequest, "invalid JSON")
+		return
+	}
+	h.logger.Debugf("handleJSONRequest: %v", req)
+
+	if err := h.profileService.UpdateInterests(userID, req); err != nil {
 		h.logger.Warnf("updatePreferences: %v", err)
 		utils.WriteJSONError(w, http.StatusBadRequest, err.Error())
 		return
