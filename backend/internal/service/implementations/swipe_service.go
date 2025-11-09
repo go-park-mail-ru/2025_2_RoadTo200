@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/constants"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/dto"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/errors"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
@@ -23,9 +24,13 @@ func NewSwipeService(swipeRepo interfaces.SwipeRepository, matchRepo interfaces.
 	}
 }
 
-func (s *swipeService) ProcessSwipe(swiperID uuid.UUID, request *service.SwipeRequest) (*service.SwipeResponse, error) {
+func (s *swipeService) ProcessSwipe(swiperID uuid.UUID, request *dto.SwipeRequest) (*dto.SwipeResponse, error) {
+	card, err := uuid.Parse(request.CardID)
+	if err != nil {
+		return nil, err
+	}
 	// Валидация
-	if swiperID == request.CardID {
+	if swiperID == card {
 		return nil, errors.ErrCannotSwipeSelf
 	}
 
@@ -38,7 +43,7 @@ func (s *swipeService) ProcessSwipe(swiperID uuid.UUID, request *service.SwipeRe
 	// Создаем свайп
 	swipe := &domain.Swipe{
 		SwiperUserID: swiperID,
-		TargetUserID: request.CardID,
+		TargetUserID: card,
 		SwipeType:    swipeType,
 		CreatedAt:    time.Now(),
 	}
@@ -48,14 +53,14 @@ func (s *swipeService) ProcessSwipe(swiperID uuid.UUID, request *service.SwipeRe
 		return nil, err
 	}
 
-	response := &service.SwipeResponse{
+	response := &dto.SwipeResponse{
 		Message: "Swipe processed successfully",
 	}
 
 	// Если это лайк - проверяем на мэтч
 	if swipeType == constants.SwipeTypeLike {
 		// Проверяем взаимный лайк
-		hasMutualLike, err := s.matchRepo.CheckMutualLike(swiperID, request.CardID)
+		hasMutualLike, err := s.matchRepo.CheckMutualLike(swiperID, card)
 		if err != nil {
 			return nil, err
 		}
@@ -64,7 +69,7 @@ func (s *swipeService) ProcessSwipe(swiperID uuid.UUID, request *service.SwipeRe
 			// Создаем мэтч
 			match := &domain.Match{
 				User1ID:   swiperID,
-				User2ID:   request.CardID,
+				User2ID:   card,
 				IsActive:  true,
 				MatchedAt: time.Now(),
 			}
@@ -73,7 +78,7 @@ func (s *swipeService) ProcessSwipe(swiperID uuid.UUID, request *service.SwipeRe
 				return nil, err
 			}
 
-			response.Match = true
+			response.IsMatch = true
 			response.Message = "It's a match!"
 		}
 	}

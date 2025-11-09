@@ -15,17 +15,20 @@ import (
 
 type feedService struct {
 	userRepo  interfaces.UserRepository
+	prefRepo  interfaces.UserPreferenceRepository
 	photoRepo interfaces.UserPhotoRepository
 	logger    *logger.Logger
 }
 
 func NewFeedService(
 	userRepo interfaces.UserRepository,
+	prefRepo interfaces.UserPreferenceRepository,
 	photoRepo interfaces.UserPhotoRepository,
 	l *logger.Logger,
 ) service.FeedService {
 	return &feedService{
 		userRepo:  userRepo,
+		prefRepo:  prefRepo,
 		photoRepo: photoRepo,
 		logger:    l,
 	}
@@ -53,11 +56,17 @@ func (s *feedService) GetFeed(userID uuid.UUID, limit, offset int) ([]dto.FeedUs
 	// Преобразуем в формат для ленты
 	feedUsers := make([]dto.FeedUser, 0, len(users))
 	for _, user := range users {
+		res, err := s.prefRepo.GetInterests(user.ID)
+		if err != nil {
+			s.logger.Warnf("Getting interests for user failed: %v", err)
+			continue
+		}
 		feedUser, err := s.convertToFeedUser(user)
 		if err != nil {
 			s.logger.Warnf("Error converting user %s: %v\n", user.ID, err)
 			continue // Пропускаем пользователя с ошибкой
 		}
+		feedUser.Interests = res
 		feedUsers = append(feedUsers, feedUser)
 	}
 

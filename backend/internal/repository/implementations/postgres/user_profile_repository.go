@@ -53,7 +53,7 @@ func (r *userPhotoRepository) GetByID(id uuid.UUID) (*domain.UserPhoto, error) {
 }
 
 func (r *userPhotoRepository) GetByUserID(userID uuid.UUID) ([]domain.UserPhoto, error) {
-	query := `SELECT * FROM user_photo WHERE user_id = $1 ORDER BY display_order ASC`
+	query := `SELECT * FROM user_photo WHERE user_id = $1 ORDER BY display_order`
 
 	rows, err := r.pool.Query(context.Background(), query, userID)
 	if err != nil {
@@ -202,6 +202,17 @@ func (r *userPreferenceRepository) Delete(userID uuid.UUID) error {
 		return err
 	}
 	return nil
+}
+
+func (r *userPreferenceRepository) GetInterests(userID uuid.UUID) ([]domain.Interest, error) {
+	query := `
+		SELECT i.* FROM interest i WHERE i.user_id = $1`
+	var interests []domain.Interest
+	err := r.pool.QueryRow(context.Background(), query, userID).Scan(interests)
+	if err != nil {
+		return nil, err
+	}
+	return interests, nil
 }
 
 func (r *userPreferenceRepository) UpdateInterests(userID uuid.UUID, inter []domain.Interest) error {
