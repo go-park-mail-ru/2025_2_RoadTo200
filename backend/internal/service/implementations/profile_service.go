@@ -172,6 +172,13 @@ func (s *profileService) UpdatePreferences(userID uuid.UUID, updateData *domain.
 	return s.preferenceRepo.Update(preferences)
 }
 
+func (s *profileService) UpdateInterests(userID uuid.UUID, inter []domain.Interest) error {
+	if err := s.validateInterestsUpdate(inter); err != nil {
+		return err
+	}
+	return s.preferenceRepo.UpdateInterests(userID, inter)
+}
+
 // UploadPhotos загружает фотографии пользователя
 func (s *profileService) UploadPhotos(userID uuid.UUID, photos []*multipart.FileHeader) ([]domain.UserPhoto, error) {
 	// Проверяем лимит фотографий
@@ -379,6 +386,29 @@ func (s *profileService) ValidatePreferencesUpdate(updateData *domain.Preference
 	return nil
 }
 
+// ValidateInterestsUpdat валидация интересов
+func (s *profileService) validateInterestsUpdate(updateData []domain.Interest) error {
+	validTypes := map[constants.InterestType]struct{}{
+		constants.InterestTypeWorkout:    struct{}{},
+		constants.InterestTypeFun:        struct{}{},
+		constants.InterestTypeParty:      struct{}{},
+		constants.InterestTypeChill:      struct{}{},
+		constants.InterestTypeLove:       struct{}{},
+		constants.InterestTypeRelax:      struct{}{},
+		constants.InterestTypeYoga:       struct{}{},
+		constants.InterestTypeFriendship: struct{}{},
+		constants.InterestTypeCulture:    struct{}{},
+		constants.InterestTypeCinema:     struct{}{},
+	}
+	for _, el := range updateData {
+		// Проверяем, что тип интереса допустим
+		if _, ok := validTypes[el.Theme]; !ok {
+			return fmt.Errorf("invalid interest type: %s", el.Theme)
+		}
+	}
+	return nil
+}
+
 // validatePhotoFile валидация загружаемого фото
 func (s *profileService) validatePhotoFile(photo *multipart.FileHeader) error {
 	// Проверка размера файла
@@ -415,8 +445,4 @@ func (s *profileService) reorderRemainingPhotos(userID uuid.UUID) error {
 	}
 
 	return s.userPhotoRepo.UpdateDisplayOrder(userID, photos)
-}
-
-func (s *profileService) updateInterest(userID uuid.UUID, inter []domain.Interest) error {
-	return s.preferenceRepo.UpdateInterests(userID, inter)
 }

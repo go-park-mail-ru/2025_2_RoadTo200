@@ -9,7 +9,6 @@ import (
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/utils"
-	"github.com/google/uuid"
 )
 
 type FeedHandler struct {
@@ -37,7 +36,7 @@ func NewFeedHandler(feedService service.FeedService, l logger.Log) *FeedHandler 
 // @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
 // @Router /api/feed [get]
 func (h *FeedHandler) GetFeed(w http.ResponseWriter, r *http.Request) {
-	userID, err := h.getUserIDFromContext(r)
+	userID, err := middleware.GetUserIDFromContext(r.Context())
 	h.logger.Debugf("UserID from context: %v, err: %v\n", userID, err)
 	if err != nil {
 		h.logger.Warnf("GetFeed err: %v\n", err)
@@ -88,9 +87,4 @@ func (h *FeedHandler) parseQueryParams(r *http.Request) (int, int) {
 	}
 
 	return limit, offset
-}
-
-// getUserIDFromContext извлекает userID из контекста (будет установлен в middleware)
-func (h *FeedHandler) getUserIDFromContext(r *http.Request) (uuid.UUID, error) {
-	return middleware.GetUserIDFromContext(r.Context())
 }

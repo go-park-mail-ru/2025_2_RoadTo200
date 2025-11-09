@@ -48,13 +48,7 @@ func (h *SwipeHandler) ProcessSwipe(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Конвертируем в доменную сущность
-	swipeRequest := &dto.SwipeRequest{
-		CardID: req.CardID,
-		Action: req.Action,
-	}
-
-	response, err := h.swipeService.ProcessSwipe(userID, swipeRequest)
+	response, err := h.swipeService.ProcessSwipe(userID, &req)
 	if err != nil {
 		status := http.StatusBadRequest
 		switch err {
