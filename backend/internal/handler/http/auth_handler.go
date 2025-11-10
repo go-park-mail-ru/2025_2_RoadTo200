@@ -77,7 +77,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	var req dto.LoginRequest
 
 	if err := utils.ReadJSON(r, &req); err != nil {
-		h.logger.Warnf("handler.Login: %v", err)
+		h.logger.Warnf("handler.Login Error body: %v", err)
 		utils.WriteJSONError(w, http.StatusBadRequest, "invalid request body")
 		return
 	}
@@ -110,7 +110,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("session_token")
 	if err != nil {
-		h.logger.Warnf("handler.Logout: %v", err)
+		h.logger.Warnf("handler.Logout no session: %v", err)
 		utils.WriteJSONError(w, http.StatusUnauthorized, "no session")
 		return
 	}

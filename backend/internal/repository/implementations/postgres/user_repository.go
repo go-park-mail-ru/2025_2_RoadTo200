@@ -26,7 +26,7 @@ func (r *userRepository) Create(user *domain.User) error {
 	query := `
 	INSERT INTO "user" (email, phone, name, password, birth_date, gender, bio, 
 					   city, artist, quote, is_verified)
-	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
 	RETURNING id, created_at, updated_at, last_active`
 
 	err := r.pool.QueryRow(context.Background(), query,
@@ -44,7 +44,7 @@ func (r *userRepository) GetByID(id uuid.UUID) (*domain.User, error) {
 	var user domain.User
 	query := `
         SELECT id, email, phone, name, password, birth_date, gender, bio, 
-               latitude, longitude, is_verified, last_active, created_at, updated_at 
+               city, artist, quote, is_verified, last_active, created_at, updated_at 
         FROM "user" WHERE id = $1`
 
 	err := r.pool.QueryRow(context.Background(), query, id).Scan(
@@ -67,7 +67,7 @@ func (r *userRepository) GetByEmail(email string) (*domain.User, error) {
 	var user domain.User
 	query := `
         SELECT id, email, phone, name, password, birth_date, gender, bio, 
-               latitude, longitude, is_verified, last_active, created_at, updated_at 
+               city, artist, quote, is_verified, last_active, created_at, updated_at 
         FROM "user" WHERE email = $1`
 
 	err := r.pool.QueryRow(context.Background(), query, email).Scan(
@@ -109,7 +109,7 @@ func (r *userRepository) Update(user *domain.User) error {
 	query := `
         UPDATE "user" 
         SET email = $1, phone = $2, name = $3, password = $4, birth_date = $5, 
-            gender = $6, bio = $7, latitude = $8, longitude = $9, is_verified = $10,
+            gender = $6, bio = $7, city = $8, artist = $9, quote = $10, is_verified = $11,
             updated_at = NOW()
         WHERE id = $21
         RETURNING updated_at`
@@ -160,7 +160,7 @@ func (r *userRepository) GetUsersByIDs(ids []uuid.UUID) ([]domain.User, error) {
 
 	query := fmt.Sprintf(`
         SELECT id, email, phone, name, password, birth_date, gender, bio, 
-               latitude, longitude, is_verified, last_active, created_at, updated_at 
+               city, artist, quote, is_verified, last_active, created_at, updated_at 
         FROM "user" 
         WHERE id IN (%s)
         ORDER BY created_at DESC`, strings.Join(placeholders, ","))
@@ -198,7 +198,7 @@ func (r *userRepository) GetUsersForFeed(userID uuid.UUID, limit, offset int) ([
 
 	query := `
         SELECT id, email, phone, name, password, birth_date, gender, bio, 
-               latitude, longitude, is_verified, last_active, created_at, updated_at
+               city, artist, quote, is_verified, last_active, created_at, updated_at
         FROM "user" u
         WHERE u.id != $1
           AND NOT EXISTS (

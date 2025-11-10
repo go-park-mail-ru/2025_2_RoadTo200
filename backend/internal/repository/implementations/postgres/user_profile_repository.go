@@ -206,7 +206,7 @@ func (r *userPreferenceRepository) Delete(userID uuid.UUID) error {
 
 func (r *userPreferenceRepository) GetInterests(userID uuid.UUID) ([]domain.Interest, error) {
 	query := `
-		SELECT i.* FROM interest i WHERE i.user_id = $1`
+		SELECT i.user_id, i.theme FROM interest i WHERE i.user_id = $1`
 	var interests []domain.Interest
 	err := r.pool.QueryRow(context.Background(), query, userID).Scan(interests)
 	if err != nil {
@@ -219,7 +219,7 @@ func (r *userPreferenceRepository) UpdateInterests(userID uuid.UUID, inter []dom
 	delQuery := `
 		DELETE FROM interest WHERE user_id = $1`
 	updQuery := `
-		INSERT INTO interest VALUES ($1, $2)`
+		INSERT INTO interest(user_id, theme) VALUES ($1, $2)`
 
 	tx, err := r.pool.Begin(context.Background())
 	if err != nil {

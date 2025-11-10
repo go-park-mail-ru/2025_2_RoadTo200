@@ -30,9 +30,6 @@ type UpdateProfileRequest struct {
 
 	// Для deletePhoto и setPrimaryPhoto
 	PhotoID uuid.UUID `json:"photo_id,omitempty"`
-
-	// Для reorderPhotos
-	//PhotoIDs []uuid.UUID `json:"photo_ids,omitempty"`
 }
 
 // ProfileResponse ответ профиля
