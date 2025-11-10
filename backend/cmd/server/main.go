@@ -102,6 +102,7 @@ func main() {
 		photoRepo,
 		preferenceRepo,
 		storageRepo,
+		logg,
 	)
 	swipeService := service.NewSwipeService(
 		swipeRepo,
@@ -112,6 +113,7 @@ func main() {
 		userRepo,
 		swipeRepo,
 		photoRepo, // Добавляем photoRepo
+		logg,
 	)
 
 	// Обработчики
