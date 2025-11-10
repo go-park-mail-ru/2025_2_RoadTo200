@@ -109,7 +109,8 @@ CREATE TABLE subscription
 
 CREATE TABLE interest
 (
-    user_id UUID PRIMARY KEY REFERENCES "user" (id) ON DELETE CASCADE,
+    id      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES "user" (id) ON DELETE CASCADE,
     theme   interest_theme_enum NOT NULL,
 
     UNIQUE (user_id, theme)
@@ -124,6 +125,7 @@ BEGIN
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
+-- end;
 
 -- Триггеры для автоматического обновления updated_at
 CREATE TRIGGER update_user_updated_at

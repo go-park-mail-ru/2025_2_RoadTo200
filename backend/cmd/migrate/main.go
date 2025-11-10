@@ -39,8 +39,10 @@ func main() {
 
 	// Разделение SQL-файла на отдельные инструкции (на основе точки с запятой, игнорируя `GO` в случае с SQL Server)
 	// Простейший подход, но может потребовать более сложной логики для реальных сценариев
-	queries := strings.Split(sqlString, ";")
+	queries := strings.Split(sqlString, ";\n")
 
+	buf := ""
+	mod := 'r'
 	// Выполнение каждой инструкции
 	for _, query := range queries {
 		// Удаление пробельных символов в начале и конце инструкции
@@ -48,10 +50,20 @@ func main() {
 		if query == "" {
 			continue
 		}
+		if mod == 'f' || strings.HasPrefix(query, "-- Функция") {
+			mod = 'f'
+			if query != "-- end" {
+				buf += query + ";"
+				continue
+			} else {
+				query = buf
+				mod = 'r'
+			}
+		}
 
 		_, err := conn.Exec(ctx, query)
 		if err != nil {
-			logger.Printf("Ошибка при выполнении запроса: %v\nЗапрос: %s", err, query)
+			logger.Error("Ошибка при выполнении запроса: %v\nЗапрос: %s", err, query)
 			// Можно прервать выполнение или продолжить
 			// return
 		} else {
