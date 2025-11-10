@@ -26,7 +26,7 @@ app:
     password: RD_PSWD
 
   minio:
-    host: localhost:8099
+    host: MN_HOST
     access_key_id: MN_USER
     secret_access_key: MN_PSWD
     address: MN_ADDRESS

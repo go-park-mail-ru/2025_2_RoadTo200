@@ -5,8 +5,6 @@ import (
 	"github.com/google/uuid"
 )
 
-// TODO: Сделать миграцию
-
 type Interest struct {
 	UserID uuid.UUID              `json:"user_id" db:"user_id"`
 	Theme  constants.InterestType `json:"theme" db:"theme"`
