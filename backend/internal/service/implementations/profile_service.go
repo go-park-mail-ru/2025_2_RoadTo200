@@ -18,7 +18,6 @@ import (
 	"github.com/google/uuid"
 )
 
-// TODO: Изучить подробней
 type profileService struct {
 	userRepo       interfaces.UserRepository
 	userPhotoRepo  interfaces.UserPhotoRepository

@@ -31,7 +31,7 @@ func NewFeedHandler(feedService service.FeedService, l logger.Log) *FeedHandler 
 // @Security SessionToken
 // @Param limit query int false "Лимит пользователей (максимум 50)" default(15) minimum(1) maximum(50)
 // @Param offset query int false "Смещение для пагинации" default(0) minimum(0)
-// @Success 200 {object} FeedResponse "Лента пользователей"
+// @Success 200 {object} dto.FeedResponse "Лента пользователей"
 // @Failure 401 {object} map[string]string "Не авторизован"
 // @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
 // @Router /api/feed [get]

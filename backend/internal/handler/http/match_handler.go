@@ -30,10 +30,10 @@ func NewMatchHandler(matchService service.MatchService) *MatchHandler {
 // @Security SessionToken
 // @Param limit query int false "Лимит мэтчей (максимум 50)" default(20) minimum(1) maximum(50)
 // @Param offset query int false "Смещение для пагинации" default(0) minimum(0)
-// @Success 200 {object} interface{} "Список мэтчей"
+// @Success 200 {object} dto.MatchResponse "Список мэтчей"
 // @Failure 401 {object} map[string]string "Не авторизован"
 // @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
-// @Router /api/matches [get]
+// @Router /api/match [get]
 func (h *MatchHandler) GetUserMatches(w http.ResponseWriter, r *http.Request) {
 	userID, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
@@ -61,13 +61,13 @@ func (h *MatchHandler) GetUserMatches(w http.ResponseWriter, r *http.Request) {
 // @Accept json
 // @Produce json
 // @Security SessionToken
-// @Param request body UnmatchRequest true "Данные для удаления мэтча"
-// @Success 200 {object} SuccessResponse "Мэтч успешно удален"
+// @Param request body dto.UnmatchRequest true "Данные для удаления мэтча"
+// @Success 200 {object} dto.SuccessResponse "Мэтч успешно удален"
 // @Failure 400 {object} map[string]string "Неверный запрос"
 // @Failure 401 {object} map[string]string "Не авторизован"
 // @Failure 404 {object} map[string]string "Мэтч не найден"
 // @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
-// @Router /api/matches/unmatch [post]
+// @Router /api/match/unmatch [delete]
 func (h *MatchHandler) Unmatch(w http.ResponseWriter, r *http.Request) {
 	userID, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {

@@ -34,7 +34,7 @@ func NewProfileHandler(profileService service.ProfileService, l logger.Log) *Pro
 // @Tags profile
 // @Produce json
 // @Security SessionToken
-// @Success 200 {object} ProfileResponse "Профиль пользователя"
+// @Success 200 {object} dto.ProfileResponse "Профиль пользователя"
 // @Failure 401 {object} map[string]string "Не авторизован"
 // @Failure 404 {object} map[string]string "Профиль не найден"
 // @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
@@ -50,7 +50,7 @@ func (h *ProfileHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
 	profile, err := h.profileService.GetProfile(userID)
 	if err != nil {
 		h.logger.Warnf("GetProfile: %v", err)
-		if err == expectation.ErrProfileNotFound {
+		if errors.Is(err, expectation.ErrProfileNotFound) {
 			utils.WriteJSONError(w, http.StatusNotFound, "profile not found")
 			return
 		}
@@ -67,20 +67,7 @@ func (h *ProfileHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
 	utils.WriteJSON(w, http.StatusOK, response)
 }
 
-// ChangeProfileJSON godoc
-// @Summary Изменить профиль (JSON)
-// @Description Изменение профиля через JSON для всех действий кроме загрузки фото
-// @Description - updateInfo: обновление основной информации
-// @Description - updatePreferences: обновление предпочтений
-// @Tags profile
-// @Accept json
-// @Produce json
-// @Security SessionToken
-// @Param request body dto.UpdateProfileRequest true "Данные для изменения"
-// @Success 200 {object} dto.SuccessResponse "Успешное обновление"
-// @Failure 400 {object} map[string]string "Неверный запрос"
-// @Failure 401 {object} map[string]string "Не авторизован"
-// @Router /api/profile/changeProfile [post]
+// getContext функция извлечения контекста и проверки формата тела
 func (h *ProfileHandler) getContext(r *http.Request) (uuid.UUID, error) {
 	userID, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
@@ -106,11 +93,11 @@ func (h *ProfileHandler) getContext(r *http.Request) (uuid.UUID, error) {
 // @Produce json
 // @Security SessionToken
 // @Param photos formData file true "Фотографии для загрузки"
-// @Success 200 {object} dto.UploadPhotosResponse "Успешная загрузка фото"
+// @Success 200 {object} domain.UserPhoto "Успешная загрузка фото"
 // @Failure 400 {object} map[string]string "Неверный запрос"
 // @Failure 401 {object} map[string]string "Не авторизован"
 // @Failure 403 {object} map[string]string "Превышен лимит фото"
-// @Router /api/profile/uploadPhotos [post]
+// @Router /api/profile/photo [post]
 func (h *ProfileHandler) UploadPhotos(w http.ResponseWriter, r *http.Request) {
 	userID, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
@@ -146,8 +133,19 @@ func (h *ProfileHandler) UploadPhotos(w http.ResponseWriter, r *http.Request) {
 	utils.WriteJSON(w, http.StatusOK, uploadedPhotos)
 }
 
-// TODO: Swagger документация для метода
-// updateProfileInfo обновляет основную информацию профиля
+// UpdateProfileInfo godoc
+// @Summary Обновить основную информацию профиля
+// @Description Обновляет основную информацию профиля пользователя
+// @Tags profile
+// @Accept json
+// @Produce json
+// @Security SessionToken
+// @Param request body domain.ProfileUpdateRequest true "Данные для обновления профиля"
+// @Success 200 {object} dto.SuccessResponse "Профиль успешно обновлен"
+// @Failure 400 {object} map[string]string "Неверный запрос"
+// @Failure 401 {object} map[string]string "Не авторизован"
+// @Failure 404 {object} map[string]string "Профиль не найден"
+// @Router /api/profile/info [put]
 func (h *ProfileHandler) UpdateProfileInfo(w http.ResponseWriter, r *http.Request) {
 	userID, err := h.getContext(r)
 	if err != nil {
@@ -176,8 +174,18 @@ func (h *ProfileHandler) UpdateProfileInfo(w http.ResponseWriter, r *http.Reques
 	utils.WriteJSON(w, http.StatusOK, dto.SuccessResponse{Message: "Profile updated successfully"})
 }
 
-// TODO: Swagger документация для метода
-// updatePreferences обновляет предпочтения пользователя
+// UpdatePreferences godoc
+// @Summary Обновить предпочтения пользователя
+// @Description Обновляет предпочтения пользователя
+// @Tags profile
+// @Accept json
+// @Produce json
+// @Security SessionToken
+// @Param request body domain.PreferencesUpdateRequest true "Данные предпочтений"
+// @Success 200 {object} dto.SuccessResponse "Предпочтения успешно обновлены"
+// @Failure 400 {object} map[string]string "Неверный запрос"
+// @Failure 401 {object} map[string]string "Не авторизован"
+// @Router /api/profile/preferences [put]
 func (h *ProfileHandler) UpdatePreferences(w http.ResponseWriter, r *http.Request) {
 	userID, err := h.getContext(r)
 	if err != nil {
@@ -202,8 +210,18 @@ func (h *ProfileHandler) UpdatePreferences(w http.ResponseWriter, r *http.Reques
 	utils.WriteJSON(w, http.StatusOK, dto.SuccessResponse{Message: "Preferences updated successfully"})
 }
 
-// TODO: Swagger документация для метода
-// UpdateInterest обновляет предпочтения пользователя
+// UpdateInterests godoc
+// @Summary Обновить интересы пользователя
+// @Description Обновляет интересы пользователя
+// @Tags profile
+// @Accept json
+// @Produce json
+// @Security SessionToken
+// @Param request body []domain.Interest true "Список интересов"
+// @Success 200 {object} dto.SuccessResponse "Интересы успешно обновлены"
+// @Failure 400 {object} map[string]string "Неверный запрос"
+// @Failure 401 {object} map[string]string "Не авторизован"
+// @Router /api/profile/interests [put]
 func (h *ProfileHandler) UpdateInterests(w http.ResponseWriter, r *http.Request) {
 	userID, err := h.getContext(r)
 	if err != nil {
@@ -228,6 +246,7 @@ func (h *ProfileHandler) UpdateInterests(w http.ResponseWriter, r *http.Request)
 	utils.WriteJSON(w, http.StatusOK, dto.SuccessResponse{Message: "Preferences updated successfully"})
 }
 
+// HandlePhoto мультиплексер фото по методам
 func (h *ProfileHandler) HandlePhoto(w http.ResponseWriter, r *http.Request) {
 	userID, err := h.getContext(r)
 	if err != nil {
@@ -249,8 +268,19 @@ func (h *ProfileHandler) HandlePhoto(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// TODO: Swagger документация для метода
-// deletePhoto удаляет фотографию
+// deletePhoto godoc
+// @Summary Удалить фотографию
+// @Description Удаляет фотографию профиля
+// @Tags profile
+// @Produce json
+// @Security SessionToken
+// @Param id path string true "ID фотографии"
+// @Success 200 {object} dto.SuccessResponse "Фото успешно удалено"
+// @Failure 400 {object} map[string]string "Неверный запрос"
+// @Failure 401 {object} map[string]string "Не авторизован"
+// @Failure 403 {object} map[string]string "Фото не принадлежит пользователю"
+// @Failure 404 {object} map[string]string "Фото не найдено"
+// @Router /api/profile/photo/{id} [delete]
 func (h *ProfileHandler) deletePhoto(w http.ResponseWriter, userID uuid.UUID, photoID uuid.UUID) {
 
 	if err := h.profileService.DeletePhoto(userID, photoID); err != nil {
@@ -268,8 +298,19 @@ func (h *ProfileHandler) deletePhoto(w http.ResponseWriter, userID uuid.UUID, ph
 	utils.WriteJSON(w, http.StatusOK, dto.SuccessResponse{Message: "Photo deleted successfully"})
 }
 
-// TODO: Swagger документация для метода
-// setPrimaryPhoto устанавливает основное фото
+// setPrimaryPhoto godoc
+// @Summary Установить основное фото
+// @Description Устанавливает основную фотографию профиля
+// @Tags profile
+// @Produce json
+// @Security SessionToken
+// @Param id path string true "ID фотографии"
+// @Success 200 {object} dto.SuccessResponse "Основное фото успешно установлено"
+// @Failure 400 {object} map[string]string "Неверный запрос"
+// @Failure 401 {object} map[string]string "Не авторизован"
+// @Failure 403 {object} map[string]string "Фото не принадлежит пользователю"
+// @Failure 404 {object} map[string]string "Фото не найдено"
+// @Router /api/profile/photo/{id} [put]
 func (h *ProfileHandler) setPrimaryPhoto(w http.ResponseWriter, userID uuid.UUID, photoID uuid.UUID) {
 	if err := h.profileService.SetPrimaryPhoto(userID, photoID); err != nil {
 		status := http.StatusBadRequest

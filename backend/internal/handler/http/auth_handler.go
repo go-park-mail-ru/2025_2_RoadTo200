@@ -28,8 +28,8 @@ func NewAuthHandler(authService *service.AuthService, l logger.Log) *AuthHandler
 // @Tags auth
 // @Accept json
 // @Produce json
-// @Param request body RegisterRequest true "Данные для регистрации"
-// @Success 201 {object} RegisterResponse "Пользователь создан"
+// @Param request body dto.RegisterRequest true "Данные для регистрации"
+// @Success 201 {object} dto.RegisterResponse "Пользователь создан"
 // @Failure 400 {object} map[string]string "Неверный формат запроса"
 // @Failure 400 {object} map[string]string "Ошибка валидации данных"
 // @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
@@ -68,8 +68,8 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 // @Tags auth
 // @Accept json
 // @Produce json
-// @Param request body LoginRequest true "Данные для входа"
-// @Success 200 {object} LoginResponse "Успешный вход"
+// @Param request body dto.LoginRequest true "Данные для входа"
+// @Success 200 {object} dto.LoginResponse "Успешный вход"
 // @Failure 400 {object} map[string]string "Неверный формат запроса"
 // @Failure 401 {object} map[string]string "Неверный email или пароль"
 // @Router /api/login [post]
@@ -102,7 +102,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 // @Description Завершает сессию пользователя
 // @Tags auth
 // @Produce json
-// @Security SessionToken
+// @Security dto.SessionToken
 // @Success 200 {object} map[string]string "Успешный выход"
 // @Failure 401 {object} map[string]string "Сессия не найдена"
 // @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
