@@ -35,6 +35,7 @@ func NewFeedService(
 }
 
 func (s *feedService) GetFeed(userID uuid.UUID, limit, offset int) ([]dto.FeedUser, error) {
+	s.logger.Trace("FeedService.GetFeed")
 	// Валидация параметров
 	if limit <= 0 || limit > 50 {
 		limit = 15 // дефолтное значение
@@ -48,10 +49,10 @@ func (s *feedService) GetFeed(userID uuid.UUID, limit, offset int) ([]dto.FeedUs
 	// Получаем пользователей для ленты
 	users, err := s.userRepo.GetUsersForFeed(userID, limit, offset)
 	if err != nil {
-		s.logger.Warnf("Getting users for feed failed: %v", err)
+		s.logger.Errorf("Getting users for feed failed: %v", err)
 		return nil, err
 	}
-	s.logger.Warnf("Retrieved %d users for feed\n", len(users))
+	s.logger.Debugf("Retrieved %d users for feed\n", len(users))
 
 	// Преобразуем в формат для ленты
 	feedUsers := make([]dto.FeedUser, 0, len(users))
@@ -78,6 +79,7 @@ func (s *feedService) GetFeed(userID uuid.UUID, limit, offset int) ([]dto.FeedUs
 
 // convertToFeedUser преобразует доменного пользователя в формат для ленты
 func (s *feedService) convertToFeedUser(user domain.User) (dto.FeedUser, error) {
+	s.logger.Trace("convertToFeedUser")
 	// Вычисляем возраст
 	age := calculateAge(user.BirthDate)
 
