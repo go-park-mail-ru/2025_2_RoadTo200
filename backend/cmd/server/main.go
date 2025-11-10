@@ -62,11 +62,11 @@ func main() {
 
 	// Инициализация PostgreSQL через pkg/postgres
 	logger.Println("🔌 Connecting to PostgreSQL...")
-	pool, err := postgres_connect.NewConnect(context.Background(), &cfg.Postgres)
+	psgPool, err := postgres_connect.NewConnect(context.Background(), &cfg.Postgres)
 	if err != nil {
 		logger.Fatal("❌ Failed to connect to PostgreSQL: ", err)
 	}
-	defer pool.Close()
+	defer psgPool.Close()
 
 	// Инициализация Redis через pkg/redis
 	logger.Println("🔌 Connecting to Redis...")
@@ -87,12 +87,12 @@ func main() {
 
 	// Репозитории
 	storageRepo := minio.NewStorageRepository(minioPool, &cfg.MinIO)
-	userRepo := postgres.NewUserRepository(pool, logg)
+	userRepo := postgres.NewUserRepository(psgPool, logg)
 	sessionRepo := redis.NewSessionRepository(redisPool)
-	preferenceRepo := postgres.NewUserPreferenceRepository(pool)
-	photoRepo := postgres.NewUserPhotoRepository(pool)
-	swipeRepo := postgres.NewSwipeRepository(pool)
-	matchRepo := postgres.NewMatchRepository(pool)
+	preferenceRepo := postgres.NewUserPreferenceRepository(psgPool)
+	photoRepo := postgres.NewUserPhotoRepository(psgPool)
+	swipeRepo := postgres.NewSwipeRepository(psgPool)
+	matchRepo := postgres.NewMatchRepository(psgPool)
 
 	// Сервисы
 	authService := service.NewAuthService(userRepo, sessionRepo, logg)
@@ -130,9 +130,9 @@ func main() {
 	server.AddMiddleware(middleware.CORSMiddleware(&cfg.Cors))
 
 	// Public routes (no auth required)
-	server.AddHandler("/api/register", http.HandlerFunc(authHandler.Register))
-	server.AddHandler("/api/login", http.HandlerFunc(authHandler.Login))
-	server.AddHandler("/api/session", http.HandlerFunc(sessionHandler.GetSession))
+	server.POST("/api/register", http.HandlerFunc(authHandler.Register))
+	server.POST("/api/login", http.HandlerFunc(authHandler.Login))
+	server.GET("/api/session", http.HandlerFunc(sessionHandler.GetSession))
 
 	// Swagger should be accessible without auth
 	server.AddHandler("/swagger/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -152,23 +152,24 @@ func main() {
 	}))
 
 	// Health check
-	server.AddHandler("/health", http.HandlerFunc(healthHandler))
+	server.GET("/health", http.HandlerFunc(healthHandler))
 
 	// Auth middleware for protected routes
 	server.AddMiddleware(middleware.AuthMiddleware(authService))
 
 	// Protected routes (require auth)
-	server.AddHandler("/api/logout", http.HandlerFunc(authHandler.Logout))
-	server.AddHandler("/api/profile/profile", http.HandlerFunc(profileHandler.GetProfile))
-	server.AddHandler("/api/profile/changeProfile", http.HandlerFunc(profileHandler.UpdateProfileInfo))    // JSON only
-	server.AddHandler("/api/profile/changePreference", http.HandlerFunc(profileHandler.UpdatePreferences)) // JSON only
-	server.AddHandler("/api/profile/changeInterest", http.HandlerFunc(profileHandler.UpdateInterests))     // JSON only
-	server.AddHandler("/api/profile/photo/{id}", http.HandlerFunc(profileHandler.HandlePhoto))             // JSON only
-	server.AddHandler("/api/profile/uploadPhotos", http.HandlerFunc(profileHandler.UploadPhotos))          // Multipart only
-	server.AddHandler("/api/feed", http.HandlerFunc(feedHandler.GetFeed))
-	server.AddHandler("/api/swipe", http.HandlerFunc(swipeHandler.ProcessSwipe))
-	server.AddHandler("/api/matches", http.HandlerFunc(matchHandler.GetUserMatches))
-	server.AddHandler("/api/matches/unmatch", http.HandlerFunc(matchHandler.Unmatch))
+	server.POST("/api/logout", http.HandlerFunc(authHandler.Logout))
+	server.GET("/api/profile", http.HandlerFunc(profileHandler.GetProfile))
+	server.PUT("/api/profile/info", http.HandlerFunc(profileHandler.UpdateProfileInfo))       // JSON only
+	server.PUT("/api/profile/preference", http.HandlerFunc(profileHandler.UpdatePreferences)) // JSON only
+	server.PUT("/api/profile/interest", http.HandlerFunc(profileHandler.UpdateInterests))     // JSON only
+	server.PUT("/api/profile/photo/{id}", http.HandlerFunc(profileHandler.SetPrimaryPhoto))   // JSON only
+	server.DELETE("/api/profile/photo/{id}", http.HandlerFunc(profileHandler.DeletePhoto))    // JSON only
+	server.POST("/api/profile/photo", http.HandlerFunc(profileHandler.UploadPhotos))          // Multipart only
+	server.GET("/api/feed", http.HandlerFunc(feedHandler.GetFeed))
+	server.POST("/api/swipe", http.HandlerFunc(swipeHandler.ProcessSwipe))
+	server.GET("/api/match", http.HandlerFunc(matchHandler.GetUserMatches))
+	server.DELETE("/api/match", http.HandlerFunc(matchHandler.Unmatch))
 
 	addr := fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)
 	logger.Printf("Server starting on %s", addr)
@@ -179,7 +180,7 @@ func main() {
 }
 
 // Health handler
-func healthHandler(w http.ResponseWriter, r *http.Request) {
+func healthHandler(w http.ResponseWriter, _ *http.Request) {
 	utils.WriteJSON(w, http.StatusOK, map[string]string{
 		"status": "ok",
 		"app":    "terabithia app",

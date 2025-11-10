@@ -68,17 +68,17 @@ func (h *ProfileHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
 }
 
 // getContext функция извлечения контекста и проверки формата тела
-func (h *ProfileHandler) getContext(r *http.Request) (uuid.UUID, error) {
+func (h *ProfileHandler) getContext(w http.ResponseWriter, r *http.Request) (uuid.UUID, error) {
 	userID, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
 		h.logger.Warnf("GetUserFromContext: %v", err)
-		//utils.WriteJSONError(w, http.StatusUnauthorized, "unauthorized")
+		utils.WriteJSONError(w, http.StatusUnauthorized, "unauthorized")
 		return uuid.Nil, errors.New("unauthorized")
 	}
 
 	// Только JSON запросы
 	if !strings.Contains(r.Header.Get("Content-Type"), "application/json") {
-		//utils.WriteJSONError(w, http.StatusBadRequest, "only JSON content type supported for this endpoint")
+		utils.WriteJSONError(w, http.StatusBadRequest, "only JSON content type supported for this endpoint")
 		return uuid.Nil, errors.New("unauthorized")
 	}
 
@@ -147,10 +147,10 @@ func (h *ProfileHandler) UploadPhotos(w http.ResponseWriter, r *http.Request) {
 // @Failure 404 {object} map[string]string "Профиль не найден"
 // @Router /api/profile/info [put]
 func (h *ProfileHandler) UpdateProfileInfo(w http.ResponseWriter, r *http.Request) {
-	userID, err := h.getContext(r)
+	userID, err := h.getContext(w, r)
 	if err != nil {
 		h.logger.Warnf("getContext: %v", err)
-		utils.WriteJSONError(w, http.StatusUnauthorized, err.Error())
+		return
 	}
 
 	var req domain.ProfileUpdateRequest
@@ -187,10 +187,10 @@ func (h *ProfileHandler) UpdateProfileInfo(w http.ResponseWriter, r *http.Reques
 // @Failure 401 {object} map[string]string "Не авторизован"
 // @Router /api/profile/preferences [put]
 func (h *ProfileHandler) UpdatePreferences(w http.ResponseWriter, r *http.Request) {
-	userID, err := h.getContext(r)
+	userID, err := h.getContext(w, r)
 	if err != nil {
 		h.logger.Warnf("getContext: %v", err)
-		utils.WriteJSONError(w, http.StatusUnauthorized, err.Error())
+		return
 	}
 
 	var req domain.PreferencesUpdateRequest
@@ -223,10 +223,10 @@ func (h *ProfileHandler) UpdatePreferences(w http.ResponseWriter, r *http.Reques
 // @Failure 401 {object} map[string]string "Не авторизован"
 // @Router /api/profile/interests [put]
 func (h *ProfileHandler) UpdateInterests(w http.ResponseWriter, r *http.Request) {
-	userID, err := h.getContext(r)
+	userID, err := h.getContext(w, r)
 	if err != nil {
 		h.logger.Warnf("getContext: %v", err)
-		utils.WriteJSONError(w, http.StatusUnauthorized, err.Error())
+		return
 	}
 
 	var req []domain.Interest
@@ -247,28 +247,25 @@ func (h *ProfileHandler) UpdateInterests(w http.ResponseWriter, r *http.Request)
 }
 
 // HandlePhoto мультиплексер фото по методам
-func (h *ProfileHandler) HandlePhoto(w http.ResponseWriter, r *http.Request) {
-	userID, err := h.getContext(r)
+func (h *ProfileHandler) handlePhoto(w http.ResponseWriter, r *http.Request) (uuid.UUID, uuid.UUID, error) {
+	userID, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
 		h.logger.Warnf("getContext: %v", err)
 		utils.WriteJSONError(w, http.StatusUnauthorized, err.Error())
+		return uuid.Nil, uuid.Nil, errors.New("unauthorized")
 	}
+
 	photoID, err := uuid.Parse(r.PathValue("id"))
 	if err != nil {
 		h.logger.Warnf("handlePhoto: %v", err)
 		utils.WriteJSONError(w, http.StatusBadRequest, "photo ID is required")
+		return uuid.Nil, uuid.Nil, errors.New("photo ID is required")
 	}
 
-	if r.Method != http.MethodPut {
-		h.setPrimaryPhoto(w, userID, photoID)
-	} else if r.Method == http.MethodDelete {
-		h.deletePhoto(w, userID, photoID)
-	} else {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-	}
+	return userID, photoID, nil
 }
 
-// deletePhoto godoc
+// DeletePhoto godoc
 // @Summary Удалить фотографию
 // @Description Удаляет фотографию профиля
 // @Tags profile
@@ -281,7 +278,11 @@ func (h *ProfileHandler) HandlePhoto(w http.ResponseWriter, r *http.Request) {
 // @Failure 403 {object} map[string]string "Фото не принадлежит пользователю"
 // @Failure 404 {object} map[string]string "Фото не найдено"
 // @Router /api/profile/photo/{id} [delete]
-func (h *ProfileHandler) deletePhoto(w http.ResponseWriter, userID uuid.UUID, photoID uuid.UUID) {
+func (h *ProfileHandler) DeletePhoto(w http.ResponseWriter, r *http.Request) {
+	userID, photoID, err := h.handlePhoto(w, r)
+	if err != nil {
+		return
+	}
 
 	if err := h.profileService.DeletePhoto(userID, photoID); err != nil {
 		status := http.StatusBadRequest
@@ -298,7 +299,7 @@ func (h *ProfileHandler) deletePhoto(w http.ResponseWriter, userID uuid.UUID, ph
 	utils.WriteJSON(w, http.StatusOK, dto.SuccessResponse{Message: "Photo deleted successfully"})
 }
 
-// setPrimaryPhoto godoc
+// SetPrimaryPhoto godoc
 // @Summary Установить основное фото
 // @Description Устанавливает основную фотографию профиля
 // @Tags profile
@@ -311,7 +312,12 @@ func (h *ProfileHandler) deletePhoto(w http.ResponseWriter, userID uuid.UUID, ph
 // @Failure 403 {object} map[string]string "Фото не принадлежит пользователю"
 // @Failure 404 {object} map[string]string "Фото не найдено"
 // @Router /api/profile/photo/{id} [put]
-func (h *ProfileHandler) setPrimaryPhoto(w http.ResponseWriter, userID uuid.UUID, photoID uuid.UUID) {
+func (h *ProfileHandler) SetPrimaryPhoto(w http.ResponseWriter, r *http.Request) {
+	userID, photoID, err := h.handlePhoto(w, r)
+	if err != nil {
+		return
+	}
+
 	if err := h.profileService.SetPrimaryPhoto(userID, photoID); err != nil {
 		status := http.StatusBadRequest
 		if errors.Is(err, expectation.ErrPhotoNotFound) {
