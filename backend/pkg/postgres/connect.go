@@ -3,21 +3,20 @@ package postgres
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 
-	//"os"
 	"strconv"
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/config"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
 func NewConnect(ctx context.Context, cfg *config.PostgresConfig) (*pgxpool.Pool, error) {
-	log.Printf("🔍 PostgreSQL Config: Host=%s, Port=%s, User=%s, Base=%s",
+	logger.Printf("🔍 PostgreSQL Config: Host=%s, Port=%s, User=%s, Base=%s",
 		cfg.Host, cfg.Port, cfg.User, cfg.Base)
-	log.Printf("🔍 PostgreSQL Password length: %d", len(cfg.Password))
-	log.Printf("🔍 PostgreSQL Port type: %T, value: '%s'", cfg.Port, cfg.Port)
+	logger.Printf("🔍 PostgreSQL Password length: %d", len(cfg.Password))
+	logger.Printf("🔍 PostgreSQL Port type: %T, value: '%s'", cfg.Port, cfg.Port)
 
 	if cfg.Port == "" {
 		return nil, fmt.Errorf("PostgreSQL port is empty")
@@ -42,7 +41,7 @@ func NewConnect(ctx context.Context, cfg *config.PostgresConfig) (*pgxpool.Pool,
 		return nil, fmt.Errorf("failed to parse pool config: %w", err)
 	}
 
-	log.Printf("🔍 Pool Config: MaxConns=%d, MinConns=%d", cfg.MaxConns, cfg.MinConns)
+	logger.Printf("🔍 Pool Config: MaxConns=%d, MinConns=%d", cfg.MaxConns, cfg.MinConns)
 
 	poolConfig.MaxConns = cfg.MaxConns
 	poolConfig.MinConns = cfg.MinConns
@@ -60,6 +59,6 @@ func NewConnect(ctx context.Context, cfg *config.PostgresConfig) (*pgxpool.Pool,
 		return nil, fmt.Errorf("failed to ping database: %w", err)
 	}
 
-	log.Println("✅ PostgreSQL connected successfully")
+	logger.Println("✅ PostgreSQL connected successfully")
 	return pool, nil
 }

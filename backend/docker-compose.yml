@@ -31,7 +31,7 @@ services:
       MINIO_ROOT_PASSWORD: ${MN_PSWD}
     volumes:
       - minio_vk_data:/data
-    command: server /data --console-address ":${MN_ADMN}"
+    command: server /data --console-address ":9001"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:${MN_PORT}/minio/health/live"]
       interval: 30s
