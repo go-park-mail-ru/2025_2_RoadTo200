@@ -6,6 +6,7 @@ import (
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/dto"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/errors"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
 	"github.com/google/uuid"
@@ -17,6 +18,7 @@ type matchService struct {
 	userRepo  interfaces.UserRepository
 	swipeRepo interfaces.SwipeRepository
 	photoRepo interfaces.UserPhotoRepository // Добавляем репозиторий фотографий
+	logger    logger.Log
 }
 
 func NewMatchService(
@@ -24,12 +26,14 @@ func NewMatchService(
 	userRepo interfaces.UserRepository,
 	swipeRepo interfaces.SwipeRepository,
 	photoRepo interfaces.UserPhotoRepository, // Добавляем параметр
+	l logger.Log,
 ) service.MatchService {
 	return &matchService{
 		matchRepo: matchRepo,
 		userRepo:  userRepo,
 		swipeRepo: swipeRepo,
 		photoRepo: photoRepo, // Инициализируем
+		logger:    l,
 	}
 }
 
@@ -50,6 +54,7 @@ func (s *matchService) GetUserMatches(userID uuid.UUID, limit, offset int) (*dto
 
 	// Если нет мэтчей, возвращаем пустой ответ
 	if len(matches) == 0 {
+		s.logger.Debugf("matchService.GetUserMatches: no matches")
 		return &dto.MatchesResponse{
 			Matches: []dto.MatchResponse{},
 			Total:   0,
@@ -100,7 +105,7 @@ func (s *matchService) GetUserMatches(userID uuid.UUID, limit, offset int) (*dto
 
 		matchedUser, ok = userMap[matchedUserID]
 		if !ok {
-			fmt.Printf("WARN: User not found for match: %v\n", match)
+			s.logger.Warnf("User not found for match: %v\n", match)
 			continue
 		}
 
@@ -130,7 +135,7 @@ func (s *matchService) GetUserMatches(userID uuid.UUID, limit, offset int) (*dto
 		Offset:  offset,
 	}
 
-	fmt.Printf("DEBUG: Successfully formed response with %d matches\n", len(matchResponses))
+	s.logger.Debugf("Successfully formed response with %d matches\n", len(matchResponses))
 	return response, nil
 }
 

@@ -12,6 +12,7 @@ import (
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/constants"
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/errors"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
 	service "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
 
@@ -23,6 +24,7 @@ type profileService struct {
 	userPhotoRepo  interfaces.UserPhotoRepository
 	preferenceRepo interfaces.UserPreferenceRepository
 	fileStorage    interfaces.FileStorage // Интерфейс для работы с файловым хранилищем
+	logger         logger.Log
 }
 
 func NewProfileService(
@@ -30,12 +32,14 @@ func NewProfileService(
 	userPhotoRepo interfaces.UserPhotoRepository,
 	preferenceRepo interfaces.UserPreferenceRepository,
 	fileStorage interfaces.FileStorage,
+	l logger.Log,
 ) service.ProfileService {
 	return &profileService{
 		userRepo:       userRepo,
 		userPhotoRepo:  userPhotoRepo,
 		preferenceRepo: preferenceRepo,
 		fileStorage:    fileStorage,
+		logger:         l,
 	}
 }
 
@@ -121,6 +125,7 @@ func (s *profileService) UpdatePreferences(userID uuid.UUID, updateData *domain.
 
 	// Если предпочтений нет - создаем новые
 	if preferences == nil {
+		s.logger.Debugf("Create preferences with empty user: %v", userID)
 		preferences = &domain.UserPreference{
 			UserID:       userID,
 			ShowGender:   constants.GenderPrefMale,
@@ -247,7 +252,7 @@ func (s *profileService) DeletePhoto(userID uuid.UUID, photoID uuid.UUID) error 
 	// Удаляем файл из хранилища
 	if err := s.fileStorage.DeleteByURL(photo.PhotoURL); err != nil {
 		// Логируем ошибку, но продолжаем удаление записи из БД
-		fmt.Printf("Failed to delete photo file: %v\n", err)
+		s.logger.Errorf("Failed to delete photo file: %v\n", err)
 	}
 
 	// Удаляем запись из БД

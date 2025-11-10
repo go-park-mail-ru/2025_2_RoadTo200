@@ -38,6 +38,8 @@ func NewMatchHandler(matchService service.MatchService, l logger.Log) *MatchHand
 // @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
 // @Router /api/match [get]
 func (h *MatchHandler) GetUserMatches(w http.ResponseWriter, r *http.Request) {
+	h.logger.Tracef("matchHandler.GetUserMatches")
+
 	userID, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
 		h.logger.Warnf("GetUserMatches parse context err: %v", err)
@@ -74,6 +76,8 @@ func (h *MatchHandler) GetUserMatches(w http.ResponseWriter, r *http.Request) {
 // @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
 // @Router /api/match/unmatch [delete]
 func (h *MatchHandler) Unmatch(w http.ResponseWriter, r *http.Request) {
+	h.logger.Tracef("matchHandler.Unmatch")
+
 	userID, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
 		h.logger.Warnf("Unmatch get context err: %v", err)
