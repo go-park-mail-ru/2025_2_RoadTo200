@@ -35,6 +35,7 @@ func NewAuthHandler(authService *service.AuthService, l logger.Log) *AuthHandler
 // @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
 // @Router /api/register [post]
 func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
+	h.logger.Trace("authHandler.Register")
 	var req dto.RegisterRequest
 
 	if err := utils.ReadJSON(r, &req); err != nil {
@@ -45,7 +46,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 
 	user, session, err := h.authService.Register(req.Email, req.Password, req.PasswordConfirm)
 	if err != nil {
-		h.logger.Warnf("handler.Register: %v", err)
+		h.logger.Errorf("handler.Register: %v", err)
 		status := http.StatusBadRequest
 		if err == errors.ErrInternalError {
 			status = http.StatusInternalServerError
@@ -74,6 +75,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 // @Failure 401 {object} map[string]string "Неверный email или пароль"
 // @Router /api/login [post]
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
+	h.logger.Trace("authHandler.Login")
 	var req dto.LoginRequest
 
 	if err := utils.ReadJSON(r, &req); err != nil {
@@ -84,7 +86,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	user, session, err := h.authService.Login(req.Email, req.Password)
 	if err != nil {
-		h.logger.Warnf("handler.Login: %v", err)
+		h.logger.Errorf("handler.Login: %v", err)
 		utils.WriteJSONError(w, http.StatusUnauthorized, "invalid email or password")
 		return
 	}
@@ -108,6 +110,8 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 // @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
 // @Router /api/logout [post]
 func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
+	h.logger.Trace("authHandler.Logout")
+
 	cookie, err := r.Cookie("session_token")
 	if err != nil {
 		h.logger.Warnf("handler.Logout no session: %v", err)
@@ -116,7 +120,7 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.authService.Logout(cookie.Value); err != nil {
-		h.logger.Warnf("handler.Logout: %v", err)
+		h.logger.Errorf("handler.Logout: %v", err)
 		utils.WriteJSONError(w, http.StatusInternalServerError, "internal error")
 		return
 	}

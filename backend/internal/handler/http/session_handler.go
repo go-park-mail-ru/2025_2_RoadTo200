@@ -32,6 +32,7 @@ func NewSessionHandler(authService *service.AuthService, l logger.Log) *SessionH
 // @Success 200 {object} dto.SessionResponse "Сессия не валидна"
 // @Router /api/session [get]
 func (h *SessionHandler) GetSession(w http.ResponseWriter, r *http.Request) {
+	h.logger.Tracef("sessionHandler.GetSession")
 	var token string
 
 	// Пробуем получить токен из заголовка
@@ -55,7 +56,7 @@ func (h *SessionHandler) GetSession(w http.ResponseWriter, r *http.Request) {
 	// Валидируем сессию
 	user, err := h.authService.ValidateSession(token)
 	if err != nil {
-		h.logger.Warnf("SessionHandler.ValidateSession: %v", err)
+		h.logger.Errorf("SessionHandler.ValidateSession: %v", err)
 		utils.WriteJSON(w, http.StatusOK, dto.SessionResponse{
 			Authenticated: false,
 		})

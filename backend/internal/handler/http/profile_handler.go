@@ -40,6 +40,8 @@ func NewProfileHandler(profileService service.ProfileService, l logger.Log) *Pro
 // @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
 // @Router /api/profile/profile [get]
 func (h *ProfileHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
+	h.logger.Trace("profileHandler.GetProfile")
+
 	userID, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
 		h.logger.Warnf("GetUserFromContext: %v", err)
@@ -49,11 +51,11 @@ func (h *ProfileHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
 
 	profile, err := h.profileService.GetProfile(userID)
 	if err != nil {
-		h.logger.Warnf("GetProfile: %v", err)
 		if errors.Is(err, expectation.ErrProfileNotFound) {
 			utils.WriteJSONError(w, http.StatusNotFound, "profile not found")
 			return
 		}
+		h.logger.Errorf("GetProfile: %v", err)
 		utils.WriteJSONError(w, http.StatusInternalServerError, "internal server error")
 		return
 	}
@@ -78,6 +80,7 @@ func (h *ProfileHandler) getContext(w http.ResponseWriter, r *http.Request) (uui
 
 	// Только JSON запросы
 	if !strings.Contains(r.Header.Get("Content-Type"), "application/json") {
+		h.logger.Warnf("getContext: Content-Type is not application/json")
 		utils.WriteJSONError(w, http.StatusBadRequest, "only JSON content type supported for this endpoint")
 		return uuid.Nil, errors.New("unauthorized")
 	}
@@ -99,6 +102,8 @@ func (h *ProfileHandler) getContext(w http.ResponseWriter, r *http.Request) (uui
 // @Failure 403 {object} map[string]string "Превышен лимит фото"
 // @Router /api/profile/photo [post]
 func (h *ProfileHandler) UploadPhotos(w http.ResponseWriter, r *http.Request) {
+	h.logger.Trace("profileHandler.UploadPhotos")
+
 	userID, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
 		h.logger.Warnf("GetUserFromContext: %v", err)
@@ -121,11 +126,11 @@ func (h *ProfileHandler) UploadPhotos(w http.ResponseWriter, r *http.Request) {
 
 	uploadedPhotos, err := h.profileService.UploadPhotos(userID, files)
 	if err != nil {
+		h.logger.Errorf("uploadPhotos: %v", err)
 		status := http.StatusBadRequest
 		if errors.Is(err, expectation.ErrPhotoLimitExceeded) {
 			status = http.StatusForbidden
 		}
-		h.logger.Warnf("uploadPhotos: %v", err)
 		utils.WriteJSONError(w, status, err.Error())
 		return
 	}
@@ -147,6 +152,8 @@ func (h *ProfileHandler) UploadPhotos(w http.ResponseWriter, r *http.Request) {
 // @Failure 404 {object} map[string]string "Профиль не найден"
 // @Router /api/profile/info [put]
 func (h *ProfileHandler) UpdateProfileInfo(w http.ResponseWriter, r *http.Request) {
+	h.logger.Trace("profileHandler.UpdateProfileInfo")
+
 	userID, err := h.getContext(w, r)
 	if err != nil {
 		h.logger.Warnf("getContext: %v", err)
@@ -162,11 +169,11 @@ func (h *ProfileHandler) UpdateProfileInfo(w http.ResponseWriter, r *http.Reques
 	h.logger.Debugf("handleJSONRequest: %v", req)
 
 	if err := h.profileService.UpdateProfileInfo(userID, &req); err != nil {
+		h.logger.Errorf("updateProfileInfo: %v", err)
 		status := http.StatusBadRequest
 		if errors.Is(err, expectation.ErrProfileNotFound) {
 			status = http.StatusNotFound
 		}
-		h.logger.Warnf("updateProfileInfo: %v", err)
 		utils.WriteJSONError(w, status, err.Error())
 		return
 	}
@@ -187,6 +194,8 @@ func (h *ProfileHandler) UpdateProfileInfo(w http.ResponseWriter, r *http.Reques
 // @Failure 401 {object} map[string]string "Не авторизован"
 // @Router /api/profile/preferences [put]
 func (h *ProfileHandler) UpdatePreferences(w http.ResponseWriter, r *http.Request) {
+	h.logger.Trace("profileHandler.UpdatePreferences")
+
 	userID, err := h.getContext(w, r)
 	if err != nil {
 		h.logger.Warnf("getContext: %v", err)
@@ -202,7 +211,7 @@ func (h *ProfileHandler) UpdatePreferences(w http.ResponseWriter, r *http.Reques
 	h.logger.Debugf("handleJSONRequest: %v", req)
 
 	if err := h.profileService.UpdatePreferences(userID, &req); err != nil {
-		h.logger.Warnf("updatePreferences: %v", err)
+		h.logger.Errorf("updatePreferences: %v", err)
 		utils.WriteJSONError(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -223,6 +232,8 @@ func (h *ProfileHandler) UpdatePreferences(w http.ResponseWriter, r *http.Reques
 // @Failure 401 {object} map[string]string "Не авторизован"
 // @Router /api/profile/interests [put]
 func (h *ProfileHandler) UpdateInterests(w http.ResponseWriter, r *http.Request) {
+	h.logger.Trace("profileHandler.UpdateInterests")
+
 	userID, err := h.getContext(w, r)
 	if err != nil {
 		h.logger.Warnf("getContext: %v", err)
@@ -238,7 +249,7 @@ func (h *ProfileHandler) UpdateInterests(w http.ResponseWriter, r *http.Request)
 	h.logger.Debugf("handleJSONRequest: %v", req)
 
 	if err := h.profileService.UpdateInterests(userID, req); err != nil {
-		h.logger.Warnf("updatePreferences: %v", err)
+		h.logger.Errorf("updatePreferences: %v", err)
 		utils.WriteJSONError(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -279,19 +290,21 @@ func (h *ProfileHandler) handlePhoto(w http.ResponseWriter, r *http.Request) (uu
 // @Failure 404 {object} map[string]string "Фото не найдено"
 // @Router /api/profile/photo/{id} [delete]
 func (h *ProfileHandler) DeletePhoto(w http.ResponseWriter, r *http.Request) {
+	h.logger.Trace("profileHandler.DeletePhoto")
+
 	userID, photoID, err := h.handlePhoto(w, r)
 	if err != nil {
 		return
 	}
 
 	if err := h.profileService.DeletePhoto(userID, photoID); err != nil {
+		h.logger.Errorf("deletePhoto: %v", err)
 		status := http.StatusBadRequest
 		if errors.Is(err, expectation.ErrPhotoNotFound) {
 			status = http.StatusNotFound
 		} else if errors.Is(err, expectation.ErrPhotoNotOwned) {
 			status = http.StatusForbidden
 		}
-		h.logger.Warnf("deletePhoto: %v", err)
 		utils.WriteJSONError(w, status, err.Error())
 		return
 	}
@@ -313,19 +326,21 @@ func (h *ProfileHandler) DeletePhoto(w http.ResponseWriter, r *http.Request) {
 // @Failure 404 {object} map[string]string "Фото не найдено"
 // @Router /api/profile/photo/{id} [put]
 func (h *ProfileHandler) SetPrimaryPhoto(w http.ResponseWriter, r *http.Request) {
+	h.logger.Trace("profileHandler.SetPrimaryPhoto")
+
 	userID, photoID, err := h.handlePhoto(w, r)
 	if err != nil {
 		return
 	}
 
 	if err := h.profileService.SetPrimaryPhoto(userID, photoID); err != nil {
+		h.logger.Errorf("setPrimaryPhoto: %v", err)
 		status := http.StatusBadRequest
 		if errors.Is(err, expectation.ErrPhotoNotFound) {
 			status = http.StatusNotFound
 		} else if errors.Is(err, expectation.ErrPhotoNotOwned) {
 			status = http.StatusForbidden
 		}
-		h.logger.Warnf("setPrimaryPhoto: %v", err)
 		utils.WriteJSONError(w, status, err.Error())
 		return
 	}
