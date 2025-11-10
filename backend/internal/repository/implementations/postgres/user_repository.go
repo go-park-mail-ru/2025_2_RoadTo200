@@ -23,6 +23,7 @@ func NewUserRepository(pool interfaces.PgxIface, l logger.Log) interfaces.UserRe
 }
 
 func (r *userRepository) Create(user *domain.User) error {
+	r.logger.Trace("FeedService.Create")
 	query := `
 	INSERT INTO "user" (email, phone, name, password, birth_date, gender, bio, 
 					   city, artist, quote, is_verified)
@@ -41,6 +42,7 @@ func (r *userRepository) Create(user *domain.User) error {
 }
 
 func (r *userRepository) GetByID(id uuid.UUID) (*domain.User, error) {
+	r.logger.Trace("FeedService.GetByID")
 	var user domain.User
 	query := `
         SELECT id, email, phone, name, password, birth_date, gender, bio, 
@@ -64,6 +66,7 @@ func (r *userRepository) GetByID(id uuid.UUID) (*domain.User, error) {
 }
 
 func (r *userRepository) GetByEmail(email string) (*domain.User, error) {
+	r.logger.Trace("FeedService.GetByEmail")
 	var user domain.User
 	query := `
         SELECT id, email, phone, name, password, birth_date, gender, bio, 
@@ -87,6 +90,7 @@ func (r *userRepository) GetByEmail(email string) (*domain.User, error) {
 }
 
 func (r *userRepository) GetByPhone(phone string) (*domain.User, error) {
+	r.logger.Trace("FeedService.GetByPhone")
 	var user domain.User
 	query := `SELECT * FROM "user" WHERE phone = $1`
 
@@ -106,6 +110,7 @@ func (r *userRepository) GetByPhone(phone string) (*domain.User, error) {
 }
 
 func (r *userRepository) Update(user *domain.User) error {
+	r.logger.Trace("FeedService.Update")
 	query := `
         UPDATE "user" 
         SET email = $1, phone = $2, name = $3, password = $4, birth_date = $5, 
@@ -127,6 +132,7 @@ func (r *userRepository) Update(user *domain.User) error {
 }
 
 func (r *userRepository) UpdateLastActive(userID uuid.UUID) error {
+	r.logger.Trace("FeedService.UpdateLastActive")
 	query := `UPDATE "user" SET last_active = NOW() WHERE id = $1`
 
 	_, err := r.pool.Exec(context.Background(), query, userID)
@@ -137,6 +143,7 @@ func (r *userRepository) UpdateLastActive(userID uuid.UUID) error {
 }
 
 func (r *userRepository) Delete(id uuid.UUID) error {
+	r.logger.Trace("FeedService.Delete")
 	query := `DELETE FROM "user" WHERE id = $1`
 
 	_, err := r.pool.Exec(context.Background(), query, id)
@@ -147,6 +154,7 @@ func (r *userRepository) Delete(id uuid.UUID) error {
 }
 
 func (r *userRepository) GetUsersByIDs(ids []uuid.UUID) ([]domain.User, error) {
+	r.logger.Trace("FeedService.GetUsersByIDs")
 	if len(ids) == 0 {
 		return []domain.User{}, nil
 	}
@@ -181,6 +189,7 @@ func (r *userRepository) GetUsersByIDs(ids []uuid.UUID) ([]domain.User, error) {
 			&user.CreatedAt, &user.UpdatedAt,
 		)
 		if err != nil {
+			r.logger.Errorf("Error while scanning user rows: %v", err)
 			return nil, err
 		}
 		users = append(users, user)
@@ -226,6 +235,7 @@ func (r *userRepository) GetUsersForFeed(userID uuid.UUID, limit, offset int) ([
 		)
 		r.logger.Debugf("Scanned user: %+v\n", user)
 		if err != nil {
+			r.logger.Errorf("Error while scanning user rows: %v", err)
 			return nil, err
 		}
 		users = append(users, user)

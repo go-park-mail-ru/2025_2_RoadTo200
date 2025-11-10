@@ -89,8 +89,8 @@ func main() {
 	storageRepo := minio.NewStorageRepository(minioPool, &cfg.MinIO)
 	userRepo := postgres.NewUserRepository(psgPool, logg)
 	sessionRepo := redis.NewSessionRepository(redisPool)
-	preferenceRepo := postgres.NewUserPreferenceRepository(psgPool)
-	photoRepo := postgres.NewUserPhotoRepository(psgPool)
+	preferenceRepo := postgres.NewUserPreferenceRepository(psgPool, logg)
+	photoRepo := postgres.NewUserPhotoRepository(psgPool, logg)
 	swipeRepo := postgres.NewSwipeRepository(psgPool)
 	matchRepo := postgres.NewMatchRepository(psgPool)
 
@@ -119,8 +119,8 @@ func main() {
 	sessionHandler := handler.NewSessionHandler(authService, logg)
 	feedHandler := handler.NewFeedHandler(feedService, logg)
 	profileHandler := handler.NewProfileHandler(profileService, logg)
-	swipeHandler := handler.NewSwipeHandler(swipeService)
-	matchHandler := handler.NewMatchHandler(matchService)
+	swipeHandler := handler.NewSwipeHandler(swipeService, logg)
+	matchHandler := handler.NewMatchHandler(matchService, logg)
 
 	// TODO: Отдельный файл для хендлеров
 	server := httpserver.NewServer()
@@ -139,7 +139,7 @@ func main() {
 		if r.URL.Path == "/swagger/doc.json" {
 			data, err := os.ReadFile(getSwaggerPath())
 			if err != nil {
-				log.Printf("Error reading swagger.json: %v", err)
+				logg.Errorf("Error reading swagger.json: %v", err)
 				utils.WriteJSONError(w, http.StatusInternalServerError, "Swagger docs not found: "+err.Error())
 				return
 			}
