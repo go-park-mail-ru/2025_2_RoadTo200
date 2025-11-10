@@ -28,8 +28,8 @@ func NewSwipeHandler(swipeService service.SwipeService) *SwipeHandler {
 // @Accept json
 // @Produce json
 // @Security SessionToken
-// @Param request body SwipeRequest true "Данные свайпа"
-// @Success 200 {object} SwipeResponse "Результат свайпа"
+// @Param request body dto.SwipeRequest true "Данные свайпа"
+// @Success 200 {object} dto.SwipeResponse "Результат свайпа"
 // @Failure 400 {object} map[string]string "Неверный запрос"
 // @Failure 401 {object} map[string]string "Не авторизован"
 // @Failure 403 {object} map[string]string "Нельзя свайпнуть себя"
