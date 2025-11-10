@@ -36,13 +36,15 @@ func NewFeedHandler(feedService service.FeedService, l logger.Log) *FeedHandler 
 // @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
 // @Router /api/feed [get]
 func (h *FeedHandler) GetFeed(w http.ResponseWriter, r *http.Request) {
+	h.logger.Trace("feedService.GetFeed")
+
 	userID, err := middleware.GetUserIDFromContext(r.Context())
-	h.logger.Debugf("UserID from context: %v, err: %v\n", userID, err)
 	if err != nil {
 		h.logger.Warnf("GetFeed err: %v\n", err)
 		utils.WriteJSONError(w, http.StatusUnauthorized, "unauthorized")
 		return
 	}
+	h.logger.Debugf("UserID from context: %v", userID)
 
 	// Парсим параметры запроса
 	limit, offset := h.parseQueryParams(r)
@@ -50,7 +52,7 @@ func (h *FeedHandler) GetFeed(w http.ResponseWriter, r *http.Request) {
 	// Получаем ленту
 	users, err := h.feedService.GetFeed(userID, limit, offset)
 	if err != nil {
-		h.logger.Warnf("GetFeed err: %v\n", err)
+		h.logger.Errorf("GetFeed err: %v\n", err)
 		utils.WriteJSONError(w, http.StatusInternalServerError, "failed to get feed")
 		return
 	}

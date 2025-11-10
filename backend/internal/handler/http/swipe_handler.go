@@ -7,17 +7,20 @@ import (
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/dto"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/errors"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/middleware"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/utils"
 )
 
 type SwipeHandler struct {
 	swipeService service.SwipeService
+	logger       logger.Log
 }
 
-func NewSwipeHandler(swipeService service.SwipeService) *SwipeHandler {
+func NewSwipeHandler(swipeService service.SwipeService, l *logger.Log) *SwipeHandler {
 	return &SwipeHandler{
 		swipeService: swipeService,
+		logger:       *l,
 	}
 }
 
@@ -36,20 +39,25 @@ func NewSwipeHandler(swipeService service.SwipeService) *SwipeHandler {
 // @Failure 422 {object} map[string]string "Неверное действие свайпа"
 // @Router /api/swipe [post]
 func (h *SwipeHandler) ProcessSwipe(w http.ResponseWriter, r *http.Request) {
+	h.logger.Tracef("swipeHandler.ProcessSwipe")
+
 	userID, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
+		h.logger.Warnf("Get user id from context: %v", err)
 		utils.WriteJSONError(w, http.StatusUnauthorized, "unauthorized")
 		return
 	}
 
 	var req dto.SwipeRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		h.logger.Warnf("Decode request body: %v", err)
 		utils.WriteJSONError(w, http.StatusBadRequest, "invalid JSON")
 		return
 	}
 
 	response, err := h.swipeService.ProcessSwipe(userID, &req)
 	if err != nil {
+		h.logger.Errorf("ProcessSwipe error: %v", err)
 		status := http.StatusBadRequest
 		switch err {
 		case errors.ErrCannotSwipeSelf:
