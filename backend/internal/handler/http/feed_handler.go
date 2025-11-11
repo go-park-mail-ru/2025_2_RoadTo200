@@ -4,11 +4,11 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/dto"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/middleware"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/utils"
-	"github.com/google/uuid"
 )
 
 type FeedHandler struct {
@@ -23,14 +23,6 @@ func NewFeedHandler(feedService service.FeedService, l logger.Log) *FeedHandler 
 	}
 }
 
-// FeedResponse represents feed response
-type FeedResponse struct {
-	Users  []service.FeedUser `json:"users"`
-	Limit  int                `json:"limit"`
-	Offset int                `json:"offset"`
-	Total  int                `json:"total"`
-}
-
 // GetFeed godoc
 // @Summary Получить ленту пользователей
 // @Description Возвращает ленту пользователей для свайпинга с основной информацией и фотографиями
@@ -39,18 +31,20 @@ type FeedResponse struct {
 // @Security SessionToken
 // @Param limit query int false "Лимит пользователей (максимум 50)" default(15) minimum(1) maximum(50)
 // @Param offset query int false "Смещение для пагинации" default(0) minimum(0)
-// @Success 200 {object} FeedResponse "Лента пользователей"
+// @Success 200 {object} dto.FeedResponse "Лента пользователей"
 // @Failure 401 {object} map[string]string "Не авторизован"
 // @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
 // @Router /api/feed [get]
 func (h *FeedHandler) GetFeed(w http.ResponseWriter, r *http.Request) {
-	userID, err := h.getUserIDFromContext(r)
-	h.logger.Debugf("UserID from context: %v, err: %v\n", userID, err)
+	h.logger.Trace("feedService.GetFeed")
+
+	userID, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
 		h.logger.Warnf("GetFeed err: %v\n", err)
 		utils.WriteJSONError(w, http.StatusUnauthorized, "unauthorized")
 		return
 	}
+	h.logger.Debugf("UserID from context: %v", userID)
 
 	// Парсим параметры запроса
 	limit, offset := h.parseQueryParams(r)
@@ -58,13 +52,13 @@ func (h *FeedHandler) GetFeed(w http.ResponseWriter, r *http.Request) {
 	// Получаем ленту
 	users, err := h.feedService.GetFeed(userID, limit, offset)
 	if err != nil {
-		h.logger.Warnf("GetFeed err: %v\n", err)
+		h.logger.Errorf("GetFeed err: %v\n", err)
 		utils.WriteJSONError(w, http.StatusInternalServerError, "failed to get feed")
 		return
 	}
 	h.logger.Debugf("GetFeed users: %v\n", users)
 
-	response := FeedResponse{
+	response := dto.FeedResponse{
 		Users:  users,
 		Limit:  limit,
 		Offset: offset,
@@ -95,9 +89,4 @@ func (h *FeedHandler) parseQueryParams(r *http.Request) (int, int) {
 	}
 
 	return limit, offset
-}
-
-// getUserIDFromContext извлекает userID из контекста (будет установлен в middleware)
-func (h *FeedHandler) getUserIDFromContext(r *http.Request) (uuid.UUID, error) {
-	return middleware.GetUserIDFromContext(r.Context())
 }

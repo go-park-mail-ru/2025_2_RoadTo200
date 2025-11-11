@@ -65,9 +65,10 @@ type RedisConfig struct {
 }
 
 type MinIOConfig struct {
-	Endpoint        string `yaml:"endpoint"`
+	Host            string `yaml:"host"`
 	AccessKeyID     string `yaml:"access_key_id"`
 	SecretAccessKey string `yaml:"secret_access_key"`
+	Address         string `yaml:"address"`
 	UseSSL          bool   `yaml:"use_ssl"`
 	BucketName      string `yaml:"bucket_name"`
 	Region          string `yaml:"region"`
@@ -112,6 +113,10 @@ func NewConfig() (*Config, error) {
 		MaxIdle:     10,
 		MaxActive:   0,
 		IdleTimeout: 240 * time.Second,
+	}
+	config.App.MinIO = MinIOConfig{
+		UseSSL: false,
+		Region: "us-east-1",
 	}
 	if err := yaml.Unmarshal(data, &config); err != nil {
 		return nil, fmt.Errorf("failed to parse config: %w", err)

@@ -42,3 +42,18 @@ const (
 	MinDistance = 1
 	MaxDistance = 500
 )
+
+type InterestType string
+
+const (
+	InterestTypeWorkout    InterestType = "workout"
+	InterestTypeFun        InterestType = "fun"
+	InterestTypeParty      InterestType = "party"
+	InterestTypeChill      InterestType = "chill"
+	InterestTypeLove       InterestType = "love"
+	InterestTypeRelax      InterestType = "relax"
+	InterestTypeYoga       InterestType = "yoga"
+	InterestTypeFriendship InterestType = "friendship"
+	InterestTypeCulture    InterestType = "culture"
+	InterestTypeCinema     InterestType = "cinema"
+)

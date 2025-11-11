@@ -3,21 +3,20 @@ package postgres
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 
-	//"os"
 	"strconv"
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/config"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
 func NewConnect(ctx context.Context, cfg *config.PostgresConfig) (*pgxpool.Pool, error) {
-	log.Printf("🔍 PostgreSQL Config: Host=%s, Port=%s, User=%s, Base=%s",
+	logger.Printf("🔍 PostgreSQL Config: Host=%s, Port=%s, User=%s, Base=%s",
 		cfg.Host, cfg.Port, cfg.User, cfg.Base)
-	log.Printf("🔍 PostgreSQL Password length: %d", len(cfg.Password))
-	log.Printf("🔍 PostgreSQL Port type: %T, value: '%s'", cfg.Port, cfg.Port)
+	logger.Printf("🔍 PostgreSQL Password length: %d", len(cfg.Password))
+	logger.Printf("🔍 PostgreSQL Port type: %T, value: '%s'", cfg.Port, cfg.Port)
 
 	if cfg.Port == "" {
 		return nil, fmt.Errorf("PostgreSQL port is empty")
@@ -29,13 +28,6 @@ func NewConnect(ctx context.Context, cfg *config.PostgresConfig) (*pgxpool.Pool,
 	user := os.Getenv(cfg.User)         // ❌ Это ищет env переменную с именем "postgres"
 	password := os.Getenv(cfg.Password) // ❌ Это ищет env переменную с именем "password"
 	base := os.Getenv(cfg.Base)         // ❌ Это ищет env переменную с именем "dating_app"
-
-	// Вместо этого используй значения НАПРЯМУЮ из конфига:
-	//host := cfg.Host         // ✅ "localhost"
-	//sport := cfg.Port        // ✅ "5435"
-	//user := cfg.User         // ✅ "postgres"
-	//password := cfg.Password // ✅ твой пароль
-	//base := cfg.Base         // ✅ "dating_app"
 
 	// Преобразуем порт в число
 	port, err := strconv.Atoi(sport)
@@ -49,7 +41,7 @@ func NewConnect(ctx context.Context, cfg *config.PostgresConfig) (*pgxpool.Pool,
 		return nil, fmt.Errorf("failed to parse pool config: %w", err)
 	}
 
-	log.Printf("🔍 Pool Config: MaxConns=%d, MinConns=%d", cfg.MaxConns, cfg.MinConns)
+	logger.Printf("🔍 Pool Config: MaxConns=%d, MinConns=%d", cfg.MaxConns, cfg.MinConns)
 
 	poolConfig.MaxConns = cfg.MaxConns
 	poolConfig.MinConns = cfg.MinConns
@@ -67,6 +59,6 @@ func NewConnect(ctx context.Context, cfg *config.PostgresConfig) (*pgxpool.Pool,
 		return nil, fmt.Errorf("failed to ping database: %w", err)
 	}
 
-	log.Println("✅ PostgreSQL connected successfully")
+	logger.Println("✅ PostgreSQL connected successfully")
 	return pool, nil
 }

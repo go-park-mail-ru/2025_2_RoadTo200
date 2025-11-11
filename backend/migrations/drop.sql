@@ -1,3 +1,4 @@
+drop table interest;
 drop table user_preference cascade;
 drop table user_photo cascade;
 drop table subscription cascade;
@@ -9,3 +10,4 @@ drop type gender_enum;
 drop type gender_preference_enum;
 drop type plan_type_enum;
 drop type swipe_type_enum;
+drop type interest_theme_enum;

@@ -3,18 +3,22 @@ package service
 import (
 	"fmt"
 
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/dto"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/errors"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
 	"github.com/google/uuid"
 )
 
+// TODO: Изучить подробней
 type matchService struct {
 	matchRepo interfaces.MatchRepository
 	userRepo  interfaces.UserRepository
 	swipeRepo interfaces.SwipeRepository
 	photoRepo interfaces.UserPhotoRepository // Добавляем репозиторий фотографий
+	logger    logger.Log
 }
 
 func NewMatchService(
@@ -22,16 +26,18 @@ func NewMatchService(
 	userRepo interfaces.UserRepository,
 	swipeRepo interfaces.SwipeRepository,
 	photoRepo interfaces.UserPhotoRepository, // Добавляем параметр
+	l logger.Log,
 ) service.MatchService {
 	return &matchService{
 		matchRepo: matchRepo,
 		userRepo:  userRepo,
 		swipeRepo: swipeRepo,
 		photoRepo: photoRepo, // Инициализируем
+		logger:    l,
 	}
 }
 
-func (s *matchService) GetUserMatches(userID uuid.UUID, limit, offset int) (*service.MatchesResponse, error) {
+func (s *matchService) GetUserMatches(userID uuid.UUID, limit, offset int) (*dto.MatchesResponse, error) {
 	// Валидация параметров
 	if limit <= 0 || limit > 50 {
 		limit = 20
@@ -48,8 +54,9 @@ func (s *matchService) GetUserMatches(userID uuid.UUID, limit, offset int) (*ser
 
 	// Если нет мэтчей, возвращаем пустой ответ
 	if len(matches) == 0 {
-		return &service.MatchesResponse{
-			Matches: []service.MatchResponse{},
+		s.logger.Debugf("matchService.GetUserMatches: no matches")
+		return &dto.MatchesResponse{
+			Matches: []dto.MatchResponse{},
 			Total:   0,
 			Limit:   limit,
 			Offset:  offset,
@@ -84,7 +91,7 @@ func (s *matchService) GetUserMatches(userID uuid.UUID, limit, offset int) (*ser
 	}
 
 	// Формируем ответ
-	var matchResponses []service.MatchResponse
+	var matchResponses []dto.MatchResponse
 	for _, match := range matches {
 		var matchedUser domain.User
 		var ok bool
@@ -98,7 +105,7 @@ func (s *matchService) GetUserMatches(userID uuid.UUID, limit, offset int) (*ser
 
 		matchedUser, ok = userMap[matchedUserID]
 		if !ok {
-			fmt.Printf("WARN: User not found for match: %v\n", match)
+			s.logger.Warnf("User not found for match: %v\n", match)
 			continue
 		}
 
@@ -111,7 +118,7 @@ func (s *matchService) GetUserMatches(userID uuid.UUID, limit, offset int) (*ser
 		// Получаем описание
 		description := getDescription(matchedUser.Bio)
 
-		matchResponses = append(matchResponses, service.MatchResponse{
+		matchResponses = append(matchResponses, dto.MatchResponse{
 			Match:       match,
 			User:        matchedUser,
 			Photos:      photos,      // Добавляем фотографии
@@ -121,14 +128,14 @@ func (s *matchService) GetUserMatches(userID uuid.UUID, limit, offset int) (*ser
 		})
 	}
 
-	response := &service.MatchesResponse{
+	response := &dto.MatchesResponse{
 		Matches: matchResponses,
 		Total:   len(matchResponses),
 		Limit:   limit,
 		Offset:  offset,
 	}
 
-	fmt.Printf("DEBUG: Successfully formed response with %d matches\n", len(matchResponses))
+	s.logger.Debugf("Successfully formed response with %d matches\n", len(matchResponses))
 	return response, nil
 }
 

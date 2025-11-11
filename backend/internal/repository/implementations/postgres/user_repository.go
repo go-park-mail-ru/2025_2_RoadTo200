@@ -23,18 +23,16 @@ func NewUserRepository(pool interfaces.PgxIface, l logger.Log) interfaces.UserRe
 }
 
 func (r *userRepository) Create(user *domain.User) error {
+	r.logger.Trace("FeedService.Create")
 	query := `
 	INSERT INTO "user" (email, phone, name, password, birth_date, gender, bio, 
-					   workout, fun, party, chill, love, relax, yoga, friendship, culture, cinema,
-					   latitude, longitude, is_verified)
-	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
+					   city, artist, quote, is_verified)
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
 	RETURNING id, created_at, updated_at, last_active`
 
 	err := r.pool.QueryRow(context.Background(), query,
 		user.Email, user.Phone, user.Name, user.Password, user.BirthDate, user.Gender, user.Bio,
-		user.Workout, user.Fun, user.Party, user.Chill, user.Love, user.Relax,
-		user.Yoga, user.Friendship, user.Culture, user.Cinema,
-		user.Latitude, user.Longitude, user.IsVerified).
+		user.City, user.Artist, user.Quote, user.IsVerified).
 		Scan(&user.ID, &user.CreatedAt, &user.UpdatedAt, &user.LastActive)
 
 	if err != nil {
@@ -44,19 +42,17 @@ func (r *userRepository) Create(user *domain.User) error {
 }
 
 func (r *userRepository) GetByID(id uuid.UUID) (*domain.User, error) {
+	r.logger.Trace("FeedService.GetByID")
 	var user domain.User
 	query := `
         SELECT id, email, phone, name, password, birth_date, gender, bio, 
-               workout, fun, party, chill, love, relax, yoga, friendship, culture, cinema,
-               latitude, longitude, is_verified, last_active, created_at, updated_at 
+               city, artist, quote, is_verified, last_active, created_at, updated_at 
         FROM "user" WHERE id = $1`
 
 	err := r.pool.QueryRow(context.Background(), query, id).Scan(
 		&user.ID, &user.Email, &user.Phone, &user.Name, &user.Password,
 		&user.BirthDate, &user.Gender, &user.Bio,
-		&user.Workout, &user.Fun, &user.Party, &user.Chill, &user.Love, &user.Relax,
-		&user.Yoga, &user.Friendship, &user.Culture, &user.Cinema,
-		&user.Latitude, &user.Longitude, &user.IsVerified, &user.LastActive,
+		&user.City, &user.Artist, &user.Quote, &user.IsVerified, &user.LastActive,
 		&user.CreatedAt, &user.UpdatedAt,
 	)
 
@@ -70,19 +66,17 @@ func (r *userRepository) GetByID(id uuid.UUID) (*domain.User, error) {
 }
 
 func (r *userRepository) GetByEmail(email string) (*domain.User, error) {
+	r.logger.Trace("FeedService.GetByEmail")
 	var user domain.User
 	query := `
         SELECT id, email, phone, name, password, birth_date, gender, bio, 
-               workout, fun, party, chill, love, relax, yoga, friendship, culture, cinema,
-               latitude, longitude, is_verified, last_active, created_at, updated_at 
+               city, artist, quote, is_verified, last_active, created_at, updated_at 
         FROM "user" WHERE email = $1`
 
 	err := r.pool.QueryRow(context.Background(), query, email).Scan(
 		&user.ID, &user.Email, &user.Phone, &user.Name, &user.Password,
 		&user.BirthDate, &user.Gender, &user.Bio,
-		&user.Workout, &user.Fun, &user.Party, &user.Chill, &user.Love, &user.Relax,
-		&user.Yoga, &user.Friendship, &user.Culture, &user.Cinema,
-		&user.Latitude, &user.Longitude, &user.IsVerified, &user.LastActive,
+		&user.City, &user.Artist, &user.Quote, &user.IsVerified, &user.LastActive,
 		&user.CreatedAt, &user.UpdatedAt,
 	)
 
@@ -96,12 +90,13 @@ func (r *userRepository) GetByEmail(email string) (*domain.User, error) {
 }
 
 func (r *userRepository) GetByPhone(phone string) (*domain.User, error) {
+	r.logger.Trace("FeedService.GetByPhone")
 	var user domain.User
 	query := `SELECT * FROM "user" WHERE phone = $1`
 
 	err := r.pool.QueryRow(context.Background(), query, phone).Scan(
 		&user.ID, &user.Email, &user.Phone, &user.Name, &user.Password,
-		&user.BirthDate, &user.Gender, &user.Bio, &user.Latitude, &user.Longitude,
+		&user.BirthDate, &user.Gender, &user.Bio, &user.City, &user.Artist, &user.Quote,
 		&user.IsVerified, &user.LastActive, &user.CreatedAt, &user.UpdatedAt,
 	)
 
@@ -115,21 +110,18 @@ func (r *userRepository) GetByPhone(phone string) (*domain.User, error) {
 }
 
 func (r *userRepository) Update(user *domain.User) error {
+	r.logger.Trace("FeedService.Update")
 	query := `
         UPDATE "user" 
         SET email = $1, phone = $2, name = $3, password = $4, birth_date = $5, 
-            gender = $6, bio = $7, latitude = $8, longitude = $9, is_verified = $10,
-            workout = $11, fun = $12, party = $13, chill = $14, love = $15, 
-            relax = $16, yoga = $17, friendship = $18, culture = $19, cinema = $20,
+            gender = $6, bio = $7, city = $8, artist = $9, quote = $10, is_verified = $11,
             updated_at = NOW()
         WHERE id = $21
         RETURNING updated_at`
 
 	err := r.pool.QueryRow(context.Background(), query,
 		user.Email, user.Phone, user.Name, user.Password, user.BirthDate, user.Gender,
-		user.Bio, user.Latitude, user.Longitude, user.IsVerified,
-		user.Workout, user.Fun, user.Party, user.Chill, user.Love,
-		user.Relax, user.Yoga, user.Friendship, user.Culture, user.Cinema,
+		user.Bio, user.City, user.Artist, user.Quote, user.IsVerified,
 		user.ID).
 		Scan(&user.UpdatedAt)
 
@@ -140,6 +132,7 @@ func (r *userRepository) Update(user *domain.User) error {
 }
 
 func (r *userRepository) UpdateLastActive(userID uuid.UUID) error {
+	r.logger.Trace("FeedService.UpdateLastActive")
 	query := `UPDATE "user" SET last_active = NOW() WHERE id = $1`
 
 	_, err := r.pool.Exec(context.Background(), query, userID)
@@ -150,6 +143,7 @@ func (r *userRepository) UpdateLastActive(userID uuid.UUID) error {
 }
 
 func (r *userRepository) Delete(id uuid.UUID) error {
+	r.logger.Trace("FeedService.Delete")
 	query := `DELETE FROM "user" WHERE id = $1`
 
 	_, err := r.pool.Exec(context.Background(), query, id)
@@ -160,6 +154,7 @@ func (r *userRepository) Delete(id uuid.UUID) error {
 }
 
 func (r *userRepository) GetUsersByIDs(ids []uuid.UUID) ([]domain.User, error) {
+	r.logger.Trace("FeedService.GetUsersByIDs")
 	if len(ids) == 0 {
 		return []domain.User{}, nil
 	}
@@ -173,8 +168,7 @@ func (r *userRepository) GetUsersByIDs(ids []uuid.UUID) ([]domain.User, error) {
 
 	query := fmt.Sprintf(`
         SELECT id, email, phone, name, password, birth_date, gender, bio, 
-               workout, fun, party, chill, love, relax, yoga, friendship, culture, cinema,
-               latitude, longitude, is_verified, last_active, created_at, updated_at 
+               city, artist, quote, is_verified, last_active, created_at, updated_at 
         FROM "user" 
         WHERE id IN (%s)
         ORDER BY created_at DESC`, strings.Join(placeholders, ","))
@@ -191,12 +185,11 @@ func (r *userRepository) GetUsersByIDs(ids []uuid.UUID) ([]domain.User, error) {
 		err := rows.Scan(
 			&user.ID, &user.Email, &user.Phone, &user.Name, &user.Password,
 			&user.BirthDate, &user.Gender, &user.Bio,
-			&user.Workout, &user.Fun, &user.Party, &user.Chill, &user.Love, &user.Relax,
-			&user.Yoga, &user.Friendship, &user.Culture, &user.Cinema,
-			&user.Latitude, &user.Longitude, &user.IsVerified, &user.LastActive,
+			&user.City, &user.Artist, &user.Quote, &user.IsVerified, &user.LastActive,
 			&user.CreatedAt, &user.UpdatedAt,
 		)
 		if err != nil {
+			r.logger.Errorf("Error while scanning user rows: %v", err)
 			return nil, err
 		}
 		users = append(users, user)
@@ -214,8 +207,7 @@ func (r *userRepository) GetUsersForFeed(userID uuid.UUID, limit, offset int) ([
 
 	query := `
         SELECT id, email, phone, name, password, birth_date, gender, bio, 
-               workout, fun, party, chill, love, relax, yoga, friendship, culture, cinema,
-               latitude, longitude, is_verified, last_active, created_at, updated_at
+               city, artist, quote, is_verified, last_active, created_at, updated_at
         FROM "user" u
         WHERE u.id != $1
           AND NOT EXISTS (
@@ -238,211 +230,16 @@ func (r *userRepository) GetUsersForFeed(userID uuid.UUID, limit, offset int) ([
 		err := rows.Scan(
 			&user.ID, &user.Email, &user.Phone, &user.Name, &user.Password,
 			&user.BirthDate, &user.Gender, &user.Bio,
-			&user.Workout, &user.Fun, &user.Party, &user.Chill, &user.Love, &user.Relax,
-			&user.Yoga, &user.Friendship, &user.Culture, &user.Cinema,
-			&user.Latitude, &user.Longitude, &user.IsVerified, &user.LastActive,
+			&user.City, &user.Artist, &user.Quote, &user.IsVerified, &user.LastActive,
 			&user.CreatedAt, &user.UpdatedAt,
 		)
 		r.logger.Debugf("Scanned user: %+v\n", user)
 		if err != nil {
+			r.logger.Errorf("Error while scanning user rows: %v", err)
 			return nil, err
 		}
 		users = append(users, user)
 	}
 	r.logger.Trace("Finished scanning users in GetUsersForFeed")
 	return users, nil
-}
-
-type userPhotoRepository struct {
-	pool interfaces.PgxIface
-}
-
-func NewUserPhotoRepository(pool interfaces.PgxIface) interfaces.UserPhotoRepository {
-	return &userPhotoRepository{pool: pool}
-}
-
-func (r *userPhotoRepository) Create(photo *domain.UserPhoto) error {
-	query := `
-		INSERT INTO user_photo (user_id, photo_url, display_order, is_approved)
-		VALUES ($1, $2, $3, $4)
-		RETURNING id, created_at`
-
-	err := r.pool.QueryRow(context.Background(), query,
-		photo.UserID, photo.PhotoURL, photo.DisplayOrder, photo.IsApproved).
-		Scan(&photo.ID, &photo.CreatedAt)
-
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (r *userPhotoRepository) GetByID(id uuid.UUID) (*domain.UserPhoto, error) {
-	var photo domain.UserPhoto
-	query := `SELECT * FROM user_photo WHERE id = $1`
-
-	err := r.pool.QueryRow(context.Background(), query, id).Scan(
-		&photo.ID, &photo.UserID, &photo.PhotoURL, &photo.DisplayOrder,
-		&photo.IsApproved, &photo.CreatedAt,
-	)
-
-	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, nil
-		}
-		return nil, err
-	}
-	return &photo, nil
-}
-
-func (r *userPhotoRepository) GetByUserID(userID uuid.UUID) ([]domain.UserPhoto, error) {
-	query := `SELECT * FROM user_photo WHERE user_id = $1 ORDER BY display_order ASC`
-
-	rows, err := r.pool.Query(context.Background(), query, userID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var photos []domain.UserPhoto
-	for rows.Next() {
-		var photo domain.UserPhoto
-		err := rows.Scan(
-			&photo.ID, &photo.UserID, &photo.PhotoURL, &photo.DisplayOrder,
-			&photo.IsApproved, &photo.CreatedAt,
-		)
-		if err != nil {
-			return nil, err
-		}
-		photos = append(photos, photo)
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-
-	return photos, nil
-}
-
-func (r *userPhotoRepository) Update(photo *domain.UserPhoto) error {
-	query := `
-		UPDATE user_photo 
-		SET photo_url = $1, display_order = $2, is_approved = $3
-		WHERE id = $4`
-
-	_, err := r.pool.Exec(context.Background(), query,
-		photo.PhotoURL, photo.DisplayOrder, photo.IsApproved, photo.ID)
-
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (r *userPhotoRepository) Delete(id uuid.UUID) error {
-	query := `DELETE FROM user_photo WHERE id = $1`
-
-	_, err := r.pool.Exec(context.Background(), query, id)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (r *userPhotoRepository) UpdateDisplayOrder(userID uuid.UUID, photos []domain.UserPhoto) error {
-	tx, err := r.pool.Begin(context.Background())
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback(context.Background())
-
-	// Delete existing photos for user
-	_, err = tx.Exec(context.Background(), "DELETE FROM user_photo WHERE user_id = $1", userID)
-	if err != nil {
-		return err
-	}
-
-	// Insert new photos
-	for _, photo := range photos {
-		_, err = tx.Exec(context.Background(), `
-			INSERT INTO user_photo (user_id, photo_url, display_order, is_approved)
-			VALUES ($1, $2, $3, $4)`,
-			userID, photo.PhotoURL, photo.DisplayOrder, photo.IsApproved)
-		if err != nil {
-			return err
-		}
-	}
-
-	return tx.Commit(context.Background())
-}
-
-type userPreferenceRepository struct {
-	pool interfaces.PgxIface
-}
-
-func NewUserPreferenceRepository(pool interfaces.PgxIface) interfaces.UserPreferenceRepository {
-	return &userPreferenceRepository{pool: pool}
-}
-
-func (r *userPreferenceRepository) Create(preference *domain.UserPreference) error {
-	query := `
-		INSERT INTO user_preference (user_id, show_gender, age_min, age_max, max_distance, global_search)
-		VALUES ($1, $2, $3, $4, $5, $6)
-		RETURNING created_at, updated_at`
-
-	err := r.pool.QueryRow(context.Background(), query,
-		preference.UserID, preference.ShowGender, preference.AgeMin, preference.AgeMax,
-		preference.MaxDistance, preference.GlobalSearch).
-		Scan(&preference.CreatedAt, &preference.UpdatedAt)
-
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (r *userPreferenceRepository) GetByUserID(userID uuid.UUID) (*domain.UserPreference, error) {
-	var preference domain.UserPreference
-	query := `SELECT * FROM user_preference WHERE user_id = $1`
-
-	err := r.pool.QueryRow(context.Background(), query, userID).Scan(
-		&preference.UserID, &preference.ShowGender, &preference.AgeMin, &preference.AgeMax,
-		&preference.MaxDistance, &preference.GlobalSearch, &preference.CreatedAt, &preference.UpdatedAt,
-	)
-
-	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, nil
-		}
-		return nil, err
-	}
-	return &preference, nil
-}
-
-func (r *userPreferenceRepository) Update(preference *domain.UserPreference) error {
-	query := `
-		UPDATE user_preference 
-		SET show_gender = $1, age_min = $2, age_max = $3, max_distance = $4, global_search = $5, updated_at = NOW()
-		WHERE user_id = $6
-		RETURNING updated_at`
-
-	err := r.pool.QueryRow(context.Background(), query,
-		preference.ShowGender, preference.AgeMin, preference.AgeMax, preference.MaxDistance,
-		preference.GlobalSearch, preference.UserID).
-		Scan(&preference.UpdatedAt)
-
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (r *userPreferenceRepository) Delete(userID uuid.UUID) error {
-	query := `DELETE FROM user_preference WHERE user_id = $1`
-
-	_, err := r.pool.Exec(context.Background(), query, userID)
-	if err != nil {
-		return err
-	}
-	return nil
 }

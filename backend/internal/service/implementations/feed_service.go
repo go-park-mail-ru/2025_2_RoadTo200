@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/constants"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/dto"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
@@ -14,23 +15,27 @@ import (
 
 type feedService struct {
 	userRepo  interfaces.UserRepository
+	prefRepo  interfaces.UserPreferenceRepository
 	photoRepo interfaces.UserPhotoRepository
 	logger    *logger.Logger
 }
 
 func NewFeedService(
 	userRepo interfaces.UserRepository,
+	prefRepo interfaces.UserPreferenceRepository,
 	photoRepo interfaces.UserPhotoRepository,
 	l *logger.Logger,
 ) service.FeedService {
 	return &feedService{
 		userRepo:  userRepo,
+		prefRepo:  prefRepo,
 		photoRepo: photoRepo,
 		logger:    l,
 	}
 }
 
-func (s *feedService) GetFeed(userID uuid.UUID, limit, offset int) ([]service.FeedUser, error) {
+func (s *feedService) GetFeed(userID uuid.UUID, limit, offset int) ([]dto.FeedUser, error) {
+	s.logger.Trace("FeedService.GetFeed")
 	// Валидация параметров
 	if limit <= 0 || limit > 50 {
 		limit = 15 // дефолтное значение
@@ -44,19 +49,25 @@ func (s *feedService) GetFeed(userID uuid.UUID, limit, offset int) ([]service.Fe
 	// Получаем пользователей для ленты
 	users, err := s.userRepo.GetUsersForFeed(userID, limit, offset)
 	if err != nil {
-		s.logger.Warnf("Getting users for feed failed: %v", err)
+		s.logger.Errorf("Getting users for feed failed: %v", err)
 		return nil, err
 	}
-	s.logger.Warnf("Retrieved %d users for feed\n", len(users))
+	s.logger.Debugf("Retrieved %d users for feed\n", len(users))
 
 	// Преобразуем в формат для ленты
-	feedUsers := make([]service.FeedUser, 0, len(users))
+	feedUsers := make([]dto.FeedUser, 0, len(users))
 	for _, user := range users {
+		res, err := s.prefRepo.GetInterests(user.ID)
+		if err != nil {
+			s.logger.Warnf("Getting interests for user failed: %v", err)
+			continue
+		}
 		feedUser, err := s.convertToFeedUser(user)
 		if err != nil {
 			s.logger.Warnf("Error converting user %s: %v\n", user.ID, err)
 			continue // Пропускаем пользователя с ошибкой
 		}
+		feedUser.Interests = res
 		feedUsers = append(feedUsers, feedUser)
 	}
 
@@ -67,17 +78,18 @@ func (s *feedService) GetFeed(userID uuid.UUID, limit, offset int) ([]service.Fe
 }
 
 // convertToFeedUser преобразует доменного пользователя в формат для ленты
-func (s *feedService) convertToFeedUser(user domain.User) (service.FeedUser, error) {
+func (s *feedService) convertToFeedUser(user domain.User) (dto.FeedUser, error) {
+	s.logger.Trace("convertToFeedUser")
 	// Вычисляем возраст
 	age := calculateAge(user.BirthDate)
 
 	// Получаем фото пользователя
 	images, err := s.getUserPhotos(user.ID)
 	if err != nil {
-		return service.FeedUser{}, err
+		return dto.FeedUser{}, err
 	}
 
-	return service.FeedUser{
+	return dto.FeedUser{
 		ID:          user.ID.String(),
 		Name:        user.Name,
 		Age:         age,
@@ -85,17 +97,6 @@ func (s *feedService) convertToFeedUser(user domain.User) (service.FeedUser, err
 		Description: getDescription(user.Bio),
 		Images:      images,
 		PhotosCount: len(images),
-		// Добавляем интересы
-		Workout:    user.Workout,
-		Fun:        user.Fun,
-		Party:      user.Party,
-		Chill:      user.Chill,
-		Love:       user.Love,
-		Relax:      user.Relax,
-		Yoga:       user.Yoga,
-		Friendship: user.Friendship,
-		Culture:    user.Culture,
-		Cinema:     user.Cinema,
 	}, nil
 }
 

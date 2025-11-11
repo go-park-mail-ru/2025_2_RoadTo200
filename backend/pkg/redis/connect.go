@@ -16,12 +16,6 @@ func NewConnection(cfg *config.RedisConfig) (*redis.Pool, error) {
 	password := os.Getenv(cfg.Password) // ❌ Это ищет env переменную с именем "password"
 	base := os.Getenv(cfg.Base)         // ❌ Это ищет env переменную с именем "dating_app"
 
-	// Используем значения НАПРЯМУЮ из конфига
-	//host := cfg.Host         // "localhost"
-	//sport := cfg.Port         // "6377"
-	//password := cfg.Password // твой пароль
-	//base := cfg.Base         // "0"
-
 	// Преобразуем порт и базу в числа
 	port, err := strconv.Atoi(sport)
 	if err != nil {

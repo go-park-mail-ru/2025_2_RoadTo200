@@ -1,19 +1,10 @@
 package service
 
 import (
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/dto"
 	"github.com/google/uuid"
 )
 
 type SwipeService interface {
-	ProcessSwipe(swiperID uuid.UUID, request *SwipeRequest) (*SwipeResponse, error)
-}
-
-type SwipeRequest struct {
-	CardID uuid.UUID `json:"card_id"` // target_user_id
-	Action string    `json:"action"`  // 'like', 'dislike'
-}
-
-type SwipeResponse struct {
-	Match   bool   `json:"match,omitempty"`
-	Message string `json:"message"`
+	ProcessSwipe(swiperID uuid.UUID, request *dto.SwipeRequest) (*dto.SwipeResponse, error)
 }

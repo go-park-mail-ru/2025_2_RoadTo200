@@ -5,7 +5,6 @@ import (
 	"io"
 	"mime/multipart"
 
-	//"net/http"
 	"path/filepath"
 	"strings"
 	"time"
@@ -13,10 +12,10 @@ import (
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/constants"
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/errors"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
 	service "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
 
-	//"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repost/interfaces"
 	"github.com/google/uuid"
 )
 
@@ -25,6 +24,7 @@ type profileService struct {
 	userPhotoRepo  interfaces.UserPhotoRepository
 	preferenceRepo interfaces.UserPreferenceRepository
 	fileStorage    interfaces.FileStorage // Интерфейс для работы с файловым хранилищем
+	logger         logger.Log
 }
 
 func NewProfileService(
@@ -32,12 +32,14 @@ func NewProfileService(
 	userPhotoRepo interfaces.UserPhotoRepository,
 	preferenceRepo interfaces.UserPreferenceRepository,
 	fileStorage interfaces.FileStorage,
+	l logger.Log,
 ) service.ProfileService {
 	return &profileService{
 		userRepo:       userRepo,
 		userPhotoRepo:  userPhotoRepo,
 		preferenceRepo: preferenceRepo,
 		fileStorage:    fileStorage,
+		logger:         l,
 	}
 }
 
@@ -94,53 +96,8 @@ func (s *profileService) UpdateProfileInfo(userID uuid.UUID, updateData *domain.
 	if updateData.Name != "" {
 		user.Name = updateData.Name
 	}
-	if updateData.Phone != nil {
-		user.Phone = updateData.Phone
-	}
-	if updateData.BirthDate != nil {
-		user.BirthDate = *updateData.BirthDate
-	}
 	if updateData.Gender != "" {
 		user.Gender = updateData.Gender
-	}
-	if updateData.Bio != nil {
-		user.Bio = updateData.Bio
-	}
-	if updateData.Latitude != nil {
-		user.Latitude = updateData.Latitude
-	}
-	if updateData.Longitude != nil {
-		user.Longitude = updateData.Longitude
-	}
-	if updateData.Workout != nil {
-		user.Workout = *updateData.Workout
-	}
-	if updateData.Fun != nil {
-		user.Fun = *updateData.Fun
-	}
-	if updateData.Party != nil {
-		user.Party = *updateData.Party
-	}
-	if updateData.Chill != nil {
-		user.Chill = *updateData.Chill
-	}
-	if updateData.Love != nil {
-		user.Love = *updateData.Love
-	}
-	if updateData.Relax != nil {
-		user.Relax = *updateData.Relax
-	}
-	if updateData.Yoga != nil {
-		user.Yoga = *updateData.Yoga
-	}
-	if updateData.Friendship != nil {
-		user.Friendship = *updateData.Friendship
-	}
-	if updateData.Culture != nil {
-		user.Culture = *updateData.Culture
-	}
-	if updateData.Cinema != nil {
-		user.Cinema = *updateData.Cinema
 	}
 
 	user.UpdatedAt = time.Now()
@@ -168,6 +125,7 @@ func (s *profileService) UpdatePreferences(userID uuid.UUID, updateData *domain.
 
 	// Если предпочтений нет - создаем новые
 	if preferences == nil {
+		s.logger.Debugf("Create preferences with empty user: %v", userID)
 		preferences = &domain.UserPreference{
 			UserID:       userID,
 			ShowGender:   constants.GenderPrefMale,
@@ -201,6 +159,13 @@ func (s *profileService) UpdatePreferences(userID uuid.UUID, updateData *domain.
 		return s.preferenceRepo.Create(preferences)
 	}
 	return s.preferenceRepo.Update(preferences)
+}
+
+func (s *profileService) UpdateInterests(userID uuid.UUID, inter []domain.Interest) error {
+	if err := s.validateInterestsUpdate(inter); err != nil {
+		return err
+	}
+	return s.preferenceRepo.UpdateInterests(userID, inter)
 }
 
 // UploadPhotos загружает фотографии пользователя
@@ -287,7 +252,7 @@ func (s *profileService) DeletePhoto(userID uuid.UUID, photoID uuid.UUID) error 
 	// Удаляем файл из хранилища
 	if err := s.fileStorage.DeleteByURL(photo.PhotoURL); err != nil {
 		// Логируем ошибку, но продолжаем удаление записи из БД
-		fmt.Printf("Failed to delete photo file: %v\n", err)
+		s.logger.Errorf("Failed to delete photo file: %v\n", err)
 	}
 
 	// Удаляем запись из БД
@@ -407,6 +372,29 @@ func (s *profileService) ValidatePreferencesUpdate(updateData *domain.Preference
 		}
 	}
 
+	return nil
+}
+
+// ValidateInterestsUpdat валидация интересов
+func (s *profileService) validateInterestsUpdate(updateData []domain.Interest) error {
+	validTypes := map[constants.InterestType]struct{}{
+		constants.InterestTypeWorkout:    {},
+		constants.InterestTypeFun:        {},
+		constants.InterestTypeParty:      {},
+		constants.InterestTypeChill:      {},
+		constants.InterestTypeLove:       {},
+		constants.InterestTypeRelax:      {},
+		constants.InterestTypeYoga:       {},
+		constants.InterestTypeFriendship: {},
+		constants.InterestTypeCulture:    {},
+		constants.InterestTypeCinema:     {},
+	}
+	for _, el := range updateData {
+		// Проверяем, что тип интереса допустим
+		if _, ok := validTypes[el.Theme]; !ok {
+			return fmt.Errorf("invalid interest type: %s", el.Theme)
+		}
+	}
 	return nil
 }
 
