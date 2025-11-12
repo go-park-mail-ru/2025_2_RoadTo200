@@ -1,0 +1,13 @@
+drop table interest;
+drop table user_preference cascade;
+drop table user_photo cascade;
+drop table subscription cascade;
+drop table message cascade;
+drop table match cascade;
+drop table swipe cascade;
+drop table "user" cascade;
+drop type gender_enum;
+drop type gender_preference_enum;
+drop type plan_type_enum;
+drop type swipe_type_enum;
+drop type interest_theme_enum;

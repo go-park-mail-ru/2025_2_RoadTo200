@@ -1,0 +1,33 @@
+app:
+  host: 0.0.0.0
+  port: 8080
+  prefix: /api/v1
+
+  cors:
+    allowed_origins:
+      - http://127.0.0.1:8001
+      - http://localhost:8001
+      - http://217.16.17.116:8001
+
+  logger:
+    level: DEBUG
+
+  postgres:
+    host: PG_HOST
+    port: PG_PORT
+    base: PG_BASE
+    user: PG_USER
+    password: PG_PSWD
+
+  redis:
+    host: RD_HOST
+    port: RD_PORT
+    base: RD_BASE
+    password: RD_PSWD
+
+  minio:
+    host: MN_HOST
+    access_key_id: MN_USER
+    secret_access_key: MN_PSWD
+    address: MN_ADDRESS
+    bucket_name: "terabithia-photos"
