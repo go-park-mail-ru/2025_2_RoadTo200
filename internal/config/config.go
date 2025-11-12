@@ -51,6 +51,9 @@ type PostgresConfig struct {
 	MaxLife             time.Duration `yaml:"max_life"`
 	MaxIdle             time.Duration `yaml:"max_idle"`
 	HealthCheckInterval time.Duration `yaml:"health_check_interval"`
+
+	Migrated   bool   `yaml:"migrated"`
+	Migrations string `yaml:"migrations"`
 }
 
 type RedisConfig struct {
@@ -107,6 +110,9 @@ func NewConfig() (*Config, error) {
 		MaxLife:             time.Hour,
 		MaxIdle:             30 * time.Minute,
 		HealthCheckInterval: time.Minute,
+
+		Migrated:   false,
+		Migrations: "migrations/",
 	}
 	config.App.Redis = RedisConfig{
 		MaxConn:     5,

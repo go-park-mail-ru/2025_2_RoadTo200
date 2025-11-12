@@ -60,12 +60,19 @@ func Run() {
 	app := &App{}
 
 	if err := app.initConfig(); err != nil {
+		app.logger.Fatal(err)
 		return
 	}
 	if err := app.initLogger(); err != nil {
+		app.logger.Fatal(err)
 		return
 	}
 	if err := app.initResources(); err != nil {
+		app.logger.Fatal(err)
+		return
+	}
+	if err := app.runMigrations(); err != nil {
+		app.logger.Fatal(err)
 		return
 	}
 
@@ -76,9 +83,9 @@ func Run() {
 	app.initHandlers()
 	app.logger.Info("Handler initialized")
 	if err := app.initServer(); err != nil {
+		app.logger.Fatal(err)
 		return
 	}
 	app.logger.Info("Server initialized")
 	app.runServer()
-
 }
