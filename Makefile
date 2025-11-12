@@ -11,7 +11,7 @@ build-docs:
 	swag init -g /cmd/server/main.go -o docs/
 
 build:
-	go build -o ./../build/ ./cmd/server/main.go
+	go build -o ./.build/ ./cmd/server/main.go
 
 clean:
 	rm -f app coverage.out
@@ -21,3 +21,10 @@ fmt:
 
 tidy:
 	go mod tidy
+
+deploy:
+	./scripts/deploy.sh
+
+lbuild:
+	git pull origin clean_arch
+	go build -o $HOME/app/back/bin/ ./cmd/server/main.go
