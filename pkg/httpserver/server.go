@@ -31,24 +31,24 @@ func (s *Server) AddHandler(pat string, h http.Handler, mvs ...func(next http.Ha
 	s.mux.Handle(pat, h)
 }
 
-func (s *Server) GET(pat string, h http.Handler, mvs ...func(next http.Handler) http.Handler) {
-	s.AddHandler(fmt.Sprintf("GET %s", pat), h, mvs...)
+func (s *Server) GET(pat string, h func(w http.ResponseWriter, r *http.Request), mvs ...func(next http.Handler) http.Handler) {
+	s.AddHandler(fmt.Sprintf("GET %s", pat), http.HandlerFunc(h), mvs...)
 }
 
-func (s *Server) POST(pat string, h http.Handler, mvs ...func(next http.Handler) http.Handler) {
-	s.AddHandler(fmt.Sprintf("POST %s", pat), h, mvs...)
+func (s *Server) POST(pat string, h func(w http.ResponseWriter, r *http.Request), mvs ...func(next http.Handler) http.Handler) {
+	s.AddHandler(fmt.Sprintf("POST %s", pat), http.HandlerFunc(h), mvs...)
 }
 
-func (s *Server) PUT(pat string, h http.Handler, mvs ...func(next http.Handler) http.Handler) {
-	s.AddHandler(fmt.Sprintf("PUT %s", pat), h, mvs...)
+func (s *Server) PUT(pat string, h func(w http.ResponseWriter, r *http.Request), mvs ...func(next http.Handler) http.Handler) {
+	s.AddHandler(fmt.Sprintf("PUT %s", pat), http.HandlerFunc(h), mvs...)
 }
 
-func (s *Server) DELETE(pat string, h http.Handler, mvs ...func(next http.Handler) http.Handler) {
-	s.AddHandler(fmt.Sprintf("DELETE %s", pat), h, mvs...)
+func (s *Server) DELETE(pat string, h func(w http.ResponseWriter, r *http.Request), mvs ...func(next http.Handler) http.Handler) {
+	s.AddHandler(fmt.Sprintf("DELETE %s", pat), http.HandlerFunc(h), mvs...)
 }
 
-func (s *Server) PATCH(pat string, h http.Handler, mvs ...func(next http.Handler) http.Handler) {
-	s.AddHandler(fmt.Sprintf("PATCH %s", pat), h, mvs...)
+func (s *Server) PATCH(pat string, h func(w http.ResponseWriter, r *http.Request), mvs ...func(next http.Handler) http.Handler) {
+	s.AddHandler(fmt.Sprintf("PATCH %s", pat), http.HandlerFunc(h), mvs...)
 }
 
 func (s *Server) Run(addr string) error {

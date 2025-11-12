@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/implementations"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/utils"
 	"github.com/google/uuid"
 )
@@ -29,7 +29,7 @@ var publicEndpoints = map[string]bool{
 	"/swagger/index.html": true,
 }
 
-func AuthMiddleware(authService *service.AuthService) func(http.Handler) http.Handler {
+func AuthMiddleware(authService service.AuthService) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// Check if this is a public endpoint

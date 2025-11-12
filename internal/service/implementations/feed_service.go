@@ -17,14 +17,14 @@ type feedService struct {
 	userRepo  interfaces.UserRepository
 	prefRepo  interfaces.UserPreferenceRepository
 	photoRepo interfaces.UserPhotoRepository
-	logger    *logger.Logger
+	logger    logger.Log
 }
 
 func NewFeedService(
 	userRepo interfaces.UserRepository,
 	prefRepo interfaces.UserPreferenceRepository,
 	photoRepo interfaces.UserPhotoRepository,
-	l *logger.Logger,
+	l logger.Log,
 ) service.FeedService {
 	return &feedService{
 		userRepo:  userRepo,
