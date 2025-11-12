@@ -6,16 +6,16 @@ import (
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/errors"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/dto"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/implementations"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/utils"
 )
 
 type AuthHandler struct {
-	authService *service.AuthService
+	authService service.AuthService
 	logger      logger.Log
 }
 
-func NewAuthHandler(authService *service.AuthService, l logger.Log) *AuthHandler {
+func NewAuthHandler(authService service.AuthService, l logger.Log) *AuthHandler {
 	return &AuthHandler{
 		authService: authService,
 		logger:      l,

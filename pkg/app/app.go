@@ -48,12 +48,12 @@ type Services struct {
 }
 
 type Handlers struct {
-	Auth    handler.AuthHandler
-	Session handler.SessionHandler
-	Feed    handler.FeedHandler
-	Profile handler.ProfileHandler
-	Swipe   handler.SwipeHandler
-	Match   handler.MatchHandler
+	Auth    *handler.AuthHandler
+	Session *handler.SessionHandler
+	Feed    *handler.FeedHandler
+	Profile *handler.ProfileHandler
+	Swipe   *handler.SwipeHandler
+	Match   *handler.MatchHandler
 }
 
 func Run() {
@@ -73,9 +73,12 @@ func Run() {
 	app.logger.Info("Repository initialized")
 	app.initServices()
 	app.logger.Info("Service initialized")
+	app.initHandlers()
+	app.logger.Info("Handler initialized")
 	if err := app.initServer(); err != nil {
 		return
 	}
 	app.logger.Info("Server initialized")
+	app.runServer()
 
 }

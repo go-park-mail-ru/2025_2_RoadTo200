@@ -6,16 +6,16 @@ import (
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/dto"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/implementations"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/utils"
 )
 
 type SessionHandler struct {
-	authService *service.AuthService
+	authService service.AuthService
 	logger      logger.Log
 }
 
-func NewSessionHandler(authService *service.AuthService, l logger.Log) *SessionHandler {
+func NewSessionHandler(authService service.AuthService, l logger.Log) *SessionHandler {
 	return &SessionHandler{
 		authService: authService,
 		logger:      l,
