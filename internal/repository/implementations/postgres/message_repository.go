@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/dto"
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
 	"github.com/google/uuid"
@@ -132,7 +131,7 @@ func (r *messageRepository) GetUnreadCount(userID uuid.UUID) (int, error) {
 	return count, nil
 }
 
-func (r *messageRepository) GetConversations(userID uuid.UUID) ([]dto.Conversation, error) {
+func (r *messageRepository) GetConversations(userID uuid.UUID) ([]domain.Conversation, error) {
 	query := `
 		SELECT 
 			m.id as match_id,
@@ -166,9 +165,9 @@ func (r *messageRepository) GetConversations(userID uuid.UUID) ([]dto.Conversati
 	}
 	defer rows.Close()
 
-	var conversations []dto.Conversation
+	var conversations []domain.Conversation
 	for rows.Next() {
-		var conv dto.Conversation
+		var conv domain.Conversation
 		err := rows.Scan(
 			&conv.MatchID, &conv.OtherUserID, &conv.OtherUserName,
 			&conv.LastMessage, &conv.LastMessageTime, &conv.UnreadCount,

@@ -1,7 +1,7 @@
 package service
 
 import (
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/dto"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/dto"
 	"github.com/google/uuid"
 )
 

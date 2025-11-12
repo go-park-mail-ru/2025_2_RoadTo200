@@ -1,7 +1,6 @@
 package interfaces
 
 import (
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/dto"
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	"github.com/google/uuid"
 )
@@ -14,5 +13,5 @@ type MessageRepository interface {
 	Delete(id uuid.UUID) error
 	MarkMessagesAsRead(matchID, userID uuid.UUID) error
 	GetUnreadCount(userID uuid.UUID) (int, error)
-	GetConversations(userID uuid.UUID) ([]dto.Conversation, error)
+	GetConversations(userID uuid.UUID) ([]domain.Conversation, error)
 }

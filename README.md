@@ -26,7 +26,6 @@
 
 #### internal/domain/ - доменный слой
     * entities/ - основные сущности (User, Session, Profile, etc.)
-    * value_objects/ - объекты-значения (Email, Password, etc.)
     * errors/ - кастомные ошибки домена
     * constants/ - константы
 
