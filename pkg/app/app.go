@@ -77,15 +77,12 @@ func Run() {
 	}
 
 	app.initRepository()
-	app.logger.Info("Repository initialized")
+	app.logger.Info("✅ Repositories initialized")
 	app.initServices()
-	app.logger.Info("Service initialized")
+	app.logger.Info("✅ Services initialized")
 	app.initHandlers()
-	app.logger.Info("Handler initialized")
-	if err := app.initServer(); err != nil {
-		app.logger.Fatal(err)
-		return
-	}
-	app.logger.Info("Server initialized")
+	app.logger.Info("✅ Handlers initialized")
+	app.initServer()
+	app.logger.Info("✅ Server initialized")
 	app.runServer()
 }

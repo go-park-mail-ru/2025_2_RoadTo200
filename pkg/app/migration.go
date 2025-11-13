@@ -9,6 +9,7 @@ import (
 
 func (a *App) runMigrations() error {
 	if !a.config.Postgres.Migrated {
+		a.logger.Infof("Skip migrations")
 		return nil
 	}
 	a.logger.Info("🔄 Running database migrations...")

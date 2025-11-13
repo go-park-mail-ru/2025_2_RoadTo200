@@ -5,7 +5,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/joho/godotenv"
 	"gopkg.in/yaml.v2"
 )
 
@@ -78,12 +77,11 @@ type MinIOConfig struct {
 }
 
 func NewConfig() (*Config, error) {
-	configPath := "config/config.yaml"
-
-	err := godotenv.Load(".env")
-	if err != nil {
-		return nil, err
+	configPath := os.Getenv("CONFIG_PATH")
+	if configPath == "" {
+		configPath = "config/config.yaml"
 	}
+
 	data, err := os.ReadFile(configPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read config file: %w", err)

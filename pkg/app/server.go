@@ -10,7 +10,7 @@ import (
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/httpserver"
 )
 
-func (a *App) initServer() error {
+func (a *App) initServer() {
 	a.server = httpserver.NewServer()
 
 	// Global middleware
@@ -18,9 +18,8 @@ func (a *App) initServer() error {
 	a.server.AddMiddleware(middleware.CORSMiddleware(&a.config.Cors))
 
 	a.setupPublicRoutes()
+	a.setupUtilRoutes()
 	a.setupProtectedRoutes()
-
-	return nil
 }
 
 func (a *App) setupUtilRoutes() {

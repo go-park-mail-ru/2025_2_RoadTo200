@@ -39,10 +39,8 @@ func SwaggerHandler(w http.ResponseWriter, r *http.Request) {
 func getSwaggerPath() string {
 	// Пробуем несколько возможных путей
 	paths := []string{
-		"docs/swagger.json",
 		"./docs/swagger.json",
-		"../docs/swagger.json",
-		"../../docs/swagger.json",
+		"./data/docs/swagger.json",
 	}
 
 	// Получаем директорию где запущен бинарник

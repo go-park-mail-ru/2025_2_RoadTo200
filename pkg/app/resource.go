@@ -10,6 +10,8 @@ import (
 )
 
 func (a *App) initResources() error {
+	a.resources = &Resources{}
+
 	if err := a.initPostgres(context.Background()); err != nil {
 		return err
 	}
