@@ -11,7 +11,14 @@ import (
 	httpSwagger "github.com/swaggo/http-swagger"
 )
 
-// Health handler
+// HealthHandler godoc
+// @Summary Проверка здоровья приложения
+// @Description Возвращает текущий статус работы приложения Terabithia. Используется для мониторинга и проверки доступности сервиса.
+// @Tags health
+// @Produce json
+// @Success 200 {object} map[string]string "Приложение работает корректно"
+// @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
+// @Router /api/health [get]
 func HealthHandler(w http.ResponseWriter, _ *http.Request) {
 	utils.WriteJSON(w, http.StatusOK, map[string]string{
 		"status": "ok",

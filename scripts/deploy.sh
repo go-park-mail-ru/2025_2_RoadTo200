@@ -11,7 +11,9 @@ if [[ $BUILD -eq 1 ]]; then
   make build || exit 1
 
   echo "Deploy binary file"
+  ssh ubuntu.vk sudo systemctl stop app-back.service
   scp ./.build/main $HOST:/home/ubuntu/app/back/bin/ || echo "Error deploy binary"
+  ssh ubuntu.vk sudo systemctl start app-back.service
 fi
 
 if [[ $MIGR -eq 1 ]]; then

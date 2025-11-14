@@ -27,7 +27,7 @@ func (a *App) setupUtilRoutes() {
 	a.server.AddHandler("/swagger/", http.HandlerFunc(handler.SwaggerHandler))
 
 	// Health check
-	a.server.GET("/health", handler.HealthHandler)
+	a.server.GET("/api/health", handler.HealthHandler)
 }
 
 func (a *App) setupPublicRoutes() {
