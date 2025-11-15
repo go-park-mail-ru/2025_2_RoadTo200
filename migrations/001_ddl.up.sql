@@ -127,8 +127,8 @@ CREATE TABLE report
     comment TEXT,
     status report_status_enum NOT NULL DEFAULT 'active',
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    work_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    close_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    work_at TIMESTAMPTZ DEFAULT NULL,
+    close_at TIMESTAMPTZ DEFAULT NULL,
 
     CONSTRAINT report_contact_check CHECK (contact ~* '^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$'),
     CONSTRAINT report_comment_check CHECK (LENGTH(comment) BETWEEN 1 AND 50),
