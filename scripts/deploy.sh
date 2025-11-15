@@ -25,7 +25,7 @@ if [[ $DOCS -eq 1 ]]; then
   echo "Building swagger docs"
   make build-docs &&
   echo "Deploy swagger file"
-  scp ./docs/swagger.json $HOST:/home/ubuntu/app/back/data/docs/ || echo "Error deploy swagger"
+  scp ./api/docs/swagger.json $HOST:/home/ubuntu/app/back/data/docs/ || echo "Error deploy swagger"
 fi
 
 
