@@ -57,3 +57,17 @@ const (
 	InterestTypeCulture    InterestType = "culture"
 	InterestTypeCinema     InterestType = "cinema"
 )
+
+type ReportTheme string
+
+const (
+	ReportTypeWorkout ReportTheme = "workout"
+)
+
+type ReportStatus string
+
+const (
+	Active ReportStatus = "open"
+	Work   ReportStatus = "work"
+	CLose  ReportStatus = "close"
+)
