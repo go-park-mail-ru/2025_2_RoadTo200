@@ -26,8 +26,19 @@ type SupportTicketsListResponse struct {
 
 // SupportStatsResponse represents support statistics
 type SupportStatsResponse struct {
-	TotalTickets        int            `json:"total_tickets" example:"150"`
-	TicketsByCategory   map[string]int `json:"tickets_by_category" example:"technical:50,feature:40,question:35,security:15,billing:10,device:5"`
-	TicketsByStatus     map[string]int `json:"tickets_by_status" example:"open:25,in_progress:10,closed:115"`
-	AverageResponseTime string         `json:"average_response_time" example:"2h30m"`
+	TotalTickets        int                           `json:"total_tickets" example:"150"`
+	TicketsByCategory   map[string]int                `json:"tickets_by_category" example:"technical:50,feature:40,question:35,security:15,billing:10,device:5"`
+	TicketsByStatus     map[string]int                `json:"tickets_by_status" example:"open:25,in_progress:10,closed:115"`
+	AverageResponseTime string                        `json:"average_response_time" example:"2h30m"`
+	AllTickets          []SupportTicketDetailResponse `json:"all_tickets"`
+}
+
+// SupportTicketDetailResponse represents detailed support ticket response
+type SupportTicketDetailResponse struct {
+	ID        string    `json:"id" example:"550e8400-e29b-41d4-a716-446655440000"`
+	Category  string    `json:"category" example:"technical"`
+	Text      string    `json:"text" example:"При попытке загрузить фото приложение вылетает"`
+	Email     string    `json:"email" example:"user@example.com"`
+	Status    string    `json:"status" example:"open" enums:"open,work,closed"`
+	CreatedAt time.Time `json:"created_at" example:"2024-01-15T10:30:00Z"`
 }

@@ -109,8 +109,14 @@ func (s *supportService) GetSupportStats() (*dto.SupportStatsResponse, error) {
 		return nil, fmt.Errorf("failed to get statistics: %w", err)
 	}
 
+	// Получаем все обращения для детальной статистики
+	allReports, err := s.reportRepo.GetAll()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get all reports: %w", err)
+	}
+
 	// Конвертируем в DTO
-	stats := s.convertStatsToDTO(dbStats)
+	stats := s.convertStatsToDTO(dbStats, allReports)
 
 	return stats, nil
 }
@@ -133,5 +139,34 @@ func (s *supportService) convertStatsToDTO(dbStats *interfaces.ReportStatistics)
 			"closed":      int(dbStats.TicketsByStatus.Closed),
 		},
 		AverageResponseTime: dbStats.AverageResponseTime,
+	}
+}
+
+// GetUserTicket возвращает детальную информацию об обращении
+func (s *supportService) GetUserTicket(userID uuid.UUID, ticketID uuid.UUID) (*dto.SupportTicketDetailResponse, error) {
+	// Получаем обращение из БД
+	report, err := s.reportRepo.GetById(ticketID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get ticket: %w", err)
+	}
+
+	// Проверяем, что обращение принадлежит пользователю
+	if report.UserID != userID {
+		return nil, fmt.Errorf("access denied")
+	}
+
+	// Конвертируем в детальный ответ
+	return s.convertToDetailResponse(report), nil
+}
+
+// convertToDetailResponse конвертирует доменную сущность в детальный ответ
+func (s *supportService) convertToDetailResponse(report *domain.Report) *dto.SupportTicketDetailResponse {
+	return &dto.SupportTicketDetailResponse{
+		ID:        report.ID.String(),
+		Category:  string(report.Theme),
+		Text:      report.Problem,
+		Email:     report.Contact,
+		Status:    string(report.Status),
+		CreatedAt: report.CreatedAt,
 	}
 }
