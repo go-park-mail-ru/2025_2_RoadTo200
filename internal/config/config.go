@@ -5,6 +5,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/joho/godotenv"
 	"gopkg.in/yaml.v2"
 )
 
@@ -16,6 +17,7 @@ type Config struct {
 	Host     string         `yaml:"host"`
 	Port     int            `yaml:"port"`
 	Prefix   string         `yaml:"prefix"`
+	Mode     string         `yaml:"mode"`
 	Cors     CORSConfig     `yaml:"cors"`
 	Logger   LoggerConfig   `yaml:"logger"`
 	Postgres PostgresConfig `yaml:"postgres"`
@@ -81,13 +83,13 @@ func NewConfig() (*Config, error) {
 	if configPath == "" {
 		configPath = "config/config.yaml"
 	}
-
 	data, err := os.ReadFile(configPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read config file: %w", err)
 	}
 
 	var config appConfig
+	config.App.Mode = "dev"
 	config.App.Cors = CORSConfig{
 		AllowedOrigins:   []string{},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"},
@@ -124,6 +126,13 @@ func NewConfig() (*Config, error) {
 	}
 	if err := yaml.Unmarshal(data, &config); err != nil {
 		return nil, fmt.Errorf("failed to parse config: %w", err)
+	}
+
+	if config.App.Mode == "dev" {
+		err := godotenv.Load(".env")
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return &config.App, nil

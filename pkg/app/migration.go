@@ -51,6 +51,6 @@ func (a *App) runMigrations() error {
 		a.logger.Warn("Database is in dirty state, consider fixing manually")
 	}
 
-	a.logger.Info("✅ Database migrations applied successfully. Version: %d", version)
+	a.logger.Infof("✅ Database migrations applied successfully. Version: %d", version)
 	return nil
 }
