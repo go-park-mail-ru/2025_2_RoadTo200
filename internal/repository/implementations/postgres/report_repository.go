@@ -144,9 +144,9 @@ func (r *ReportRepository) GetStatistics() (*interfaces.ReportStatistics, error)
             COUNT(*) FILTER (WHERE theme = 'security') as security,
             COUNT(*) FILTER (WHERE theme = 'billing') as billing,
             COUNT(*) FILTER (WHERE theme = 'device') as device,
-            COUNT(*) FILTER (WHERE status = 'open') as open,
+            COUNT(*) FILTER (WHERE status = 'active') as open,
             COUNT(*) FILTER (WHERE status = 'work') as work,
-            COUNT(*) FILTER (WHERE status = 'closed') as closed,
+            COUNT(*) FILTER (WHERE status = 'close') as closed,
             (SELECT avg_response_time FROM avg_response) as average_response_time
         FROM reports`
 
@@ -159,7 +159,7 @@ func (r *ReportRepository) GetStatistics() (*interfaces.ReportStatistics, error)
 		&row.TicketsByTheme.Security,
 		&row.TicketsByTheme.Billing,
 		&row.TicketsByTheme.Device,
-		&row.TicketsByStatus.Open,
+		&row.TicketsByStatus.Active,
 		&row.TicketsByStatus.Work,
 		&row.TicketsByStatus.Closed,
 		&row.AverageResponseTime,
