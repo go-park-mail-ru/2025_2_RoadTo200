@@ -33,7 +33,7 @@ func NewSupportHandler(supportService service.SupportService) *SupportHandler {
 // @Failure 400 {object} map[string]string "Неверный запрос"
 // @Failure 401 {object} map[string]string "Не авторизован"
 // @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
-// @Router /api/support/tickets [post]
+// @Router /api/report [post]
 func (h *SupportHandler) CreateSupportTicket(w http.ResponseWriter, r *http.Request) {
 	userID, err := h.getUserIDFromContext(r)
 	if err != nil {
@@ -74,7 +74,7 @@ func (h *SupportHandler) CreateSupportTicket(w http.ResponseWriter, r *http.Requ
 // @Failure 400 {object} map[string]string "Неверные параметры запроса"
 // @Failure 401 {object} map[string]string "Не авторизован"
 // @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
-// @Router /api/support/tickets [get]
+// @Router /api/report [get]
 func (h *SupportHandler) GetUserSupportTickets(w http.ResponseWriter, r *http.Request) {
 	userID, err := h.getUserIDFromContext(r)
 	if err != nil {

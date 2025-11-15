@@ -54,6 +54,7 @@ type Handlers struct {
 	Profile *handler.ProfileHandler
 	Swipe   *handler.SwipeHandler
 	Match   *handler.MatchHandler
+	Report  *handler.SupportHandler
 }
 
 func Run() {

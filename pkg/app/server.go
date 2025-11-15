@@ -54,6 +54,9 @@ func (a *App) setupProtectedRoutes() {
 	a.server.POST("/api/swipe", a.handlers.Swipe.ProcessSwipe)
 	a.server.GET("/api/match", a.handlers.Match.GetUserMatches)
 	a.server.DELETE("/api/match", a.handlers.Match.Unmatch)
+	a.server.POST("/api/report", a.handlers.Report.CreateSupportTicket)
+	a.server.GET("/api/report", a.handlers.Report.GetUserSupportTickets)
+	a.server.GET("/api/report/stats", a.handlers.Report.GetSupportStats)
 }
 
 func (a *App) runServer() {
