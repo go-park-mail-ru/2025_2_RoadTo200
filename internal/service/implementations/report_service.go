@@ -116,7 +116,7 @@ func (s *supportService) GetSupportStats() (*dto.SupportStatsResponse, error) {
 }
 
 // convertStatsToDTO конвертирует статистику из БД в DTO
-func (s *supportService) convertStatsToDTO(dbStats *interfaces.ReportStatistics) *SupportStatsResponse {
+func (s *supportService) convertStatsToDTO(dbStats *interfaces.ReportStatistics) *dto.SupportStatsResponse {
 	return &dto.SupportStatsResponse{
 		TotalTickets: dbStats.TotalTickets,
 		TicketsByCategory: map[string]int{
