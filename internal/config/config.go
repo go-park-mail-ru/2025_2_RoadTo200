@@ -23,6 +23,7 @@ type Config struct {
 	Postgres PostgresConfig `yaml:"postgres"`
 	Redis    RedisConfig    `yaml:"redis"`
 	MinIO    MinIOConfig    `yaml:"minio"`
+	Telegram TelegramConfig `yaml:"telegram"`
 }
 
 type CORSConfig struct {
@@ -76,6 +77,12 @@ type MinIOConfig struct {
 	UseSSL          bool   `yaml:"use_ssl"`
 	BucketName      string `yaml:"bucket_name"`
 	Region          string `yaml:"region"`
+}
+
+type TelegramConfig struct {
+	BotToken string `yaml:"bot_token"`
+	ChatID   string `yaml:"chat_id"`
+	Enabled  bool   `yaml:"enabled"`
 }
 
 func NewConfig() (*Config, error) {
