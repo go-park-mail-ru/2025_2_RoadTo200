@@ -20,7 +20,7 @@ func NewReportRepository(pool interfaces.PgxIface) *ReportRepository {
 
 func (r *ReportRepository) Create(report *domain.Report) error {
 	query := `
-		INSERT INTO reports (user_id, theme, problem, contact)
+		INSERT INTO report (user_id, theme, problem, contact)
 		VALUES ($1, $2, $3, $4)`
 
 	_, err := r.pool.Exec(
@@ -38,7 +38,7 @@ func (r *ReportRepository) Create(report *domain.Report) error {
 func (r *ReportRepository) GetByUser(userID uuid.UUID) ([]domain.Report, error) {
 	query := `
 		SELECT id, user_id, theme, problem, contact, comment, status, created_at, work_at, closed_at
-		FROM reports 
+		FROM report 
 		WHERE user_id = $1
 		ORDER BY created_at DESC`
 
@@ -79,7 +79,7 @@ func (r *ReportRepository) GetByUser(userID uuid.UUID) ([]domain.Report, error) 
 func (r *ReportRepository) GetById(id uuid.UUID) (*domain.Report, error) {
 	query := `
 		SELECT id, user_id, theme, problem, contact, comment, status, created_at, work_at, closed_at
-		FROM reports 
+		FROM report 
 		WHERE id = $1`
 
 	var report domain.Report
@@ -108,7 +108,7 @@ func (r *ReportRepository) GetById(id uuid.UUID) (*domain.Report, error) {
 
 func (r *ReportRepository) UpdateStatus(id uuid.UUID, status constants.ReportStatus) error {
 	query := `
-		UPDATE reports 
+		UPDATE report 
 		SET status = $1
 		WHERE id = $2`
 
@@ -121,7 +121,7 @@ func (r *ReportRepository) GetStatistics() (*interfaces.ReportStatistics, error)
         WITH response_times AS (
             SELECT 
                 EXTRACT(EPOCH FROM (work_at - created_at)) as response_seconds
-            FROM reports 
+            FROM report 
             WHERE work_at IS NOT NULL 
                 AND created_at IS NOT NULL
                 AND work_at > created_at
@@ -148,7 +148,7 @@ func (r *ReportRepository) GetStatistics() (*interfaces.ReportStatistics, error)
             COUNT(*) FILTER (WHERE status = 'work') as work,
             COUNT(*) FILTER (WHERE status = 'close') as closed,
             (SELECT avg_response_time FROM avg_response) as average_response_time
-        FROM reports`
+        FROM report`
 
 	var row interfaces.ReportStatistics
 	err := r.pool.QueryRow(context.Background(), query).Scan(

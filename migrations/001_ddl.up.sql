@@ -10,7 +10,7 @@ CREATE TYPE swipe_type_enum AS ENUM ('like', 'dislike', 'super_like');
 CREATE TYPE plan_type_enum AS ENUM ('premium', 'gold', 'platinum');
 CREATE TYPE interest_theme_enum AS ENUM ('workout', 'fun', 'party', 'chill', 'love', 'relax', 'yoga', 'friendship', 'culture', 'cinema');
 CREATE TYPE report_theme_enum AS ENUM ('technical', 'feature', 'question', 'security', 'billing', 'device');
-CREATE TYPE report_status_enum AS ENUM ('active', 'work', 'close');
+CREATE TYPE report_status_enum AS ENUM ('open', 'work', 'close');
 
 -- Таблица: user
 CREATE TABLE "user"
@@ -126,10 +126,10 @@ CREATE TABLE report
     problem TEXT NOT NULL,
     contact TEXT NOT NULL,
     comment TEXT,
-    status report_status_enum NOT NULL DEFAULT 'active',
+    status report_status_enum NOT NULL DEFAULT 'open',
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     work_at TIMESTAMPTZ DEFAULT NULL,
-    close_at TIMESTAMPTZ DEFAULT NULL,
+    closed_at TIMESTAMPTZ DEFAULT NULL,
 
     CONSTRAINT report_contact_check CHECK (contact ~* '^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$'),
     CONSTRAINT report_comment_check CHECK (LENGTH(comment) BETWEEN 1 AND 50),
@@ -139,7 +139,7 @@ CREATE TABLE report
 CREATE TABLE screen
 (
     id      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL REFERENCES "user" (id) ON DELETE CASCADE,
+    report_id UUID NOT NULL REFERENCES report (id) ON DELETE CASCADE,
     url     TEXT
 );
 
