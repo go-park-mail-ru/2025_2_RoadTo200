@@ -118,19 +118,19 @@ func (s *supportService) GetSupportStats() (*dto.SupportStatsResponse, error) {
 // convertStatsToDTO конвертирует статистику из БД в DTO
 func (s *supportService) convertStatsToDTO(dbStats *interfaces.ReportStatistics) *dto.SupportStatsResponse {
 	return &dto.SupportStatsResponse{
-		TotalTickets: dbStats.TotalTickets,
+		TotalTickets: int(dbStats.TotalTickets), // int64 -> int
 		TicketsByCategory: map[string]int{
-			"technical": dbStats.TicketsByTheme.Technical,
-			"feature":   dbStats.TicketsByTheme.Feature,
-			"question":  dbStats.TicketsByTheme.Question,
-			"security":  dbStats.TicketsByTheme.Security,
-			"billing":   dbStats.TicketsByTheme.Billing,
-			"device":    dbStats.TicketsByTheme.Device,
+			"technical": int(dbStats.TicketsByTheme.Technical),
+			"feature":   int(dbStats.TicketsByTheme.Feature),
+			"question":  int(dbStats.TicketsByTheme.Question),
+			"security":  int(dbStats.TicketsByTheme.Security),
+			"billing":   int(dbStats.TicketsByTheme.Billing),
+			"device":    int(dbStats.TicketsByTheme.Device),
 		},
 		TicketsByStatus: map[string]int{
-			"open":        dbStats.TicketsByStatus.Active,
-			"in_progress": dbStats.TicketsByStatus.Work,
-			"closed":      dbStats.TicketsByStatus.Closed,
+			"open":        int(dbStats.TicketsByStatus.Open),
+			"in_progress": int(dbStats.TicketsByStatus.Work),
+			"closed":      int(dbStats.TicketsByStatus.Closed),
 		},
 		AverageResponseTime: dbStats.AverageResponseTime,
 	}
