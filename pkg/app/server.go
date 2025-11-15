@@ -56,6 +56,7 @@ func (a *App) setupProtectedRoutes() {
 	a.server.DELETE("/api/match", a.handlers.Match.Unmatch)
 	a.server.POST("/api/report", a.handlers.Report.CreateSupportTicket)
 	a.server.GET("/api/report", a.handlers.Report.GetUserSupportTickets)
+	a.server.GET("/api/report/{id}", a.handlers.Report.GetUserSupportTicket)
 	a.server.GET("/api/report/stats", a.handlers.Report.GetSupportStats)
 }
 

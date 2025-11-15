@@ -35,4 +35,5 @@ type ReportRepository interface {
 	GetById(uuid uuid.UUID) (*domain.Report, error)
 	UpdateStatus(id uuid.UUID, status constants.ReportStatus) error
 	GetStatistics() (*ReportStatistics, error)
+	GetAll() ([]domain.Report, error)
 }

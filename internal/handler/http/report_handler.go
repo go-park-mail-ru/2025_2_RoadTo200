@@ -94,6 +94,53 @@ func (h *SupportHandler) GetUserSupportTickets(w http.ResponseWriter, r *http.Re
 	utils.WriteJSON(w, http.StatusOK, tickets)
 }
 
+// GetUserSupportTicket godoc
+// @Summary Получить детальную информацию об обращении
+// @Description Возвращает детальную информацию об обращении по ID
+// @Tags support
+// @Produce json
+// @Security SessionToken
+// @Param ticket_id path string true "ID обращения"
+// @Success 200 {object} SupportTicketDetailResponse "Детальная информация об обращении"
+// @Failure 400 {object} map[string]string "Неверный ID обращения"
+// @Failure 401 {object} map[string]string "Не авторизован"
+// @Failure 403 {object} map[string]string "Доступ запрещен"
+// @Failure 404 {object} map[string]string "Обращение не найдено"
+// @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
+// @Router /api/report/{ticket_id} [get]
+func (h *SupportHandler) GetUserSupportTicket(w http.ResponseWriter, r *http.Request) {
+	userID, err := h.getUserIDFromContext(r)
+	if err != nil {
+		utils.WriteJSONError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	// Получаем ticket_id из URL
+	ticketIDStr := r.URL.Path[len("/api/report/"):]
+	if ticketIDStr == "" {
+		utils.WriteJSONError(w, http.StatusBadRequest, "ticket ID is required")
+		return
+	}
+
+	ticketID, err := uuid.Parse(ticketIDStr)
+	if err != nil {
+		utils.WriteJSONError(w, http.StatusBadRequest, "invalid ticket ID")
+		return
+	}
+
+	ticket, err := h.supportService.GetUserTicket(userID, ticketID)
+	if err != nil {
+		if err.Error() == "access denied" {
+			utils.WriteJSONError(w, http.StatusForbidden, "access denied")
+			return
+		}
+		utils.WriteJSONError(w, http.StatusInternalServerError, "failed to get ticket")
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, ticket)
+}
+
 // parseQueryParams парсит параметры запроса для пагинации
 func (h *SupportHandler) parseQueryParams(r *http.Request) (int, int) {
 	limitStr := r.URL.Query().Get("limit")

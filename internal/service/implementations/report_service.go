@@ -122,9 +122,15 @@ func (s *supportService) GetSupportStats() (*dto.SupportStatsResponse, error) {
 }
 
 // convertStatsToDTO конвертирует статистику из БД в DTO
-func (s *supportService) convertStatsToDTO(dbStats *interfaces.ReportStatistics) *dto.SupportStatsResponse {
+func (s *supportService) convertStatsToDTO(dbStats *interfaces.ReportStatistics, allReports []domain.Report) *dto.SupportStatsResponse {
+	// Конвертируем все обращения в DTO
+	allTickets := make([]dto.SupportTicketDetailResponse, 0, len(allReports))
+	for _, report := range allReports {
+		allTickets = append(allTickets, *s.convertToDetailResponse(&report))
+	}
+
 	return &dto.SupportStatsResponse{
-		TotalTickets: int(dbStats.TotalTickets), // int64 -> int
+		TotalTickets: int(dbStats.TotalTickets),
 		TicketsByCategory: map[string]int{
 			"technical": int(dbStats.TicketsByTheme.Technical),
 			"feature":   int(dbStats.TicketsByTheme.Feature),
@@ -139,6 +145,7 @@ func (s *supportService) convertStatsToDTO(dbStats *interfaces.ReportStatistics)
 			"closed":      int(dbStats.TicketsByStatus.Closed),
 		},
 		AverageResponseTime: dbStats.AverageResponseTime,
+		AllTickets:          allTickets,
 	}
 }
 
