@@ -24,7 +24,7 @@ type ThemeStats struct {
 }
 
 type StatusStats struct {
-	Active int64 `json:"open"`
+	Open   int64 `json:"open"`
 	Work   int64 `json:"work"`
 	Closed int64 `json:"closed"`
 }
