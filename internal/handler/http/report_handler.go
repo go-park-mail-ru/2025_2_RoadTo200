@@ -121,3 +121,22 @@ func (h *SupportHandler) parseQueryParams(r *http.Request) (int, int) {
 func (h *SupportHandler) getUserIDFromContext(r *http.Request) (uuid.UUID, error) {
 	return middleware.GetUserIDFromContext(r.Context())
 }
+
+// GetSupportStats godoc
+// @Summary Получить статистику обращений
+// @Description Возвращает статистику по всем обращениям в поддержку
+// @Tags support
+// @Produce json
+// @Security SessionToken
+// @Success 200 {object} SupportStatsResponse "Статистика обращений"
+// @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
+// @Router /api/support/stats [get]
+func (h *SupportHandler) GetSupportStats(w http.ResponseWriter, r *http.Request) {
+	stats, err := h.supportService.GetSupportStats()
+	if err != nil {
+		utils.WriteJSONError(w, http.StatusInternalServerError, "failed to get support stats")
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, stats)
+}

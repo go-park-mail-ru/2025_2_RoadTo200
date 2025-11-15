@@ -123,3 +123,18 @@ func ThemeToHumanCategory(theme ReportTheme) string {
 func DefaultReportStatus() ReportStatus {
 	return ReportStatusOpen
 }
+
+// StatsTimeRange диапазоны времени для статистики
+type StatsTimeRange string
+
+const (
+	StatsRangeToday   StatsTimeRange = "today"
+	StatsRangeWeek    StatsTimeRange = "week"
+	StatsRangeMonth   StatsTimeRange = "month"
+	StatsRangeAllTime StatsTimeRange = "all_time"
+)
+
+// DefaultStatsRange диапазон по умолчанию
+func DefaultStatsRange() StatsTimeRange {
+	return StatsRangeMonth
+}

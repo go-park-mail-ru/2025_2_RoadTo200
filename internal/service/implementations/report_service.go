@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/constants"
@@ -97,5 +98,40 @@ func (s *supportService) convertToResponse(report *domain.Report) *dto.SupportTi
 		Category:  constants.ThemeToHumanCategory(report.Theme),        // Возвращаем человекочитаемое название
 		Status:    string(constants.StatusDisplayNames[report.Status]), // Возвращаем человекочитаемый статус
 		CreatedAt: report.CreatedAt,
+	}
+}
+
+// GetSupportStats возвращает статистику по всем обращениям
+func (s *supportService) GetSupportStats() (*dto.SupportStatsResponse, error) {
+	// Получаем статистику из репозитория
+	dbStats, err := s.reportRepo.GetStatistics()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get statistics: %w", err)
+	}
+
+	// Конвертируем в DTO
+	stats := s.convertStatsToDTO(dbStats)
+
+	return stats, nil
+}
+
+// convertStatsToDTO конвертирует статистику из БД в DTO
+func (s *supportService) convertStatsToDTO(dbStats *interfaces.ReportStatistics) *SupportStatsResponse {
+	return &dto.SupportStatsResponse{
+		TotalTickets: dbStats.TotalTickets,
+		TicketsByCategory: map[string]int{
+			"technical": dbStats.TicketsByTheme.Technical,
+			"feature":   dbStats.TicketsByTheme.Feature,
+			"question":  dbStats.TicketsByTheme.Question,
+			"security":  dbStats.TicketsByTheme.Security,
+			"billing":   dbStats.TicketsByTheme.Billing,
+			"device":    dbStats.TicketsByTheme.Device,
+		},
+		TicketsByStatus: map[string]int{
+			"open":        dbStats.TicketsByStatus.Active,
+			"in_progress": dbStats.TicketsByStatus.Work,
+			"closed":      dbStats.TicketsByStatus.Closed,
+		},
+		AverageResponseTime: dbStats.AverageResponseTime,
 	}
 }

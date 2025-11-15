@@ -9,4 +9,5 @@ type SupportService interface {
 	// For users
 	CreateTicket(userID uuid.UUID, request *dto.SupportTicketRequest) (*dto.SupportTicketResponse, error)
 	GetUserTickets(userID uuid.UUID, limit, offset int) (*dto.SupportTicketsListResponse, error)
+	GetSupportStats() (*dto.SupportStatsResponse, error)
 }
