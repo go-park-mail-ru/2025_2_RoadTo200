@@ -9,6 +9,7 @@ CREATE TYPE gender_preference_enum AS ENUM ('male', 'female', 'both');
 CREATE TYPE swipe_type_enum AS ENUM ('like', 'dislike', 'super_like');
 CREATE TYPE plan_type_enum AS ENUM ('premium', 'gold', 'platinum');
 CREATE TYPE interest_theme_enum AS ENUM ('workout', 'fun', 'party', 'chill', 'love', 'relax', 'yoga', 'friendship', 'culture', 'cinema');
+CREATE TYPE report_theme_enum AS ENUM ('technical', 'feature', 'question', 'security', 'billing', 'device');
 CREATE TYPE report_status_enum AS ENUM ('active', 'work', 'close');
 
 -- Таблица: user
@@ -121,7 +122,7 @@ CREATE TABLE report
 (
     id      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES "user" (id) ON DELETE CASCADE,
-    theme   interest_theme_enum NOT NULL,
+    theme   report_theme_enum NOT NULL,
     problem TEXT NOT NULL,
     contact TEXT NOT NULL,
     comment TEXT,

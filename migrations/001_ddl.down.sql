@@ -13,3 +13,5 @@ drop type gender_preference_enum;
 drop type plan_type_enum;
 drop type swipe_type_enum;
 drop type interest_theme_enum;
+drop type report_theme_enum;
+drop type report_status_enum;
