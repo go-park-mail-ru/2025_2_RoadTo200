@@ -9,6 +9,7 @@ CREATE TYPE gender_preference_enum AS ENUM ('male', 'female', 'both');
 CREATE TYPE swipe_type_enum AS ENUM ('like', 'dislike', 'super_like');
 CREATE TYPE plan_type_enum AS ENUM ('premium', 'gold', 'platinum');
 CREATE TYPE interest_theme_enum AS ENUM ('workout', 'fun', 'party', 'chill', 'love', 'relax', 'yoga', 'friendship', 'culture', 'cinema');
+CREATE TYPE report_status_enum AS ENUM ('active', 'work', 'close');
 
 -- Таблица: user
 CREATE TABLE "user"
@@ -116,6 +117,31 @@ CREATE TABLE interest
     UNIQUE (user_id, theme)
 );
 
+CREATE TABLE report
+(
+    id      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES "user" (id) ON DELETE CASCADE,
+    theme   interest_theme_enum NOT NULL,
+    problem TEXT NOT NULL,
+    contact TEXT NOT NULL,
+    comment TEXT,
+    status report_status_enum NOT NULL DEFAULT 'active',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    work_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    close_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+    CONSTRAINT report_contact_check CHECK (contact ~* '^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$'),
+    CONSTRAINT report_comment_check CHECK (LENGTH(comment) BETWEEN 1 AND 50),
+    CONSTRAINT report_problem_check CHECK (LENGTH(problem) BETWEEN 1 AND 50)
+);
+
+CREATE TABLE screen
+(
+    id      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES "user" (id) ON DELETE CASCADE,
+    url     TEXT
+);
+
 -- Функция для обновления updated_at
 CREATE OR REPLACE FUNCTION update_updated_at_column()
     RETURNS TRIGGER AS
@@ -139,16 +165,5 @@ CREATE TRIGGER update_user_preference_updated_at
     ON user_preference
     FOR EACH ROW
 EXECUTE FUNCTION update_updated_at_column();
-
--- Индексы для производительности
-CREATE INDEX IF NOT EXISTS idx_user_email ON "user"(email);
-CREATE INDEX IF NOT EXISTS idx_user_phone ON "user"(phone);
-CREATE INDEX IF NOT EXISTS idx_user_photo_user_id ON user_photo(user_id);
-CREATE INDEX IF NOT EXISTS idx_swipe_swiper_id ON swipe(swiper_user_id);
-CREATE INDEX IF NOT EXISTS idx_swipe_target_id ON swipe(target_user_id);
-CREATE INDEX IF NOT EXISTS idx_message_sender_id ON message(sender_id);
-CREATE INDEX IF NOT EXISTS idx_message_match_id ON message(match_id);
-CREATE INDEX IF NOT EXISTS idx_match_user1_id ON match(user1_id);
-CREATE INDEX IF NOT EXISTS idx_match_user2_id ON match(user2_id);
 
 SELECT 'DDL executed successfully' as status;

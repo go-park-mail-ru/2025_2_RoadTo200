@@ -1,3 +1,5 @@
+drop table report cascade;
+drop table screen cascade;
 drop table interest;
 drop table user_preference cascade;
 drop table user_photo cascade;
