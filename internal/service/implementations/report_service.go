@@ -2,11 +2,15 @@ package service
 
 import (
 	"fmt"
+	"io"
 	"log"
+	"mime/multipart"
+	"path/filepath"
 	"time"
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/constants"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/errors"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/dto"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
@@ -16,24 +20,30 @@ import (
 
 type supportService struct {
 	reportRepo      interfaces.ReportRepository
+	screenRepo      interfaces.ScreenRepository
+	storageRepo     interfaces.FileStorage
 	logger          logger.Log
 	telegramService TelegramService
 }
 
 func NewSupportService(
 	reportRepo interfaces.ReportRepository,
+	screenRepo interfaces.ScreenRepository,
+	storageRepo interfaces.FileStorage,
 	l logger.Log,
 	telegramService TelegramService,
 ) service.SupportService {
 	return &supportService{
 		reportRepo:      reportRepo,
+		screenRepo:      screenRepo,
+		storageRepo:     storageRepo,
 		logger:          l,
 		telegramService: telegramService,
 	}
 }
 
 // CreateTicket создает новое обращение в поддержку
-func (s *supportService) CreateTicket(userID uuid.UUID, request *dto.SupportTicketRequest) (*dto.SupportTicketResponse, error) {
+func (s *supportService) CreateTicket(userID uuid.UUID, request *dto.SupportTicketRequest, files []*multipart.FileHeader) (*dto.SupportTicketResponse, error) {
 	// Конвертируем человекочитаемую категорию в техническую
 	theme, err := constants.HumanCategoryToTheme(request.Category)
 	if err != nil {
@@ -58,6 +68,10 @@ func (s *supportService) CreateTicket(userID uuid.UUID, request *dto.SupportTick
 	if err := s.reportRepo.Create(report); err != nil {
 		return nil, err
 	}
+	if len(files) > 0 {
+		s.storageRepo.Upload()
+		s.screenRepo.Create()
+	}
 
 	go func() {
 		if err := s.telegramService.SendNewTicketNotification(report); err != nil {
@@ -68,6 +82,63 @@ func (s *supportService) CreateTicket(userID uuid.UUID, request *dto.SupportTick
 
 	s.logger.Infof("Created report with ID: %v for userID: %v", report.ID, userID)
 	return s.convertToResponse(report), nil
+}
+
+// UploadPhotos загружает фотографии пользователя
+func (s *profileService) uploadPhotos(userID uuid.UUID, photos []*multipart.FileHeader) ([]domain.UserPhoto, error) {
+
+	var uploadedPhotos []domain.UserPhoto
+
+	for _, photoHeader := range photos {
+		// Валидация файла
+		if err := s.validatePhotoFile(photoHeader); err != nil {
+			return nil, err
+		}
+
+		// Открываем файл
+		file, err := photoHeader.Open()
+		if err != nil {
+			return nil, fmt.Errorf("failed to open photo: %w", err)
+		}
+		defer file.Close()
+
+		// Читаем содержимое
+		fileBytes, err := io.ReadAll(file)
+		if err != nil {
+			return nil, fmt.Errorf("failed to read photo: %w", err)
+		}
+
+		// Генерируем уникальное имя файла
+		fileExt := filepath.Ext(photoHeader.Filename)
+		fileName := fmt.Sprintf("%s/%s%s", userID.String(), uuid.New().String(), fileExt)
+
+		// Загружаем в файловое хранилище
+		photoURL, err := s.fileStorage.Upload(fileName, fileBytes, photoHeader.Header.Get("Content-Type"))
+		if err != nil {
+			return nil, fmt.Errorf("failed to upload photo: %w", err)
+		}
+
+		// Создаем запись в БД
+		userPhoto := domain.UserPhoto{
+			ID:           uuid.New(),
+			UserID:       userID,
+			PhotoURL:     photoURL,
+			DisplayOrder: nextOrder,
+			IsApproved:   true, // Авто-аппрув для демо
+			CreatedAt:    time.Now(),
+		}
+
+		if err := s.userPhotoRepo.Create(&userPhoto); err != nil {
+			// Пытаемся удалить загруженный файл при ошибке
+			s.fileStorage.Delete(fileName)
+			return nil, err
+		}
+
+		uploadedPhotos = append(uploadedPhotos, userPhoto)
+		nextOrder++
+	}
+
+	return uploadedPhotos, nil
 }
 
 // GetUserTickets возвращает обращения пользователя

@@ -45,11 +45,15 @@ func (h *SupportHandler) CreateSupportTicket(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	var req dto.SupportTicketRequest
-	if err := utils.ReadJSON(r, &req); err != nil {
-		h.logger.Warnf("read json body: %v", err)
-		utils.WriteJSONError(w, http.StatusBadRequest, "invalid JSON")
+	if err := r.ParseMultipartForm(32 << 20); err != nil {
+		http.Error(w, "Failed to parse form data", http.StatusBadRequest)
 		return
+	}
+
+	req := dto.SupportTicketRequest{
+		Category: r.FormValue("category"),
+		Text:     r.FormValue("text"),
+		Email:    r.FormValue("email"),
 	}
 
 	// Валидация обязательных полей
@@ -58,8 +62,9 @@ func (h *SupportHandler) CreateSupportTicket(w http.ResponseWriter, r *http.Requ
 		utils.WriteJSONError(w, http.StatusBadRequest, "category, text and email are required")
 		return
 	}
+	files := r.MultipartForm.File["photos"]
 
-	ticket, err := h.supportService.CreateTicket(userID, &req)
+	ticket, err := h.supportService.CreateTicket(userID, &req, files)
 	if err != nil {
 		h.logger.Errorf("create ticket: %v", err)
 		utils.WriteJSONError(w, http.StatusInternalServerError, "failed to create support ticket")
