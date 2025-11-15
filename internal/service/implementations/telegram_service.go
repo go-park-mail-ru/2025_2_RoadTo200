@@ -7,26 +7,18 @@ import (
 	"strings"
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
-	//"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/constants"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-type TelegramService interface {
-	SendNewTicketNotification(ticket *domain.Report) (int, error)
-	UpdateTicketMessage(chatID int64, messageID int, ticket *domain.Report) error
-	ProcessCallback(callbackData string) (ticketID string, action string, err error)
-	GetBot() *tgbotapi.BotAPI
-}
-
-type telegramService struct {
+type TelegramService struct {
 	bot     *tgbotapi.BotAPI
 	logger  logger.Log
 	chatID  int64
 	enabled bool
 }
 
-func NewTelegramService(token string, l logger.Log, chat string, enabled bool) (TelegramService, error) {
+func NewTelegramService(token string, l logger.Log, chat string, enabled bool) (*TelegramService, error) {
 	token = os.Getenv(token)
 	chatID, err := strconv.ParseInt(os.Getenv(chat), 10, 64)
 	if err != nil {
@@ -34,7 +26,7 @@ func NewTelegramService(token string, l logger.Log, chat string, enabled bool) (
 	}
 	if !enabled || token == "" {
 		l.Error("Telegram service disabled or token not provided")
-		return &telegramService{enabled: false}, nil
+		return &TelegramService{enabled: false}, nil
 	}
 
 	bot, err := tgbotapi.NewBotAPI(token)
@@ -44,7 +36,7 @@ func NewTelegramService(token string, l logger.Log, chat string, enabled bool) (
 
 	l.Debugf("Telegram bot authorized on account %s", bot.Self.UserName)
 
-	return &telegramService{
+	return &TelegramService{
 		bot:     bot,
 		logger:  l,
 		chatID:  chatID,
@@ -52,7 +44,7 @@ func NewTelegramService(token string, l logger.Log, chat string, enabled bool) (
 	}, nil
 }
 
-func (s *telegramService) SendNewTicketNotification(ticket *domain.Report) (int, error) {
+func (s *TelegramService) SendNewTicketNotification(ticket *domain.Report) (int, error) {
 	if !s.enabled {
 		return 0, nil
 	}
@@ -73,7 +65,7 @@ func (s *telegramService) SendNewTicketNotification(ticket *domain.Report) (int,
 	return sentMsg.MessageID, nil
 }
 
-func (s *telegramService) UpdateTicketMessage(chatID int64, messageID int, ticket *domain.Report) error {
+func (s *TelegramService) UpdateTicketMessage(chatID int64, messageID int, ticket *domain.Report) error {
 	if !s.enabled {
 		return nil
 	}
@@ -94,7 +86,7 @@ func (s *telegramService) UpdateTicketMessage(chatID int64, messageID int, ticke
 	return nil
 }
 
-func (s *telegramService) ProcessCallback(callbackData string) (ticketID string, action string, err error) {
+func (s *TelegramService) ProcessCallback(callbackData string) (ticketID string, action string, err error) {
 	// Формат callback_data: "ticket_{action}_{ticketID}"
 	parts := strings.Split(callbackData, "_")
 	if len(parts) != 3 || parts[0] != "ticket" {
@@ -108,11 +100,11 @@ func (s *telegramService) ProcessCallback(callbackData string) (ticketID string,
 	return ticketID, action, nil
 }
 
-func (s *telegramService) GetBot() *tgbotapi.BotAPI {
+func (s *TelegramService) GetBot() *tgbotapi.BotAPI {
 	return s.bot
 }
 
-func (s *telegramService) createTicketKeyboard(ticketID string) tgbotapi.InlineKeyboardMarkup {
+func (s *TelegramService) createTicketKeyboard(ticketID string) tgbotapi.InlineKeyboardMarkup {
 	return tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(
 			tgbotapi.NewInlineKeyboardButtonData("✅ В работу", fmt.Sprintf("ticket_work_%s", ticketID)),
@@ -121,7 +113,7 @@ func (s *telegramService) createTicketKeyboard(ticketID string) tgbotapi.InlineK
 	)
 }
 
-func (s *telegramService) formatTicketMessage(ticket *domain.Report) string {
+func (s *TelegramService) formatTicketMessage(ticket *domain.Report) string {
 	emoji := s.getCategoryEmoji(string(ticket.Theme))
 	themeName := s.getThemeDisplayName(string(ticket.Theme))
 	statusEmoji := s.getStatusEmoji(string(ticket.Status))
@@ -152,7 +144,7 @@ func (s *telegramService) formatTicketMessage(ticket *domain.Report) string {
 	)
 }
 
-func (s *telegramService) getStatusEmoji(status string) string {
+func (s *TelegramService) getStatusEmoji(status string) string {
 	emojis := map[string]string{
 		"open":   "🆕",
 		"work":   "🔄",
@@ -164,7 +156,7 @@ func (s *telegramService) getStatusEmoji(status string) string {
 	return "📄"
 }
 
-func (s *telegramService) getStatusDisplayName(status string) string {
+func (s *TelegramService) getStatusDisplayName(status string) string {
 	statuses := map[string]string{
 		"open":   "Новое",
 		"work":   "В работе",
@@ -176,7 +168,7 @@ func (s *telegramService) getStatusDisplayName(status string) string {
 	return status
 }
 
-func (s *telegramService) getCategoryEmoji(theme string) string {
+func (s *TelegramService) getCategoryEmoji(theme string) string {
 	emojis := map[string]string{
 		"technical": "🔧",
 		"feature":   "💡",
@@ -191,7 +183,7 @@ func (s *telegramService) getCategoryEmoji(theme string) string {
 	return "📄"
 }
 
-func (s *telegramService) getThemeDisplayName(theme string) string {
+func (s *TelegramService) getThemeDisplayName(theme string) string {
 	themes := map[string]string{
 		"technical": "Технические проблемы",
 		"feature":   "Предложения по улучшению",
@@ -207,7 +199,7 @@ func (s *telegramService) getThemeDisplayName(theme string) string {
 	return theme
 }
 
-func (s *telegramService) truncateText(text string, maxLength int) string {
+func (s *TelegramService) truncateText(text string, maxLength int) string {
 	if len(text) <= maxLength {
 		return text
 	}

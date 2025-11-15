@@ -33,9 +33,10 @@ func (a *App) initServices() {
 			a.repositories.Storage,
 			a.logger,
 		),
-		Swipe:  service.NewSwipeService(a.repositories.Swipe, a.repositories.Match),
-		Match:  service.NewMatchService(a.repositories.Match, a.repositories.User, a.repositories.Swipe, a.repositories.Photo, a.logger),
-		Report: service.NewSupportService(a.repositories.Report, a.logger, telegramService),
+		Swipe:    service.NewSwipeService(a.repositories.Swipe, a.repositories.Match),
+		Match:    service.NewMatchService(a.repositories.Match, a.repositories.User, a.repositories.Swipe, a.repositories.Photo, a.logger),
+		Report:   service.NewSupportService(a.repositories.Report, a.logger, telegramService),
+		Telegram: telegramService,
 	}
 }
 
@@ -50,14 +51,14 @@ func (a *App) startTelegramListener() {
 
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60
-
+	a.logger.Info("Telegram callback listener started")
 	updates := a.services.Telegram.GetBot().GetUpdatesChan(u)
-
-	for update := range updates {
-		if update.CallbackQuery != nil {
-			a.handleTelegramCallback(update.CallbackQuery)
-		}
-	}
+	a.logger.Debugf("Updates: %v", updates)
+	//for update := range updates {
+	//	if update.CallbackQuery != nil {
+	//		a.handleTelegramCallback(update.CallbackQuery)
+	//	}
+	//}
 }
 
 // handleTelegramCallback обрабатывает нажатия кнопок в Telegram

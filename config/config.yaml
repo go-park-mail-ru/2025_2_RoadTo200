@@ -1,6 +1,6 @@
 app:
   host: 0.0.0.0
-  port: 8080
+  port: 8081
   prefix: /api/v1
   mode: dev
 
@@ -19,8 +19,7 @@ app:
     base: PG_BASE
     user: PG_USER
     password: PG_PSWD
-    migrations: ./migrations
-    migrated: true
+    migrations: data/migrations/
 
   redis:
     host: RD_HOST

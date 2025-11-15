@@ -17,13 +17,13 @@ import (
 type supportService struct {
 	reportRepo      interfaces.ReportRepository
 	logger          logger.Log
-	telegramService TelegramService
+	telegramService service.TelegramService
 }
 
 func NewSupportService(
 	reportRepo interfaces.ReportRepository,
 	l logger.Log,
-	telegramService TelegramService,
+	telegramService service.TelegramService,
 ) service.SupportService {
 	return &supportService{
 		reportRepo:      reportRepo,
