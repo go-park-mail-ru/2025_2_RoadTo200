@@ -101,7 +101,7 @@ func (h *SupportHandler) GetUserSupportTickets(w http.ResponseWriter, r *http.Re
 // @Produce json
 // @Security SessionToken
 // @Param ticket_id path string true "ID обращения"
-// @Success 200 {object} SupportTicketDetailResponse "Детальная информация об обращении"
+// @Success 200 {object} dto.SupportTicketDetailResponse "Детальная информация об обращении"
 // @Failure 400 {object} map[string]string "Неверный ID обращения"
 // @Failure 401 {object} map[string]string "Не авторизован"
 // @Failure 403 {object} map[string]string "Доступ запрещен"
@@ -177,7 +177,7 @@ func (h *SupportHandler) getUserIDFromContext(r *http.Request) (uuid.UUID, error
 // @Security SessionToken
 // @Success 200 {object} dto.SupportStatsResponse "Статистика обращений"
 // @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
-// @Router /api/support/stats [get]
+// @Router /api/report/stats [get]
 func (h *SupportHandler) GetSupportStats(w http.ResponseWriter, r *http.Request) {
 	stats, err := h.supportService.GetSupportStats()
 	if err != nil {
