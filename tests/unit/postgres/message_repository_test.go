@@ -4,7 +4,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/dto"
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	repository "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/implementations/postgres"
 	"github.com/google/uuid"
@@ -287,7 +286,7 @@ func TestMessageRepository_GetConversations(t *testing.T) {
 
 	userID := uuid.New()
 
-	expectedConversations := []dto.Conversation{
+	expectedConversations := []domain.Conversation{
 		{
 			MatchID:         uuid.New(),
 			OtherUserID:     uuid.New(),
