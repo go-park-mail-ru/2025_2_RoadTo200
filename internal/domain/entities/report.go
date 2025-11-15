@@ -13,9 +13,9 @@ type Report struct {
 	Theme     constants.ReportTheme  `json:"theme"`
 	Problem   string                 `json:"problem"`
 	Contact   string                 `json:"contact"`
-	Comment   string                 `json:"comment"`
+	Comment   *string                `json:"comment"`
 	Status    constants.ReportStatus `json:"status"`
 	CreatedAt time.Time              `json:"report_at"`
-	WorkAt    time.Time              `json:"work_at"`
-	ClosedAt  time.Time              `json:"close_at"`
+	WorkAt    *time.Time             `json:"work_at"`
+	ClosedAt  *time.Time             `json:"close_at"`
 }

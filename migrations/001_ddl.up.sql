@@ -132,8 +132,8 @@ CREATE TABLE report
     closed_at TIMESTAMPTZ DEFAULT NULL,
 
     CONSTRAINT report_contact_check CHECK (contact ~* '^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$'),
-    CONSTRAINT report_comment_check CHECK (LENGTH(comment) BETWEEN 1 AND 50),
-    CONSTRAINT report_problem_check CHECK (LENGTH(problem) BETWEEN 1 AND 50)
+    CONSTRAINT report_comment_check CHECK (LENGTH(comment) BETWEEN 1 AND 250),
+    CONSTRAINT report_problem_check CHECK (LENGTH(problem) BETWEEN 1 AND 250)
 );
 
 CREATE TABLE screen

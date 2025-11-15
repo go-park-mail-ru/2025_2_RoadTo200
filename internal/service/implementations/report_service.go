@@ -43,11 +43,11 @@ func (s *supportService) CreateTicket(userID uuid.UUID, request *dto.SupportTick
 		Theme:     theme,
 		Problem:   request.Text,
 		Contact:   request.Email,
-		Comment:   "",
+		Comment:   nil,
 		Status:    constants.DefaultReportStatus(),
 		CreatedAt: time.Now(),
-		WorkAt:    time.Time{},
-		ClosedAt:  time.Time{},
+		WorkAt:    nil,
+		ClosedAt:  nil,
 	}
 
 	// Сохраняем в БД
