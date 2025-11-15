@@ -41,12 +41,13 @@ type Repositories struct {
 }
 
 type Services struct {
-	Auth    service.AuthService
-	Feed    service.FeedService
-	Profile service.ProfileService
-	Swipe   service.SwipeService
-	Match   service.MatchService
-	Report  service.SupportService
+	Auth     service.AuthService
+	Feed     service.FeedService
+	Profile  service.ProfileService
+	Swipe    service.SwipeService
+	Match    service.MatchService
+	Report   service.SupportService
+	Telegram service.TelegramService
 }
 
 type Handlers struct {

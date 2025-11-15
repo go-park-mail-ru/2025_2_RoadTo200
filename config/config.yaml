@@ -32,3 +32,9 @@ app:
     secret_access_key: MN_PSWD
     address: MN_ADDRESS
     bucket_name: "terabithia-photos"
+
+  telegram:
+    bot_token: "8518602983:AAHMRXQXE-7L1r_Gme5MiF3TCtwU4AaoGA4"
+    chat_id: -1003438916813
+    enabled: true
+

@@ -6,6 +6,19 @@ import (
 
 func (a *App) initServices() {
 	// Инициализация сервисов с зависимостями
+	telegramService, err := service.NewTelegramService(
+		a.config.Telegram.BotToken,
+		a.config.Telegram.ChatID,
+		a.config.Telegram.Enabled,
+	)
+	if err != nil {
+		a.logger.Errorf("Failed to initialize Telegram service: %v", err)
+		// Создаем заглушку если телеграм не работает
+		//telegramService = &service.TelegramServiceStub{}
+	} else {
+		a.logger.Info("Telegram service initialized successfully")
+	}
+
 	a.services = &Services{
 		Auth: service.NewAuthService(a.repositories.User, a.repositories.Session, a.logger),
 		Feed: service.NewFeedService(a.repositories.User, a.repositories.Preference, a.repositories.Photo, a.logger),
@@ -18,6 +31,6 @@ func (a *App) initServices() {
 		),
 		Swipe:  service.NewSwipeService(a.repositories.Swipe, a.repositories.Match),
 		Match:  service.NewMatchService(a.repositories.Match, a.repositories.User, a.repositories.Swipe, a.repositories.Photo, a.logger),
-		Report: service.NewSupportService(a.repositories.Report, a.logger),
+		Report: service.NewSupportService(a.repositories.Report, a.logger, telegramService),
 	}
 }

@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/constants"
@@ -14,17 +15,20 @@ import (
 )
 
 type supportService struct {
-	reportRepo interfaces.ReportRepository
-	logger     logger.Log
+	reportRepo      interfaces.ReportRepository
+	logger          logger.Log
+	telegramService TelegramService
 }
 
 func NewSupportService(
 	reportRepo interfaces.ReportRepository,
 	l logger.Log,
+	telegramService TelegramService,
 ) service.SupportService {
 	return &supportService{
-		reportRepo: reportRepo,
-		logger:     l,
+		reportRepo:      reportRepo,
+		logger:          l,
+		telegramService: telegramService,
 	}
 }
 
@@ -54,6 +58,13 @@ func (s *supportService) CreateTicket(userID uuid.UUID, request *dto.SupportTick
 	if err := s.reportRepo.Create(report); err != nil {
 		return nil, err
 	}
+
+	go func() {
+		if err := s.telegramService.SendNewTicketNotification(report); err != nil {
+			log.Printf("Failed to send telegram notification: %v", err)
+			// Не прерываем создание тикета из-за ошибки телеграма
+		}
+	}()
 
 	s.logger.Infof("Created report with ID: %v for userID: %v", report.ID, userID)
 	return s.convertToResponse(report), nil
