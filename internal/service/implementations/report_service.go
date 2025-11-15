@@ -2,7 +2,7 @@ package service
 
 import (
 	"fmt"
-	"log"
+	//"log"
 	"time"
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/constants"
@@ -60,9 +60,12 @@ func (s *supportService) CreateTicket(userID uuid.UUID, request *dto.SupportTick
 	}
 
 	go func() {
-		if err := s.telegramService.SendNewTicketNotification(report); err != nil {
-			log.Printf("Failed to send telegram notification: %v", err)
-			// Не прерываем создание тикета из-за ошибки телеграма
+		messageID, err := s.telegramService.SendNewTicketNotification(report)
+		if err != nil {
+			s.logger.Errorf("Failed to send telegram notification: %v", err)
+		} else {
+			// Сохраняем ID сообщения если нужно (опционально)
+			s.logger.Infof("Telegram notification sent with message ID: %d", messageID)
 		}
 	}()
 

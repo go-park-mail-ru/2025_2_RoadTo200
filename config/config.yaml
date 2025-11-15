@@ -19,6 +19,8 @@ app:
     base: PG_BASE
     user: PG_USER
     password: PG_PSWD
+    migrations: ./migrations
+    migrated: true
 
   redis:
     host: RD_HOST

@@ -88,5 +88,7 @@ func Run() {
 	app.logger.Info("✅ Handlers initialized")
 	app.initServer()
 	app.logger.Info("✅ Server initialized")
+
+	app.startTelegramListener()
 	app.runServer()
 }
