@@ -6,11 +6,11 @@ import (
 	"log"
 	"mime/multipart"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/constants"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/errors"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/dto"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
@@ -69,8 +69,10 @@ func (s *supportService) CreateTicket(userID uuid.UUID, request *dto.SupportTick
 		return nil, err
 	}
 	if len(files) > 0 {
-		s.storageRepo.Upload()
-		s.screenRepo.Create()
+		err = s.uploadPhotos(userID, files)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	go func() {
@@ -85,27 +87,25 @@ func (s *supportService) CreateTicket(userID uuid.UUID, request *dto.SupportTick
 }
 
 // UploadPhotos загружает фотографии пользователя
-func (s *profileService) uploadPhotos(userID uuid.UUID, photos []*multipart.FileHeader) ([]domain.UserPhoto, error) {
-
-	var uploadedPhotos []domain.UserPhoto
+func (s *supportService) uploadPhotos(userID uuid.UUID, photos []*multipart.FileHeader) error {
 
 	for _, photoHeader := range photos {
 		// Валидация файла
 		if err := s.validatePhotoFile(photoHeader); err != nil {
-			return nil, err
+			return err
 		}
 
 		// Открываем файл
 		file, err := photoHeader.Open()
 		if err != nil {
-			return nil, fmt.Errorf("failed to open photo: %w", err)
+			return fmt.Errorf("failed to open photo: %w", err)
 		}
 		defer file.Close()
 
 		// Читаем содержимое
 		fileBytes, err := io.ReadAll(file)
 		if err != nil {
-			return nil, fmt.Errorf("failed to read photo: %w", err)
+			return fmt.Errorf("failed to read photo: %w", err)
 		}
 
 		// Генерируем уникальное имя файла
@@ -113,32 +113,47 @@ func (s *profileService) uploadPhotos(userID uuid.UUID, photos []*multipart.File
 		fileName := fmt.Sprintf("%s/%s%s", userID.String(), uuid.New().String(), fileExt)
 
 		// Загружаем в файловое хранилище
-		photoURL, err := s.fileStorage.Upload(fileName, fileBytes, photoHeader.Header.Get("Content-Type"))
+		link, err := s.storageRepo.Upload(fileName, fileBytes, photoHeader.Header.Get("Content-Type"))
 		if err != nil {
-			return nil, fmt.Errorf("failed to upload photo: %w", err)
+			return fmt.Errorf("failed to upload photo: %w", err)
 		}
 
-		// Создаем запись в БД
-		userPhoto := domain.UserPhoto{
-			ID:           uuid.New(),
-			UserID:       userID,
-			PhotoURL:     photoURL,
-			DisplayOrder: nextOrder,
-			IsApproved:   true, // Авто-аппрув для демо
-			CreatedAt:    time.Now(),
+		screen := domain.Screen{
+			ReportId: userID,
+			Url:      link,
 		}
-
-		if err := s.userPhotoRepo.Create(&userPhoto); err != nil {
+		if err := s.screenRepo.Create(&screen); err != nil {
 			// Пытаемся удалить загруженный файл при ошибке
-			s.fileStorage.Delete(fileName)
-			return nil, err
+			s.storageRepo.Delete(fileName)
+			return err
 		}
-
-		uploadedPhotos = append(uploadedPhotos, userPhoto)
-		nextOrder++
 	}
 
-	return uploadedPhotos, nil
+	return nil
+}
+
+// validatePhotoFile валидация загружаемого фото
+func (s *supportService) validatePhotoFile(photo *multipart.FileHeader) error {
+	// Проверка размера файла
+	if photo.Size > constants.MaxPhotoSize {
+		return fmt.Errorf("file too large, max size is %dMB", constants.MaxPhotoSize/(1024*1024))
+	}
+
+	// Проверка MIME типа
+	mimeType := photo.Header.Get("Content-Type")
+	allowedTypes := strings.Split(constants.AllowedMimeTypes, ",")
+	valid := false
+	for _, allowedType := range allowedTypes {
+		if mimeType == strings.TrimSpace(allowedType) {
+			valid = true
+			break
+		}
+	}
+	if !valid {
+		return fmt.Errorf("invalid file type: %s, allowed: %s", mimeType, constants.AllowedMimeTypes)
+	}
+
+	return nil
 }
 
 // GetUserTickets возвращает обращения пользователя
