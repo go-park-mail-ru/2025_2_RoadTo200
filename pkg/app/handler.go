@@ -10,5 +10,6 @@ func (a *App) initHandlers() {
 		Profile: handler.NewProfileHandler(a.services.Profile, a.logger),
 		Swipe:   handler.NewSwipeHandler(a.services.Swipe, a.logger),
 		Match:   handler.NewMatchHandler(a.services.Match, a.logger),
+		Report:  handler.NewSupportHandler(a.services.Report, a.logger),
 	}
 }

@@ -37,6 +37,7 @@ type Repositories struct {
 	Photo        interfaces.UserPhotoRepository
 	Session      interfaces.SessionRepository
 	User         interfaces.UserRepository
+	Report       interfaces.ReportRepository
 }
 
 type Services struct {
@@ -45,6 +46,7 @@ type Services struct {
 	Profile service.ProfileService
 	Swipe   service.SwipeService
 	Match   service.MatchService
+	Report  service.SupportService
 }
 
 type Handlers struct {

@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/dto"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/middleware"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/utils"
 	"github.com/google/uuid"
@@ -13,11 +14,13 @@ import (
 
 type SupportHandler struct {
 	supportService service.SupportService
+	logger         logger.Log
 }
 
-func NewSupportHandler(supportService service.SupportService) *SupportHandler {
+func NewSupportHandler(supportService service.SupportService, l logger.Log) *SupportHandler {
 	return &SupportHandler{
 		supportService: supportService,
+		logger:         l,
 	}
 }
 
@@ -35,26 +38,30 @@ func NewSupportHandler(supportService service.SupportService) *SupportHandler {
 // @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
 // @Router /api/report [post]
 func (h *SupportHandler) CreateSupportTicket(w http.ResponseWriter, r *http.Request) {
-	userID, err := h.getUserIDFromContext(r)
+	userID, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
+		h.logger.Warnf("get user id from context: %v", err)
 		utils.WriteJSONError(w, http.StatusUnauthorized, "unauthorized")
 		return
 	}
 
 	var req dto.SupportTicketRequest
 	if err := utils.ReadJSON(r, &req); err != nil {
+		h.logger.Warnf("read json body: %v", err)
 		utils.WriteJSONError(w, http.StatusBadRequest, "invalid JSON")
 		return
 	}
 
 	// Валидация обязательных полей
 	if req.Category == "" || req.Text == "" || req.Email == "" {
+		h.logger.Warnf("invalid request: %v", req)
 		utils.WriteJSONError(w, http.StatusBadRequest, "category, text and email are required")
 		return
 	}
 
 	ticket, err := h.supportService.CreateTicket(userID, &req)
 	if err != nil {
+		h.logger.Errorf("create ticket: %v", err)
 		utils.WriteJSONError(w, http.StatusInternalServerError, "failed to create support ticket")
 		return
 	}
@@ -76,8 +83,9 @@ func (h *SupportHandler) CreateSupportTicket(w http.ResponseWriter, r *http.Requ
 // @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
 // @Router /api/report [get]
 func (h *SupportHandler) GetUserSupportTickets(w http.ResponseWriter, r *http.Request) {
-	userID, err := h.getUserIDFromContext(r)
+	userID, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
+		h.logger.Warnf("get user id from context: %v", err)
 		utils.WriteJSONError(w, http.StatusUnauthorized, "unauthorized")
 		return
 	}
@@ -87,6 +95,7 @@ func (h *SupportHandler) GetUserSupportTickets(w http.ResponseWriter, r *http.Re
 
 	tickets, err := h.supportService.GetUserTickets(userID, limit, offset)
 	if err != nil {
+		h.logger.Errorf("get user tickets: %v", err)
 		utils.WriteJSONError(w, http.StatusInternalServerError, "failed to get support tickets")
 		return
 	}
@@ -109,8 +118,9 @@ func (h *SupportHandler) GetUserSupportTickets(w http.ResponseWriter, r *http.Re
 // @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
 // @Router /api/report/{ticket_id} [get]
 func (h *SupportHandler) GetUserSupportTicket(w http.ResponseWriter, r *http.Request) {
-	userID, err := h.getUserIDFromContext(r)
+	userID, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
+		h.logger.Warnf("get user id from context: %v", err)
 		utils.WriteJSONError(w, http.StatusUnauthorized, "unauthorized")
 		return
 	}
@@ -118,12 +128,14 @@ func (h *SupportHandler) GetUserSupportTicket(w http.ResponseWriter, r *http.Req
 	// Получаем ticket_id из URL
 	ticketIDStr := r.URL.Path[len("/api/report/"):]
 	if ticketIDStr == "" {
+		h.logger.Warnf("ticketIDStr is empty")
 		utils.WriteJSONError(w, http.StatusBadRequest, "ticket ID is required")
 		return
 	}
 
 	ticketID, err := uuid.Parse(ticketIDStr)
 	if err != nil {
+		h.logger.Warnf("ticketIDStr is invalid: %v", err)
 		utils.WriteJSONError(w, http.StatusBadRequest, "invalid ticket ID")
 		return
 	}
@@ -131,9 +143,11 @@ func (h *SupportHandler) GetUserSupportTicket(w http.ResponseWriter, r *http.Req
 	ticket, err := h.supportService.GetUserTicket(userID, ticketID)
 	if err != nil {
 		if err.Error() == "access denied" {
+			h.logger.Warnf("ticket does not exist: %v", err)
 			utils.WriteJSONError(w, http.StatusForbidden, "access denied")
 			return
 		}
+		h.logger.Errorf("get ticket: %v", err)
 		utils.WriteJSONError(w, http.StatusInternalServerError, "failed to get ticket")
 		return
 	}
@@ -164,11 +178,6 @@ func (h *SupportHandler) parseQueryParams(r *http.Request) (int, int) {
 	return limit, offset
 }
 
-// getUserIDFromContext извлекает userID из контекста
-func (h *SupportHandler) getUserIDFromContext(r *http.Request) (uuid.UUID, error) {
-	return middleware.GetUserIDFromContext(r.Context())
-}
-
 // GetSupportStats godoc
 // @Summary Получить статистику обращений
 // @Description Возвращает статистику по всем обращениям в поддержку
@@ -181,6 +190,7 @@ func (h *SupportHandler) getUserIDFromContext(r *http.Request) (uuid.UUID, error
 func (h *SupportHandler) GetSupportStats(w http.ResponseWriter, r *http.Request) {
 	stats, err := h.supportService.GetSupportStats()
 	if err != nil {
+		h.logger.Errorf("get support stats: %v", err)
 		utils.WriteJSONError(w, http.StatusInternalServerError, "failed to get support stats")
 		return
 	}

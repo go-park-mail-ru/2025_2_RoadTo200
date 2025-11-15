@@ -18,10 +18,10 @@ func NewReportRepository(pool interfaces.PgxIface) *ReportRepository {
 	return &ReportRepository{pool}
 }
 
-func (r *ReportRepository) GetAll(limit, offset int) ([]domain.Report, error) {
-	query := `SELECT * FROM report LIMIT $1 OFFSET $2;`
+func (r *ReportRepository) GetAll() ([]domain.Report, error) {
+	query := `SELECT * FROM report`
 
-	rows, err := r.pool.Query(context.Background(), query, limit, offset)
+	rows, err := r.pool.Query(context.Background(), query)
 	if err != nil {
 		return nil, err
 	}
