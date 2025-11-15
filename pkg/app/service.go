@@ -54,11 +54,13 @@ func (a *App) startTelegramListener() {
 	a.logger.Info("Telegram callback listener started")
 	updates := a.services.Telegram.GetBot().GetUpdatesChan(u)
 	a.logger.Debugf("Updates: %v", updates)
-	//for update := range updates {
-	//	if update.CallbackQuery != nil {
-	//		a.handleTelegramCallback(update.CallbackQuery)
-	//	}
-	//}
+	go func() {
+		for update := range updates {
+			if update.CallbackQuery != nil {
+				a.handleTelegramCallback(update.CallbackQuery)
+			}
+		}
+	}()
 }
 
 // handleTelegramCallback обрабатывает нажатия кнопок в Telegram
@@ -90,13 +92,14 @@ func (a *App) handleTelegramCallback(callback *tgbotapi.CallbackQuery) {
 		a.logger.Errorf("Invalid ticket ID: %v", err)
 		return
 	}
-
+	a.logger.Infof("Updating ticket %v", ticketUUID)
 	err = a.repositories.Report.UpdateStatus(ticketUUID, newStatus)
 	if err != nil {
 		a.logger.Errorf("Failed to update ticket status: %v", err)
 		return
 	}
 
+	a.logger.Info("Get Report")
 	// Получаем обновленный тикет
 	ticket, err := a.repositories.Report.GetById(ticketUUID)
 	if err != nil {
@@ -104,6 +107,7 @@ func (a *App) handleTelegramCallback(callback *tgbotapi.CallbackQuery) {
 		return
 	}
 
+	a.logger.Infof("Updating ticket Message %v", ticket)
 	// Обновляем сообщение в Telegram
 	err = a.services.Telegram.UpdateTicketMessage(
 		callback.Message.Chat.ID,
@@ -115,6 +119,7 @@ func (a *App) handleTelegramCallback(callback *tgbotapi.CallbackQuery) {
 		return
 	}
 
+	a.logger.Info("Callback")
 	// Отправляем ответ на callback (убирает "часики" у кнопки)
 	callbackConfig := tgbotapi.NewCallback(callback.ID, "✅ Статус обновлен!")
 	if _, err := a.services.Telegram.GetBot().Request(callbackConfig); err != nil {

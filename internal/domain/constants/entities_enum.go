@@ -76,7 +76,7 @@ type ReportStatus string
 const (
 	ReportStatusOpen   ReportStatus = "open"
 	ReportStatusWork   ReportStatus = "work"
-	ReportStatusClosed ReportStatus = "closed"
+	ReportStatusClosed ReportStatus = "close"
 )
 
 // CategoryMapping маппинг человекочитаемых названий в технические

@@ -70,6 +70,7 @@ func (s *TelegramService) UpdateTicketMessage(chatID int64, messageID int, ticke
 		return nil
 	}
 
+	s.logger.Debugf("Updating ticket Message %v", ticket)
 	message := s.formatTicketMessage(ticket)
 	keyboard := s.createTicketKeyboard(ticket.ID.String())
 
@@ -114,9 +115,12 @@ func (s *TelegramService) createTicketKeyboard(ticketID string) tgbotapi.InlineK
 }
 
 func (s *TelegramService) formatTicketMessage(ticket *domain.Report) string {
+	s.logger.Debugf("formatTicketMessage: ticket ID: %d", ticket.ID)
 	emoji := s.getCategoryEmoji(string(ticket.Theme))
 	themeName := s.getThemeDisplayName(string(ticket.Theme))
 	statusEmoji := s.getStatusEmoji(string(ticket.Status))
+
+	s.logger.Debugf("emoji %s, %s %s", emoji, statusEmoji, themeName)
 
 	return fmt.Sprintf(
 		`%s <b>ОБРАЩЕНИЕ</b> %s

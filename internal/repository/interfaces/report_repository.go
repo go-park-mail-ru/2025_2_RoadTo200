@@ -26,7 +26,7 @@ type ThemeStats struct {
 type StatusStats struct {
 	Open   int64 `json:"open"`
 	Work   int64 `json:"work"`
-	Closed int64 `json:"closed"`
+	Closed int64 `json:"close"`
 }
 
 type ReportRepository interface {
