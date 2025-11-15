@@ -28,8 +28,8 @@ func NewSupportHandler(supportService service.SupportService) *SupportHandler {
 // @Accept json
 // @Produce json
 // @Security SessionToken
-// @Param request body SupportTicketRequest true "Данные обращения"
-// @Success 201 {object} SupportTicketResponse "Обращение создано"
+// @Param request body dto.SupportTicketRequest true "Данные обращения"
+// @Success 201 {object} dto.SupportTicketResponse "Обращение создано"
 // @Failure 400 {object} map[string]string "Неверный запрос"
 // @Failure 401 {object} map[string]string "Не авторизован"
 // @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
@@ -70,7 +70,7 @@ func (h *SupportHandler) CreateSupportTicket(w http.ResponseWriter, r *http.Requ
 // @Security SessionToken
 // @Param limit query int false "Лимит обращений" default(20) minimum(1) maximum(50)
 // @Param offset query int false "Смещение" default(0) minimum(0)
-// @Success 200 {object} SupportTicketsListResponse "Список обращений"
+// @Success 200 {object} dto.SupportTicketsListResponse "Список обращений"
 // @Failure 400 {object} map[string]string "Неверные параметры запроса"
 // @Failure 401 {object} map[string]string "Не авторизован"
 // @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
@@ -128,7 +128,7 @@ func (h *SupportHandler) getUserIDFromContext(r *http.Request) (uuid.UUID, error
 // @Tags support
 // @Produce json
 // @Security SessionToken
-// @Success 200 {object} SupportStatsResponse "Статистика обращений"
+// @Success 200 {object} dto.SupportStatsResponse "Статистика обращений"
 // @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
 // @Router /api/support/stats [get]
 func (h *SupportHandler) GetSupportStats(w http.ResponseWriter, r *http.Request) {
