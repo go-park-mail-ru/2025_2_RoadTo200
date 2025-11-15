@@ -39,4 +39,8 @@ var (
 
 	// Match errors
 	ErrMatchNotFound = errors.New("match not found")
+
+	// Report errors
+	ErrReportNotFound = errors.New("report not found")
+	ErrReportCategory = errors.New("unknown category")
 )

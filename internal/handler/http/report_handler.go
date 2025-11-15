@@ -1,0 +1,123 @@
+package handler
+
+import (
+	"net/http"
+	"strconv"
+
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/dto"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/middleware"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/utils"
+	"github.com/google/uuid"
+)
+
+type SupportHandler struct {
+	supportService service.SupportService
+}
+
+func NewSupportHandler(supportService service.SupportService) *SupportHandler {
+	return &SupportHandler{
+		supportService: supportService,
+	}
+}
+
+// CreateSupportTicket godoc
+// @Summary Создать обращение в поддержку
+// @Description Создает новое обращение в техническую поддержку
+// @Tags support
+// @Accept json
+// @Produce json
+// @Security SessionToken
+// @Param request body SupportTicketRequest true "Данные обращения"
+// @Success 201 {object} SupportTicketResponse "Обращение создано"
+// @Failure 400 {object} map[string]string "Неверный запрос"
+// @Failure 401 {object} map[string]string "Не авторизован"
+// @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
+// @Router /api/support/tickets [post]
+func (h *SupportHandler) CreateSupportTicket(w http.ResponseWriter, r *http.Request) {
+	userID, err := h.getUserIDFromContext(r)
+	if err != nil {
+		utils.WriteJSONError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	var req dto.SupportTicketRequest
+	if err := utils.ReadJSON(r, &req); err != nil {
+		utils.WriteJSONError(w, http.StatusBadRequest, "invalid JSON")
+		return
+	}
+
+	// Валидация обязательных полей
+	if req.Category == "" || req.Text == "" || req.Email == "" {
+		utils.WriteJSONError(w, http.StatusBadRequest, "category, text and email are required")
+		return
+	}
+
+	ticket, err := h.supportService.CreateTicket(userID, &req)
+	if err != nil {
+		utils.WriteJSONError(w, http.StatusInternalServerError, "failed to create support ticket")
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusCreated, ticket)
+}
+
+// GetUserSupportTickets godoc
+// @Summary Получить мои обращения
+// @Description Возвращает список обращений текущего пользователя
+// @Tags support
+// @Produce json
+// @Security SessionToken
+// @Param limit query int false "Лимит обращений" default(20) minimum(1) maximum(50)
+// @Param offset query int false "Смещение" default(0) minimum(0)
+// @Success 200 {object} SupportTicketsListResponse "Список обращений"
+// @Failure 400 {object} map[string]string "Неверные параметры запроса"
+// @Failure 401 {object} map[string]string "Не авторизован"
+// @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
+// @Router /api/support/tickets [get]
+func (h *SupportHandler) GetUserSupportTickets(w http.ResponseWriter, r *http.Request) {
+	userID, err := h.getUserIDFromContext(r)
+	if err != nil {
+		utils.WriteJSONError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	// Парсим параметры пагинации
+	limit, offset := h.parseQueryParams(r)
+
+	tickets, err := h.supportService.GetUserTickets(userID, limit, offset)
+	if err != nil {
+		utils.WriteJSONError(w, http.StatusInternalServerError, "failed to get support tickets")
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, tickets)
+}
+
+// parseQueryParams парсит параметры запроса для пагинации
+func (h *SupportHandler) parseQueryParams(r *http.Request) (int, int) {
+	limitStr := r.URL.Query().Get("limit")
+	offsetStr := r.URL.Query().Get("offset")
+
+	limit := 20 // значение по умолчанию
+	offset := 0
+
+	if limitStr != "" {
+		if l, err := strconv.Atoi(limitStr); err == nil && l > 0 && l <= 50 {
+			limit = l
+		}
+	}
+
+	if offsetStr != "" {
+		if o, err := strconv.Atoi(offsetStr); err == nil && o >= 0 {
+			offset = o
+		}
+	}
+
+	return limit, offset
+}
+
+// getUserIDFromContext извлекает userID из контекста
+func (h *SupportHandler) getUserIDFromContext(r *http.Request) (uuid.UUID, error) {
+	return middleware.GetUserIDFromContext(r.Context())
+}
