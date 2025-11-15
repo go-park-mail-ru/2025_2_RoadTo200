@@ -2,12 +2,13 @@ package service
 
 import (
 	"fmt"
-	"log"
+	"os"
+	"strconv"
 	"strings"
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	//"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/constants"
 )
 
 type TelegramService interface {
@@ -16,13 +17,19 @@ type TelegramService interface {
 
 type telegramService struct {
 	bot     *tgbotapi.BotAPI
+	logger  logger.Log
 	chatID  int64
 	enabled bool
 }
 
-func NewTelegramService(token string, chatID int64, enabled bool) (TelegramService, error) {
+func NewTelegramService(token string, l logger.Log, chat string, enabled bool) (TelegramService, error) {
+	token = os.Getenv(token)
+	chatID, err := strconv.ParseInt(os.Getenv(chat), 10, 64)
+	if err != nil {
+		return nil, err
+	}
 	if !enabled || token == "" {
-		log.Println("Telegram service disabled or token not provided")
+		l.Error("Telegram service disabled or token not provided")
 		return &telegramService{enabled: false}, nil
 	}
 
@@ -31,10 +38,11 @@ func NewTelegramService(token string, chatID int64, enabled bool) (TelegramServi
 		return nil, fmt.Errorf("failed to create telegram bot: %w", err)
 	}
 
-	log.Printf("Telegram bot authorized on account %s", bot.Self.UserName)
+	l.Debugf("Telegram bot authorized on account %s", bot.Self.UserName)
 
 	return &telegramService{
 		bot:     bot,
+		logger:  l,
 		chatID:  chatID,
 		enabled: true,
 	}, nil
@@ -55,7 +63,7 @@ func (s *telegramService) SendNewTicketNotification(ticket *domain.Report) error
 		return fmt.Errorf("failed to send telegram message: %w", err)
 	}
 
-	log.Printf("Telegram notification sent for ticket %s", ticket.ID)
+	s.logger.Debugf("Telegram notification sent for ticket %s", ticket.ID)
 	return nil
 }
 

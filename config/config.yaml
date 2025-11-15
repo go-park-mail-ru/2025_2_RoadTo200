@@ -2,7 +2,7 @@ app:
   host: 0.0.0.0
   port: 8080
   prefix: /api/v1
-  mode: release
+  mode: dev
 
   cors:
     allowed_origins:
@@ -34,7 +34,7 @@ app:
     bucket_name: "terabithia-photos"
 
   telegram:
-    bot_token: "8518602983:AAHMRXQXE-7L1r_Gme5MiF3TCtwU4AaoGA4"
-    chat_id: -1003438916813
+    bot_token: TG_TOKEN
+    chat_id: TG_CHAT
     enabled: true
 

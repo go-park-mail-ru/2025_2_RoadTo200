@@ -80,9 +80,9 @@ type MinIOConfig struct {
 }
 
 type TelegramConfig struct {
-	BotToken string `mapstructure:"bot_token"`
-	ChatID   int64  `mapstructure:"chat_id"`
-	Enabled  bool   `mapstructure:"enabled"`
+	BotToken string `yaml:"bot_token"`
+	ChatID   string `yaml:"chat_id"`
+	Enabled  bool   `yaml:"enabled"`
 }
 
 func NewConfig() (*Config, error) {

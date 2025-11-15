@@ -8,11 +8,12 @@ func (a *App) initServices() {
 	// Инициализация сервисов с зависимостями
 	telegramService, err := service.NewTelegramService(
 		a.config.Telegram.BotToken,
+		a.logger,
 		a.config.Telegram.ChatID,
 		a.config.Telegram.Enabled,
 	)
 	if err != nil {
-		a.logger.Errorf("Failed to initialize Telegram service: %v", err)
+		a.logger.Fatalf("Failed to initialize Telegram service: %v", err)
 		// Создаем заглушку если телеграм не работает
 		//telegramService = &service.TelegramServiceStub{}
 	} else {
