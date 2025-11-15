@@ -18,6 +18,42 @@ func NewReportRepository(pool interfaces.PgxIface) *ReportRepository {
 	return &ReportRepository{pool}
 }
 
+func (r *ReportRepository) GetAll(limit, offset int) ([]domain.Report, error) {
+	query := `SELECT * FROM report LIMIT $1 OFFSET $2;`
+
+	rows, err := r.pool.Query(context.Background(), query, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var reports []domain.Report
+	for rows.Next() {
+		var report domain.Report
+		err := rows.Scan(
+			&report.ID,
+			&report.UserID,
+			&report.Theme,
+			&report.Problem,
+			&report.Contact,
+			&report.Comment,
+			&report.Status,
+			&report.CreatedAt,
+			&report.WorkAt,
+			&report.ClosedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		reports = append(reports, report)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return reports, nil
+}
+
 func (r *ReportRepository) Create(report *domain.Report) error {
 	query := `
 		INSERT INTO report (user_id, theme, problem, contact)
