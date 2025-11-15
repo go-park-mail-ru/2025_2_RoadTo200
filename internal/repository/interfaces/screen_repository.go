@@ -6,7 +6,7 @@ import (
 )
 
 type ScreenRepository interface {
-	Create(report *domain.Screen) (*domain.Report, error)
+	Create(report *domain.Screen) error
 	GetById(id uuid.UUID) (*domain.Screen, error)
-	GetByUserId(reportId uuid.UUID) (*domain.Screen, error)
+	GetByReportId(reportId uuid.UUID) (*domain.Screen, error)
 }

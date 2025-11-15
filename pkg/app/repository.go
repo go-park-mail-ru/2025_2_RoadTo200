@@ -17,5 +17,6 @@ func (a *App) initRepository() {
 		Swipe:      postgres.NewSwipeRepository(a.resources.Postgres),
 		Match:      postgres.NewMatchRepository(a.resources.Postgres),
 		Report:     postgres.NewReportRepository(a.resources.Postgres),
+		Screen:     postgres.NewScreenRepository(a.resources.Postgres),
 	}
 }

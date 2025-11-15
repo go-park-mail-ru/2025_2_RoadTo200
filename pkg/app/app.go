@@ -38,6 +38,7 @@ type Repositories struct {
 	Session      interfaces.SessionRepository
 	User         interfaces.UserRepository
 	Report       interfaces.ReportRepository
+	Screen       interfaces.ScreenRepository
 }
 
 type Services struct {
