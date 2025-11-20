@@ -6,9 +6,9 @@ import (
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/implementations/redis"
 )
 
-func (a *App) initRepository() *Repositories {
+func (a *App) initRepository() {
 	// Репозитории
-	return &Repositories{
+	a.repositories = &Repositories{
 		Storage:    minio.NewStorageRepository(a.resources.MinIO, &a.config.MinIO),
 		User:       postgres.NewUserRepository(a.resources.Postgres, a.logger),
 		Session:    redis.NewSessionRepository(a.resources.Redis),
