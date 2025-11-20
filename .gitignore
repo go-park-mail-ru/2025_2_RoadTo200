@@ -9,3 +9,6 @@
 .build/
 docs/
 .github/
+config/config.yaml
+MIGRATIONS_WALKTHROUGH.md
+config.yaml
