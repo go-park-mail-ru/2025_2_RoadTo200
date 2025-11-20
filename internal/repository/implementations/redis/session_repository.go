@@ -1,6 +1,7 @@
 package redis
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -21,7 +22,7 @@ func NewSessionRepository(pool *redis.Pool) repository.SessionRepository {
 }
 
 // Set сохраняет сессию в Redis
-func (r *SessionRepository) Set(session *domain.Session) error {
+func (r *SessionRepository) Set(ctx context.Context, session *domain.Session) error {
 	conn := r.pool.Get()
 	defer conn.Close()
 
@@ -42,7 +43,7 @@ func (r *SessionRepository) Set(session *domain.Session) error {
 }
 
 // Get получает сессию по ID
-func (r *SessionRepository) Get(sessionID string) (*domain.Session, error) {
+func (r *SessionRepository) Get(ctx context.Context, sessionID string) (*domain.Session, error) {
 	conn := r.pool.Get()
 	defer conn.Close()
 
@@ -64,7 +65,7 @@ func (r *SessionRepository) Get(sessionID string) (*domain.Session, error) {
 }
 
 // Delete удаляет сессию
-func (r *SessionRepository) Delete(sessionID string) error {
+func (r *SessionRepository) Delete(ctx context.Context, sessionID string) error {
 	conn := r.pool.Get()
 	defer conn.Close()
 
@@ -78,7 +79,7 @@ func (r *SessionRepository) Delete(sessionID string) error {
 }
 
 // Exists проверяет существование сессии
-func (r *SessionRepository) Exists(sessionID string) (bool, error) {
+func (r *SessionRepository) Exists(ctx context.Context, sessionID string) (bool, error) {
 	conn := r.pool.Get()
 	defer conn.Close()
 
@@ -92,7 +93,7 @@ func (r *SessionRepository) Exists(sessionID string) (bool, error) {
 }
 
 // SetWithExpiry сохраняет сессию с кастомным TTL
-func (r *SessionRepository) SetWithExpiry(session *domain.Session, expiry time.Duration) error {
+func (r *SessionRepository) SetWithExpiry(ctx context.Context, session *domain.Session, expiry time.Duration) error {
 	conn := r.pool.Get()
 	defer conn.Close()
 

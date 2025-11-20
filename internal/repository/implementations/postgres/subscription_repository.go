@@ -19,11 +19,10 @@ func NewSubscriptionRepository(pool interfaces.PgxIface) interfaces.Subscription
 	return &subscriptionRepository{pool: pool}
 }
 
-func (r *subscriptionRepository) Create(subscription *domain.Subscription) error {
+func (r *subscriptionRepository) Create(ctx context.Context, subscription *domain.Subscription) error {
 	query := `
 		INSERT INTO subscription (user_id, plan_type, start_date, end_date, is_active)
 		VALUES ($1, $2, $3, $4, $5)`
-	ctx := context.Background()
 
 	_, err := r.pool.Exec(ctx, query,
 		subscription.UserID, subscription.PlanType, subscription.StartDate, subscription.EndDate, subscription.IsActive)
@@ -31,11 +30,11 @@ func (r *subscriptionRepository) Create(subscription *domain.Subscription) error
 	return err
 }
 
-func (r *subscriptionRepository) GetByUserID(userID uuid.UUID) (*domain.Subscription, error) {
+func (r *subscriptionRepository) GetByUserID(ctx context.Context, userID uuid.UUID) (*domain.Subscription, error) {
 	var subscription domain.Subscription
 	query := `SELECT * FROM subscription WHERE user_id = $1`
 
-	err := r.pool.QueryRow(context.Background(), query, userID).Scan(
+	err := r.pool.QueryRow(ctx, query, userID).Scan(
 		&subscription.UserID, &subscription.PlanType, &subscription.StartDate,
 		&subscription.EndDate, &subscription.IsActive, &subscription.CreatedAt,
 	)
@@ -49,13 +48,13 @@ func (r *subscriptionRepository) GetByUserID(userID uuid.UUID) (*domain.Subscrip
 	return &subscription, nil
 }
 
-func (r *subscriptionRepository) Update(subscription *domain.Subscription) error {
+func (r *subscriptionRepository) Update(ctx context.Context, subscription *domain.Subscription) error {
 	query := `
 		UPDATE subscription 
 		SET plan_type = $1, start_date = $2, end_date = $3, is_active = $4
 		WHERE user_id = $5`
 
-	_, err := r.pool.Exec(context.Background(), query,
+	_, err := r.pool.Exec(ctx, query,
 		subscription.PlanType, subscription.StartDate, subscription.EndDate,
 		subscription.IsActive, subscription.UserID)
 
@@ -65,23 +64,23 @@ func (r *subscriptionRepository) Update(subscription *domain.Subscription) error
 	return nil
 }
 
-func (r *subscriptionRepository) Delete(userID uuid.UUID) error {
+func (r *subscriptionRepository) Delete(ctx context.Context, userID uuid.UUID) error {
 	query := `DELETE FROM subscription WHERE user_id = $1`
 
-	_, err := r.pool.Exec(context.Background(), query, userID)
+	_, err := r.pool.Exec(ctx, query, userID)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (r *subscriptionRepository) GetActiveSubscription(userID uuid.UUID) (*domain.Subscription, error) {
+func (r *subscriptionRepository) GetActiveSubscription(ctx context.Context, userID uuid.UUID) (*domain.Subscription, error) {
 	var subscription domain.Subscription
 	query := `
 		SELECT * FROM subscription 
 		WHERE user_id = $1 AND is_active = true AND end_date > $2`
 
-	err := r.pool.QueryRow(context.Background(), query, userID, time.Now()).Scan(
+	err := r.pool.QueryRow(ctx, query, userID, time.Now()).Scan(
 		&subscription.UserID, &subscription.PlanType, &subscription.StartDate,
 		&subscription.EndDate, &subscription.IsActive, &subscription.CreatedAt,
 	)

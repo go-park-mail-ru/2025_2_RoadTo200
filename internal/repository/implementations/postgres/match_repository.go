@@ -19,7 +19,7 @@ func NewMatchRepository(pool interfaces.PgxIface) interfaces.MatchRepository {
 	return &matchRepository{pool: pool}
 }
 
-func (r *matchRepository) Create(match *domain.Match) error {
+func (r *matchRepository) Create(ctx context.Context, match *domain.Match) error {
 	// Убедимся, что user1_id всегда меньше user2_id для consistency
 	user1ID, user2ID := match.User1ID, match.User2ID
 	if user1ID.String() > user2ID.String() {
@@ -31,7 +31,7 @@ func (r *matchRepository) Create(match *domain.Match) error {
 		VALUES ($1, $2, $3)
 		RETURNING matched_at`
 
-	err := r.pool.QueryRow(context.Background(), query, user1ID, user2ID, match.IsActive).
+	err := r.pool.QueryRow(ctx, query, user1ID, user2ID, match.IsActive).
 		Scan(&match.MatchedAt)
 
 	if err != nil {
@@ -43,7 +43,7 @@ func (r *matchRepository) Create(match *domain.Match) error {
 	return nil
 }
 
-func (r *matchRepository) GetByUsers(user1ID, user2ID uuid.UUID) (*domain.Match, error) {
+func (r *matchRepository) GetByUsers(ctx context.Context, user1ID, user2ID uuid.UUID) (*domain.Match, error) {
 	// Приводим к consistent порядку
 	if user1ID.String() > user2ID.String() {
 		user1ID, user2ID = user2ID, user1ID
@@ -52,7 +52,7 @@ func (r *matchRepository) GetByUsers(user1ID, user2ID uuid.UUID) (*domain.Match,
 	var match domain.Match
 	query := `SELECT * FROM match WHERE user1_id = $1 AND user2_id = $2`
 
-	err := r.pool.QueryRow(context.Background(), query, user1ID, user2ID).Scan(
+	err := r.pool.QueryRow(ctx, query, user1ID, user2ID).Scan(
 		&match.User1ID, &match.User2ID, &match.IsActive, &match.MatchedAt,
 	)
 
@@ -65,7 +65,7 @@ func (r *matchRepository) GetByUsers(user1ID, user2ID uuid.UUID) (*domain.Match,
 	return &match, nil
 }
 
-func (r *matchRepository) GetUserMatches(userID uuid.UUID, limit, offset int) ([]domain.Match, error) {
+func (r *matchRepository) GetUserMatches(ctx context.Context, userID uuid.UUID, limit, offset int) ([]domain.Match, error) {
 	query := `
         SELECT user1_id, user2_id, is_active, matched_at 
         FROM match 
@@ -74,7 +74,7 @@ func (r *matchRepository) GetUserMatches(userID uuid.UUID, limit, offset int) ([
         ORDER BY matched_at DESC 
         LIMIT $2 OFFSET $3`
 
-	rows, err := r.pool.Query(context.Background(), query, userID, limit, offset)
+	rows, err := r.pool.Query(ctx, query, userID, limit, offset)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user matches: %w", err)
 	}
@@ -98,35 +98,35 @@ func (r *matchRepository) GetUserMatches(userID uuid.UUID, limit, offset int) ([
 	return matches, nil
 }
 
-func (r *matchRepository) UpdateActive(user1ID, user2ID uuid.UUID, isActive bool) error {
+func (r *matchRepository) UpdateActive(ctx context.Context, user1ID, user2ID uuid.UUID, isActive bool) error {
 	if user1ID.String() > user2ID.String() {
 		user1ID, user2ID = user2ID, user1ID
 	}
 
 	query := `UPDATE match SET is_active = $1 WHERE user1_id = $2 AND user2_id = $3`
 
-	_, err := r.pool.Exec(context.Background(), query, isActive, user1ID, user2ID)
+	_, err := r.pool.Exec(ctx, query, isActive, user1ID, user2ID)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (r *matchRepository) Delete(user1ID, user2ID uuid.UUID) error {
+func (r *matchRepository) Delete(ctx context.Context, user1ID, user2ID uuid.UUID) error {
 	if user1ID.String() > user2ID.String() {
 		user1ID, user2ID = user2ID, user1ID
 	}
 
 	query := `DELETE FROM match WHERE user1_id = $1 AND user2_id = $2`
 
-	_, err := r.pool.Exec(context.Background(), query, user1ID, user2ID)
+	_, err := r.pool.Exec(ctx, query, user1ID, user2ID)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (r *matchRepository) CheckMutualLike(user1ID, user2ID uuid.UUID) (bool, error) {
+func (r *matchRepository) CheckMutualLike(ctx context.Context, user1ID, user2ID uuid.UUID) (bool, error) {
 	query := `
 		SELECT EXISTS(
 			SELECT 1 FROM swipe s1
@@ -137,7 +137,7 @@ func (r *matchRepository) CheckMutualLike(user1ID, user2ID uuid.UUID) (bool, err
 		)`
 
 	var exists bool
-	err := r.pool.QueryRow(context.Background(), query, user1ID, user2ID).Scan(&exists)
+	err := r.pool.QueryRow(ctx, query, user1ID, user2ID).Scan(&exists)
 	if err != nil {
 		return false, err
 	}
