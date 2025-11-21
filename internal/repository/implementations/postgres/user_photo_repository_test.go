@@ -5,7 +5,6 @@ import (
 	"time"
 
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
-	repository "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/implementations/postgres"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v4"
 	"github.com/pashagolub/pgxmock"
@@ -18,7 +17,7 @@ func TestUserPhotoRepository_Create(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewUserPhotoRepository(mock)
+	repo := NewUserPhotoRepository(mock)
 
 	photo := &domain.UserPhoto{
 		UserID:       uuid.New(),
@@ -44,7 +43,7 @@ func TestUserPhotoRepository_GetByID(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewUserPhotoRepository(mock)
+	repo := NewUserPhotoRepository(mock)
 
 	photoID := uuid.New()
 	userID := uuid.New()
@@ -82,7 +81,7 @@ func TestUserPhotoRepository_GetByID_NotFound(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewUserPhotoRepository(mock)
+	repo := NewUserPhotoRepository(mock)
 
 	photoID := uuid.New()
 
@@ -101,7 +100,7 @@ func TestUserPhotoRepository_GetByUserID(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewUserPhotoRepository(mock)
+	repo := NewUserPhotoRepository(mock)
 
 	userID := uuid.New()
 	expectedPhotos := []domain.UserPhoto{
@@ -150,7 +149,7 @@ func TestUserPhotoRepository_GetByUserID_Empty(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewUserPhotoRepository(mock)
+	repo := NewUserPhotoRepository(mock)
 
 	userID := uuid.New()
 
@@ -173,7 +172,7 @@ func TestUserPhotoRepository_Update(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewUserPhotoRepository(mock)
+	repo := NewUserPhotoRepository(mock)
 
 	photo := &domain.UserPhoto{
 		ID:           uuid.New(),
@@ -196,7 +195,7 @@ func TestUserPhotoRepository_Delete(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewUserPhotoRepository(mock)
+	repo := NewUserPhotoRepository(mock)
 
 	photoID := uuid.New()
 
@@ -214,7 +213,7 @@ func TestUserPhotoRepository_UpdateDisplayOrder(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewUserPhotoRepository(mock)
+	repo := NewUserPhotoRepository(mock)
 
 	userID := uuid.New()
 	photos := []domain.UserPhoto{
@@ -253,7 +252,7 @@ func TestUserPhotoRepository_UpdateDisplayOrder_EmptyPhotos(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewUserPhotoRepository(mock)
+	repo := NewUserPhotoRepository(mock)
 
 	userID := uuid.New()
 
@@ -273,7 +272,7 @@ func TestUserPhotoRepository_Create_Error(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewUserPhotoRepository(mock)
+	repo := NewUserPhotoRepository(mock)
 
 	photo := &domain.UserPhoto{
 		UserID:       uuid.New(),
@@ -296,7 +295,7 @@ func TestUserPhotoRepository_Update_Error(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewUserPhotoRepository(mock)
+	repo := NewUserPhotoRepository(mock)
 
 	photo := &domain.UserPhoto{
 		ID:           uuid.New(),
@@ -319,7 +318,7 @@ func TestUserPhotoRepository_UpdateDisplayOrder_TransactionError(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewUserPhotoRepository(mock)
+	repo := NewUserPhotoRepository(mock)
 
 	userID := uuid.New()
 	photos := []domain.UserPhoto{

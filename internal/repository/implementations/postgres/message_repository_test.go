@@ -6,7 +6,6 @@ import (
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/dto"
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
-	repository "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/implementations/postgres"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v4"
 	"github.com/pashagolub/pgxmock"
@@ -19,7 +18,7 @@ func TestMessageRepository_Create(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewMessageRepository(mock)
+	repo := NewMessageRepository(mock)
 
 	matchID := uuid.New()
 	senderID := uuid.New()
@@ -48,7 +47,7 @@ func TestMessageRepository_GetByID(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewMessageRepository(mock)
+	repo := NewMessageRepository(mock)
 
 	messageID := uuid.New()
 	matchID := uuid.New()
@@ -87,7 +86,7 @@ func TestMessageRepository_GetByID_NotFound(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewMessageRepository(mock)
+	repo := NewMessageRepository(mock)
 
 	messageID := uuid.New()
 
@@ -106,7 +105,7 @@ func TestMessageRepository_GetByMatchID(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewMessageRepository(mock)
+	repo := NewMessageRepository(mock)
 
 	matchID := uuid.New()
 	limit := 10
@@ -158,7 +157,7 @@ func TestMessageRepository_GetByMatchID_Empty(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewMessageRepository(mock)
+	repo := NewMessageRepository(mock)
 
 	matchID := uuid.New()
 	limit := 10
@@ -183,7 +182,7 @@ func TestMessageRepository_UpdateStatus(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewMessageRepository(mock)
+	repo := NewMessageRepository(mock)
 
 	messageID := uuid.New()
 	status := 1
@@ -202,7 +201,7 @@ func TestMessageRepository_Delete(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewMessageRepository(mock)
+	repo := NewMessageRepository(mock)
 
 	messageID := uuid.New()
 
@@ -220,7 +219,7 @@ func TestMessageRepository_MarkMessagesAsRead(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewMessageRepository(mock)
+	repo := NewMessageRepository(mock)
 
 	matchID := uuid.New()
 	userID := uuid.New()
@@ -239,7 +238,7 @@ func TestMessageRepository_GetUnreadCount(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewMessageRepository(mock)
+	repo := NewMessageRepository(mock)
 
 	userID := uuid.New()
 	expectedCount := 5
@@ -261,7 +260,7 @@ func TestMessageRepository_GetUnreadCount_Zero(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewMessageRepository(mock)
+	repo := NewMessageRepository(mock)
 
 	userID := uuid.New()
 	expectedCount := 0
@@ -283,7 +282,7 @@ func TestMessageRepository_GetConversations(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewMessageRepository(mock)
+	repo := NewMessageRepository(mock)
 
 	userID := uuid.New()
 
@@ -333,7 +332,7 @@ func TestMessageRepository_GetConversations_Empty(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewMessageRepository(mock)
+	repo := NewMessageRepository(mock)
 
 	userID := uuid.New()
 
@@ -356,7 +355,7 @@ func TestMessageRepository_Create_Error(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewMessageRepository(mock)
+	repo := NewMessageRepository(mock)
 
 	matchID := uuid.New()
 	senderID := uuid.New()
@@ -382,7 +381,7 @@ func TestMessageRepository_UpdateStatus_Error(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewMessageRepository(mock)
+	repo := NewMessageRepository(mock)
 
 	messageID := uuid.New()
 	status := 1
@@ -401,7 +400,7 @@ func TestMessageRepository_GetUnreadCount_Error(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewMessageRepository(mock)
+	repo := NewMessageRepository(mock)
 
 	userID := uuid.New()
 
@@ -420,7 +419,7 @@ func TestMessageRepository_GetConversations_Error(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewMessageRepository(mock)
+	repo := NewMessageRepository(mock)
 
 	userID := uuid.New()
 
