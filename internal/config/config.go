@@ -22,6 +22,7 @@ type Config struct {
 	Redis       RedisConfig       `yaml:"redis"`
 	MinIO       MinIOConfig       `yaml:"minio"`
 	AuthService AuthServiceConfig `yaml:"auth_service"`
+	CoreService CoreServiceConfig `yaml:"core_service"`
 }
 
 type CORSConfig struct {
@@ -78,6 +79,10 @@ type MinIOConfig struct {
 }
 
 type AuthServiceConfig struct {
+	Port string `yaml:"port"`
+}
+
+type CoreServiceConfig struct {
 	Port string `yaml:"port"`
 }
 
