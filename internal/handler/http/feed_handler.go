@@ -50,7 +50,7 @@ func (h *FeedHandler) GetFeed(w http.ResponseWriter, r *http.Request) {
 	limit, offset := h.parseQueryParams(r)
 
 	// Получаем ленту
-	users, err := h.feedService.GetFeed(userID, limit, offset)
+	users, err := h.feedService.GetFeed(r.Context(), userID, limit, offset)
 	if err != nil {
 		h.logger.Errorf("GetFeed err: %v\n", err)
 		utils.WriteJSONError(w, http.StatusInternalServerError, "failed to get feed")

@@ -54,7 +54,7 @@ func (h *SessionHandler) GetSession(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Валидируем сессию
-	user, err := h.authService.ValidateSession(token)
+	user, err := h.authService.ValidateSession(r.Context(), token)
 	if err != nil {
 		h.logger.Errorf("SessionHandler.ValidateSession: %v", err)
 		utils.WriteJSON(w, http.StatusOK, dto.SessionResponse{

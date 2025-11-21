@@ -51,7 +51,7 @@ func (h *MatchHandler) GetUserMatches(w http.ResponseWriter, r *http.Request) {
 	limit, offset := h.parseQueryParams(r)
 
 	// Получаем мэтчи
-	matches, err := h.matchService.GetUserMatches(userID, limit, offset)
+	matches, err := h.matchService.GetUserMatches(r.Context(), userID, limit, offset)
 	if err != nil {
 		h.logger.Errorf("GetUserMatches err: %v", err)
 		utils.WriteJSONError(w, http.StatusInternalServerError, "failed to get matches")
@@ -100,7 +100,7 @@ func (h *MatchHandler) Unmatch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.matchService.Unmatch(userID, targetUserID); err != nil {
+	if err := h.matchService.Unmatch(r.Context(), userID, targetUserID); err != nil {
 		h.logger.Errorf("Unmatch err: %v", err)
 		status := http.StatusInternalServerError
 		if err == errors.ErrMatchNotFound {

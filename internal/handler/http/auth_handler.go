@@ -44,7 +44,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, session, err := h.authService.Register(req.Email, req.Password, req.PasswordConfirm)
+	user, session, err := h.authService.Register(r.Context(), req.Email, req.Password, req.PasswordConfirm)
 	if err != nil {
 		h.logger.Errorf("handler.Register: %v", err)
 		status := http.StatusBadRequest
@@ -84,7 +84,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, session, err := h.authService.Login(req.Email, req.Password)
+	user, session, err := h.authService.Login(r.Context(), req.Email, req.Password)
 	if err != nil {
 		h.logger.Errorf("handler.Login: %v", err)
 		utils.WriteJSONError(w, http.StatusUnauthorized, "invalid email or password")
@@ -119,7 +119,7 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.authService.Logout(cookie.Value); err != nil {
+	if err := h.authService.Logout(r.Context(), cookie.Value); err != nil {
 		h.logger.Errorf("handler.Logout: %v", err)
 		utils.WriteJSONError(w, http.StatusInternalServerError, "internal error")
 		return
