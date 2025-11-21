@@ -9,23 +9,22 @@ import (
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/errors"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/dto"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
 	"github.com/google/uuid"
 )
 
-type swipeService struct {
+type SwipeService struct {
 	swipeRepo interfaces.SwipeRepository
 	matchRepo interfaces.MatchRepository
 }
 
-func NewSwipeService(swipeRepo interfaces.SwipeRepository, matchRepo interfaces.MatchRepository) service.SwipeService {
-	return &swipeService{
+func NewSwipeService(swipeRepo interfaces.SwipeRepository, matchRepo interfaces.MatchRepository) *SwipeService {
+	return &SwipeService{
 		swipeRepo: swipeRepo,
 		matchRepo: matchRepo,
 	}
 }
 
-func (s *swipeService) ProcessSwipe(ctx context.Context, swiperID uuid.UUID, request *dto.SwipeRequest) (*dto.SwipeResponse, error) {
+func (s *SwipeService) ProcessSwipe(ctx context.Context, swiperID uuid.UUID, request *dto.SwipeRequest) (*dto.SwipeResponse, error) {
 	card, err := uuid.Parse(request.CardID)
 	if err != nil {
 		return nil, err
@@ -87,7 +86,7 @@ func (s *swipeService) ProcessSwipe(ctx context.Context, swiperID uuid.UUID, req
 	return response, nil
 }
 
-func (s *swipeService) actionToSwipeType(ctx context.Context, action string) (constants.SwipeType, error) {
+func (s *SwipeService) actionToSwipeType(ctx context.Context, action string) (constants.SwipeType, error) {
 	switch action {
 	case "like":
 		return constants.SwipeTypeLike, nil

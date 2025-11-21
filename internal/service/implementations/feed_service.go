@@ -10,11 +10,10 @@ import (
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/dto"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
 	"github.com/google/uuid"
 )
 
-type feedService struct {
+type FeedService struct {
 	userRepo  interfaces.UserRepository
 	prefRepo  interfaces.UserPreferenceRepository
 	photoRepo interfaces.UserPhotoRepository
@@ -26,8 +25,8 @@ func NewFeedService(
 	prefRepo interfaces.UserPreferenceRepository,
 	photoRepo interfaces.UserPhotoRepository,
 	l logger.Log,
-) service.FeedService {
-	return &feedService{
+) *FeedService {
+	return &FeedService{
 		userRepo:  userRepo,
 		prefRepo:  prefRepo,
 		photoRepo: photoRepo,
@@ -35,7 +34,7 @@ func NewFeedService(
 	}
 }
 
-func (s *feedService) GetFeed(ctx context.Context, userID uuid.UUID, limit, offset int) ([]dto.FeedUser, error) {
+func (s *FeedService) GetFeed(ctx context.Context, userID uuid.UUID, limit, offset int) ([]dto.FeedUser, error) {
 	s.logger.Trace("FeedService.GetFeed")
 	// Валидация параметров
 	if limit <= 0 || limit > 50 {
@@ -79,7 +78,7 @@ func (s *feedService) GetFeed(ctx context.Context, userID uuid.UUID, limit, offs
 }
 
 // convertToFeedUser преобразует доменного пользователя в формат для ленты
-func (s *feedService) convertToFeedUser(ctx context.Context, user domain.User) (dto.FeedUser, error) {
+func (s *FeedService) convertToFeedUser(ctx context.Context, user domain.User) (dto.FeedUser, error) {
 	s.logger.Trace("convertToFeedUser")
 	// Вычисляем возраст
 	age := calculateAge(user.BirthDate)
@@ -131,7 +130,7 @@ func getDescription(bio *string) string {
 }
 
 // getUserPhotos возвращает фото пользователя из репозитория
-func (s *feedService) getUserPhotos(ctx context.Context, userID uuid.UUID) ([]string, error) {
+func (s *FeedService) getUserPhotos(ctx context.Context, userID uuid.UUID) ([]string, error) {
 	photos, err := s.photoRepo.GetByUserID(ctx, userID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get photos for user %s: %w", userID, err)
