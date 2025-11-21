@@ -56,7 +56,7 @@ func AuthMiddleware(authService service.AuthService) func(http.Handler) http.Han
 			}
 
 			// Validate session
-			user, err := authService.ValidateSession(token)
+			user, err := authService.ValidateSession(context.Background(), token)
 			if err != nil {
 				utils.WriteJSONError(w, http.StatusUnauthorized, "unauthorized: invalid session")
 				return

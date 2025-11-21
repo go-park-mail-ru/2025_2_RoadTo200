@@ -1,6 +1,8 @@
 package service
 
 import (
+	"context"
+
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	"github.com/google/uuid"
 )
@@ -8,17 +10,17 @@ import (
 // AuthService defines authentication service contract
 type AuthService interface {
 	// Register creates new user
-	Register(email, password, passwordConfirm string) (*domain.User, *domain.Session, error)
+	Register(ctx context.Context, email, password, passwordConfirm string) (*domain.User, *domain.Session, error)
 
 	// Login authenticates user
-	Login(email, password string) (*domain.User, *domain.Session, error)
+	Login(ctx context.Context, email, password string) (*domain.User, *domain.Session, error)
 
 	// Logout terminates user session
-	Logout(token string) error
+	Logout(ctx context.Context, token string) error
 
 	// ValidateSession checks session validity
-	ValidateSession(token string) (*domain.User, error)
+	ValidateSession(ctx context.Context, token string) (*domain.User, error)
 
 	// GetUserByID returns user by ID
-	GetUserByID(userID uuid.UUID) (*domain.User, error)
+	GetUserByID(ctx context.Context, userID uuid.UUID) (*domain.User, error)
 }

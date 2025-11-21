@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"time"
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/constants"
@@ -24,7 +25,7 @@ func NewSwipeService(swipeRepo interfaces.SwipeRepository, matchRepo interfaces.
 	}
 }
 
-func (s *swipeService) ProcessSwipe(swiperID uuid.UUID, request *dto.SwipeRequest) (*dto.SwipeResponse, error) {
+func (s *swipeService) ProcessSwipe(ctx context.Context, swiperID uuid.UUID, request *dto.SwipeRequest) (*dto.SwipeResponse, error) {
 	card, err := uuid.Parse(request.CardID)
 	if err != nil {
 		return nil, err
@@ -35,7 +36,7 @@ func (s *swipeService) ProcessSwipe(swiperID uuid.UUID, request *dto.SwipeReques
 	}
 
 	// Конвертируем action в SwipeType
-	swipeType, err := s.actionToSwipeType(request.Action)
+	swipeType, err := s.actionToSwipeType(ctx, request.Action)
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +50,7 @@ func (s *swipeService) ProcessSwipe(swiperID uuid.UUID, request *dto.SwipeReques
 	}
 
 	// Сохраняем свайп
-	if err := s.swipeRepo.Create(swipe); err != nil {
+	if err := s.swipeRepo.Create(ctx, swipe); err != nil {
 		return nil, err
 	}
 
@@ -60,7 +61,7 @@ func (s *swipeService) ProcessSwipe(swiperID uuid.UUID, request *dto.SwipeReques
 	// Если это лайк - проверяем на мэтч
 	if swipeType == constants.SwipeTypeLike {
 		// Проверяем взаимный лайк
-		hasMutualLike, err := s.matchRepo.CheckMutualLike(swiperID, card)
+		hasMutualLike, err := s.matchRepo.CheckMutualLike(ctx, swiperID, card)
 		if err != nil {
 			return nil, err
 		}
@@ -74,7 +75,7 @@ func (s *swipeService) ProcessSwipe(swiperID uuid.UUID, request *dto.SwipeReques
 				MatchedAt: time.Now(),
 			}
 
-			if err := s.matchRepo.Create(match); err != nil {
+			if err := s.matchRepo.Create(ctx, match); err != nil {
 				return nil, err
 			}
 
@@ -86,7 +87,7 @@ func (s *swipeService) ProcessSwipe(swiperID uuid.UUID, request *dto.SwipeReques
 	return response, nil
 }
 
-func (s *swipeService) actionToSwipeType(action string) (constants.SwipeType, error) {
+func (s *swipeService) actionToSwipeType(ctx context.Context, action string) (constants.SwipeType, error) {
 	switch action {
 	case "like":
 		return constants.SwipeTypeLike, nil

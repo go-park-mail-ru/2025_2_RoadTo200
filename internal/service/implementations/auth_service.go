@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"time"
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
@@ -25,7 +26,7 @@ func NewAuthService(userRepo interfaces.UserRepository, sessionRepo interfaces.S
 	}
 }
 
-func (s *AuthService) Register(email, password, passwordConfirm string) (*domain.User, *domain.Session, error) {
+func (s *AuthService) Register(ctx context.Context, email, password, passwordConfirm string) (*domain.User, *domain.Session, error) {
 	s.logger.Trace("AuthService.Register")
 	// Валидация
 	if password != passwordConfirm {
@@ -37,7 +38,7 @@ func (s *AuthService) Register(email, password, passwordConfirm string) (*domain
 	}
 
 	// Проверка существования пользователя
-	existingUser, err := s.userRepo.GetByEmail(email)
+	existingUser, err := s.userRepo.GetByEmail(ctx, email)
 	if err != nil {
 		s.logger.Errorf("Get by email error: %s", err)
 		return nil, nil, err
@@ -65,7 +66,7 @@ func (s *AuthService) Register(email, password, passwordConfirm string) (*domain
 		UpdatedAt:  time.Now(),
 	}
 
-	if err := s.userRepo.Create(user); err != nil {
+	if err := s.userRepo.Create(ctx, user); err != nil {
 		s.logger.Errorf("Create user error: %s", err)
 		return nil, nil, err
 	}
@@ -74,7 +75,7 @@ func (s *AuthService) Register(email, password, passwordConfirm string) (*domain
 	session := domain.NewSession(user.Email, 3600*time.Second)
 	session.Token = uuid.New().String()
 
-	if err := s.sessionRepo.Set(session); err != nil {
+	if err := s.sessionRepo.Set(ctx, session); err != nil {
 		s.logger.Errorf("Set session error: %s", err)
 		return nil, nil, err
 	}
@@ -82,10 +83,10 @@ func (s *AuthService) Register(email, password, passwordConfirm string) (*domain
 	return user, session, nil
 }
 
-func (s *AuthService) Login(email, password string) (*domain.User, *domain.Session, error) {
+func (s *AuthService) Login(ctx context.Context, email, password string) (*domain.User, *domain.Session, error) {
 	s.logger.Trace("AuthService.Login")
 
-	user, err := s.userRepo.GetByEmail(email)
+	user, err := s.userRepo.GetByEmail(ctx, email)
 	if err != nil {
 		s.logger.Errorf("Get by email error: %s", err)
 		return nil, nil, err
@@ -101,7 +102,7 @@ func (s *AuthService) Login(email, password string) (*domain.User, *domain.Sessi
 	}
 
 	// Обновляем last_active
-	if err := s.userRepo.UpdateLastActive(user.ID); err != nil {
+	if err := s.userRepo.UpdateLastActive(ctx, user.ID); err != nil {
 		s.logger.Errorf("UpdateLastActive error: %s", err)
 		return nil, nil, err
 	}
@@ -110,7 +111,7 @@ func (s *AuthService) Login(email, password string) (*domain.User, *domain.Sessi
 	session := domain.NewSession(user.Email, 3600*time.Second)
 	session.Token = uuid.New().String()
 
-	if err := s.sessionRepo.Set(session); err != nil {
+	if err := s.sessionRepo.Set(ctx, session); err != nil {
 		s.logger.Errorf("Set session error: %s", err)
 		return nil, nil, err
 	}
@@ -118,10 +119,10 @@ func (s *AuthService) Login(email, password string) (*domain.User, *domain.Sessi
 	return user, session, nil
 }
 
-func (s *AuthService) Logout(token string) error {
+func (s *AuthService) Logout(ctx context.Context, token string) error {
 	s.logger.Trace("AuthService.Logout")
 
-	session, err := s.sessionRepo.Get(token)
+	session, err := s.sessionRepo.Get(ctx, token)
 	if err != nil {
 		s.logger.Errorf("Get session error: %s", err)
 		return err
@@ -131,11 +132,11 @@ func (s *AuthService) Logout(token string) error {
 		return errors.ErrSessionNotFound
 	}
 
-	return s.sessionRepo.Delete(session.Token)
+	return s.sessionRepo.Delete(ctx, session.Token)
 }
 
-func (s *AuthService) ValidateSession(token string) (*domain.User, error) {
-	session, err := s.sessionRepo.Get(token)
+func (s *AuthService) ValidateSession(ctx context.Context, token string) (*domain.User, error) {
+	session, err := s.sessionRepo.Get(ctx, token)
 	if err != nil {
 		s.logger.Errorf("Get session error: %s", err)
 		return nil, err
@@ -147,11 +148,11 @@ func (s *AuthService) ValidateSession(token string) (*domain.User, error) {
 
 	if session.IsExpired() {
 		s.logger.Warn("Session is expired")
-		go s.sessionRepo.Delete(session.Token)
+		go s.sessionRepo.Delete(ctx, session.Token)
 		return nil, errors.ErrSessionExpired
 	}
 
-	user, err := s.userRepo.GetByEmail(session.UserEmail)
+	user, err := s.userRepo.GetByEmail(ctx, session.UserEmail)
 	if err != nil {
 		s.logger.Errorf("Get by email error: %s", err)
 		return nil, err
@@ -164,6 +165,6 @@ func (s *AuthService) ValidateSession(token string) (*domain.User, error) {
 	return user, nil
 }
 
-func (s *AuthService) GetUserByID(userID uuid.UUID) (*domain.User, error) {
-	return s.userRepo.GetByID(userID)
+func (s *AuthService) GetUserByID(ctx context.Context, userID uuid.UUID) (*domain.User, error) {
+	return s.userRepo.GetByID(ctx, userID)
 }

@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"mime/multipart"
@@ -44,9 +45,9 @@ func NewProfileService(
 }
 
 // GetProfile возвращает полный профиль пользователя
-func (s *profileService) GetProfile(userID uuid.UUID) (*domain.ProfileResponse, error) {
+func (s *profileService) GetProfile(ctx context.Context, userID uuid.UUID) (*domain.ProfileResponse, error) {
 	// Получаем основную информацию пользователя
-	user, err := s.userRepo.GetByID(userID)
+	user, err := s.userRepo.GetByID(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -55,19 +56,19 @@ func (s *profileService) GetProfile(userID uuid.UUID) (*domain.ProfileResponse, 
 	}
 
 	// Получаем предпочтения
-	preferences, err := s.preferenceRepo.GetByUserID(userID)
+	preferences, err := s.preferenceRepo.GetByUserID(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
 
 	// Получаем фотографии
-	photos, err := s.userPhotoRepo.GetByUserID(userID)
+	photos, err := s.userPhotoRepo.GetByUserID(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
 
 	// Обновляем время последней активности
-	go s.userRepo.UpdateLastActive(userID)
+	go s.userRepo.UpdateLastActive(ctx, userID)
 
 	return &domain.ProfileResponse{
 		User:        user,
@@ -77,14 +78,14 @@ func (s *profileService) GetProfile(userID uuid.UUID) (*domain.ProfileResponse, 
 }
 
 // UpdateProfileInfo обновляет основную информацию профиля
-func (s *profileService) UpdateProfileInfo(userID uuid.UUID, updateData *domain.ProfileUpdateRequest) error {
+func (s *profileService) UpdateProfileInfo(ctx context.Context, userID uuid.UUID, updateData *domain.ProfileUpdateRequest) error {
 	// Валидация данных
-	if err := s.ValidateProfileUpdate(updateData); err != nil {
+	if err := s.ValidateProfileUpdate(ctx, updateData); err != nil {
 		return err
 	}
 
 	// Получаем текущего пользователя
-	user, err := s.userRepo.GetByID(userID)
+	user, err := s.userRepo.GetByID(ctx, userID)
 	if err != nil {
 		return err
 	}
@@ -103,7 +104,7 @@ func (s *profileService) UpdateProfileInfo(userID uuid.UUID, updateData *domain.
 	user.UpdatedAt = time.Now()
 
 	// Сохраняем изменения
-	if err := s.userRepo.Update(user); err != nil {
+	if err := s.userRepo.Update(ctx, user); err != nil {
 		return err
 	}
 
@@ -111,14 +112,14 @@ func (s *profileService) UpdateProfileInfo(userID uuid.UUID, updateData *domain.
 }
 
 // UpdatePreferences обновляет предпочтения пользователя
-func (s *profileService) UpdatePreferences(userID uuid.UUID, updateData *domain.PreferencesUpdateRequest) error {
+func (s *profileService) UpdatePreferences(ctx context.Context, userID uuid.UUID, updateData *domain.PreferencesUpdateRequest) error {
 	// Валидация
-	if err := s.ValidatePreferencesUpdate(updateData); err != nil {
+	if err := s.ValidatePreferencesUpdate(ctx, updateData); err != nil {
 		return err
 	}
 
 	// Получаем текущие предпочтения
-	preferences, err := s.preferenceRepo.GetByUserID(userID)
+	preferences, err := s.preferenceRepo.GetByUserID(ctx, userID)
 	if err != nil {
 		return err
 	}
@@ -156,22 +157,22 @@ func (s *profileService) UpdatePreferences(userID uuid.UUID, updateData *domain.
 
 	// Сохраняем
 	if preferences.CreatedAt.IsZero() {
-		return s.preferenceRepo.Create(preferences)
+		return s.preferenceRepo.Create(ctx, preferences)
 	}
-	return s.preferenceRepo.Update(preferences)
+	return s.preferenceRepo.Update(ctx, preferences)
 }
 
-func (s *profileService) UpdateInterests(userID uuid.UUID, inter []domain.Interest) error {
-	if err := s.validateInterestsUpdate(inter); err != nil {
+func (s *profileService) UpdateInterests(ctx context.Context, userID uuid.UUID, inter []domain.Interest) error {
+	if err := s.validateInterestsUpdate(ctx, inter); err != nil {
 		return err
 	}
-	return s.preferenceRepo.UpdateInterests(userID, inter)
+	return s.preferenceRepo.UpdateInterests(ctx, userID, inter)
 }
 
 // UploadPhotos загружает фотографии пользователя
-func (s *profileService) UploadPhotos(userID uuid.UUID, photos []*multipart.FileHeader) ([]domain.UserPhoto, error) {
+func (s *profileService) UploadPhotos(ctx context.Context, userID uuid.UUID, photos []*multipart.FileHeader) ([]domain.UserPhoto, error) {
 	// Проверяем лимит фотографий
-	existingPhotos, err := s.userPhotoRepo.GetByUserID(userID)
+	existingPhotos, err := s.userPhotoRepo.GetByUserID(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -185,7 +186,7 @@ func (s *profileService) UploadPhotos(userID uuid.UUID, photos []*multipart.File
 
 	for _, photoHeader := range photos {
 		// Валидация файла
-		if err := s.validatePhotoFile(photoHeader); err != nil {
+		if err := s.validatePhotoFile(ctx, photoHeader); err != nil {
 			return nil, err
 		}
 
@@ -207,7 +208,7 @@ func (s *profileService) UploadPhotos(userID uuid.UUID, photos []*multipart.File
 		fileName := fmt.Sprintf("%s/%s%s", userID.String(), uuid.New().String(), fileExt)
 
 		// Загружаем в файловое хранилище
-		photoURL, err := s.fileStorage.Upload(fileName, fileBytes, photoHeader.Header.Get("Content-Type"))
+		photoURL, err := s.fileStorage.Upload(ctx, fileName, fileBytes, photoHeader.Header.Get("Content-Type"))
 		if err != nil {
 			return nil, fmt.Errorf("failed to upload photo: %w", err)
 		}
@@ -222,9 +223,9 @@ func (s *profileService) UploadPhotos(userID uuid.UUID, photos []*multipart.File
 			CreatedAt:    time.Now(),
 		}
 
-		if err := s.userPhotoRepo.Create(&userPhoto); err != nil {
+		if err := s.userPhotoRepo.Create(ctx, &userPhoto); err != nil {
 			// Пытаемся удалить загруженный файл при ошибке
-			s.fileStorage.Delete(fileName)
+			s.fileStorage.Delete(ctx, fileName)
 			return nil, err
 		}
 
@@ -236,9 +237,9 @@ func (s *profileService) UploadPhotos(userID uuid.UUID, photos []*multipart.File
 }
 
 // DeletePhoto удаляет фотографию пользователя
-func (s *profileService) DeletePhoto(userID uuid.UUID, photoID uuid.UUID) error {
+func (s *profileService) DeletePhoto(ctx context.Context, userID uuid.UUID, photoID uuid.UUID) error {
 	// Проверяем что фото принадлежит пользователю
-	photo, err := s.userPhotoRepo.GetByID(photoID)
+	photo, err := s.userPhotoRepo.GetByID(ctx, photoID)
 	if err != nil {
 		return err
 	}
@@ -250,24 +251,24 @@ func (s *profileService) DeletePhoto(userID uuid.UUID, photoID uuid.UUID) error 
 	}
 
 	// Удаляем файл из хранилища
-	if err := s.fileStorage.DeleteByURL(photo.PhotoURL); err != nil {
+	if err := s.fileStorage.DeleteByURL(ctx, photo.PhotoURL); err != nil {
 		// Логируем ошибку, но продолжаем удаление записи из БД
 		s.logger.Errorf("Failed to delete photo file: %v\n", err)
 	}
 
 	// Удаляем запись из БД
-	if err := s.userPhotoRepo.Delete(photoID); err != nil {
+	if err := s.userPhotoRepo.Delete(ctx, photoID); err != nil {
 		return err
 	}
 
 	// Обновляем порядок оставшихся фото
-	return s.reorderRemainingPhotos(userID)
+	return s.reorderRemainingPhotos(ctx, userID)
 }
 
 // SetPrimaryPhoto устанавливает фото как основное (первое в порядке)
-func (s *profileService) SetPrimaryPhoto(userID uuid.UUID, photoID uuid.UUID) error {
+func (s *profileService) SetPrimaryPhoto(ctx context.Context, userID uuid.UUID, photoID uuid.UUID) error {
 	// Проверяем что фото принадлежит пользователю
-	photo, err := s.userPhotoRepo.GetByID(photoID)
+	photo, err := s.userPhotoRepo.GetByID(ctx, photoID)
 	if err != nil {
 		return err
 	}
@@ -279,7 +280,7 @@ func (s *profileService) SetPrimaryPhoto(userID uuid.UUID, photoID uuid.UUID) er
 	}
 
 	// Получаем все фото пользователя
-	allPhotos, err := s.userPhotoRepo.GetByUserID(userID)
+	allPhotos, err := s.userPhotoRepo.GetByUserID(ctx, userID)
 	if err != nil {
 		return err
 	}
@@ -299,13 +300,13 @@ func (s *profileService) SetPrimaryPhoto(userID uuid.UUID, photoID uuid.UUID) er
 		newPhotos[i].DisplayOrder = i
 	}
 
-	return s.userPhotoRepo.UpdateDisplayOrder(userID, newPhotos)
+	return s.userPhotoRepo.UpdateDisplayOrder(ctx, userID, newPhotos)
 }
 
 // ReorderPhotos изменяет порядок фотографий
-func (s *profileService) ReorderPhotos(userID uuid.UUID, photoIDs []uuid.UUID) error {
+func (s *profileService) ReorderPhotos(ctx context.Context, userID uuid.UUID, photoIDs []uuid.UUID) error {
 	// Получаем все фото пользователя для проверки принадлежности
-	allPhotos, err := s.userPhotoRepo.GetByUserID(userID)
+	allPhotos, err := s.userPhotoRepo.GetByUserID(ctx, userID)
 	if err != nil {
 		return err
 	}
@@ -326,11 +327,11 @@ func (s *profileService) ReorderPhotos(userID uuid.UUID, photoIDs []uuid.UUID) e
 		photosToUpdate = append(photosToUpdate, photo)
 	}
 
-	return s.userPhotoRepo.UpdateDisplayOrder(userID, photosToUpdate)
+	return s.userPhotoRepo.UpdateDisplayOrder(ctx, userID, photosToUpdate)
 }
 
 // ValidateProfileUpdate валидация данных профиля
-func (s *profileService) ValidateProfileUpdate(updateData *domain.ProfileUpdateRequest) error {
+func (s *profileService) ValidateProfileUpdate(ctx context.Context, updateData *domain.ProfileUpdateRequest) error {
 	if updateData.Name != "" && len(updateData.Name) > constants.MaxNameLength {
 		return fmt.Errorf("name too long, max %d characters", constants.MaxNameLength)
 	}
@@ -350,7 +351,7 @@ func (s *profileService) ValidateProfileUpdate(updateData *domain.ProfileUpdateR
 }
 
 // ValidatePreferencesUpdate валидация предпочтений
-func (s *profileService) ValidatePreferencesUpdate(updateData *domain.PreferencesUpdateRequest) error {
+func (s *profileService) ValidatePreferencesUpdate(ctx context.Context, updateData *domain.PreferencesUpdateRequest) error {
 	if updateData.AgeMin > 0 && updateData.AgeMax > 0 {
 		if updateData.AgeMin < constants.MinAge {
 			return fmt.Errorf("minimum age must be at least %d", constants.MinAge)
@@ -376,7 +377,7 @@ func (s *profileService) ValidatePreferencesUpdate(updateData *domain.Preference
 }
 
 // ValidateInterestsUpdat валидация интересов
-func (s *profileService) validateInterestsUpdate(updateData []domain.Interest) error {
+func (s *profileService) validateInterestsUpdate(ctx context.Context, updateData []domain.Interest) error {
 	validTypes := map[constants.InterestType]struct{}{
 		constants.InterestTypeWorkout:    {},
 		constants.InterestTypeFun:        {},
@@ -399,7 +400,7 @@ func (s *profileService) validateInterestsUpdate(updateData []domain.Interest) e
 }
 
 // validatePhotoFile валидация загружаемого фото
-func (s *profileService) validatePhotoFile(photo *multipart.FileHeader) error {
+func (s *profileService) validatePhotoFile(ctx context.Context, photo *multipart.FileHeader) error {
 	// Проверка размера файла
 	if photo.Size > constants.MaxPhotoSize {
 		return fmt.Errorf("file too large, max size is %dMB", constants.MaxPhotoSize/(1024*1024))
@@ -423,8 +424,8 @@ func (s *profileService) validatePhotoFile(photo *multipart.FileHeader) error {
 }
 
 // reorderRemainingPhotos обновляет порядок фото после удаления
-func (s *profileService) reorderRemainingPhotos(userID uuid.UUID) error {
-	photos, err := s.userPhotoRepo.GetByUserID(userID)
+func (s *profileService) reorderRemainingPhotos(ctx context.Context, userID uuid.UUID) error {
+	photos, err := s.userPhotoRepo.GetByUserID(ctx, userID)
 	if err != nil {
 		return err
 	}
@@ -433,5 +434,5 @@ func (s *profileService) reorderRemainingPhotos(userID uuid.UUID) error {
 		photos[i].DisplayOrder = i
 	}
 
-	return s.userPhotoRepo.UpdateDisplayOrder(userID, photos)
+	return s.userPhotoRepo.UpdateDisplayOrder(ctx, userID, photos)
 }
