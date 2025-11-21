@@ -55,7 +55,7 @@ func (h *SwipeHandler) ProcessSwipe(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := h.swipeService.ProcessSwipe(userID, &req)
+	response, err := h.swipeService.ProcessSwipe(r.Context(), userID, &req)
 	if err != nil {
 		h.logger.Errorf("ProcessSwipe error: %v", err)
 		status := http.StatusBadRequest

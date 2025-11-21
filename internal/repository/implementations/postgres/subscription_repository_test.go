@@ -5,7 +5,6 @@ import (
 	"time"
 
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
-	repository "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/implementations/postgres"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v4"
 	"github.com/pashagolub/pgxmock"
@@ -18,7 +17,7 @@ func TestSubscriptionRepository_Create(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewSubscriptionRepository(mock)
+	repo := NewSubscriptionRepository(mock)
 
 	userID := uuid.New()
 	startDate := time.Now()
@@ -48,7 +47,7 @@ func TestSubscriptionRepository_GetByUserID(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewSubscriptionRepository(mock)
+	repo := NewSubscriptionRepository(mock)
 
 	userID := uuid.New()
 
@@ -85,7 +84,7 @@ func TestSubscriptionRepository_GetByUserID_NotFound(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewSubscriptionRepository(mock)
+	repo := NewSubscriptionRepository(mock)
 
 	userID := uuid.New()
 
@@ -104,7 +103,7 @@ func TestSubscriptionRepository_Update(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewSubscriptionRepository(mock)
+	repo := NewSubscriptionRepository(mock)
 
 	userID := uuid.New()
 
@@ -133,7 +132,7 @@ func TestSubscriptionRepository_Delete(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewSubscriptionRepository(mock)
+	repo := NewSubscriptionRepository(mock)
 
 	userID := uuid.New()
 
@@ -151,7 +150,7 @@ func TestSubscriptionRepository_GetActiveSubscription(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewSubscriptionRepository(mock)
+	repo := NewSubscriptionRepository(mock)
 
 	userID := uuid.New()
 
@@ -192,7 +191,7 @@ func TestSubscriptionRepository_GetActiveSubscription_NotFound(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewSubscriptionRepository(mock)
+	repo := NewSubscriptionRepository(mock)
 
 	userID := uuid.New()
 
@@ -211,7 +210,7 @@ func TestSubscriptionRepository_GetActiveSubscription_Expired(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewSubscriptionRepository(mock)
+	repo := NewSubscriptionRepository(mock)
 
 	userID := uuid.New()
 
@@ -230,7 +229,7 @@ func TestSubscriptionRepository_Create_Error(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewSubscriptionRepository(mock)
+	repo := NewSubscriptionRepository(mock)
 
 	userID := uuid.New()
 
@@ -256,7 +255,7 @@ func TestSubscriptionRepository_Update_Error(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewSubscriptionRepository(mock)
+	repo := NewSubscriptionRepository(mock)
 
 	userID := uuid.New()
 
@@ -285,7 +284,7 @@ func TestSubscriptionRepository_Delete_Error(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewSubscriptionRepository(mock)
+	repo := NewSubscriptionRepository(mock)
 
 	userID := uuid.New()
 
@@ -303,7 +302,7 @@ func TestSubscriptionRepository_GetActiveSubscription_Error(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewSubscriptionRepository(mock)
+	repo := NewSubscriptionRepository(mock)
 
 	userID := uuid.New()
 

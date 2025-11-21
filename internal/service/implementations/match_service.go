@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
@@ -8,11 +9,10 @@ import (
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/dto"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
 	"github.com/google/uuid"
 )
 
-type matchService struct {
+type MatchService struct {
 	matchRepo interfaces.MatchRepository
 	userRepo  interfaces.UserRepository
 	swipeRepo interfaces.SwipeRepository
@@ -26,8 +26,8 @@ func NewMatchService(
 	swipeRepo interfaces.SwipeRepository,
 	photoRepo interfaces.UserPhotoRepository, // Добавляем параметр
 	l logger.Log,
-) service.MatchService {
-	return &matchService{
+) *MatchService {
+	return &MatchService{
 		matchRepo: matchRepo,
 		userRepo:  userRepo,
 		swipeRepo: swipeRepo,
@@ -36,7 +36,7 @@ func NewMatchService(
 	}
 }
 
-func (s *matchService) GetUserMatches(userID uuid.UUID, limit, offset int) (*dto.MatchesResponse, error) {
+func (s *MatchService) GetUserMatches(ctx context.Context, userID uuid.UUID, limit, offset int) (*dto.MatchesResponse, error) {
 	// Валидация параметров
 	if limit <= 0 || limit > 50 {
 		limit = 20
@@ -46,7 +46,7 @@ func (s *matchService) GetUserMatches(userID uuid.UUID, limit, offset int) (*dto
 	}
 
 	// Получаем мэтчи пользователя
-	matches, err := s.matchRepo.GetUserMatches(userID, limit, offset)
+	matches, err := s.matchRepo.GetUserMatches(ctx, userID, limit, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -72,13 +72,13 @@ func (s *matchService) GetUserMatches(userID uuid.UUID, limit, offset int) (*dto
 		}
 	}
 	// Получаем информацию о пользователях
-	users, err := s.userRepo.GetUsersByIDs(userIDs)
+	users, err := s.userRepo.GetUsersByIDs(ctx, userIDs)
 	if err != nil {
 		return nil, err
 	}
 
 	// Получаем фотографии для всех пользователей
-	userPhotos, err := s.getUsersPhotos(userIDs)
+	userPhotos, err := s.getUsersPhotos(ctx, userIDs)
 	if err != nil {
 		return nil, err
 	}
@@ -139,11 +139,11 @@ func (s *matchService) GetUserMatches(userID uuid.UUID, limit, offset int) (*dto
 }
 
 // getUsersPhotos возвращает фотографии для списка пользователей
-func (s *matchService) getUsersPhotos(userIDs []uuid.UUID) (map[uuid.UUID][]string, error) {
+func (s *MatchService) getUsersPhotos(ctx context.Context, userIDs []uuid.UUID) (map[uuid.UUID][]string, error) {
 	userPhotos := make(map[uuid.UUID][]string)
 
 	for _, userID := range userIDs {
-		photos, err := s.photoRepo.GetByUserID(userID)
+		photos, err := s.photoRepo.GetByUserID(ctx, userID)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get photos for user %s: %w", userID, err)
 		}
@@ -161,9 +161,9 @@ func (s *matchService) getUsersPhotos(userIDs []uuid.UUID) (map[uuid.UUID][]stri
 	return userPhotos, nil
 }
 
-func (s *matchService) Unmatch(userID, targetUserID uuid.UUID) error {
+func (s *MatchService) Unmatch(ctx context.Context, userID, targetUserID uuid.UUID) error {
 	// Проверяем что мэтч существует
-	match, err := s.matchRepo.GetByUsers(userID, targetUserID)
+	match, err := s.matchRepo.GetByUsers(ctx, userID, targetUserID)
 	if err != nil {
 		return err
 	}
@@ -172,5 +172,5 @@ func (s *matchService) Unmatch(userID, targetUserID uuid.UUID) error {
 	}
 
 	// Деактивируем мэтч
-	return s.matchRepo.UpdateActive(userID, targetUserID, false)
+	return s.matchRepo.UpdateActive(ctx, userID, targetUserID, false)
 }

@@ -6,7 +6,6 @@ import (
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/errors"
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/implementations"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/tests/mocks"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -21,7 +20,7 @@ func TestAuthService_Register_Success(t *testing.T) {
 	mockUserRepo := mocks.NewMockUserRepository(ctrl)
 	mockSessionRepo := mocks.NewMockSessionRepository(ctrl)
 
-	service := service.NewAuthService(mockUserRepo, mockSessionRepo, nil)
+	service := NewAuthService(mockUserRepo, mockSessionRepo, nil)
 
 	email := "test@example.com"
 	password := "123456"
@@ -63,7 +62,7 @@ func TestAuthService_Register_UserAlreadyExists(t *testing.T) {
 	mockUserRepo := mocks.NewMockUserRepository(ctrl)
 	mockSessionRepo := mocks.NewMockSessionRepository(ctrl)
 
-	service := service.NewAuthService(mockUserRepo, mockSessionRepo, nil)
+	service := NewAuthService(mockUserRepo, mockSessionRepo, nil)
 
 	email := "existing@example.com"
 	existingUser := &domain.User{Email: email}
@@ -90,7 +89,7 @@ func TestAuthService_Register_PasswordMismatch(t *testing.T) {
 	mockUserRepo := mocks.NewMockUserRepository(ctrl)
 	mockSessionRepo := mocks.NewMockSessionRepository(ctrl)
 
-	service := service.NewAuthService(mockUserRepo, mockSessionRepo, nil)
+	service := NewAuthService(mockUserRepo, mockSessionRepo, nil)
 
 	// Вызов метода с разными паролями
 	user, session, err := service.Register("test@example.com", "123456", "different")
@@ -109,7 +108,7 @@ func TestAuthService_Register_ShortPassword(t *testing.T) {
 	mockUserRepo := mocks.NewMockUserRepository(ctrl)
 	mockSessionRepo := mocks.NewMockSessionRepository(ctrl)
 
-	service := service.NewAuthService(mockUserRepo, mockSessionRepo, nil)
+	service := NewAuthService(mockUserRepo, mockSessionRepo, nil)
 
 	// Вызов метода с коротким паролем
 	user, session, err := service.Register("test@example.com", "123", "123")
@@ -128,7 +127,7 @@ func TestAuthService_Login_Success(t *testing.T) {
 	mockUserRepo := mocks.NewMockUserRepository(ctrl)
 	mockSessionRepo := mocks.NewMockSessionRepository(ctrl)
 
-	service := service.NewAuthService(mockUserRepo, mockSessionRepo, nil)
+	service := NewAuthService(mockUserRepo, mockSessionRepo, nil)
 
 	email := "test@example.com"
 	password := "123456"
@@ -171,7 +170,7 @@ func TestAuthService_Login_InvalidCredentials(t *testing.T) {
 	mockUserRepo := mocks.NewMockUserRepository(ctrl)
 	mockSessionRepo := mocks.NewMockSessionRepository(ctrl)
 
-	service := service.NewAuthService(mockUserRepo, mockSessionRepo, nil)
+	service := NewAuthService(mockUserRepo, mockSessionRepo, nil)
 
 	email := "test@example.com"
 
@@ -197,7 +196,7 @@ func TestAuthService_Login_WrongPassword(t *testing.T) {
 	mockUserRepo := mocks.NewMockUserRepository(ctrl)
 	mockSessionRepo := mocks.NewMockSessionRepository(ctrl)
 
-	service := service.NewAuthService(mockUserRepo, mockSessionRepo, nil)
+	service := NewAuthService(mockUserRepo, mockSessionRepo, nil)
 
 	email := "test@example.com"
 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte("correctpassword"), bcrypt.DefaultCost)
@@ -229,7 +228,7 @@ func TestAuthService_Logout_Success(t *testing.T) {
 	mockUserRepo := mocks.NewMockUserRepository(ctrl)
 	mockSessionRepo := mocks.NewMockSessionRepository(ctrl)
 
-	service := service.NewAuthService(mockUserRepo, mockSessionRepo, nil)
+	service := NewAuthService(mockUserRepo, mockSessionRepo, nil)
 
 	token := "valid-session-token"
 	session := &domain.Session{
@@ -259,7 +258,7 @@ func TestAuthService_Logout_SessionNotFound(t *testing.T) {
 	mockUserRepo := mocks.NewMockUserRepository(ctrl)
 	mockSessionRepo := mocks.NewMockSessionRepository(ctrl)
 
-	service := service.NewAuthService(mockUserRepo, mockSessionRepo, nil)
+	service := NewAuthService(mockUserRepo, mockSessionRepo, nil)
 
 	token := "non-existent-token"
 
@@ -283,7 +282,7 @@ func TestAuthService_Logout_DeleteError(t *testing.T) {
 	mockUserRepo := mocks.NewMockUserRepository(ctrl)
 	mockSessionRepo := mocks.NewMockSessionRepository(ctrl)
 
-	service := service.NewAuthService(mockUserRepo, mockSessionRepo, nil)
+	service := NewAuthService(mockUserRepo, mockSessionRepo, nil)
 
 	token := "valid-token"
 	session := &domain.Session{
@@ -315,7 +314,7 @@ func TestAuthService_ValidateSession_Success(t *testing.T) {
 	mockUserRepo := mocks.NewMockUserRepository(ctrl)
 	mockSessionRepo := mocks.NewMockSessionRepository(ctrl)
 
-	service := service.NewAuthService(mockUserRepo, mockSessionRepo, nil)
+	service := NewAuthService(mockUserRepo, mockSessionRepo, nil)
 
 	token := "valid-token"
 	userEmail := "test@example.com"
@@ -358,7 +357,7 @@ func TestAuthService_ValidateSession_SessionNotFound(t *testing.T) {
 	mockUserRepo := mocks.NewMockUserRepository(ctrl)
 	mockSessionRepo := mocks.NewMockSessionRepository(ctrl)
 
-	service := service.NewAuthService(mockUserRepo, mockSessionRepo, nil)
+	service := NewAuthService(mockUserRepo, mockSessionRepo, nil)
 
 	token := "non-existent-token"
 
@@ -418,7 +417,7 @@ func TestAuthService_ValidateSession_UserNotFound(t *testing.T) {
 	mockUserRepo := mocks.NewMockUserRepository(ctrl)
 	mockSessionRepo := mocks.NewMockSessionRepository(ctrl)
 
-	service := service.NewAuthService(mockUserRepo, mockSessionRepo, nil)
+	service := NewAuthService(mockUserRepo, mockSessionRepo, nil)
 
 	token := "valid-token"
 	userEmail := "deleted@example.com"

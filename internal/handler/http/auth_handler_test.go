@@ -9,7 +9,6 @@ import (
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/errors"
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/http"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/tests/mocks"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -22,7 +21,7 @@ func TestAuthHandler_Register_Success(t *testing.T) {
 
 	mockLogger := mocks.NewMockLogger()
 	mockAuthService := mocks.NewMockAuthService(ctrl)
-	handler := handler.NewAuthHandler(mockAuthService, mockLogger)
+	handler := NewAuthHandler(mockAuthService, mockLogger)
 
 	email := "test@example.com"
 	password := "123456"
@@ -67,7 +66,7 @@ func TestAuthHandler_Register_InvalidJSON(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockAuthService := mocks.NewMockAuthService(ctrl)
-	handler := handler.NewAuthHandler(mockAuthService)
+	handler := NewAuthHandler(mockAuthService)
 
 	// Создаем запрос с невалидным JSON
 	req := httptest.NewRequest("POST", "/api/register", bytes.NewReader([]byte("invalid json")))
@@ -91,7 +90,7 @@ func TestAuthHandler_Login_Success(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockAuthService := mocks.NewMockAuthService(ctrl)
-	handler := handler.NewAuthHandler(mockAuthService)
+	handler := NewAuthHandler(mockAuthService)
 
 	email := "test@example.com"
 	password := "123456"
@@ -154,7 +153,7 @@ func TestAuthHandler_Login_InvalidCredentials(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockAuthService := mocks.NewMockAuthService(ctrl)
-	handler := handler.NewAuthHandler(mockAuthService)
+	handler := NewAuthHandler(mockAuthService)
 
 	email := "test@example.com"
 	password := "wrongpassword"
@@ -195,7 +194,7 @@ func TestAuthHandler_Logout_Success(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockAuthService := mocks.NewMockAuthService(ctrl)
-	handler := handler.NewAuthHandler(mockAuthService)
+	handler := NewAuthHandler(mockAuthService)
 
 	token := "valid-session-token"
 
@@ -242,7 +241,7 @@ func TestAuthHandler_Logout_NoSession(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockAuthService := mocks.NewMockAuthService(ctrl)
-	handler := handler.NewAuthHandler(mockAuthService)
+	handler := NewAuthHandler(mockAuthService)
 
 	// Создаем запрос БЕЗ cookie
 	req := httptest.NewRequest("POST", "/api/logout", nil)

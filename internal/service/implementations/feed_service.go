@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -9,11 +10,10 @@ import (
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/dto"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
 	"github.com/google/uuid"
 )
 
-type feedService struct {
+type FeedService struct {
 	userRepo  interfaces.UserRepository
 	prefRepo  interfaces.UserPreferenceRepository
 	photoRepo interfaces.UserPhotoRepository
@@ -25,8 +25,8 @@ func NewFeedService(
 	prefRepo interfaces.UserPreferenceRepository,
 	photoRepo interfaces.UserPhotoRepository,
 	l logger.Log,
-) service.FeedService {
-	return &feedService{
+) *FeedService {
+	return &FeedService{
 		userRepo:  userRepo,
 		prefRepo:  prefRepo,
 		photoRepo: photoRepo,
@@ -34,7 +34,7 @@ func NewFeedService(
 	}
 }
 
-func (s *feedService) GetFeed(userID uuid.UUID, limit, offset int) ([]dto.FeedUser, error) {
+func (s *FeedService) GetFeed(ctx context.Context, userID uuid.UUID, limit, offset int) ([]dto.FeedUser, error) {
 	s.logger.Trace("FeedService.GetFeed")
 	// Валидация параметров
 	if limit <= 0 || limit > 50 {
@@ -47,7 +47,7 @@ func (s *feedService) GetFeed(userID uuid.UUID, limit, offset int) ([]dto.FeedUs
 	s.logger.Debugf("Getting feed for userID: %v with limit: %d and offset: %d\n", userID, limit, offset)
 
 	// Получаем пользователей для ленты
-	users, err := s.userRepo.GetUsersForFeed(userID, limit, offset)
+	users, err := s.userRepo.GetUsersForFeed(ctx, userID, limit, offset)
 	if err != nil {
 		s.logger.Errorf("Getting users for feed failed: %v", err)
 		return nil, err
@@ -57,12 +57,12 @@ func (s *feedService) GetFeed(userID uuid.UUID, limit, offset int) ([]dto.FeedUs
 	// Преобразуем в формат для ленты
 	feedUsers := make([]dto.FeedUser, 0, len(users))
 	for _, user := range users {
-		res, err := s.prefRepo.GetInterests(user.ID)
+		res, err := s.prefRepo.GetInterests(ctx, user.ID)
 		if err != nil {
 			s.logger.Warnf("Getting interests for user failed: %v", err)
 			continue
 		}
-		feedUser, err := s.convertToFeedUser(user)
+		feedUser, err := s.convertToFeedUser(ctx, user)
 		if err != nil {
 			s.logger.Warnf("Error converting user %s: %v\n", user.ID, err)
 			continue // Пропускаем пользователя с ошибкой
@@ -72,19 +72,19 @@ func (s *feedService) GetFeed(userID uuid.UUID, limit, offset int) ([]dto.FeedUs
 	}
 
 	// Обновляем время последней активности текущего пользователя
-	go s.userRepo.UpdateLastActive(userID)
+	go s.userRepo.UpdateLastActive(ctx, userID)
 
 	return feedUsers, nil
 }
 
 // convertToFeedUser преобразует доменного пользователя в формат для ленты
-func (s *feedService) convertToFeedUser(user domain.User) (dto.FeedUser, error) {
+func (s *FeedService) convertToFeedUser(ctx context.Context, user domain.User) (dto.FeedUser, error) {
 	s.logger.Trace("convertToFeedUser")
 	// Вычисляем возраст
 	age := calculateAge(user.BirthDate)
 
 	// Получаем фото пользователя
-	images, err := s.getUserPhotos(user.ID)
+	images, err := s.getUserPhotos(ctx, user.ID)
 	if err != nil {
 		return dto.FeedUser{}, err
 	}
@@ -130,8 +130,8 @@ func getDescription(bio *string) string {
 }
 
 // getUserPhotos возвращает фото пользователя из репозитория
-func (s *feedService) getUserPhotos(userID uuid.UUID) ([]string, error) {
-	photos, err := s.photoRepo.GetByUserID(userID)
+func (s *FeedService) getUserPhotos(ctx context.Context, userID uuid.UUID) ([]string, error) {
+	photos, err := s.photoRepo.GetByUserID(ctx, userID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get photos for user %s: %w", userID, err)
 	}

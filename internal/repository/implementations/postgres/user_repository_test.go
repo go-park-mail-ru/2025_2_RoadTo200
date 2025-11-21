@@ -6,7 +6,6 @@ import (
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/constants"
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
-	repository "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/implementations/postgres"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v4"
 	"github.com/pashagolub/pgxmock"
@@ -19,7 +18,7 @@ func TestUserRepository_Create(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewUserRepository(mock)
+	repo := NewUserRepository(mock)
 
 	phone := "+1234567890"
 	bio := "Test bio"
@@ -56,7 +55,7 @@ func TestUserRepository_GetByID(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewUserRepository(mock)
+	repo := NewUserRepository(mock)
 
 	userID := uuid.New()
 	phone := "+1234567890"
@@ -108,7 +107,7 @@ func TestUserRepository_GetByID_NotFound(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewUserRepository(mock)
+	repo := NewUserRepository(mock)
 
 	userID := uuid.New()
 
@@ -127,7 +126,7 @@ func TestUserRepository_Update(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewUserRepository(mock)
+	repo := NewUserRepository(mock)
 
 	phone := "+0987654321"
 	bio := "Updated bio"
@@ -167,7 +166,7 @@ func TestUserRepository_Delete(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewUserRepository(mock)
+	repo := NewUserRepository(mock)
 
 	userID := uuid.New()
 
@@ -185,7 +184,7 @@ func TestUserRepository_GetUsersByIDs(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewUserRepository(mock)
+	repo := NewUserRepository(mock)
 
 	userIDs := []uuid.UUID{uuid.New(), uuid.New()}
 	phone := "+1234567890"
@@ -255,7 +254,7 @@ func TestUserRepository_GetUsersByIDs_Empty(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewUserRepository(mock)
+	repo := NewUserRepository(mock)
 
 	users, err := repo.GetUsersByIDs([]uuid.UUID{})
 	assert.NoError(t, err)
