@@ -10,17 +10,17 @@ import (
 	"github.com/jackc/pgx/v4"
 )
 
-var _ interfaces.MessageRepository = (*messageRepository)(nil)
+var _ interfaces.MessageRepository = (*MessageRepository)(nil)
 
-type messageRepository struct {
+type MessageRepository struct {
 	pool interfaces.PgxIface
 }
 
-func NewMessageRepository(pool interfaces.PgxIface) interfaces.MessageRepository {
-	return &messageRepository{pool: pool}
+func NewMessageRepository(pool interfaces.PgxIface) *MessageRepository {
+	return &MessageRepository{pool: pool}
 }
 
-func (r *messageRepository) Create(ctx context.Context, message *domain.Message) error {
+func (r *MessageRepository) Create(ctx context.Context, message *domain.Message) error {
 	query := `
 		INSERT INTO message (match_id, sender_id, message_text, status)
 		VALUES ($1, $2, $3, $4)
@@ -36,7 +36,7 @@ func (r *messageRepository) Create(ctx context.Context, message *domain.Message)
 	return nil
 }
 
-func (r *messageRepository) GetByID(ctx context.Context, id uuid.UUID) (*domain.Message, error) {
+func (r *MessageRepository) GetByID(ctx context.Context, id uuid.UUID) (*domain.Message, error) {
 	var message domain.Message
 	query := `SELECT * FROM message WHERE id = $1`
 
@@ -54,7 +54,7 @@ func (r *messageRepository) GetByID(ctx context.Context, id uuid.UUID) (*domain.
 	return &message, nil
 }
 
-func (r *messageRepository) GetByMatchID(ctx context.Context, matchID uuid.UUID, limit, offset int) ([]domain.Message, error) {
+func (r *MessageRepository) GetByMatchID(ctx context.Context, matchID uuid.UUID, limit, offset int) ([]domain.Message, error) {
 	query := `
 		SELECT * FROM message 
 		WHERE match_id = $1 
@@ -83,7 +83,7 @@ func (r *messageRepository) GetByMatchID(ctx context.Context, matchID uuid.UUID,
 	return messages, nil
 }
 
-func (r *messageRepository) UpdateStatus(ctx context.Context, id uuid.UUID, status int) error {
+func (r *MessageRepository) UpdateStatus(ctx context.Context, id uuid.UUID, status int) error {
 	query := `UPDATE message SET status = $1 WHERE id = $2`
 
 	_, err := r.pool.Exec(ctx, query, status, id)
@@ -93,7 +93,7 @@ func (r *messageRepository) UpdateStatus(ctx context.Context, id uuid.UUID, stat
 	return nil
 }
 
-func (r *messageRepository) Delete(ctx context.Context, id uuid.UUID) error {
+func (r *MessageRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	query := `DELETE FROM message WHERE id = $1`
 
 	_, err := r.pool.Exec(ctx, query, id)
@@ -103,7 +103,7 @@ func (r *messageRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	return nil
 }
 
-func (r *messageRepository) MarkMessagesAsRead(ctx context.Context, matchID, userID uuid.UUID) error {
+func (r *MessageRepository) MarkMessagesAsRead(ctx context.Context, matchID, userID uuid.UUID) error {
 	query := `
 		UPDATE message 
 		SET status = 1 
@@ -116,7 +116,7 @@ func (r *messageRepository) MarkMessagesAsRead(ctx context.Context, matchID, use
 	return nil
 }
 
-func (r *messageRepository) GetUnreadCount(ctx context.Context, userID uuid.UUID) (int, error) {
+func (r *MessageRepository) GetUnreadCount(ctx context.Context, userID uuid.UUID) (int, error) {
 	query := `
 		SELECT COUNT(*) 
 		FROM message m
@@ -133,7 +133,7 @@ func (r *messageRepository) GetUnreadCount(ctx context.Context, userID uuid.UUID
 	return count, nil
 }
 
-func (r *messageRepository) GetConversations(ctx context.Context, userID uuid.UUID) ([]domain.Conversation, error) {
+func (r *MessageRepository) GetConversations(ctx context.Context, userID uuid.UUID) ([]domain.Conversation, error) {
 	query := `
 		SELECT 
 			m.id as match_id,

@@ -11,17 +11,17 @@ import (
 	"github.com/jackc/pgx/v4"
 )
 
-var _ interfaces.SubscriptionRepository = (*subscriptionRepository)(nil)
+var _ interfaces.SubscriptionRepository = (*SubscriptionRepository)(nil)
 
-type subscriptionRepository struct {
+type SubscriptionRepository struct {
 	pool interfaces.PgxIface
 }
 
-func NewSubscriptionRepository(pool interfaces.PgxIface) interfaces.SubscriptionRepository {
-	return &subscriptionRepository{pool: pool}
+func NewSubscriptionRepository(pool interfaces.PgxIface) *SubscriptionRepository {
+	return &SubscriptionRepository{pool: pool}
 }
 
-func (r *subscriptionRepository) Create(ctx context.Context, subscription *domain.Subscription) error {
+func (r *SubscriptionRepository) Create(ctx context.Context, subscription *domain.Subscription) error {
 	query := `
 		INSERT INTO subscription (user_id, plan_type, start_date, end_date, is_active)
 		VALUES ($1, $2, $3, $4, $5)`
@@ -32,7 +32,7 @@ func (r *subscriptionRepository) Create(ctx context.Context, subscription *domai
 	return err
 }
 
-func (r *subscriptionRepository) GetByUserID(ctx context.Context, userID uuid.UUID) (*domain.Subscription, error) {
+func (r *SubscriptionRepository) GetByUserID(ctx context.Context, userID uuid.UUID) (*domain.Subscription, error) {
 	var subscription domain.Subscription
 	query := `SELECT * FROM subscription WHERE user_id = $1`
 
@@ -50,7 +50,7 @@ func (r *subscriptionRepository) GetByUserID(ctx context.Context, userID uuid.UU
 	return &subscription, nil
 }
 
-func (r *subscriptionRepository) Update(ctx context.Context, subscription *domain.Subscription) error {
+func (r *SubscriptionRepository) Update(ctx context.Context, subscription *domain.Subscription) error {
 	query := `
 		UPDATE subscription 
 		SET plan_type = $1, start_date = $2, end_date = $3, is_active = $4
@@ -66,7 +66,7 @@ func (r *subscriptionRepository) Update(ctx context.Context, subscription *domai
 	return nil
 }
 
-func (r *subscriptionRepository) Delete(ctx context.Context, userID uuid.UUID) error {
+func (r *SubscriptionRepository) Delete(ctx context.Context, userID uuid.UUID) error {
 	query := `DELETE FROM subscription WHERE user_id = $1`
 
 	_, err := r.pool.Exec(ctx, query, userID)
@@ -76,7 +76,7 @@ func (r *subscriptionRepository) Delete(ctx context.Context, userID uuid.UUID) e
 	return nil
 }
 
-func (r *subscriptionRepository) GetActiveSubscription(ctx context.Context, userID uuid.UUID) (*domain.Subscription, error) {
+func (r *SubscriptionRepository) GetActiveSubscription(ctx context.Context, userID uuid.UUID) (*domain.Subscription, error) {
 	var subscription domain.Subscription
 	query := `
 		SELECT * FROM subscription 

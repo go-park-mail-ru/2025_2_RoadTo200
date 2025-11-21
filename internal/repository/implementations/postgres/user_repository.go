@@ -13,18 +13,18 @@ import (
 	"github.com/jackc/pgx/v4"
 )
 
-var _ interfaces.UserRepository = (*userRepository)(nil)
+var _ interfaces.UserRepository = (*UserRepository)(nil)
 
-type userRepository struct {
+type UserRepository struct {
 	pool   interfaces.PgxIface
 	logger logger.Log
 }
 
-func NewUserRepository(pool interfaces.PgxIface, l logger.Log) interfaces.UserRepository {
-	return &userRepository{pool: pool, logger: l}
+func NewUserRepository(pool interfaces.PgxIface, l logger.Log) *UserRepository {
+	return &UserRepository{pool: pool, logger: l}
 }
 
-func (r *userRepository) Create(ctx context.Context, user *domain.User) error {
+func (r *UserRepository) Create(ctx context.Context, user *domain.User) error {
 	r.logger.Trace("FeedService.Create")
 	query := `
 	INSERT INTO "user" (email, phone, name, password, birth_date, gender, bio, 
@@ -43,7 +43,7 @@ func (r *userRepository) Create(ctx context.Context, user *domain.User) error {
 	return nil
 }
 
-func (r *userRepository) GetByID(ctx context.Context, id uuid.UUID) (*domain.User, error) {
+func (r *UserRepository) GetByID(ctx context.Context, id uuid.UUID) (*domain.User, error) {
 	r.logger.Trace("FeedService.GetByID")
 	var user domain.User
 	query := `
@@ -67,7 +67,7 @@ func (r *userRepository) GetByID(ctx context.Context, id uuid.UUID) (*domain.Use
 	return &user, nil
 }
 
-func (r *userRepository) GetByEmail(ctx context.Context, email string) (*domain.User, error) {
+func (r *UserRepository) GetByEmail(ctx context.Context, email string) (*domain.User, error) {
 	r.logger.Trace("FeedService.GetByEmail")
 	var user domain.User
 	query := `
@@ -91,7 +91,7 @@ func (r *userRepository) GetByEmail(ctx context.Context, email string) (*domain.
 	return &user, nil
 }
 
-func (r *userRepository) GetByPhone(ctx context.Context, phone string) (*domain.User, error) {
+func (r *UserRepository) GetByPhone(ctx context.Context, phone string) (*domain.User, error) {
 	r.logger.Trace("FeedService.GetByPhone")
 	var user domain.User
 	query := `SELECT * FROM "user" WHERE phone = $1`
@@ -111,7 +111,7 @@ func (r *userRepository) GetByPhone(ctx context.Context, phone string) (*domain.
 	return &user, nil
 }
 
-func (r *userRepository) Update(ctx context.Context, user *domain.User) error {
+func (r *UserRepository) Update(ctx context.Context, user *domain.User) error {
 	r.logger.Trace("FeedService.Update")
 	query := `
         UPDATE "user" 
@@ -133,7 +133,7 @@ func (r *userRepository) Update(ctx context.Context, user *domain.User) error {
 	return nil
 }
 
-func (r *userRepository) UpdateLastActive(ctx context.Context, userID uuid.UUID) error {
+func (r *UserRepository) UpdateLastActive(ctx context.Context, userID uuid.UUID) error {
 	r.logger.Trace("FeedService.UpdateLastActive")
 	query := `UPDATE "user" SET last_active = NOW() WHERE id = $1`
 
@@ -144,7 +144,7 @@ func (r *userRepository) UpdateLastActive(ctx context.Context, userID uuid.UUID)
 	return nil
 }
 
-func (r *userRepository) Delete(ctx context.Context, id uuid.UUID) error {
+func (r *UserRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	r.logger.Trace("FeedService.Delete")
 	query := `DELETE FROM "user" WHERE id = $1`
 
@@ -155,7 +155,7 @@ func (r *userRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	return nil
 }
 
-func (r *userRepository) GetUsersByIDs(ctx context.Context, ids []uuid.UUID) ([]domain.User, error) {
+func (r *UserRepository) GetUsersByIDs(ctx context.Context, ids []uuid.UUID) ([]domain.User, error) {
 	r.logger.Trace("FeedService.GetUsersByIDs")
 	if len(ids) == 0 {
 		return []domain.User{}, nil
@@ -204,7 +204,7 @@ func (r *userRepository) GetUsersByIDs(ctx context.Context, ids []uuid.UUID) ([]
 	return users, nil
 }
 
-func (r *userRepository) GetUsersForFeed(ctx context.Context, userID uuid.UUID, limit, offset int) ([]domain.User, error) {
+func (r *UserRepository) GetUsersForFeed(ctx context.Context, userID uuid.UUID, limit, offset int) ([]domain.User, error) {
 	r.logger.Tracef("GetUsersForFeed called with userID:", userID, "limit:", limit, "offset:", offset)
 
 	query := `

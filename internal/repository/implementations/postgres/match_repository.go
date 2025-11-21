@@ -11,17 +11,17 @@ import (
 	"github.com/jackc/pgx/v4"
 )
 
-var _ interfaces.MatchRepository = (*matchRepository)(nil)
+var _ interfaces.MatchRepository = (*MatchRepository)(nil)
 
-type matchRepository struct {
+type MatchRepository struct {
 	pool interfaces.PgxIface
 }
 
-func NewMatchRepository(pool interfaces.PgxIface) interfaces.MatchRepository {
-	return &matchRepository{pool: pool}
+func NewMatchRepository(pool interfaces.PgxIface) *MatchRepository {
+	return &MatchRepository{pool: pool}
 }
 
-func (r *matchRepository) Create(ctx context.Context, match *domain.Match) error {
+func (r *MatchRepository) Create(ctx context.Context, match *domain.Match) error {
 	// Убедимся, что user1_id всегда меньше user2_id для consistency
 	user1ID, user2ID := match.User1ID, match.User2ID
 	if user1ID.String() > user2ID.String() {
@@ -45,7 +45,7 @@ func (r *matchRepository) Create(ctx context.Context, match *domain.Match) error
 	return nil
 }
 
-func (r *matchRepository) GetByUsers(ctx context.Context, user1ID, user2ID uuid.UUID) (*domain.Match, error) {
+func (r *MatchRepository) GetByUsers(ctx context.Context, user1ID, user2ID uuid.UUID) (*domain.Match, error) {
 	// Приводим к consistent порядку
 	if user1ID.String() > user2ID.String() {
 		user1ID, user2ID = user2ID, user1ID
@@ -67,7 +67,7 @@ func (r *matchRepository) GetByUsers(ctx context.Context, user1ID, user2ID uuid.
 	return &match, nil
 }
 
-func (r *matchRepository) GetUserMatches(ctx context.Context, userID uuid.UUID, limit, offset int) ([]domain.Match, error) {
+func (r *MatchRepository) GetUserMatches(ctx context.Context, userID uuid.UUID, limit, offset int) ([]domain.Match, error) {
 	query := `
         SELECT user1_id, user2_id, is_active, matched_at 
         FROM match 
@@ -100,7 +100,7 @@ func (r *matchRepository) GetUserMatches(ctx context.Context, userID uuid.UUID, 
 	return matches, nil
 }
 
-func (r *matchRepository) UpdateActive(ctx context.Context, user1ID, user2ID uuid.UUID, isActive bool) error {
+func (r *MatchRepository) UpdateActive(ctx context.Context, user1ID, user2ID uuid.UUID, isActive bool) error {
 	if user1ID.String() > user2ID.String() {
 		user1ID, user2ID = user2ID, user1ID
 	}
@@ -114,7 +114,7 @@ func (r *matchRepository) UpdateActive(ctx context.Context, user1ID, user2ID uui
 	return nil
 }
 
-func (r *matchRepository) Delete(ctx context.Context, user1ID, user2ID uuid.UUID) error {
+func (r *MatchRepository) Delete(ctx context.Context, user1ID, user2ID uuid.UUID) error {
 	if user1ID.String() > user2ID.String() {
 		user1ID, user2ID = user2ID, user1ID
 	}
@@ -128,7 +128,7 @@ func (r *matchRepository) Delete(ctx context.Context, user1ID, user2ID uuid.UUID
 	return nil
 }
 
-func (r *matchRepository) CheckMutualLike(ctx context.Context, user1ID, user2ID uuid.UUID) (bool, error) {
+func (r *MatchRepository) CheckMutualLike(ctx context.Context, user1ID, user2ID uuid.UUID) (bool, error) {
 	query := `
 		SELECT EXISTS(
 			SELECT 1 FROM swipe s1

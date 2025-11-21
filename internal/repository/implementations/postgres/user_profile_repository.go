@@ -11,19 +11,19 @@ import (
 	"github.com/jackc/pgx/v4"
 )
 
-var _ interfaces.UserPhotoRepository = (*userPhotoRepository)(nil)
-var _ interfaces.UserPreferenceRepository = (*userPreferenceRepository)(nil)
+var _ interfaces.UserPhotoRepository = (*UserPhotoRepository)(nil)
+var _ interfaces.UserPreferenceRepository = (*UserPreferenceRepository)(nil)
 
-type userPhotoRepository struct {
+type UserPhotoRepository struct {
 	pool   interfaces.PgxIface
 	logger logger.Log
 }
 
-func NewUserPhotoRepository(pool interfaces.PgxIface, l logger.Log) interfaces.UserPhotoRepository {
-	return &userPhotoRepository{pool: pool, logger: l}
+func NewUserPhotoRepository(pool interfaces.PgxIface, l logger.Log) *UserPhotoRepository {
+	return &UserPhotoRepository{pool: pool, logger: l}
 }
 
-func (r *userPhotoRepository) Create(ctx context.Context, photo *domain.UserPhoto) error {
+func (r *UserPhotoRepository) Create(ctx context.Context, photo *domain.UserPhoto) error {
 	r.logger.Trace("UserPhotoRepository.Create")
 
 	query := `
@@ -41,7 +41,7 @@ func (r *userPhotoRepository) Create(ctx context.Context, photo *domain.UserPhot
 	return nil
 }
 
-func (r *userPhotoRepository) GetByID(ctx context.Context, id uuid.UUID) (*domain.UserPhoto, error) {
+func (r *UserPhotoRepository) GetByID(ctx context.Context, id uuid.UUID) (*domain.UserPhoto, error) {
 	r.logger.Trace("UserPhotoRepository.GetByID")
 
 	var photo domain.UserPhoto
@@ -61,7 +61,7 @@ func (r *userPhotoRepository) GetByID(ctx context.Context, id uuid.UUID) (*domai
 	return &photo, nil
 }
 
-func (r *userPhotoRepository) GetByUserID(ctx context.Context, userID uuid.UUID) ([]domain.UserPhoto, error) {
+func (r *UserPhotoRepository) GetByUserID(ctx context.Context, userID uuid.UUID) ([]domain.UserPhoto, error) {
 	r.logger.Trace("UserPhotoRepository.GetByUserID")
 
 	query := `SELECT * FROM user_photo WHERE user_id = $1 ORDER BY display_order`
@@ -93,7 +93,7 @@ func (r *userPhotoRepository) GetByUserID(ctx context.Context, userID uuid.UUID)
 	return photos, nil
 }
 
-func (r *userPhotoRepository) Update(ctx context.Context, photo *domain.UserPhoto) error {
+func (r *UserPhotoRepository) Update(ctx context.Context, photo *domain.UserPhoto) error {
 	r.logger.Trace("UserPhotoRepository.Update")
 
 	query := `
@@ -110,7 +110,7 @@ func (r *userPhotoRepository) Update(ctx context.Context, photo *domain.UserPhot
 	return nil
 }
 
-func (r *userPhotoRepository) Delete(ctx context.Context, id uuid.UUID) error {
+func (r *UserPhotoRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	r.logger.Trace("UserPhotoRepository.Delete")
 
 	query := `DELETE FROM user_photo WHERE id = $1`
@@ -122,7 +122,7 @@ func (r *userPhotoRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	return nil
 }
 
-func (r *userPhotoRepository) UpdateDisplayOrder(ctx context.Context, userID uuid.UUID, photos []domain.UserPhoto) error {
+func (r *UserPhotoRepository) UpdateDisplayOrder(ctx context.Context, userID uuid.UUID, photos []domain.UserPhoto) error {
 	r.logger.Trace("UserPhotoRepository.UpdateDisplayOrder")
 
 	tx, err := r.pool.Begin(ctx)
@@ -152,16 +152,16 @@ func (r *userPhotoRepository) UpdateDisplayOrder(ctx context.Context, userID uui
 	return tx.Commit(ctx)
 }
 
-type userPreferenceRepository struct {
+type UserPreferenceRepository struct {
 	pool   interfaces.PgxIface
 	logger logger.Log
 }
 
-func NewUserPreferenceRepository(pool interfaces.PgxIface, l logger.Log) interfaces.UserPreferenceRepository {
-	return &userPreferenceRepository{pool: pool, logger: l}
+func NewUserPreferenceRepository(pool interfaces.PgxIface, l logger.Log) *UserPreferenceRepository {
+	return &UserPreferenceRepository{pool: pool, logger: l}
 }
 
-func (r *userPreferenceRepository) Create(ctx context.Context, preference *domain.UserPreference) error {
+func (r *UserPreferenceRepository) Create(ctx context.Context, preference *domain.UserPreference) error {
 	r.logger.Trace("UserPreferenceRepository.Create")
 
 	query := `
@@ -180,7 +180,7 @@ func (r *userPreferenceRepository) Create(ctx context.Context, preference *domai
 	return nil
 }
 
-func (r *userPreferenceRepository) GetByUserID(ctx context.Context, userID uuid.UUID) (*domain.UserPreference, error) {
+func (r *UserPreferenceRepository) GetByUserID(ctx context.Context, userID uuid.UUID) (*domain.UserPreference, error) {
 	r.logger.Trace("UserPreferenceRepository.GetByUserID")
 
 	var preference domain.UserPreference
@@ -200,7 +200,7 @@ func (r *userPreferenceRepository) GetByUserID(ctx context.Context, userID uuid.
 	return &preference, nil
 }
 
-func (r *userPreferenceRepository) Update(ctx context.Context, preference *domain.UserPreference) error {
+func (r *UserPreferenceRepository) Update(ctx context.Context, preference *domain.UserPreference) error {
 	r.logger.Trace("UserPreferenceRepository.Update")
 
 	query := `
@@ -220,7 +220,7 @@ func (r *userPreferenceRepository) Update(ctx context.Context, preference *domai
 	return nil
 }
 
-func (r *userPreferenceRepository) Delete(ctx context.Context, userID uuid.UUID) error {
+func (r *UserPreferenceRepository) Delete(ctx context.Context, userID uuid.UUID) error {
 	r.logger.Trace("UserPreferenceRepository.Delete")
 
 	query := `DELETE FROM user_preference WHERE user_id = $1`
@@ -232,7 +232,7 @@ func (r *userPreferenceRepository) Delete(ctx context.Context, userID uuid.UUID)
 	return nil
 }
 
-func (r *userPreferenceRepository) GetInterests(ctx context.Context, userID uuid.UUID) ([]domain.Interest, error) {
+func (r *UserPreferenceRepository) GetInterests(ctx context.Context, userID uuid.UUID) ([]domain.Interest, error) {
 	r.logger.Trace("UserPreferenceRepository.GetInterests")
 
 	query := `
@@ -257,7 +257,7 @@ func (r *userPreferenceRepository) GetInterests(ctx context.Context, userID uuid
 	return interests, nil
 }
 
-func (r *userPreferenceRepository) UpdateInterests(ctx context.Context, userID uuid.UUID, inter []domain.Interest) error {
+func (r *UserPreferenceRepository) UpdateInterests(ctx context.Context, userID uuid.UUID, inter []domain.Interest) error {
 	r.logger.Trace("UserPreferenceRepository.UpdateInterests")
 
 	delQuery := `

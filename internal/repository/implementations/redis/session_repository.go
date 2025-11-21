@@ -12,19 +12,19 @@ import (
 	"github.com/gomodule/redigo/redis"
 )
 
-var _ interfaces.SessionRepository = (*sessionRepository)(nil)
+var _ interfaces.SessionRepository = (*SessionRepository)(nil)
 
-type sessionRepository struct {
+type SessionRepository struct {
 	pool *redis.Pool
 }
 
 // NewSessionRepository создает новый репозиторий сессий
-func NewSessionRepository(pool *redis.Pool) interfaces.SessionRepository {
-	return &sessionRepository{pool: pool}
+func NewSessionRepository(pool *redis.Pool) *SessionRepository {
+	return &SessionRepository{pool: pool}
 }
 
 // Set сохраняет сессию в Redis
-func (r *sessionRepository) Set(ctx context.Context, session *domain.Session) error {
+func (r *SessionRepository) Set(ctx context.Context, session *domain.Session) error {
 	conn := r.pool.Get()
 	defer conn.Close()
 
@@ -45,7 +45,7 @@ func (r *sessionRepository) Set(ctx context.Context, session *domain.Session) er
 }
 
 // Get получает сессию по ID
-func (r *sessionRepository) Get(ctx context.Context, sessionID string) (*domain.Session, error) {
+func (r *SessionRepository) Get(ctx context.Context, sessionID string) (*domain.Session, error) {
 	conn := r.pool.Get()
 	defer conn.Close()
 
@@ -67,7 +67,7 @@ func (r *sessionRepository) Get(ctx context.Context, sessionID string) (*domain.
 }
 
 // Delete удаляет сессию
-func (r *sessionRepository) Delete(ctx context.Context, sessionID string) error {
+func (r *SessionRepository) Delete(ctx context.Context, sessionID string) error {
 	conn := r.pool.Get()
 	defer conn.Close()
 
@@ -81,7 +81,7 @@ func (r *sessionRepository) Delete(ctx context.Context, sessionID string) error 
 }
 
 // Exists проверяет существование сессии
-func (r *sessionRepository) Exists(ctx context.Context, sessionID string) (bool, error) {
+func (r *SessionRepository) Exists(ctx context.Context, sessionID string) (bool, error) {
 	conn := r.pool.Get()
 	defer conn.Close()
 
@@ -95,7 +95,7 @@ func (r *sessionRepository) Exists(ctx context.Context, sessionID string) (bool,
 }
 
 // SetWithExpiry сохраняет сессию с кастомным TTL
-func (r *sessionRepository) SetWithExpiry(ctx context.Context, session *domain.Session, expiry time.Duration) error {
+func (r *SessionRepository) SetWithExpiry(ctx context.Context, session *domain.Session, expiry time.Duration) error {
 	conn := r.pool.Get()
 	defer conn.Close()
 

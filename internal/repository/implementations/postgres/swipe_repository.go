@@ -10,17 +10,17 @@ import (
 	"github.com/jackc/pgx/v4"
 )
 
-var _ interfaces.SwipeRepository = (*swipeRepository)(nil)
+var _ interfaces.SwipeRepository = (*SwipeRepository)(nil)
 
-type swipeRepository struct {
+type SwipeRepository struct {
 	pool interfaces.PgxIface
 }
 
-func NewSwipeRepository(pool interfaces.PgxIface) interfaces.SwipeRepository {
-	return &swipeRepository{pool: pool}
+func NewSwipeRepository(pool interfaces.PgxIface) *SwipeRepository {
+	return &SwipeRepository{pool: pool}
 }
 
-func (r *swipeRepository) Create(ctx context.Context, swipe *domain.Swipe) error {
+func (r *SwipeRepository) Create(ctx context.Context, swipe *domain.Swipe) error {
 	query := `
 		INSERT INTO swipe (swiper_user_id, target_user_id, swipe_type)
 		VALUES ($1, $2, $3)
@@ -36,7 +36,7 @@ func (r *swipeRepository) Create(ctx context.Context, swipe *domain.Swipe) error
 	return nil
 }
 
-func (r *swipeRepository) GetBySwiperAndTarget(ctx context.Context, swiperID, targetID uuid.UUID) (*domain.Swipe, error) {
+func (r *SwipeRepository) GetBySwiperAndTarget(ctx context.Context, swiperID, targetID uuid.UUID) (*domain.Swipe, error) {
 	var swipe domain.Swipe
 	query := `SELECT * FROM swipe WHERE swiper_user_id = $1 AND target_user_id = $2`
 
@@ -53,7 +53,7 @@ func (r *swipeRepository) GetBySwiperAndTarget(ctx context.Context, swiperID, ta
 	return &swipe, nil
 }
 
-func (r *swipeRepository) GetSwipesBySwiper(ctx context.Context, swiperID uuid.UUID, limit, offset int) ([]domain.Swipe, error) {
+func (r *SwipeRepository) GetSwipesBySwiper(ctx context.Context, swiperID uuid.UUID, limit, offset int) ([]domain.Swipe, error) {
 	query := `
 		SELECT * FROM swipe 
 		WHERE swiper_user_id = $1 
@@ -85,7 +85,7 @@ func (r *swipeRepository) GetSwipesBySwiper(ctx context.Context, swiperID uuid.U
 	return swipes, nil
 }
 
-func (r *swipeRepository) GetSwipesByTarget(ctx context.Context, targetID uuid.UUID, limit, offset int) ([]domain.Swipe, error) {
+func (r *SwipeRepository) GetSwipesByTarget(ctx context.Context, targetID uuid.UUID, limit, offset int) ([]domain.Swipe, error) {
 	query := `
 		SELECT * FROM swipe 
 		WHERE target_user_id = $1 
@@ -117,7 +117,7 @@ func (r *swipeRepository) GetSwipesByTarget(ctx context.Context, targetID uuid.U
 	return swipes, nil
 }
 
-func (r *swipeRepository) Exists(ctx context.Context, swiperID, targetID uuid.UUID) (bool, error) {
+func (r *SwipeRepository) Exists(ctx context.Context, swiperID, targetID uuid.UUID) (bool, error) {
 	var exists bool
 	query := `SELECT EXISTS(SELECT 1 FROM swipe WHERE swiper_user_id = $1 AND target_user_id = $2)`
 
@@ -128,7 +128,7 @@ func (r *swipeRepository) Exists(ctx context.Context, swiperID, targetID uuid.UU
 	return exists, nil
 }
 
-func (r *swipeRepository) GetSwipesStats(ctx context.Context, userID uuid.UUID) (int, int, int, error) {
+func (r *SwipeRepository) GetSwipesStats(ctx context.Context, userID uuid.UUID) (int, int, int, error) {
 	var likesCount, dislikesCount, superLikesCount int
 
 	query := `
@@ -147,7 +147,7 @@ func (r *swipeRepository) GetSwipesStats(ctx context.Context, userID uuid.UUID) 
 	return likesCount, dislikesCount, superLikesCount, nil
 }
 
-func (r *swipeRepository) GetMutualLikes(ctx context.Context, userID uuid.UUID) ([]uuid.UUID, error) {
+func (r *SwipeRepository) GetMutualLikes(ctx context.Context, userID uuid.UUID) ([]uuid.UUID, error) {
 	query := `
 		SELECT s1.swiper_user_id 
 		FROM swipe s1
