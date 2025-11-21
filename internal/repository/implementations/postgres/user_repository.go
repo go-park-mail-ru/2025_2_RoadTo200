@@ -13,6 +13,8 @@ import (
 	"github.com/jackc/pgx/v4"
 )
 
+var _ interfaces.UserRepository = (*userRepository)(nil)
+
 type userRepository struct {
 	pool   interfaces.PgxIface
 	logger logger.Log

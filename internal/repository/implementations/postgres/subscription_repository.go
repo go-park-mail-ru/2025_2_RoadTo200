@@ -11,6 +11,8 @@ import (
 	"github.com/jackc/pgx/v4"
 )
 
+var _ interfaces.SubscriptionRepository = (*subscriptionRepository)(nil)
+
 type subscriptionRepository struct {
 	pool interfaces.PgxIface
 }

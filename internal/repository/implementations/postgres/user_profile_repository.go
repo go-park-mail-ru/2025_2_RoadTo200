@@ -11,6 +11,9 @@ import (
 	"github.com/jackc/pgx/v4"
 )
 
+var _ interfaces.UserPhotoRepository = (*userPhotoRepository)(nil)
+var _ interfaces.UserPreferenceRepository = (*userPreferenceRepository)(nil)
+
 type userPhotoRepository struct {
 	pool   interfaces.PgxIface
 	logger logger.Log

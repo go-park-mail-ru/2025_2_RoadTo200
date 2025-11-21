@@ -10,6 +10,8 @@ import (
 	"github.com/jackc/pgx/v4"
 )
 
+var _ interfaces.SwipeRepository = (*swipeRepository)(nil)
+
 type swipeRepository struct {
 	pool interfaces.PgxIface
 }

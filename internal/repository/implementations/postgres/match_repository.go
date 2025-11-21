@@ -11,6 +11,8 @@ import (
 	"github.com/jackc/pgx/v4"
 )
 
+var _ interfaces.MatchRepository = (*matchRepository)(nil)
+
 type matchRepository struct {
 	pool interfaces.PgxIface
 }

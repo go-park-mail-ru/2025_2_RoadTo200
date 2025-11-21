@@ -10,6 +10,8 @@ import (
 	"github.com/jackc/pgx/v4"
 )
 
+var _ interfaces.MessageRepository = (*messageRepository)(nil)
+
 type messageRepository struct {
 	pool interfaces.PgxIface
 }

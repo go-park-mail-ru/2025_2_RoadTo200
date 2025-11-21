@@ -12,6 +12,8 @@ import (
 	"github.com/minio/minio-go/v7"
 )
 
+var _ interfaces.FileStorage = (*storageRepository)(nil)
+
 type storageRepository struct {
 	client     *minio.Client
 	bucketName string
