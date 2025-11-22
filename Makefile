@@ -8,10 +8,14 @@ test-coverage:
 	go test ./... -cover
 
 build-docs:
-	swag init -g /cmd/server/main.go -o api/docs/
+	swag init -g /cmd/auth/main.go -o api/auth/
+	swag init -g /cmd/core/main.go -o api/core/
+	swag init -g /cmd/server/main.go -o api/server/
 
 build:
-	go build -o ./.build/ ./cmd/server/main.go
+	go build -o ./.build/auth ./cmd/auth/main.go
+	go build -o ./.build/core ./cmd/core/main.go
+	#go build -o ./.build/server ./cmd/server/main.go
 
 clean:
 	rm -f app coverage.out
@@ -25,7 +29,7 @@ tidy:
 deploy:
 	./scripts/deploy.sh
 
-lbuild:
+sbuild:
 	git pull origin clean_arch
 	go build -o $HOME/app/back/bin/ ./cmd/server/main.go
 

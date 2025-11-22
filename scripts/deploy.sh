@@ -12,7 +12,7 @@ if [[ $BUILD -eq 1 ]]; then
 
   echo "Deploy binary file"
   ssh ubuntu.vk sudo systemctl stop app-back.service
-  scp ./.build/main $HOST:/home/ubuntu/app/back/bin/ || echo "Error deploy binary"
+  scp ./.build/* $HOST:/home/ubuntu/app/back/bin/ || echo "Error deploy binary"
   ssh ubuntu.vk sudo systemctl start app-back.service
 fi
 
@@ -25,7 +25,8 @@ if [[ $DOCS -eq 1 ]]; then
   echo "Building swagger docs"
   make build-docs &&
   echo "Deploy swagger file"
-  scp ./docs/swagger.json $HOST:/home/ubuntu/app/back/data/docs/ || echo "Error deploy swagger"
+  scp ./api/auth/swagger.json $HOST:/home/ubuntu/app/back/data/docs/auth.json || echo "Error deploy auth swagger"
+  scp ./api/core/swagger.json $HOST:/home/ubuntu/app/back/data/docs/core.json || echo "Error deploy core swagger"
 fi
 
 
