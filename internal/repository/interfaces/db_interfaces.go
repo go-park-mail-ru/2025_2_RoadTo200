@@ -7,12 +7,16 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/minio/minio-go/v7"
 )
 
 type PgxIface interface {
-	pgx.Tx
 	Begin(context.Context) (pgx.Tx, error)
+	SendBatch(ctx context.Context, b *pgx.Batch) pgx.BatchResults
+	Exec(ctx context.Context, sql string, arguments ...any) (commandTag pgconn.CommandTag, err error)
+	Query(ctx context.Context, sql string, args ...any) (pgx.Rows, error)
+	QueryRow(ctx context.Context, sql string, args ...any) pgx.Row
 	Close()
 }
 
