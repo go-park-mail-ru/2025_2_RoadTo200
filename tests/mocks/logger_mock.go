@@ -7,6 +7,8 @@ import (
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
 )
 
+var _ logger.Log = (*MockLogger)(nil)
+
 // MockLogger - мок-реализация интерфейса Log для тестирования
 type MockLogger struct {
 	mu          sync.RWMutex

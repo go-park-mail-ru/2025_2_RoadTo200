@@ -1,11 +1,13 @@
 package postgres
 
 import (
+	"context"
 	"testing"
 	"time"
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/constants"
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/tests/mocks"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v4"
 	"github.com/pashagolub/pgxmock"
@@ -18,12 +20,14 @@ func TestUserRepository_Create(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := NewUserRepository(mock)
+	log := mocks.NewMockLogger()
+	repo := NewUserRepository(mock, log)
 
 	phone := "+1234567890"
 	bio := "Test bio"
-	lat := 55.7558
-	lon := 37.6173
+	city := "Moscow"
+	artist := "Test Artist"
+	quote := "Test Quote"
 
 	user := &domain.User{
 		Email:      "test@example.com",
@@ -33,8 +37,9 @@ func TestUserRepository_Create(t *testing.T) {
 		BirthDate:  time.Now().Add(-20 * 365 * 24 * time.Hour),
 		Gender:     constants.GenderMale,
 		Bio:        &bio,
-		Latitude:   &lat,
-		Longitude:  &lon,
+		City:       &city,
+		Artist:     &artist,
+		Quote:      &quote,
 		IsVerified: false,
 	}
 
@@ -42,11 +47,55 @@ func TestUserRepository_Create(t *testing.T) {
 		AddRow(uuid.New(), time.Now(), time.Now(), time.Now())
 
 	mock.ExpectQuery("INSERT INTO \"user\"").
-		WithArgs(user.Email, user.Phone, user.Name, user.Password, user.BirthDate, user.Gender, user.Bio, user.Latitude, user.Longitude, user.IsVerified).
+		WithArgs(
+			user.Email, user.Phone, user.Name, user.Password, user.BirthDate,
+			user.Gender, user.Bio, user.City, user.Artist, user.Quote, user.IsVerified,
+		).
 		WillReturnRows(rows)
 
-	err = repo.Create(user)
+	err = repo.Create(context.Background(), user)
 	assert.NoError(t, err)
+	assert.NoError(t, mock.ExpectationsWereMet())
+	assert.True(t, log.WasCalled("Trace"))
+}
+
+func TestUserRepository_Create_Error(t *testing.T) {
+	mock, err := pgxmock.NewPool()
+	require.NoError(t, err)
+	defer mock.Close()
+
+	log := mocks.NewMockLogger()
+	repo := NewUserRepository(mock, log)
+
+	phone := "+1234567890"
+	bio := "Test bio"
+	city := "Moscow"
+	artist := "Test Artist"
+	quote := "Test Quote"
+
+	user := &domain.User{
+		Email:      "test@example.com",
+		Phone:      &phone,
+		Name:       "Test User",
+		Password:   "hashed_password",
+		BirthDate:  time.Now().Add(-20 * 365 * 24 * time.Hour),
+		Gender:     constants.GenderMale,
+		Bio:        &bio,
+		City:       &city,
+		Artist:     &artist,
+		Quote:      &quote,
+		IsVerified: false,
+	}
+
+	mock.ExpectQuery("INSERT INTO \"user\"").
+		WithArgs(
+			user.Email, user.Phone, user.Name, user.Password, user.BirthDate,
+			user.Gender, user.Bio, user.City, user.Artist, user.Quote, user.IsVerified,
+		).
+		WillReturnError(pgx.ErrTxClosed)
+
+	err = repo.Create(context.Background(), user)
+	assert.Error(t, err)
 	assert.NoError(t, mock.ExpectationsWereMet())
 }
 
@@ -55,13 +104,15 @@ func TestUserRepository_GetByID(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := NewUserRepository(mock)
+	log := mocks.NewMockLogger()
+	repo := NewUserRepository(mock, log)
 
 	userID := uuid.New()
 	phone := "+1234567890"
 	bio := "Test bio"
-	lat := 55.7558
-	lon := 37.6173
+	city := "Moscow"
+	artist := "Test Artist"
+	quote := "Test Quote"
 
 	expectedUser := &domain.User{
 		ID:         userID,
@@ -72,8 +123,9 @@ func TestUserRepository_GetByID(t *testing.T) {
 		BirthDate:  time.Now().Add(-20 * 365 * 24 * time.Hour),
 		Gender:     constants.GenderMale,
 		Bio:        &bio,
-		Latitude:   &lat,
-		Longitude:  &lon,
+		City:       &city,
+		Artist:     &artist,
+		Quote:      &quote,
 		IsVerified: true,
 		LastActive: time.Now(),
 		CreatedAt:  time.Now(),
@@ -82,24 +134,28 @@ func TestUserRepository_GetByID(t *testing.T) {
 
 	rows := mock.NewRows([]string{
 		"id", "email", "phone", "name", "password", "birth_date", "gender",
-		"bio", "latitude", "longitude", "is_verified", "last_active", "created_at", "updated_at",
+		"bio", "city", "artist", "quote", "is_verified", "last_active", "created_at", "updated_at",
 	}).AddRow(
 		expectedUser.ID, expectedUser.Email, expectedUser.Phone, expectedUser.Name,
 		expectedUser.Password, expectedUser.BirthDate, expectedUser.Gender, expectedUser.Bio,
-		expectedUser.Latitude, expectedUser.Longitude, expectedUser.IsVerified,
+		expectedUser.City, expectedUser.Artist, expectedUser.Quote, expectedUser.IsVerified,
 		expectedUser.LastActive, expectedUser.CreatedAt, expectedUser.UpdatedAt,
 	)
 
-	mock.ExpectQuery("SELECT \\* FROM \"user\" WHERE id = \\$1").
+	mock.ExpectQuery("SELECT id, email, phone, name, password, birth_date, gender, bio, city, artist, quote, is_verified, last_active, created_at, updated_at FROM \"user\" WHERE id = \\$1").
 		WithArgs(userID).
 		WillReturnRows(rows)
 
-	user, err := repo.GetByID(userID)
+	user, err := repo.GetByID(context.Background(), userID)
 	assert.NoError(t, err)
 	assert.Equal(t, expectedUser.ID, user.ID)
 	assert.Equal(t, expectedUser.Email, user.Email)
 	assert.Equal(t, expectedUser.Phone, user.Phone)
+	assert.Equal(t, expectedUser.City, user.City)
+	assert.Equal(t, expectedUser.Artist, user.Artist)
+	assert.Equal(t, expectedUser.Quote, user.Quote)
 	assert.NoError(t, mock.ExpectationsWereMet())
+	assert.True(t, log.WasCalled("Trace"))
 }
 
 func TestUserRepository_GetByID_NotFound(t *testing.T) {
@@ -107,15 +163,187 @@ func TestUserRepository_GetByID_NotFound(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := NewUserRepository(mock)
+	log := mocks.NewMockLogger()
+	repo := NewUserRepository(mock, log)
 
 	userID := uuid.New()
 
-	mock.ExpectQuery("SELECT \\* FROM \"user\" WHERE id = \\$1").
+	mock.ExpectQuery("SELECT id, email, phone, name, password, birth_date, gender, bio, city, artist, quote, is_verified, last_active, created_at, updated_at FROM \"user\" WHERE id = \\$1").
 		WithArgs(userID).
 		WillReturnError(pgx.ErrNoRows)
 
-	user, err := repo.GetByID(userID)
+	user, err := repo.GetByID(context.Background(), userID)
+	assert.NoError(t, err)
+	assert.Nil(t, user)
+	assert.NoError(t, mock.ExpectationsWereMet())
+}
+
+func TestUserRepository_GetByID_Error(t *testing.T) {
+	mock, err := pgxmock.NewPool()
+	require.NoError(t, err)
+	defer mock.Close()
+
+	log := mocks.NewMockLogger()
+	repo := NewUserRepository(mock, log)
+
+	userID := uuid.New()
+
+	mock.ExpectQuery("SELECT id, email, phone, name, password, birth_date, gender, bio, city, artist, quote, is_verified, last_active, created_at, updated_at FROM \"user\" WHERE id = \\$1").
+		WithArgs(userID).
+		WillReturnError(pgx.ErrTxClosed)
+
+	user, err := repo.GetByID(context.Background(), userID)
+	assert.Error(t, err)
+	assert.Nil(t, user)
+	assert.NoError(t, mock.ExpectationsWereMet())
+}
+
+func TestUserRepository_GetByEmail(t *testing.T) {
+	mock, err := pgxmock.NewPool()
+	require.NoError(t, err)
+	defer mock.Close()
+
+	log := mocks.NewMockLogger()
+	repo := NewUserRepository(mock, log)
+
+	userID := uuid.New()
+	phone := "+1234567890"
+	bio := "Test bio"
+	city := "Moscow"
+	artist := "Test Artist"
+	quote := "Test Quote"
+	email := "test@example.com"
+
+	expectedUser := &domain.User{
+		ID:         userID,
+		Email:      email,
+		Phone:      &phone,
+		Name:       "Test User",
+		Password:   "hashed_password",
+		BirthDate:  time.Now().Add(-20 * 365 * 24 * time.Hour),
+		Gender:     constants.GenderMale,
+		Bio:        &bio,
+		City:       &city,
+		Artist:     &artist,
+		Quote:      &quote,
+		IsVerified: true,
+		LastActive: time.Now(),
+		CreatedAt:  time.Now(),
+		UpdatedAt:  time.Now(),
+	}
+
+	rows := mock.NewRows([]string{
+		"id", "email", "phone", "name", "password", "birth_date", "gender",
+		"bio", "city", "artist", "quote", "is_verified", "last_active", "created_at", "updated_at",
+	}).AddRow(
+		expectedUser.ID, expectedUser.Email, expectedUser.Phone, expectedUser.Name,
+		expectedUser.Password, expectedUser.BirthDate, expectedUser.Gender, expectedUser.Bio,
+		expectedUser.City, expectedUser.Artist, expectedUser.Quote, expectedUser.IsVerified,
+		expectedUser.LastActive, expectedUser.CreatedAt, expectedUser.UpdatedAt,
+	)
+
+	mock.ExpectQuery("SELECT id, email, phone, name, password, birth_date, gender, bio, city, artist, quote, is_verified, last_active, created_at, updated_at FROM \"user\" WHERE email = \\$1").
+		WithArgs(email).
+		WillReturnRows(rows)
+
+	user, err := repo.GetByEmail(context.Background(), email)
+	assert.NoError(t, err)
+	assert.Equal(t, expectedUser.ID, user.ID)
+	assert.Equal(t, expectedUser.Email, user.Email)
+	assert.NoError(t, mock.ExpectationsWereMet())
+	assert.True(t, log.WasCalled("Trace"))
+}
+
+func TestUserRepository_GetByEmail_NotFound(t *testing.T) {
+	mock, err := pgxmock.NewPool()
+	require.NoError(t, err)
+	defer mock.Close()
+
+	log := mocks.NewMockLogger()
+	repo := NewUserRepository(mock, log)
+
+	email := "test@example.com"
+
+	mock.ExpectQuery("SELECT id, email, phone, name, password, birth_date, gender, bio, city, artist, quote, is_verified, last_active, created_at, updated_at FROM \"user\" WHERE email = \\$1").
+		WithArgs(email).
+		WillReturnError(pgx.ErrNoRows)
+
+	user, err := repo.GetByEmail(context.Background(), email)
+	assert.NoError(t, err)
+	assert.Nil(t, user)
+	assert.NoError(t, mock.ExpectationsWereMet())
+}
+
+func TestUserRepository_GetByPhone(t *testing.T) {
+	mock, err := pgxmock.NewPool()
+	require.NoError(t, err)
+	defer mock.Close()
+
+	log := mocks.NewMockLogger()
+	repo := NewUserRepository(mock, log)
+
+	userID := uuid.New()
+	phone := "+1234567890"
+	bio := "Test bio"
+	city := "Moscow"
+	artist := "Test Artist"
+	quote := "Test Quote"
+
+	expectedUser := &domain.User{
+		ID:         userID,
+		Email:      "test@example.com",
+		Phone:      &phone,
+		Name:       "Test User",
+		Password:   "hashed_password",
+		BirthDate:  time.Now().Add(-20 * 365 * 24 * time.Hour),
+		Gender:     constants.GenderMale,
+		Bio:        &bio,
+		City:       &city,
+		Artist:     &artist,
+		Quote:      &quote,
+		IsVerified: true,
+		LastActive: time.Now(),
+		CreatedAt:  time.Now(),
+		UpdatedAt:  time.Now(),
+	}
+
+	rows := mock.NewRows([]string{
+		"id", "email", "phone", "name", "password", "birth_date", "gender",
+		"bio", "city", "artist", "quote", "is_verified", "last_active", "created_at", "updated_at",
+	}).AddRow(
+		expectedUser.ID, expectedUser.Email, expectedUser.Phone, expectedUser.Name,
+		expectedUser.Password, expectedUser.BirthDate, expectedUser.Gender, expectedUser.Bio,
+		expectedUser.City, expectedUser.Artist, expectedUser.Quote, expectedUser.IsVerified,
+		expectedUser.LastActive, expectedUser.CreatedAt, expectedUser.UpdatedAt,
+	)
+
+	mock.ExpectQuery("SELECT \\* FROM \"user\" WHERE phone = \\$1").
+		WithArgs(phone).
+		WillReturnRows(rows)
+
+	user, err := repo.GetByPhone(context.Background(), phone)
+	assert.NoError(t, err)
+	assert.Equal(t, expectedUser.ID, user.ID)
+	assert.Equal(t, expectedUser.Phone, user.Phone)
+	assert.NoError(t, mock.ExpectationsWereMet())
+	assert.True(t, log.WasCalled("Trace"))
+}
+
+func TestUserRepository_GetByPhone_NotFound(t *testing.T) {
+	mock, err := pgxmock.NewPool()
+	require.NoError(t, err)
+	defer mock.Close()
+
+	log := mocks.NewMockLogger()
+	repo := NewUserRepository(mock, log)
+
+	phone := "+1234567890"
+
+	mock.ExpectQuery("SELECT \\* FROM \"user\" WHERE phone = \\$1").
+		WithArgs(phone).
+		WillReturnError(pgx.ErrNoRows)
+
+	user, err := repo.GetByPhone(context.Background(), phone)
 	assert.NoError(t, err)
 	assert.Nil(t, user)
 	assert.NoError(t, mock.ExpectationsWereMet())
@@ -126,12 +354,14 @@ func TestUserRepository_Update(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := NewUserRepository(mock)
+	log := mocks.NewMockLogger()
+	repo := NewUserRepository(mock, log)
 
 	phone := "+0987654321"
 	bio := "Updated bio"
-	lat := 59.9343
-	lon := 30.3351
+	city := "St. Petersburg"
+	artist := "Updated Artist"
+	quote := "Updated Quote"
 
 	user := &domain.User{
 		ID:         uuid.New(),
@@ -142,8 +372,9 @@ func TestUserRepository_Update(t *testing.T) {
 		BirthDate:  time.Now().Add(-25 * 365 * 24 * time.Hour),
 		Gender:     constants.GenderFemale,
 		Bio:        &bio,
-		Latitude:   &lat,
-		Longitude:  &lon,
+		City:       &city,
+		Artist:     &artist,
+		Quote:      &quote,
 		IsVerified: true,
 	}
 
@@ -152,12 +383,93 @@ func TestUserRepository_Update(t *testing.T) {
 	mock.ExpectQuery("UPDATE \"user\"").
 		WithArgs(
 			user.Email, user.Phone, user.Name, user.Password, user.BirthDate,
-			user.Gender, user.Bio, user.Latitude, user.Longitude, user.IsVerified, user.ID,
+			user.Gender, user.Bio, user.City, user.Artist, user.Quote, user.IsVerified, user.ID,
 		).
 		WillReturnRows(rows)
 
-	err = repo.Update(user)
+	err = repo.Update(context.Background(), user)
 	assert.NoError(t, err)
+	assert.NoError(t, mock.ExpectationsWereMet())
+	assert.True(t, log.WasCalled("Trace"))
+}
+
+func TestUserRepository_Update_Error(t *testing.T) {
+	mock, err := pgxmock.NewPool()
+	require.NoError(t, err)
+	defer mock.Close()
+
+	log := mocks.NewMockLogger()
+	repo := NewUserRepository(mock, log)
+
+	phone := "+0987654321"
+	bio := "Updated bio"
+	city := "St. Petersburg"
+	artist := "Updated Artist"
+	quote := "Updated Quote"
+
+	user := &domain.User{
+		ID:         uuid.New(),
+		Email:      "updated@example.com",
+		Phone:      &phone,
+		Name:       "Updated User",
+		Password:   "new_hashed_password",
+		BirthDate:  time.Now().Add(-25 * 365 * 24 * time.Hour),
+		Gender:     constants.GenderFemale,
+		Bio:        &bio,
+		City:       &city,
+		Artist:     &artist,
+		Quote:      &quote,
+		IsVerified: true,
+	}
+
+	mock.ExpectQuery("UPDATE \"user\"").
+		WithArgs(
+			user.Email, user.Phone, user.Name, user.Password, user.BirthDate,
+			user.Gender, user.Bio, user.City, user.Artist, user.Quote, user.IsVerified, user.ID,
+		).
+		WillReturnError(pgx.ErrTxClosed)
+
+	err = repo.Update(context.Background(), user)
+	assert.Error(t, err)
+	assert.NoError(t, mock.ExpectationsWereMet())
+}
+
+func TestUserRepository_UpdateLastActive(t *testing.T) {
+	mock, err := pgxmock.NewPool()
+	require.NoError(t, err)
+	defer mock.Close()
+
+	log := mocks.NewMockLogger()
+	repo := NewUserRepository(mock, log)
+
+	userID := uuid.New()
+
+	mock.ExpectExec("UPDATE \"user\" SET last_active = NOW\\(\\) WHERE id = \\$1").
+		WithArgs(userID).
+		WillReturnResult(pgxmock.NewResult("UPDATE", 1))
+
+	err = repo.UpdateLastActive(context.Background(), userID)
+	assert.NoError(t, err)
+	assert.NoError(t, mock.ExpectationsWereMet())
+	assert.True(t, log.WasCalled("Trace"))
+}
+
+func TestUserRepository_UpdateLastActive_Error(t *testing.T) {
+	mock, err := pgxmock.NewPool()
+	require.NoError(t, err)
+	defer mock.Close()
+
+	log := mocks.NewMockLogger()
+	repo := NewUserRepository(mock, log)
+
+	userID := uuid.New()
+
+	mock.ExpectExec("UPDATE \"user\" SET last_active = NOW\\(\\) WHERE id = \\$1").
+		WithArgs(userID).
+		WillReturnError(pgx.ErrTxClosed)
+
+	err = repo.UpdateLastActive(context.Background(), userID)
+	assert.Error(t, err)
 	assert.NoError(t, mock.ExpectationsWereMet())
 }
 
@@ -166,7 +478,8 @@ func TestUserRepository_Delete(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := NewUserRepository(mock)
+	log := mocks.NewMockLogger()
+	repo := NewUserRepository(mock, log)
 
 	userID := uuid.New()
 
@@ -174,8 +487,28 @@ func TestUserRepository_Delete(t *testing.T) {
 		WithArgs(userID).
 		WillReturnResult(pgxmock.NewResult("DELETE", 1))
 
-	err = repo.Delete(userID)
+	err = repo.Delete(context.Background(), userID)
 	assert.NoError(t, err)
+	assert.NoError(t, mock.ExpectationsWereMet())
+	assert.True(t, log.WasCalled("Trace"))
+}
+
+func TestUserRepository_Delete_Error(t *testing.T) {
+	mock, err := pgxmock.NewPool()
+	require.NoError(t, err)
+	defer mock.Close()
+
+	log := mocks.NewMockLogger()
+	repo := NewUserRepository(mock, log)
+
+	userID := uuid.New()
+
+	mock.ExpectExec("DELETE FROM \"user\" WHERE id = \\$1").
+		WithArgs(userID).
+		WillReturnError(pgx.ErrTxClosed)
+
+	err = repo.Delete(context.Background(), userID)
+	assert.Error(t, err)
 	assert.NoError(t, mock.ExpectationsWereMet())
 }
 
@@ -184,13 +517,15 @@ func TestUserRepository_GetUsersByIDs(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := NewUserRepository(mock)
+	log := mocks.NewMockLogger()
+	repo := NewUserRepository(mock, log)
 
 	userIDs := []uuid.UUID{uuid.New(), uuid.New()}
 	phone := "+1234567890"
 	bio := "Test bio"
-	lat := 55.7558
-	lon := 37.6173
+	city := "Moscow"
+	artist := "Test Artist"
+	quote := "Test Quote"
 
 	expectedUsers := []domain.User{
 		{
@@ -202,8 +537,9 @@ func TestUserRepository_GetUsersByIDs(t *testing.T) {
 			BirthDate:  time.Now().Add(-20 * 365 * 24 * time.Hour),
 			Gender:     constants.GenderMale,
 			Bio:        &bio,
-			Latitude:   &lat,
-			Longitude:  &lon,
+			City:       &city,
+			Artist:     &artist,
+			Quote:      &quote,
 			IsVerified: true,
 			LastActive: time.Now(),
 			CreatedAt:  time.Now(),
@@ -218,8 +554,9 @@ func TestUserRepository_GetUsersByIDs(t *testing.T) {
 			BirthDate:  time.Now().Add(-25 * 365 * 24 * time.Hour),
 			Gender:     constants.GenderFemale,
 			Bio:        &bio,
-			Latitude:   &lat,
-			Longitude:  &lon,
+			City:       &city,
+			Artist:     &artist,
+			Quote:      &quote,
 			IsVerified: true,
 			LastActive: time.Now(),
 			CreatedAt:  time.Now(),
@@ -229,24 +566,25 @@ func TestUserRepository_GetUsersByIDs(t *testing.T) {
 
 	rows := mock.NewRows([]string{
 		"id", "email", "phone", "name", "password", "birth_date", "gender",
-		"bio", "latitude", "longitude", "is_verified", "last_active", "created_at", "updated_at",
+		"bio", "city", "artist", "quote", "is_verified", "last_active", "created_at", "updated_at",
 	})
 	for _, user := range expectedUsers {
 		rows.AddRow(
 			user.ID, user.Email, user.Phone, user.Name, user.Password, user.BirthDate,
-			user.Gender, user.Bio, user.Latitude, user.Longitude, user.IsVerified,
+			user.Gender, user.Bio, user.City, user.Artist, user.Quote, user.IsVerified,
 			user.LastActive, user.CreatedAt, user.UpdatedAt,
 		)
 	}
 
-	mock.ExpectQuery("SELECT \\* FROM \"user\" WHERE id IN").
+	mock.ExpectQuery("SELECT id, email, phone, name, password, birth_date, gender, bio, city, artist, quote, is_verified, last_active, created_at, updated_at FROM \"user\" WHERE id IN").
 		WithArgs(userIDs[0], userIDs[1]).
 		WillReturnRows(rows)
 
-	users, err := repo.GetUsersByIDs(userIDs)
+	users, err := repo.GetUsersByIDs(context.Background(), userIDs)
 	assert.NoError(t, err)
 	assert.Len(t, users, 2)
 	assert.NoError(t, mock.ExpectationsWereMet())
+	assert.True(t, log.WasCalled("Trace"))
 }
 
 func TestUserRepository_GetUsersByIDs_Empty(t *testing.T) {
@@ -254,9 +592,154 @@ func TestUserRepository_GetUsersByIDs_Empty(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := NewUserRepository(mock)
+	log := mocks.NewMockLogger()
+	repo := NewUserRepository(mock, log)
 
-	users, err := repo.GetUsersByIDs([]uuid.UUID{})
+	users, err := repo.GetUsersByIDs(context.Background(), []uuid.UUID{})
 	assert.NoError(t, err)
 	assert.Empty(t, users)
+}
+
+func TestUserRepository_GetUsersByIDs_ScanError(t *testing.T) {
+	mock, err := pgxmock.NewPool()
+	require.NoError(t, err)
+	defer mock.Close()
+
+	log := mocks.NewMockLogger()
+	repo := NewUserRepository(mock, log)
+
+	userIDs := []uuid.UUID{uuid.New()}
+
+	rows := mock.NewRows([]string{
+		"id", "email", "phone", "name", "password", "birth_date", "gender",
+		"bio", "city", "artist", "quote", "is_verified", "last_active", "created_at", "updated_at",
+	}).AddRow(
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, // Invalid data to cause scan error
+	)
+
+	mock.ExpectQuery("SELECT id, email, phone, name, password, birth_date, gender, bio, city, artist, quote, is_verified, last_active, created_at, updated_at FROM \"user\" WHERE id IN").
+		WithArgs(userIDs[0]).
+		WillReturnRows(rows)
+
+	users, err := repo.GetUsersByIDs(context.Background(), userIDs)
+	assert.Error(t, err)
+	assert.Nil(t, users)
+	assert.NoError(t, mock.ExpectationsWereMet())
+	assert.True(t, log.WasCalled("Errorf"))
+}
+
+func TestUserRepository_GetUsersForFeed(t *testing.T) {
+	mock, err := pgxmock.NewPool()
+	require.NoError(t, err)
+	defer mock.Close()
+
+	log := mocks.NewMockLogger()
+	repo := NewUserRepository(mock, log)
+
+	userID := uuid.New()
+	otherUserID := uuid.New()
+	phone := "+1234567890"
+	bio := "Test bio"
+	city := "Moscow"
+	artist := "Test Artist"
+	quote := "Test Quote"
+	limit := 10
+	offset := 0
+
+	expectedUsers := []domain.User{
+		{
+			ID:         otherUserID,
+			Email:      "other@example.com",
+			Phone:      &phone,
+			Name:       "Other User",
+			Password:   "password",
+			BirthDate:  time.Now().Add(-20 * 365 * 24 * time.Hour),
+			Gender:     constants.GenderMale,
+			Bio:        &bio,
+			City:       &city,
+			Artist:     &artist,
+			Quote:      &quote,
+			IsVerified: true,
+			LastActive: time.Now(),
+			CreatedAt:  time.Now(),
+			UpdatedAt:  time.Now(),
+		},
+	}
+
+	rows := mock.NewRows([]string{
+		"id", "email", "phone", "name", "password", "birth_date", "gender",
+		"bio", "city", "artist", "quote", "is_verified", "last_active", "created_at", "updated_at",
+	})
+	for _, user := range expectedUsers {
+		rows.AddRow(
+			user.ID, user.Email, user.Phone, user.Name, user.Password, user.BirthDate,
+			user.Gender, user.Bio, user.City, user.Artist, user.Quote, user.IsVerified,
+			user.LastActive, user.CreatedAt, user.UpdatedAt,
+		)
+	}
+
+	mock.ExpectQuery("SELECT id, email, phone, name, password, birth_date, gender, bio, city, artist, quote, is_verified, last_active, created_at, updated_at FROM \"user\" u").
+		WithArgs(userID, limit, offset).
+		WillReturnRows(rows)
+
+	users, err := repo.GetUsersForFeed(context.Background(), userID, limit, offset)
+	assert.NoError(t, err)
+	assert.Len(t, users, 1)
+	assert.Equal(t, otherUserID, users[0].ID)
+	assert.NoError(t, mock.ExpectationsWereMet())
+	assert.True(t, log.WasCalled("Tracef"))
+	assert.True(t, log.WasCalled("Debugf"))
+	assert.True(t, log.WasCalled("Trace"))
+}
+
+func TestUserRepository_GetUsersForFeed_Error(t *testing.T) {
+	mock, err := pgxmock.NewPool()
+	require.NoError(t, err)
+	defer mock.Close()
+
+	log := mocks.NewMockLogger()
+	repo := NewUserRepository(mock, log)
+
+	userID := uuid.New()
+	limit := 10
+	offset := 0
+
+	mock.ExpectQuery("SELECT id, email, phone, name, password, birth_date, gender, bio, city, artist, quote, is_verified, last_active, created_at, updated_at FROM \"user\" u").
+		WithArgs(userID, limit, offset).
+		WillReturnError(pgx.ErrTxClosed)
+
+	users, err := repo.GetUsersForFeed(context.Background(), userID, limit, offset)
+	assert.Error(t, err)
+	assert.Nil(t, users)
+	assert.NoError(t, mock.ExpectationsWereMet())
+}
+
+func TestUserRepository_GetUsersForFeed_ScanError(t *testing.T) {
+	mock, err := pgxmock.NewPool()
+	require.NoError(t, err)
+	defer mock.Close()
+
+	log := mocks.NewMockLogger()
+	repo := NewUserRepository(mock, log)
+
+	userID := uuid.New()
+	limit := 10
+	offset := 0
+
+	rows := mock.NewRows([]string{
+		"id", "email", "phone", "name", "password", "birth_date", "gender",
+		"bio", "city", "artist", "quote", "is_verified", "last_active", "created_at", "updated_at",
+	}).AddRow(
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, // Invalid data to cause scan error
+	)
+
+	mock.ExpectQuery("SELECT id, email, phone, name, password, birth_date, gender, bio, city, artist, quote, is_verified, last_active, created_at, updated_at FROM \"user\" u").
+		WithArgs(userID, limit, offset).
+		WillReturnRows(rows)
+
+	users, err := repo.GetUsersForFeed(context.Background(), userID, limit, offset)
+	assert.Error(t, err)
+	assert.Nil(t, users)
+	assert.NoError(t, mock.ExpectationsWereMet())
+	assert.True(t, log.WasCalled("Errorf"))
 }
