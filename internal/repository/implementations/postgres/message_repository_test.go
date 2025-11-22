@@ -7,8 +7,8 @@ import (
 
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v4"
-	"github.com/pashagolub/pgxmock"
+	"github.com/jackc/pgx/v5"
+	"github.com/pashagolub/pgxmock/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -519,10 +519,11 @@ func TestMessageRepository_GetConversations_ScanError(t *testing.T) {
 
 	userID := uuid.New()
 
+	// Создаем строку с неверным количеством колонок, чтобы вызвать ошибку сканирования
 	rows := mock.NewRows([]string{
-		"match_id", "other_user_id", "other_user_name", "last_message", "last_message_time", "unread_count",
+		"match_id", "other_user_id", "other_user_name", "last_message", "last_message_time", "unread_count", "extra_column", // Добавляем лишнюю колонку
 	}).AddRow(
-		nil, nil, nil, nil, nil, nil, // Invalid data to cause scan error
+		uuid.New(), uuid.New(), "Test User", "Hello", time.Now(), 0, "extra_value", // Добавляем лишнее значение
 	)
 
 	mock.ExpectQuery("SELECT m.id as match_id, CASE WHEN m.user1_id = \\$1 THEN m.user2_id ELSE m.user1_id END as other_user_id, u.name as other_user_name, msg.message_text as last_message, msg.created_at as last_message_time, \\(SELECT COUNT\\(\\*\\) FROM message m2 WHERE m2.match_id = m.id AND m2.sender_id != \\$1 AND m2.status = 0\\) as unread_count FROM match m JOIN \"user\" u ON u.id = CASE WHEN m.user1_id = \\$1 THEN m.user2_id ELSE m.user1_id END LEFT JOIN LATERAL \\( SELECT message_text, created_at FROM message WHERE match_id = m.id ORDER BY created_at DESC LIMIT 1 \\) msg ON true WHERE \\(m.user1_id = \\$1 OR m.user2_id = \\$1\\) AND m.is_active = true ORDER BY msg.created_at DESC NULLS LAST").

@@ -8,8 +8,8 @@ import (
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/tests/mocks"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v4"
-	"github.com/pashagolub/pgxmock"
+	"github.com/jackc/pgx/v5"
+	"github.com/pashagolub/pgxmock/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -235,10 +235,16 @@ func TestUserPhotoRepository_GetByUserID_ScanError(t *testing.T) {
 
 	userID := uuid.New()
 
+	// Создаем данные, которые вызовут ошибку сканирования - неверный тип для одного из полей
 	rows := mock.NewRows([]string{
 		"id", "user_id", "photo_url", "display_order", "is_approved", "created_at",
 	}).AddRow(
-		nil, nil, nil, nil, nil, nil, // Invalid data to cause scan error
+		"invalid-uuid", // Неверный тип для id (строка вместо uuid)
+		userID,
+		"https://example.com/photo.jpg",
+		1,
+		true,
+		time.Now(),
 	)
 
 	mock.ExpectQuery("SELECT \\* FROM user_photo WHERE user_id = \\$1 ORDER BY display_order").
@@ -246,10 +252,14 @@ func TestUserPhotoRepository_GetByUserID_ScanError(t *testing.T) {
 		WillReturnRows(rows)
 
 	photos, err := repo.GetByUserID(context.Background(), userID)
-	assert.NoError(t, err) // Note: In the actual code, scan errors are logged but not returned
-	assert.Len(t, photos, 0)
-	assert.NoError(t, mock.ExpectationsWereMet())
+
+	// В реальной реализации ошибки сканирования не возвращаются, только логируются
+	assert.NoError(t, err)
+	// Строка с ошибкой сканирования пропускается, поэтому результат должен быть пустым
+	assert.Empty(t, photos)
+	// Проверяем что ошибка была залогирована
 	assert.True(t, log.WasCalled("Errorf"))
+	assert.NoError(t, mock.ExpectationsWereMet())
 }
 
 func TestUserPhotoRepository_GetByUserID_QueryError(t *testing.T) {

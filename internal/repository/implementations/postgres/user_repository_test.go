@@ -9,8 +9,8 @@ import (
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/tests/mocks"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v4"
-	"github.com/pashagolub/pgxmock"
+	"github.com/jackc/pgx/v5"
+	"github.com/pashagolub/pgxmock/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -610,11 +610,12 @@ func TestUserRepository_GetUsersByIDs_ScanError(t *testing.T) {
 
 	userIDs := []uuid.UUID{uuid.New()}
 
+	// Создаем данные, которые вызовут ошибку сканирования
 	rows := mock.NewRows([]string{
 		"id", "email", "phone", "name", "password", "birth_date", "gender",
 		"bio", "city", "artist", "quote", "is_verified", "last_active", "created_at", "updated_at",
 	}).AddRow(
-		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, // Invalid data to cause scan error
+		"invalid-uuid", "email@test.com", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, // Invalid UUID to cause scan error
 	)
 
 	mock.ExpectQuery("SELECT id, email, phone, name, password, birth_date, gender, bio, city, artist, quote, is_verified, last_active, created_at, updated_at FROM \"user\" WHERE id IN").
@@ -622,6 +623,8 @@ func TestUserRepository_GetUsersByIDs_ScanError(t *testing.T) {
 		WillReturnRows(rows)
 
 	users, err := repo.GetUsersByIDs(context.Background(), userIDs)
+
+	// В текущей реализации ошибка сканирования возвращается
 	assert.Error(t, err)
 	assert.Nil(t, users)
 	assert.NoError(t, mock.ExpectationsWereMet())
@@ -726,11 +729,12 @@ func TestUserRepository_GetUsersForFeed_ScanError(t *testing.T) {
 	limit := 10
 	offset := 0
 
+	// Создаем данные, которые вызовут ошибку сканирования
 	rows := mock.NewRows([]string{
 		"id", "email", "phone", "name", "password", "birth_date", "gender",
 		"bio", "city", "artist", "quote", "is_verified", "last_active", "created_at", "updated_at",
 	}).AddRow(
-		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, // Invalid data to cause scan error
+		"invalid-uuid", "email@test.com", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, // Invalid UUID to cause scan error
 	)
 
 	mock.ExpectQuery("SELECT id, email, phone, name, password, birth_date, gender, bio, city, artist, quote, is_verified, last_active, created_at, updated_at FROM \"user\" u").
@@ -738,6 +742,8 @@ func TestUserRepository_GetUsersForFeed_ScanError(t *testing.T) {
 		WillReturnRows(rows)
 
 	users, err := repo.GetUsersForFeed(context.Background(), userID, limit, offset)
+
+	// В текущей реализации ошибка сканирования возвращается
 	assert.Error(t, err)
 	assert.Nil(t, users)
 	assert.NoError(t, mock.ExpectationsWereMet())

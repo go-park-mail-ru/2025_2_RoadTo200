@@ -8,8 +8,8 @@ import (
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/constants"
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v4"
-	"github.com/pashagolub/pgxmock"
+	"github.com/jackc/pgx/v5"
+	"github.com/pashagolub/pgxmock/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -512,8 +512,9 @@ func TestSwipeRepository_GetMutualLikes_ScanError(t *testing.T) {
 
 	userID := uuid.New()
 
-	rows := mock.NewRows([]string{"swiper_user_id"}).
-		AddRow(nil) // Invalid UUID to cause scan error
+	// Добавляем лишнюю колонку чтобы вызвать ошибку
+	rows := mock.NewRows([]string{"swiper_user_id", "extra_column"}).
+		AddRow(uuid.New(), "extra_value")
 
 	mock.ExpectQuery("SELECT s1.swiper_user_id FROM swipe s1 INNER JOIN swipe s2 ON s1.swiper_user_id = s2.target_user_id AND s1.target_user_id = s2.swiper_user_id WHERE s1.target_user_id = \\$1 AND s1.swipe_type = 'like' AND s2.swipe_type = 'like' AND NOT EXISTS \\( SELECT 1 FROM match m WHERE \\(m.user1_id = s1.swiper_user_id AND m.user2_id = s1.target_user_id\\) OR \\(m.user1_id = s1.target_user_id AND m.user2_id = s1.swiper_user_id\\) \\)").
 		WithArgs(userID).

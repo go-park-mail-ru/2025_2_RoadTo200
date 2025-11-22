@@ -7,11 +7,19 @@ import (
 
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v4"
-	"github.com/pashagolub/pgxmock"
+	"github.com/jackc/pgx/v5"
+	"github.com/pashagolub/pgxmock/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+// Helper function to get ordered UUIDs
+func getOrderedUUIDs(id1, id2 uuid.UUID) (uuid.UUID, uuid.UUID) {
+	if id1.String() > id2.String() {
+		return id2, id1
+	}
+	return id1, id2
+}
 
 func TestMatchRepository_Create(t *testing.T) {
 	mock, err := pgxmock.NewPool()
@@ -32,15 +40,16 @@ func TestMatchRepository_Create(t *testing.T) {
 	rows := mock.NewRows([]string{"matched_at"}).
 		AddRow(time.Now())
 
+	orderedUser1ID, orderedUser2ID := getOrderedUUIDs(user1ID, user2ID)
 	mock.ExpectQuery("INSERT INTO match").
-		WithArgs(user1ID, user2ID, match.IsActive).
+		WithArgs(orderedUser1ID, orderedUser2ID, match.IsActive).
 		WillReturnRows(rows)
 
 	err = repo.Create(context.Background(), match)
 	assert.NoError(t, err)
 	assert.False(t, match.MatchedAt.IsZero())
-	assert.Equal(t, user1ID, match.User1ID) // user1ID should remain the smaller one
-	assert.Equal(t, user2ID, match.User2ID)
+	assert.Equal(t, orderedUser1ID, match.User1ID)
+	assert.Equal(t, orderedUser2ID, match.User2ID)
 	assert.NoError(t, mock.ExpectationsWereMet())
 }
 
@@ -64,17 +73,16 @@ func TestMatchRepository_Create_WithReorderedUsers(t *testing.T) {
 	rows := mock.NewRows([]string{"matched_at"}).
 		AddRow(time.Now())
 
-	// Expect the users to be reordered (user2ID, user1ID) since user2ID < user1ID
+	orderedUser1ID, orderedUser2ID := getOrderedUUIDs(user1ID, user2ID)
 	mock.ExpectQuery("INSERT INTO match").
-		WithArgs(user2ID, user1ID, match.IsActive).
+		WithArgs(orderedUser1ID, orderedUser2ID, match.IsActive).
 		WillReturnRows(rows)
 
 	err = repo.Create(context.Background(), match)
 	assert.NoError(t, err)
 	assert.False(t, match.MatchedAt.IsZero())
-	// After creation, User1ID should be the smaller one and User2ID the larger one
-	assert.Equal(t, user2ID, match.User1ID) // user2ID is now User1ID because it's smaller
-	assert.Equal(t, user1ID, match.User2ID) // user1ID is now User2ID because it's larger
+	assert.Equal(t, orderedUser1ID, match.User1ID)
+	assert.Equal(t, orderedUser2ID, match.User2ID)
 	assert.NoError(t, mock.ExpectationsWereMet())
 }
 
@@ -94,8 +102,9 @@ func TestMatchRepository_Create_Error(t *testing.T) {
 		IsActive: true,
 	}
 
+	orderedUser1ID, orderedUser2ID := getOrderedUUIDs(user1ID, user2ID)
 	mock.ExpectQuery("INSERT INTO match").
-		WithArgs(user1ID, user2ID, match.IsActive).
+		WithArgs(orderedUser1ID, orderedUser2ID, match.IsActive).
 		WillReturnError(pgx.ErrTxClosed)
 
 	err = repo.Create(context.Background(), match)
@@ -126,8 +135,9 @@ func TestMatchRepository_GetByUsers(t *testing.T) {
 		expectedMatch.User1ID, expectedMatch.User2ID, expectedMatch.IsActive, expectedMatch.MatchedAt,
 	)
 
+	orderedUser1ID, orderedUser2ID := getOrderedUUIDs(user1ID, user2ID)
 	mock.ExpectQuery("SELECT \\* FROM match WHERE user1_id = \\$1 AND user2_id = \\$2").
-		WithArgs(user1ID, user2ID).
+		WithArgs(orderedUser1ID, orderedUser2ID).
 		WillReturnRows(rows)
 
 	match, err := repo.GetByUsers(context.Background(), user1ID, user2ID)
@@ -149,9 +159,10 @@ func TestMatchRepository_GetByUsers_WithReorderedUsers(t *testing.T) {
 	user1ID := uuid.MustParse("00000000-0000-0000-0000-000000000002")
 	user2ID := uuid.MustParse("00000000-0000-0000-0000-000000000001")
 
+	orderedUser1ID, orderedUser2ID := getOrderedUUIDs(user1ID, user2ID)
 	expectedMatch := &domain.Match{
-		User1ID:   user2ID, // user2ID becomes User1ID because it's smaller
-		User2ID:   user1ID, // user1ID becomes User2ID because it's larger
+		User1ID:   orderedUser1ID,
+		User2ID:   orderedUser2ID,
 		IsActive:  true,
 		MatchedAt: time.Now(),
 	}
@@ -162,9 +173,8 @@ func TestMatchRepository_GetByUsers_WithReorderedUsers(t *testing.T) {
 		expectedMatch.User1ID, expectedMatch.User2ID, expectedMatch.IsActive, expectedMatch.MatchedAt,
 	)
 
-	// Expect the users to be reordered in the query
 	mock.ExpectQuery("SELECT \\* FROM match WHERE user1_id = \\$1 AND user2_id = \\$2").
-		WithArgs(user2ID, user1ID).
+		WithArgs(orderedUser1ID, orderedUser2ID).
 		WillReturnRows(rows)
 
 	match, err := repo.GetByUsers(context.Background(), user1ID, user2ID)
@@ -184,8 +194,9 @@ func TestMatchRepository_GetByUsers_NotFound(t *testing.T) {
 	user1ID := uuid.New()
 	user2ID := uuid.New()
 
+	orderedUser1ID, orderedUser2ID := getOrderedUUIDs(user1ID, user2ID)
 	mock.ExpectQuery("SELECT \\* FROM match WHERE user1_id = \\$1 AND user2_id = \\$2").
-		WithArgs(user1ID, user2ID).
+		WithArgs(orderedUser1ID, orderedUser2ID).
 		WillReturnError(pgx.ErrNoRows)
 
 	match, err := repo.GetByUsers(context.Background(), user1ID, user2ID)
@@ -204,8 +215,9 @@ func TestMatchRepository_GetByUsers_Error(t *testing.T) {
 	user1ID := uuid.New()
 	user2ID := uuid.New()
 
+	orderedUser1ID, orderedUser2ID := getOrderedUUIDs(user1ID, user2ID)
 	mock.ExpectQuery("SELECT \\* FROM match WHERE user1_id = \\$1 AND user2_id = \\$2").
-		WithArgs(user1ID, user2ID).
+		WithArgs(orderedUser1ID, orderedUser2ID).
 		WillReturnError(pgx.ErrTxClosed)
 
 	match, err := repo.GetByUsers(context.Background(), user1ID, user2ID)
@@ -318,8 +330,9 @@ func TestMatchRepository_UpdateActive(t *testing.T) {
 	user2ID := uuid.MustParse("00000000-0000-0000-0000-000000000002")
 	isActive := false
 
+	orderedUser1ID, orderedUser2ID := getOrderedUUIDs(user1ID, user2ID)
 	mock.ExpectExec("UPDATE match SET is_active = \\$1 WHERE user1_id = \\$2 AND user2_id = \\$3").
-		WithArgs(isActive, user1ID, user2ID).
+		WithArgs(isActive, orderedUser1ID, orderedUser2ID).
 		WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 
 	err = repo.UpdateActive(context.Background(), user1ID, user2ID, isActive)
@@ -339,9 +352,9 @@ func TestMatchRepository_UpdateActive_WithReorderedUsers(t *testing.T) {
 	user2ID := uuid.MustParse("00000000-0000-0000-0000-000000000001")
 	isActive := false
 
-	// Expect the users to be reordered in the query
+	orderedUser1ID, orderedUser2ID := getOrderedUUIDs(user1ID, user2ID)
 	mock.ExpectExec("UPDATE match SET is_active = \\$1 WHERE user1_id = \\$2 AND user2_id = \\$3").
-		WithArgs(isActive, user2ID, user1ID).
+		WithArgs(isActive, orderedUser1ID, orderedUser2ID).
 		WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 
 	err = repo.UpdateActive(context.Background(), user1ID, user2ID, isActive)
@@ -360,8 +373,9 @@ func TestMatchRepository_UpdateActive_Error(t *testing.T) {
 	user2ID := uuid.New()
 	isActive := false
 
+	orderedUser1ID, orderedUser2ID := getOrderedUUIDs(user1ID, user2ID)
 	mock.ExpectExec("UPDATE match SET is_active = \\$1 WHERE user1_id = \\$2 AND user2_id = \\$3").
-		WithArgs(isActive, user1ID, user2ID).
+		WithArgs(isActive, orderedUser1ID, orderedUser2ID).
 		WillReturnError(pgx.ErrTxClosed)
 
 	err = repo.UpdateActive(context.Background(), user1ID, user2ID, isActive)
@@ -379,8 +393,9 @@ func TestMatchRepository_Delete(t *testing.T) {
 	user1ID := uuid.MustParse("00000000-0000-0000-0000-000000000001")
 	user2ID := uuid.MustParse("00000000-0000-0000-0000-000000000002")
 
+	orderedUser1ID, orderedUser2ID := getOrderedUUIDs(user1ID, user2ID)
 	mock.ExpectExec("DELETE FROM match WHERE user1_id = \\$1 AND user2_id = \\$2").
-		WithArgs(user1ID, user2ID).
+		WithArgs(orderedUser1ID, orderedUser2ID).
 		WillReturnResult(pgxmock.NewResult("DELETE", 1))
 
 	err = repo.Delete(context.Background(), user1ID, user2ID)
@@ -399,9 +414,9 @@ func TestMatchRepository_Delete_WithReorderedUsers(t *testing.T) {
 	user1ID := uuid.MustParse("00000000-0000-0000-0000-000000000002")
 	user2ID := uuid.MustParse("00000000-0000-0000-0000-000000000001")
 
-	// Expect the users to be reordered in the query
+	orderedUser1ID, orderedUser2ID := getOrderedUUIDs(user1ID, user2ID)
 	mock.ExpectExec("DELETE FROM match WHERE user1_id = \\$1 AND user2_id = \\$2").
-		WithArgs(user2ID, user1ID).
+		WithArgs(orderedUser1ID, orderedUser2ID).
 		WillReturnResult(pgxmock.NewResult("DELETE", 1))
 
 	err = repo.Delete(context.Background(), user1ID, user2ID)
@@ -419,8 +434,9 @@ func TestMatchRepository_Delete_Error(t *testing.T) {
 	user1ID := uuid.New()
 	user2ID := uuid.New()
 
+	orderedUser1ID, orderedUser2ID := getOrderedUUIDs(user1ID, user2ID)
 	mock.ExpectExec("DELETE FROM match WHERE user1_id = \\$1 AND user2_id = \\$2").
-		WithArgs(user1ID, user2ID).
+		WithArgs(orderedUser1ID, orderedUser2ID).
 		WillReturnError(pgx.ErrTxClosed)
 
 	err = repo.Delete(context.Background(), user1ID, user2ID)
@@ -501,6 +517,7 @@ func TestMatchRepository_Integration_CRUD(t *testing.T) {
 
 	user1ID := uuid.MustParse("00000000-0000-0000-0000-000000000001")
 	user2ID := uuid.MustParse("00000000-0000-0000-0000-000000000002")
+	orderedUser1ID, orderedUser2ID := getOrderedUUIDs(user1ID, user2ID)
 
 	// Test Create
 	match := &domain.Match{
@@ -512,7 +529,7 @@ func TestMatchRepository_Integration_CRUD(t *testing.T) {
 	rows := mock.NewRows([]string{"matched_at"}).AddRow(time.Now())
 
 	mock.ExpectQuery("INSERT INTO match").
-		WithArgs(user1ID, user2ID, match.IsActive).
+		WithArgs(orderedUser1ID, orderedUser2ID, match.IsActive).
 		WillReturnRows(rows)
 
 	err = repo.Create(context.Background(), match)
@@ -520,8 +537,8 @@ func TestMatchRepository_Integration_CRUD(t *testing.T) {
 
 	// Test GetByUsers
 	expectedMatch := &domain.Match{
-		User1ID:   user1ID,
-		User2ID:   user2ID,
+		User1ID:   orderedUser1ID,
+		User2ID:   orderedUser2ID,
 		IsActive:  true,
 		MatchedAt: time.Now(),
 	}
@@ -533,7 +550,7 @@ func TestMatchRepository_Integration_CRUD(t *testing.T) {
 	)
 
 	mock.ExpectQuery("SELECT \\* FROM match WHERE user1_id = \\$1 AND user2_id = \\$2").
-		WithArgs(user1ID, user2ID).
+		WithArgs(orderedUser1ID, orderedUser2ID).
 		WillReturnRows(rows)
 
 	retrievedMatch, err := repo.GetByUsers(context.Background(), user1ID, user2ID)
@@ -542,7 +559,7 @@ func TestMatchRepository_Integration_CRUD(t *testing.T) {
 
 	// Test UpdateActive
 	mock.ExpectExec("UPDATE match SET is_active = \\$1 WHERE user1_id = \\$2 AND user2_id = \\$3").
-		WithArgs(false, user1ID, user2ID).
+		WithArgs(false, orderedUser1ID, orderedUser2ID).
 		WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 
 	err = repo.UpdateActive(context.Background(), user1ID, user2ID, false)
@@ -550,7 +567,7 @@ func TestMatchRepository_Integration_CRUD(t *testing.T) {
 
 	// Test Delete
 	mock.ExpectExec("DELETE FROM match WHERE user1_id = \\$1 AND user2_id = \\$2").
-		WithArgs(user1ID, user2ID).
+		WithArgs(orderedUser1ID, orderedUser2ID).
 		WillReturnResult(pgxmock.NewResult("DELETE", 1))
 
 	err = repo.Delete(context.Background(), user1ID, user2ID)

@@ -9,8 +9,8 @@ import (
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/tests/mocks"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v4"
-	"github.com/pashagolub/pgxmock"
+	"github.com/jackc/pgx/v5"
+	"github.com/pashagolub/pgxmock/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -335,18 +335,26 @@ func TestUserPreferenceRepository_GetInterests_ScanError(t *testing.T) {
 
 	userID := uuid.New()
 
+	// Создаем данные, которые вызовут ошибку сканирования - неверный тип данных
 	rows := mock.NewRows([]string{"user_id", "theme"}).
-		AddRow(nil, nil) // Invalid data to cause scan error
+		AddRow(
+			"invalid-uuid", // Неверный тип для user_id (строка вместо uuid)
+			"Music",
+		)
 
 	mock.ExpectQuery("SELECT i.user_id, i.theme FROM interest i WHERE i.user_id = \\$1").
 		WithArgs(userID).
 		WillReturnRows(rows)
 
 	interests, err := repo.GetInterests(context.Background(), userID)
-	assert.NoError(t, err) // Note: In the actual code, scan errors are logged but not returned
-	assert.Len(t, interests, 0)
-	assert.NoError(t, mock.ExpectationsWereMet())
+
+	// В реальной реализации ошибки сканирования не возвращаются, только логируются
+	assert.NoError(t, err)
+	// Строка с ошибкой сканирования пропускается, поэтому результат должен быть пустым
+	assert.Empty(t, interests)
+	// Проверяем что ошибка была залогирована
 	assert.True(t, log.WasCalled("Errorf"))
+	assert.NoError(t, mock.ExpectationsWereMet())
 }
 
 func TestUserPreferenceRepository_GetInterests_QueryError(t *testing.T) {
@@ -389,13 +397,11 @@ func TestUserPreferenceRepository_UpdateInterests(t *testing.T) {
 		WithArgs(userID).
 		WillReturnResult(pgxmock.NewResult("DELETE", 3))
 
-	// For batch operations, we expect multiple Exec calls
-	for _, interest := range interests {
-		mock.ExpectExec("INSERT INTO interest").
-			WithArgs(userID, interest.Theme).
+	mb := mock.ExpectBatch()
+	for _, el := range interests {
+		mb.ExpectExec("INSERT INTO interest").WithArgs(el.UserID, el.Theme).
 			WillReturnResult(pgxmock.NewResult("INSERT", 1))
 	}
-
 	mock.ExpectCommit()
 
 	err = repo.UpdateInterests(context.Background(), userID, interests)
@@ -418,6 +424,7 @@ func TestUserPreferenceRepository_UpdateInterests_Empty(t *testing.T) {
 	mock.ExpectExec("DELETE FROM interest WHERE user_id = \\$1").
 		WithArgs(userID).
 		WillReturnResult(pgxmock.NewResult("DELETE", 0))
+	mock.ExpectBatch()
 	mock.ExpectCommit()
 
 	err = repo.UpdateInterests(context.Background(), userID, []domain.Interest{})
@@ -487,10 +494,12 @@ func TestUserPreferenceRepository_UpdateInterests_BatchError(t *testing.T) {
 		WithArgs(userID).
 		WillReturnResult(pgxmock.NewResult("DELETE", 1))
 
-	// Simulate batch execution error by returning error on first insert
-	mock.ExpectExec("INSERT INTO interest").
+	// Используем ExpectBatch и ожидаем ошибку
+	batch := mock.ExpectBatch()
+	batch.ExpectExec("INSERT INTO interest").
 		WithArgs(userID, interests[0].Theme).
 		WillReturnError(pgx.ErrTxClosed)
+
 	mock.ExpectRollback()
 
 	err = repo.UpdateInterests(context.Background(), userID, interests)
@@ -515,9 +524,13 @@ func TestUserPreferenceRepository_UpdateInterests_CommitError(t *testing.T) {
 	mock.ExpectExec("DELETE FROM interest WHERE user_id = \\$1").
 		WithArgs(userID).
 		WillReturnResult(pgxmock.NewResult("DELETE", 1))
-	mock.ExpectExec("INSERT INTO interest").
+
+	// Используем ExpectBatch
+	batch := mock.ExpectBatch()
+	batch.ExpectExec("INSERT INTO interest").
 		WithArgs(userID, interests[0].Theme).
 		WillReturnResult(pgxmock.NewResult("INSERT", 1))
+
 	mock.ExpectCommit().WillReturnError(pgx.ErrTxClosed)
 
 	err = repo.UpdateInterests(context.Background(), userID, interests)
