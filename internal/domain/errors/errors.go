@@ -39,4 +39,7 @@ var (
 
 	// Match errors
 	ErrMatchNotFound = errors.New("match not found")
+
+	// Strike errors
+	ErrStrikeNotFound = errors.New("strike not found")
 )
