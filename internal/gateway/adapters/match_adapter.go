@@ -9,6 +9,8 @@ import (
 	"github.com/google/uuid"
 )
 
+var _ service.MatchService = (*MatchServiceAdapter)(nil)
+
 type MatchServiceAdapter struct {
 	client pb.CoreServiceClient
 }

@@ -10,6 +10,8 @@ import (
 	"github.com/google/uuid"
 )
 
+var _ service.AuthService = (*AuthServiceAdapter)(nil)
+
 type AuthServiceAdapter struct {
 	client auth.AuthServiceClient
 }

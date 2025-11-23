@@ -9,6 +9,8 @@ import (
 	"github.com/google/uuid"
 )
 
+var _ service.FeedService = (*FeedServiceAdapter)(nil)
+
 type FeedServiceAdapter struct {
 	client pb.CoreServiceClient
 }
