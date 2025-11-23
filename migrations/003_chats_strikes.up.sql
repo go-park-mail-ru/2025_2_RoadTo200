@@ -2,7 +2,7 @@
 CREATE TYPE strike_reason_type AS ENUM ('spam', 'fake_profile', 'offensive_content', 'harassment', 'inappropriate_content', 'underage', 'copyright_violation', 'other');
 CREATE TYPE strike_status_type AS ENUM ('pending', 'approved', 'rejected', 'resolved');
 
-CREATE TABLE strikes (
+CREATE TABLE strike (
                          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
                          reporter_id UUID NOT NULL REFERENCES "user" (id) ON DELETE CASCADE,
                          target_user_id UUID NOT NULL REFERENCES "user" (id) ON DELETE CASCADE,
