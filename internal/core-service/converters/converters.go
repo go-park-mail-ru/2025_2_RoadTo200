@@ -254,3 +254,105 @@ func ProtoToUser(pbUser *pb.User) *domain.User {
 
 	return user
 }
+
+// StrikeToProto преобразует доменную сущность Strike в proto сообщение
+func StrikeToProto(strike *domain.Strike) *pb.Strike {
+	if strike == nil {
+		return nil
+	}
+
+	strikeProto := &pb.Strike{
+		Id:           strike.ID.String(),
+		ReporterId:   strike.ReporterID.String(),
+		TargetUserId: strike.TargetUserID.String(),
+		Type:         string(strike.Type),
+		Reason:       strike.Reason,
+		Status:       string(strike.Status),
+		CreatedAt:    timestamppb.New(strike.CreatedAt),
+	}
+
+	if strike.UpdatedAt != nil {
+		strikeProto.UpdatedAt = timestamppb.New(*strike.UpdatedAt)
+	}
+
+	if strike.ModeratorID != nil {
+		moderatorID := strike.ModeratorID.String()
+		strikeProto.ModeratorId = moderatorID
+	}
+
+	if strike.ModeratorNote != nil {
+		strikeProto.ModeratorNote = *strike.ModeratorNote
+	}
+
+	return strikeProto
+}
+
+// StrikesToProto преобразует список доменных сущностей Strike в proto сообщения
+func StrikesToProto(strikes []*domain.Strike) []*pb.Strike {
+	if strikes == nil {
+		return nil
+	}
+
+	strikeProtos := make([]*pb.Strike, len(strikes))
+	for i, strike := range strikes {
+		strikeProtos[i] = StrikeToProto(strike)
+	}
+
+	return strikeProtos
+}
+
+// StrikeStatsToProto преобразует статистику жалоб в proto сообщение
+func StrikeStatsToProto(stats *dto.StrikeStats) *pb.StrikeStats {
+	if stats == nil {
+		return nil
+	}
+
+	statsProto := &pb.StrikeStats{
+		UserId:       stats.UserID,
+		TotalStrikes: int32(stats.TotalStrikes),
+		StrikeTypes:  make(map[string]int32),
+	}
+
+	for strikeType, count := range stats.StrikeTypes {
+		statsProto.StrikeTypes[string(strikeType)] = int32(count)
+	}
+
+	if stats.LastStrikeAt != nil {
+		statsProto.LastStrikeAt = timestamppb.New(*stats.LastStrikeAt)
+	}
+
+	return statsProto
+}
+
+// ProtoToStrikeCreateRequest преобразует proto сообщение в DTO для создания жалобы
+func ProtoToStrikeCreateRequest(req *pb.CreateStrikeRequest) *dto.StrikeCreateRequest {
+	reporterID, _ := uuid.Parse(req.ReporterId)
+	targetUserID, _ := uuid.Parse(req.TargetUserId)
+
+	return &dto.StrikeCreateRequest{
+		ReporterID:   reporterID,
+		TargetUserID: targetUserID,
+		Type:         constants.StrikeType(req.Type),
+		Reason:       req.Reason,
+	}
+}
+
+// ProtoToStrikeStatusUpdateRequest преобразует proto сообщение в DTO для обновления статуса жалобы
+func ProtoToStrikeStatusUpdateRequest(req *pb.UpdateStrikeStatusRequest) *dto.StrikeStatusUpdateRequest {
+	var moderatorID *uuid.UUID
+	if req.ModeratorId != "" {
+		id, _ := uuid.Parse(req.ModeratorId)
+		moderatorID = &id
+	}
+
+	var note *string
+	if req.Note != "" {
+		note = &req.Note
+	}
+
+	return &dto.StrikeStatusUpdateRequest{
+		Status:      constants.StrikeStatus(req.Status),
+		ModeratorID: moderatorID,
+		Note:        note,
+	}
+}

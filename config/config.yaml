@@ -14,11 +14,12 @@ app:
     level: DEBUG
 
   postgres:
-    host: $PG_HOST
-    port: $PG_PORT
-    base: $PG_BASE
-    user: $PG_USER
-    password: $PG_PSWD
+    host: PG_HOST
+    port: PG_PORT
+    base: PG_BASE
+    user: PG_USER
+    password: PG_PSWD
+    migrated: true
 
   redis:
     host: $RD_HOST

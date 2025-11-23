@@ -28,8 +28,8 @@ func NewStrikeRepository(db interfaces.PgxIface) *StrikeRepository {
 // CreateStrike создает новую жалобу
 func (r *StrikeRepository) CreateStrike(ctx context.Context, strike *domain.Strike) error {
 	query := `
-		INSERT INTO strike (id, reporter_id, target_user_id, reason, status)
-		VALUES ($1, $2, $3, $4, $5, $6)
+		INSERT INTO strike (id, reporter_id, target_user_id, reason, type)
+		VALUES ($1, $2, $3, $4, $5)
 	`
 
 	_, err := r.db.Exec(ctx, query,
@@ -37,7 +37,7 @@ func (r *StrikeRepository) CreateStrike(ctx context.Context, strike *domain.Stri
 		strike.ReporterID,
 		strike.TargetUserID,
 		strike.Reason,
-		constants.StrikeStatusPending,
+		strike.Type,
 	)
 
 	if err != nil {

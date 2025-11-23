@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"time"
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/core-service/converters"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/constants"
@@ -13,6 +14,7 @@ import (
 	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type CoreServer struct {
@@ -21,6 +23,7 @@ type CoreServer struct {
 	feedService    service.FeedService
 	swipeService   service.SwipeService
 	matchService   service.MatchService
+	strikeService  service.StrikeService
 	logger         logger.Log
 }
 
@@ -29,6 +32,7 @@ func NewCoreServer(
 	feedService service.FeedService,
 	swipeService service.SwipeService,
 	matchService service.MatchService,
+	strikeServie service.StrikeService,
 	logger logger.Log,
 ) *CoreServer {
 	return &CoreServer{
@@ -36,6 +40,7 @@ func NewCoreServer(
 		feedService:    feedService,
 		swipeService:   swipeService,
 		matchService:   matchService,
+		strikeService:  strikeServie,
 		logger:         logger,
 	}
 }
@@ -291,4 +296,271 @@ func (s *CoreServer) Unmatch(ctx context.Context, req *pb.UnmatchRequest) (*pb.U
 	}
 
 	return &pb.UnmatchResponse{Success: true}, nil
+}
+
+// StrikeToProto преобразует доменную сущность Strike в proto сообщение
+func StrikeToProto(strike *domain.Strike) *pb.Strike {
+	if strike == nil {
+		return nil
+	}
+
+	strikeProto := &pb.Strike{
+		Id:           strike.ID.String(),
+		ReporterId:   strike.ReporterID.String(),
+		TargetUserId: strike.TargetUserID.String(),
+		Type:         string(strike.Type),
+		Reason:       strike.Reason,
+		Status:       string(strike.Status),
+		CreatedAt:    timestamppb.New(strike.CreatedAt),
+	}
+
+	if strike.UpdatedAt != nil {
+		strikeProto.UpdatedAt = timestamppb.New(*strike.UpdatedAt)
+	}
+
+	if strike.ModeratorID != nil {
+		moderatorID := strike.ModeratorID.String()
+		strikeProto.ModeratorId = moderatorID
+	}
+
+	if strike.ModeratorNote != nil {
+		strikeProto.ModeratorNote = *strike.ModeratorNote
+	}
+
+	return strikeProto
+}
+
+// StrikesToProto преобразует список доменных сущностей Strike в proto сообщения
+func StrikesToProto(strikes []*domain.Strike) []*pb.Strike {
+	if strikes == nil {
+		return nil
+	}
+
+	strikeProtos := make([]*pb.Strike, len(strikes))
+	for i, strike := range strikes {
+		strikeProtos[i] = StrikeToProto(strike)
+	}
+
+	return strikeProtos
+}
+
+// StrikeStatsToProto преобразует статистику жалоб в proto сообщение
+func StrikeStatsToProto(stats *dto.StrikeStats) *pb.StrikeStats {
+	if stats == nil {
+		return nil
+	}
+
+	statsProto := &pb.StrikeStats{
+		UserId:       stats.UserID,
+		TotalStrikes: int32(stats.TotalStrikes),
+		StrikeTypes:  make(map[string]int32),
+	}
+
+	for strikeType, count := range stats.StrikeTypes {
+		statsProto.StrikeTypes[string(strikeType)] = int32(count)
+	}
+
+	if stats.LastStrikeAt != nil {
+		statsProto.LastStrikeAt = timestamppb.New(*stats.LastStrikeAt)
+	}
+
+	return statsProto
+}
+
+// ProtoToStrikeCreateRequest преобразует proto сообщение в DTO для создания жалобы
+func ProtoToStrikeCreateRequest(req *pb.CreateStrikeRequest) *dto.StrikeCreateRequest {
+	reporterID, _ := uuid.Parse(req.ReporterId)
+	targetUserID, _ := uuid.Parse(req.TargetUserId)
+
+	return &dto.StrikeCreateRequest{
+		ReporterID:   reporterID,
+		TargetUserID: targetUserID,
+		Type:         constants.StrikeType(req.Type),
+		Reason:       req.Reason,
+	}
+}
+
+// ProtoToStrikeStatusUpdateRequest преобразует proto сообщение в DTO для обновления статуса жалобы
+func ProtoToStrikeStatusUpdateRequest(req *pb.UpdateStrikeStatusRequest) *dto.StrikeStatusUpdateRequest {
+	var moderatorID *uuid.UUID
+	if req.ModeratorId != "" {
+		id, _ := uuid.Parse(req.ModeratorId)
+		moderatorID = &id
+	}
+
+	var note *string
+	if req.Note != "" {
+		note = &req.Note
+	}
+
+	return &dto.StrikeStatusUpdateRequest{
+		Status:      constants.StrikeStatus(req.Status),
+		ModeratorID: moderatorID,
+		Note:        note,
+	}
+}
+
+// ============= Strike Methods =============
+
+func (s *CoreServer) CreateStrike(ctx context.Context, req *pb.CreateStrikeRequest) (*pb.CreateStrikeResponse, error) {
+	s.logger.Infof("CreateStrike called for reporter_id: %s, target_user_id: %s, type: %s",
+		req.ReporterId, req.TargetUserId, req.Type)
+
+	reporterID, err := uuid.Parse(req.ReporterId)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid reporter_id: %v", err)
+	}
+
+	targetUserID, err := uuid.Parse(req.TargetUserId)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid target_user_id: %v", err)
+	}
+
+	strikeData := &dto.StrikeCreateRequest{
+		ReporterID:   reporterID,
+		TargetUserID: targetUserID,
+		Type:         constants.StrikeType(req.Type),
+		Reason:       req.Reason,
+	}
+
+	strike, err := s.strikeService.CreateStrike(ctx, strikeData)
+	if err != nil {
+		s.logger.Errorf("CreateStrike error: %v", err)
+		return nil, status.Errorf(codes.Internal, "failed to create strike: %v", err)
+	}
+
+	return &pb.CreateStrikeResponse{
+		Strike: converters.StrikeToProto(strike),
+	}, nil
+}
+
+func (s *CoreServer) GetStrike(ctx context.Context, req *pb.GetStrikeRequest) (*pb.GetStrikeResponse, error) {
+	s.logger.Infof("GetStrike called for strike_id: %s", req.StrikeId)
+
+	strike, err := s.strikeService.GetStrikeByID(ctx, req.StrikeId)
+	if err != nil {
+		s.logger.Errorf("GetStrike error: %v", err)
+		return nil, status.Errorf(codes.Internal, "failed to get strike: %v", err)
+	}
+
+	return &pb.GetStrikeResponse{
+		Strike: converters.StrikeToProto(strike),
+	}, nil
+}
+
+func (s *CoreServer) GetStrikesByUserID(ctx context.Context, req *pb.GetStrikesByUserIDRequest) (*pb.GetStrikesByUserIDResponse, error) {
+	s.logger.Infof("GetStrikesByUserID called for user_id: %s, limit: %d, offset: %d",
+		req.UserId, req.Limit, req.Offset)
+
+	strikes, err := s.strikeService.GetStrikesByUserID(ctx, req.UserId, int(req.Limit), int(req.Offset))
+	if err != nil {
+		s.logger.Errorf("GetStrikesByUserID error: %v", err)
+		return nil, status.Errorf(codes.Internal, "failed to get strikes by user ID: %v", err)
+	}
+
+	return &pb.GetStrikesByUserIDResponse{
+		Strikes: converters.StrikesToProto(strikes),
+	}, nil
+}
+
+func (s *CoreServer) GetStrikesByType(ctx context.Context, req *pb.GetStrikesByTypeRequest) (*pb.GetStrikesByTypeResponse, error) {
+	s.logger.Infof("GetStrikesByType called for type: %s, limit: %d, offset: %d",
+		req.Type, req.Limit, req.Offset)
+
+	strikes, err := s.strikeService.GetStrikesByType(ctx, constants.StrikeType(req.Type), int(req.Limit), int(req.Offset))
+	if err != nil {
+		s.logger.Errorf("GetStrikesByType error: %v", err)
+		return nil, status.Errorf(codes.Internal, "failed to get strikes by type: %v", err)
+	}
+
+	return &pb.GetStrikesByTypeResponse{
+		Strikes: converters.StrikesToProto(strikes),
+	}, nil
+}
+
+func (s *CoreServer) GetStrikesByDateRange(ctx context.Context, req *pb.GetStrikesByDateRangeRequest) (*pb.GetStrikesByDateRangeResponse, error) {
+	s.logger.Infof("GetStrikesByDateRange called from: %v, to: %v, limit: %d, offset: %d",
+		req.From, req.To, req.Limit, req.Offset)
+
+	var from, to time.Time
+
+	if req.From != nil {
+		from = req.From.AsTime()
+	}
+
+	if req.To != nil {
+		to = req.To.AsTime()
+	}
+
+	strikes, err := s.strikeService.GetStrikesByDateRange(ctx, from, to, int(req.Limit), int(req.Offset))
+	if err != nil {
+		s.logger.Errorf("GetStrikesByDateRange error: %v", err)
+		return nil, status.Errorf(codes.Internal, "failed to get strikes by date range: %v", err)
+	}
+
+	return &pb.GetStrikesByDateRangeResponse{
+		Strikes: converters.StrikesToProto(strikes),
+	}, nil
+}
+
+func (s *CoreServer) UpdateStrikeStatus(ctx context.Context, req *pb.UpdateStrikeStatusRequest) (*pb.UpdateStrikeStatusResponse, error) {
+	s.logger.Infof("UpdateStrikeStatus called for strike_id: %s, status: %s",
+		req.StrikeId, req.Status)
+
+	var moderatorID *uuid.UUID
+	if req.ModeratorId != "" {
+		id, err := uuid.Parse(req.ModeratorId)
+		if err != nil {
+			return nil, status.Errorf(codes.InvalidArgument, "invalid moderator_id: %v", err)
+		}
+		moderatorID = &id
+	}
+
+	var note *string
+	if req.Note != "" {
+		note = &req.Note
+	}
+
+	err := s.strikeService.UpdateStrikeStatus(ctx, req.StrikeId, constants.StrikeStatus(req.Status), moderatorID, note)
+	if err != nil {
+		s.logger.Errorf("UpdateStrikeStatus error: %v", err)
+		return nil, status.Errorf(codes.Internal, "failed to update strike status: %v", err)
+	}
+
+	// Получаем обновленную жалобу для ответа
+	strike, err := s.strikeService.GetStrikeByID(ctx, req.StrikeId)
+	if err != nil {
+		s.logger.Errorf("Failed to get updated strike: %v", err)
+		return nil, status.Errorf(codes.Internal, "failed to get updated strike: %v", err)
+	}
+
+	return &pb.UpdateStrikeStatusResponse{
+		Strike: converters.StrikeToProto(strike),
+	}, nil
+}
+
+func (s *CoreServer) DeleteStrike(ctx context.Context, req *pb.DeleteStrikeRequest) (*pb.DeleteStrikeResponse, error) {
+	s.logger.Infof("DeleteStrike called for strike_id: %s", req.StrikeId)
+
+	err := s.strikeService.DeleteStrike(ctx, req.StrikeId)
+	if err != nil {
+		s.logger.Errorf("DeleteStrike error: %v", err)
+		return nil, status.Errorf(codes.Internal, "failed to delete strike: %v", err)
+	}
+
+	return &pb.DeleteStrikeResponse{}, nil
+}
+
+func (s *CoreServer) GetUserStrikeStats(ctx context.Context, req *pb.GetUserStrikeStatsRequest) (*pb.GetUserStrikeStatsResponse, error) {
+	s.logger.Infof("GetUserStrikeStats called for user_id: %s", req.UserId)
+
+	stats, err := s.strikeService.GetUserStrikeStats(ctx, req.UserId)
+	if err != nil {
+		s.logger.Errorf("GetUserStrikeStats error: %v", err)
+		return nil, status.Errorf(codes.Internal, "failed to get user strike stats: %v", err)
+	}
+
+	return &pb.GetUserStrikeStatsResponse{
+		Stats: converters.StrikeStatsToProto(stats),
+	}, nil
 }
