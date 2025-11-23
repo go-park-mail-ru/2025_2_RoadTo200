@@ -1,8 +1,8 @@
 app:
   host: 0.0.0.0
-  port: 8081
+  port: 8082
   prefix: /api/v1
-  mode: dev
+  SwaggerPath: ./data/docs/auth.json
 
   cors:
     allowed_origins:
@@ -25,10 +25,3 @@ app:
     port: RD_PORT
     base: RD_BASE
     password: RD_PSWD
-
-  minio:
-    host: MN_HOST
-    access_key_id: MN_USER
-    secret_access_key: MN_PSWD
-    address: MN_ADDRESS
-    bucket_name: "terabithia-photos"

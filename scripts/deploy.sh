@@ -1,18 +1,18 @@
 #!/bin/bash
 
 HOST=ubuntu.vk # Хост ОС. Пример: user@ххх.хх.хх.ххх
-DOCS=0     # Флаг сборки документации
-CONF=0     # Флаг отправки конфигурации
+DOCS=1     # Флаг сборки документации
+CONF=1     # Флаг отправки конфигурации
 MIGR=0
 BUILD=1
 
 if [[ $BUILD -eq 1 ]]; then
   echo  "Building..."
-  make build || exit 1
+  make build-bin || exit 1
 
   echo "Deploy binary file"
   ssh ubuntu.vk sudo systemctl stop app-back.service
-  scp ./.build/main $HOST:/home/ubuntu/app/back/bin/ || echo "Error deploy binary"
+  scp ./.build/* $HOST:/home/ubuntu/app/back/bin/ || echo "Error deploy binary"
   ssh ubuntu.vk sudo systemctl start app-back.service
 fi
 
@@ -25,11 +25,12 @@ if [[ $DOCS -eq 1 ]]; then
   echo "Building swagger docs"
   make build-docs &&
   echo "Deploy swagger file"
-  scp ./docs/swagger.json $HOST:/home/ubuntu/app/back/data/docs/ || echo "Error deploy swagger"
+  scp ./api/auth/swagger.json $HOST:/home/ubuntu/app/back/data/docs/auth.json || echo "Error deploy auth swagger"
+  scp ./api/core/swagger.json $HOST:/home/ubuntu/app/back/data/docs/core.json || echo "Error deploy core swagger"
 fi
 
 
 if [[ $CONF -eq 1 ]]; then
   echo "Deploy config file"
-  scp ./config/config.yaml $HOST:/home/ubuntu/app/back/config/ || echo "Error deploy config"
+  scp ./config/* $HOST:/home/ubuntu/app/back/config/ || echo "Error deploy config"
 fi
