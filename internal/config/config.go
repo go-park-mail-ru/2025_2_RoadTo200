@@ -126,7 +126,7 @@ func NewConfig() (*Config, error) {
 		HealthCheckInterval: time.Minute,
 
 		Migrated:   false,
-		Migrations: "migrations/",
+		Migrations: "./migrations/",
 	}
 	config.App.Redis = RedisConfig{
 		MaxConn:     5,
