@@ -61,18 +61,12 @@ func main() {
 	authServer := server.NewAuthServer(authService, loggerInst)
 	pb.RegisterAuthServiceServer(grpcServer, authServer)
 
-	// Start listening
-	port := os.Getenv("AUTH_SERVICE_PORT")
-	if port == "" {
-		port = "50051" // default port
-	}
-
-	listener, err := net.Listen("tcp", fmt.Sprintf(":%s", port))
+	listener, err := net.Listen("tcp", fmt.Sprintf(":%s", cfg.Port))
 	if err != nil {
 		loggerInst.Fatal(fmt.Errorf("failed to listen: %w", err))
 	}
 
-	loggerInst.Info(fmt.Sprintf("Auth Service listening on port %s", port))
+	loggerInst.Info(fmt.Sprintf("Auth Service listening on port %s", cfg.Port))
 
 	// Graceful shutdown
 	stop := make(chan os.Signal, 1)
