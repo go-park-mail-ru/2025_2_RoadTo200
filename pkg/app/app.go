@@ -37,6 +37,7 @@ type Repositories struct {
 	Photo        interfaces.UserPhotoRepository
 	Session      interfaces.SessionRepository
 	User         interfaces.UserRepository
+	Strike       interfaces.StrikeRepository
 }
 
 type Services struct {
@@ -45,6 +46,7 @@ type Services struct {
 	Profile service.ProfileService
 	Swipe   service.SwipeService
 	Match   service.MatchService
+	Strike  service.StrikeService
 }
 
 type Handlers struct {
@@ -54,6 +56,7 @@ type Handlers struct {
 	Profile *handler.ProfileHandler
 	Swipe   *handler.SwipeHandler
 	Match   *handler.MatchHandler
+	Strike  *handler.StrikeHandler
 }
 
 func Run() {

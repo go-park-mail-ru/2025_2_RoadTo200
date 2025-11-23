@@ -26,6 +26,16 @@ service CoreService {
   // Match operations
   rpc GetUserMatches(GetUserMatchesRequest) returns (GetUserMatchesResponse);
   rpc Unmatch(UnmatchRequest) returns (UnmatchResponse);
+
+  // Strike methods
+  rpc CreateStrike(CreateStrikeRequest) returns (CreateStrikeResponse);
+  rpc GetStrike(GetStrikeRequest) returns (GetStrikeResponse);
+  rpc GetStrikesByUserID(GetStrikesByUserIDRequest) returns (GetStrikesByUserIDResponse);
+  rpc GetStrikesByType(GetStrikesByTypeRequest) returns (GetStrikesByTypeResponse);
+  rpc GetStrikesByDateRange(GetStrikesByDateRangeRequest) returns (GetStrikesByDateRangeResponse);
+  rpc UpdateStrikeStatus(UpdateStrikeStatusRequest) returns (UpdateStrikeStatusResponse);
+  rpc DeleteStrike(DeleteStrikeRequest) returns (DeleteStrikeResponse);
+  rpc GetUserStrikeStats(GetUserStrikeStatsRequest) returns (GetUserStrikeStatsResponse);
 }
 
 // ============= Common Messages =============
@@ -230,4 +240,101 @@ message UnmatchRequest {
 
 message UnmatchResponse {
   bool success = 1;
+}
+
+message Strike {
+  string id = 1;
+  string reporter_id = 2;
+  string target_user_id = 3;
+  string type = 4;
+  string reason = 5;
+  string status = 6;
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
+  string moderator_id = 9;
+  string moderator_note = 10;
+}
+
+message CreateStrikeRequest {
+  string reporter_id = 1;
+  string target_user_id = 2;
+  string type = 3;
+  string reason = 4;
+}
+
+message CreateStrikeResponse {
+  Strike strike = 1;
+}
+
+message GetStrikeRequest {
+  string strike_id = 1;
+}
+
+message GetStrikeResponse {
+  Strike strike = 1;
+}
+
+message GetStrikesByUserIDRequest {
+  string user_id = 1;
+  int32 limit = 2;
+  int32 offset = 3;
+}
+
+message GetStrikesByUserIDResponse {
+  repeated Strike strikes = 1;
+}
+
+message GetStrikesByTypeRequest {
+  string type = 1;
+  int32 limit = 2;
+  int32 offset = 3;
+}
+
+message GetStrikesByTypeResponse {
+  repeated Strike strikes = 1;
+}
+
+message GetStrikesByDateRangeRequest {
+  google.protobuf.Timestamp from = 1;
+  google.protobuf.Timestamp to = 2;
+  int32 limit = 3;
+  int32 offset = 4;
+}
+
+message GetStrikesByDateRangeResponse {
+  repeated Strike strikes = 1;
+}
+
+message UpdateStrikeStatusRequest {
+  string strike_id = 1;
+  string status = 2;
+  string moderator_id = 3;
+  string note = 4;
+}
+
+message UpdateStrikeStatusResponse {
+  Strike strike = 1;
+}
+
+message DeleteStrikeRequest {
+  string strike_id = 1;
+}
+
+message DeleteStrikeResponse {
+  // Empty response for delete
+}
+
+message StrikeStats {
+  string user_id = 1;
+  int32 total_strikes = 2;
+  google.protobuf.Timestamp last_strike_at = 3;
+  map<string, int32> strike_types = 4;
+}
+
+message GetUserStrikeStatsRequest {
+  string user_id = 1;
+}
+
+message GetUserStrikeStatsResponse {
+  StrikeStats stats = 1;
 }

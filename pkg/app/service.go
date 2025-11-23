@@ -27,5 +27,6 @@ func (a *App) initServices() {
 		Feed:    adapters.NewFeedServiceAdapter(coreClient),
 		Swipe:   adapters.NewSwipeServiceAdapter(coreClient),
 		Match:   adapters.NewMatchServiceAdapter(coreClient),
+		Strike:  adapters.NewStrikeServiceAdapter(coreClient),
 	}
 }

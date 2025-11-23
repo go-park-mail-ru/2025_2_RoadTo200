@@ -58,3 +58,27 @@ const (
 	InterestTypeCulture    InterestType = "culture"
 	InterestTypeCinema     InterestType = "cinema"
 )
+
+var MaxStrikeReasonLength = 250
+
+type StrikeType string
+
+const (
+	StrikeTypeSpam          StrikeType = "spam"
+	StrikeTypeFakeProfile   StrikeType = "fake_profile"
+	StrikeTypeOffensive     StrikeType = "offensive_content"
+	StrikeTypeHarassment    StrikeType = "harassment"
+	StrikeTypeInappropriate StrikeType = "inappropriate_content"
+	StrikeTypeUnderage      StrikeType = "underage"
+	StrikeTypeCopyright     StrikeType = "copyright_violation"
+	StrikeTypeOther         StrikeType = "other"
+)
+
+type StrikeStatus string
+
+const (
+	StrikeStatusPending  StrikeStatus = "pending"
+	StrikeStatusApproved StrikeStatus = "approved"
+	StrikeStatusRejected StrikeStatus = "rejected"
+	StrikeStatusResolved StrikeStatus = "resolved"
+)

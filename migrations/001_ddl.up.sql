@@ -116,6 +116,7 @@ CREATE TABLE interest
     UNIQUE (user_id, theme)
 );
 
+
 -- Функция для обновления updated_at
 CREATE OR REPLACE FUNCTION update_updated_at_column()
     RETURNS TRIGGER AS
