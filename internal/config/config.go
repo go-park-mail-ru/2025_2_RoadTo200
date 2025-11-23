@@ -5,6 +5,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/joho/godotenv"
 	"gopkg.in/yaml.v2"
 )
 
@@ -139,6 +140,13 @@ func NewConfig() (*Config, error) {
 	}
 	if err := yaml.Unmarshal(data, &config); err != nil {
 		return nil, fmt.Errorf("failed to parse config: %w", err)
+	}
+
+	if config.App.Mode == "dev" {
+		err := godotenv.Load(".env")
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return &config.App, nil

@@ -12,15 +12,17 @@ import (
 	"github.com/minio/minio-go/v7"
 )
 
-type storageRepository struct {
+var _ interfaces.FileStorage = (*StorageRepository)(nil)
+
+type StorageRepository struct {
 	client     *minio.Client
 	bucketName string
 	address    string
 	useSSL     bool
 }
 
-func NewStorageRepository(cl *minio.Client, cfg *config.MinIOConfig) interfaces.FileStorage {
-	return &storageRepository{
+func NewStorageRepository(cl *minio.Client, cfg *config.MinIOConfig) *StorageRepository {
+	return &StorageRepository{
 		client:     cl,
 		bucketName: cfg.BucketName,
 		address:    cfg.Address,
@@ -28,9 +30,7 @@ func NewStorageRepository(cl *minio.Client, cfg *config.MinIOConfig) interfaces.
 	}
 }
 
-func (m *storageRepository) Upload(filename string, data []byte, contentType string) (string, error) {
-	ctx := context.Background()
-
+func (m *StorageRepository) Upload(ctx context.Context, filename string, data []byte, contentType string) (string, error) {
 	// Загружаем файл в MinIO
 	_, err := m.client.PutObject(ctx, m.bucketName, filename, strings.NewReader(string(data)), int64(len(data)), minio.PutObjectOptions{
 		ContentType: contentType,
@@ -40,12 +40,10 @@ func (m *storageRepository) Upload(filename string, data []byte, contentType str
 	}
 
 	// Генерируем URL для доступа к файлу
-	return m.GetURL(filename), nil
+	return m.GetURL(ctx, filename), nil
 }
 
-func (m *storageRepository) Delete(filename string) error {
-	ctx := context.Background()
-
+func (m *StorageRepository) Delete(ctx context.Context, filename string) error {
 	err := m.client.RemoveObject(ctx, m.bucketName, filename, minio.RemoveObjectOptions{})
 	if err != nil {
 		return fmt.Errorf("failed to delete file from MinIO: %w", err)
@@ -54,13 +52,13 @@ func (m *storageRepository) Delete(filename string) error {
 	return nil
 }
 
-func (m *storageRepository) DeleteByURL(url string) error {
+func (m *StorageRepository) DeleteByURL(ctx context.Context, url string) error {
 	// Извлекаем имя файла из URL
 	filename := filepath.Base(url)
-	return m.Delete(filename)
+	return m.Delete(ctx, filename)
 }
 
-func (m *storageRepository) GetURL(filename string) string {
+func (m *StorageRepository) GetURL(ctx context.Context, filename string) string {
 	protocol := "http"
 	if m.useSSL {
 		protocol = "https"
@@ -70,9 +68,7 @@ func (m *storageRepository) GetURL(filename string) string {
 }
 
 // PresignedURL генерирует URL с временным доступом (опционально)
-func (m *storageRepository) PresignedURL(filename string, expiry time.Duration) (string, error) {
-	ctx := context.Background()
-
+func (m *StorageRepository) PresignedURL(ctx context.Context, filename string, expiry time.Duration) (string, error) {
 	url, err := m.client.PresignedGetObject(ctx, m.bucketName, filename, expiry, nil)
 	if err != nil {
 		return "", fmt.Errorf("failed to generate presigned URL: %w", err)

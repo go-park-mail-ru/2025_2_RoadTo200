@@ -11,7 +11,6 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
-	repository "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/implementations/redis"
 )
 
 func TestSessionRepository_Set(t *testing.T) {
@@ -68,7 +67,7 @@ func TestSessionRepository_Set(t *testing.T) {
 			}
 			defer pool.Close()
 
-			repo := repository.NewSessionRepository(pool)
+			repo := NewSessionRepository(pool)
 
 			err := repo.Set(tt.session)
 
@@ -144,7 +143,7 @@ func TestSessionRepository_SetWithExpiry(t *testing.T) {
 			}
 			defer pool.Close()
 
-			repo := repository.NewSessionRepository(pool)
+			repo := NewSessionRepository(pool)
 
 			err := repo.SetWithExpiry(tt.session, tt.expiry)
 
@@ -220,7 +219,7 @@ func TestSessionRepository_Get(t *testing.T) {
 			}
 			defer pool.Close()
 
-			repo := repository.NewSessionRepository(pool)
+			repo := NewSessionRepository(pool)
 
 			session, err := repo.Get(tt.sessionID)
 
@@ -278,7 +277,7 @@ func TestSessionRepository_Delete(t *testing.T) {
 			}
 			defer pool.Close()
 
-			repo := repository.NewSessionRepository(pool)
+			repo := NewSessionRepository(pool)
 
 			err := repo.Delete(tt.sessionID)
 
@@ -338,7 +337,7 @@ func TestSessionRepository_Exists(t *testing.T) {
 			}
 			defer pool.Close()
 
-			repo := repository.NewSessionRepository(pool)
+			repo := NewSessionRepository(pool)
 
 			exists, err := repo.Exists(tt.sessionID)
 
@@ -364,7 +363,7 @@ func TestSessionRepository_ConnectionErrors(t *testing.T) {
 		}
 		defer pool.Close()
 
-		repo := repository.NewSessionRepository(pool)
+		repo := NewSessionRepository(pool)
 
 		// Test all methods with connection error
 		err := repo.Set(&domain.Session{Token: "test"})
@@ -401,7 +400,7 @@ func TestSessionRepository_KeyFormat(t *testing.T) {
 	}
 	defer pool.Close()
 
-	repo := repository.NewSessionRepository(pool)
+	repo := NewSessionRepository(pool)
 
 	err := repo.Set(session)
 	assert.NoError(t, err)
@@ -472,7 +471,7 @@ func TestSessionRepository_FullCycle(t *testing.T) {
 	}
 	defer pool.Close()
 
-	repo := repository.NewSessionRepository(pool)
+	repo := NewSessionRepository(pool)
 
 	// Set
 	err := repo.Set(session)

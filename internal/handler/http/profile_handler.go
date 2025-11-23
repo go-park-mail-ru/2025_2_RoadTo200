@@ -49,7 +49,7 @@ func (h *ProfileHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	profile, err := h.profileService.GetProfile(userID)
+	profile, err := h.profileService.GetProfile(r.Context(), userID)
 	if err != nil {
 		if errors.Is(err, expectation.ErrProfileNotFound) {
 			utils.WriteJSONError(w, http.StatusNotFound, "profile not found")
@@ -124,7 +124,7 @@ func (h *ProfileHandler) UploadPhotos(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	uploadedPhotos, err := h.profileService.UploadPhotos(userID, files)
+	uploadedPhotos, err := h.profileService.UploadPhotos(r.Context(), userID, files)
 	if err != nil {
 		h.logger.Errorf("uploadPhotos: %v", err)
 		status := http.StatusBadRequest
@@ -168,7 +168,7 @@ func (h *ProfileHandler) UpdateProfileInfo(w http.ResponseWriter, r *http.Reques
 	}
 	h.logger.Debugf("handleJSONRequest: %v", req)
 
-	if err := h.profileService.UpdateProfileInfo(userID, &req); err != nil {
+	if err := h.profileService.UpdateProfileInfo(r.Context(), userID, &req); err != nil {
 		h.logger.Errorf("updateProfileInfo: %v", err)
 		status := http.StatusBadRequest
 		if errors.Is(err, expectation.ErrProfileNotFound) {
@@ -210,7 +210,7 @@ func (h *ProfileHandler) UpdatePreferences(w http.ResponseWriter, r *http.Reques
 	}
 	h.logger.Debugf("handleJSONRequest: %v", req)
 
-	if err := h.profileService.UpdatePreferences(userID, &req); err != nil {
+	if err := h.profileService.UpdatePreferences(r.Context(), userID, &req); err != nil {
 		h.logger.Errorf("updatePreferences: %v", err)
 		utils.WriteJSONError(w, http.StatusBadRequest, err.Error())
 		return
@@ -248,7 +248,7 @@ func (h *ProfileHandler) UpdateInterests(w http.ResponseWriter, r *http.Request)
 	}
 	h.logger.Debugf("handleJSONRequest: %v", req)
 
-	if err := h.profileService.UpdateInterests(userID, req); err != nil {
+	if err := h.profileService.UpdateInterests(r.Context(), userID, req); err != nil {
 		h.logger.Errorf("updatePreferences: %v", err)
 		utils.WriteJSONError(w, http.StatusBadRequest, err.Error())
 		return
@@ -297,7 +297,7 @@ func (h *ProfileHandler) DeletePhoto(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.profileService.DeletePhoto(userID, photoID); err != nil {
+	if err := h.profileService.DeletePhoto(r.Context(), userID, photoID); err != nil {
 		h.logger.Errorf("deletePhoto: %v", err)
 		status := http.StatusBadRequest
 		if errors.Is(err, expectation.ErrPhotoNotFound) {
@@ -333,7 +333,7 @@ func (h *ProfileHandler) SetPrimaryPhoto(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	if err := h.profileService.SetPrimaryPhoto(userID, photoID); err != nil {
+	if err := h.profileService.SetPrimaryPhoto(r.Context(), userID, photoID); err != nil {
 		h.logger.Errorf("setPrimaryPhoto: %v", err)
 		status := http.StatusBadRequest
 		if errors.Is(err, expectation.ErrPhotoNotFound) {

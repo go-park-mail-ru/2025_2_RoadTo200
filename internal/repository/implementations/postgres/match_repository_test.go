@@ -5,7 +5,6 @@ import (
 	"time"
 
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
-	repository "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/implementations/postgres"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v4"
 	"github.com/pashagolub/pgxmock"
@@ -18,7 +17,7 @@ func TestMatchRepository_Create(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewMatchRepository(mock)
+	repo := NewMatchRepository(mock)
 
 	user2ID, _ := uuid.Parse("a1fe064b-b020-4efd-be2f-d86b031431c2")
 	user1ID, _ := uuid.Parse("6fa17495-76eb-4cf8-b6f9-a4f9b525377c")
@@ -46,7 +45,7 @@ func TestMatchRepository_Create_WithOrderNormalization(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewMatchRepository(mock)
+	repo := NewMatchRepository(mock)
 
 	// user1ID будет "больше" user2ID в лексикографическом порядке
 	user1ID := uuid.MustParse("ffffffff-ffff-ffff-ffff-ffffffffffff")
@@ -79,7 +78,7 @@ func TestMatchRepository_GetByUsers(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewMatchRepository(mock)
+	repo := NewMatchRepository(mock)
 
 	user2ID, _ := uuid.Parse("a1fe064b-b020-4efd-be2f-d86b031431c2")
 	user1ID, _ := uuid.Parse("6fa17495-76eb-4cf8-b6f9-a4f9b525377c")
@@ -114,7 +113,7 @@ func TestMatchRepository_GetByUsers_WithOrderNormalization(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewMatchRepository(mock)
+	repo := NewMatchRepository(mock)
 
 	// user1ID будет "больше" user2ID в лексикографическом порядке
 	user1ID := uuid.MustParse("ffffffff-ffff-ffff-ffff-ffffffffffff")
@@ -150,7 +149,7 @@ func TestMatchRepository_GetByUsers_NotFound(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewMatchRepository(mock)
+	repo := NewMatchRepository(mock)
 
 	user1ID := uuid.MustParse("ffffffff-ffff-ffff-ffff-ffffffffffff")
 	user2ID := uuid.MustParse("00000000-0000-0000-0000-000000000000")
@@ -170,7 +169,7 @@ func TestMatchRepository_GetUserMatches(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewMatchRepository(mock)
+	repo := NewMatchRepository(mock)
 
 	userID := uuid.New()
 	limit := 10
@@ -215,7 +214,7 @@ func TestMatchRepository_GetUserMatches_Empty(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewMatchRepository(mock)
+	repo := NewMatchRepository(mock)
 
 	userID := uuid.New()
 	limit := 10
@@ -240,7 +239,7 @@ func TestMatchRepository_UpdateActive(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewMatchRepository(mock)
+	repo := NewMatchRepository(mock)
 
 	user2ID, _ := uuid.Parse("a1fe064b-b020-4efd-be2f-d86b031431c2")
 	user1ID, _ := uuid.Parse("6fa17495-76eb-4cf8-b6f9-a4f9b525377c")
@@ -260,7 +259,7 @@ func TestMatchRepository_UpdateActive_WithOrderNormalization(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewMatchRepository(mock)
+	repo := NewMatchRepository(mock)
 
 	// user1ID будет "больше" user2ID в лексикографическом порядке
 	user1ID, _ := uuid.Parse("a1fe064b-b020-4efd-be2f-d86b031431c2")
@@ -282,7 +281,7 @@ func TestMatchRepository_Delete(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewMatchRepository(mock)
+	repo := NewMatchRepository(mock)
 
 	user2ID, _ := uuid.Parse("a1fe064b-b020-4efd-be2f-d86b031431c2")
 	user1ID, _ := uuid.Parse("6fa17495-76eb-4cf8-b6f9-a4f9b525377c")
@@ -301,7 +300,7 @@ func TestMatchRepository_Delete_WithOrderNormalization(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewMatchRepository(mock)
+	repo := NewMatchRepository(mock)
 
 	// user1ID будет "больше" user2ID в лексикографическом порядке
 	user1ID := uuid.MustParse("ffffffff-ffff-ffff-ffff-ffffffffffff")
@@ -322,7 +321,7 @@ func TestMatchRepository_CheckMutualLike(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewMatchRepository(mock)
+	repo := NewMatchRepository(mock)
 
 	user1ID := uuid.New()
 	user2ID := uuid.New()
@@ -345,7 +344,7 @@ func TestMatchRepository_CheckMutualLike_NoMutualLike(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewMatchRepository(mock)
+	repo := NewMatchRepository(mock)
 
 	user1ID := uuid.New()
 	user2ID := uuid.New()
@@ -368,7 +367,7 @@ func TestMatchRepository_Create_Error(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewMatchRepository(mock)
+	repo := NewMatchRepository(mock)
 
 	user2ID, _ := uuid.Parse("a1fe064b-b020-4efd-be2f-d86b031431c2")
 	user1ID, _ := uuid.Parse("6fa17495-76eb-4cf8-b6f9-a4f9b525377c")
@@ -393,7 +392,7 @@ func TestMatchRepository_UpdateActive_Error(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewMatchRepository(mock)
+	repo := NewMatchRepository(mock)
 
 	user2ID, _ := uuid.Parse("a1fe064b-b020-4efd-be2f-d86b031431c2")
 	user1ID, _ := uuid.Parse("6fa17495-76eb-4cf8-b6f9-a4f9b525377c")
@@ -413,7 +412,7 @@ func TestMatchRepository_CheckMutualLike_Error(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewMatchRepository(mock)
+	repo := NewMatchRepository(mock)
 
 	user1ID := uuid.New()
 	user2ID := uuid.New()

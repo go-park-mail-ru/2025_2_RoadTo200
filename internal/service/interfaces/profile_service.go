@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"mime/multipart"
 
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
@@ -9,20 +10,20 @@ import (
 
 type ProfileService interface {
 	// Profile
-	GetProfile(userID uuid.UUID) (*domain.ProfileResponse, error)
-	UpdateProfileInfo(userID uuid.UUID, updateData *domain.ProfileUpdateRequest) error
+	GetProfile(ctx context.Context, userID uuid.UUID) (*domain.ProfileResponse, error)
+	UpdateProfileInfo(ctx context.Context, userID uuid.UUID, updateData *domain.ProfileUpdateRequest) error
 
 	// Preferences
-	UpdatePreferences(userID uuid.UUID, updateData *domain.PreferencesUpdateRequest) error
-	UpdateInterests(uuid.UUID, []domain.Interest) error
+	UpdatePreferences(ctx context.Context, userID uuid.UUID, updateData *domain.PreferencesUpdateRequest) error
+	UpdateInterests(ctx context.Context, userID uuid.UUID, interests []domain.Interest) error
 
 	// Photos
-	UploadPhotos(userID uuid.UUID, photos []*multipart.FileHeader) ([]domain.UserPhoto, error)
-	DeletePhoto(userID uuid.UUID, photoID uuid.UUID) error
-	SetPrimaryPhoto(userID uuid.UUID, photoID uuid.UUID) error
-	ReorderPhotos(userID uuid.UUID, photoIDs []uuid.UUID) error
+	UploadPhotos(ctx context.Context, userID uuid.UUID, photos []*multipart.FileHeader) ([]domain.UserPhoto, error)
+	DeletePhoto(ctx context.Context, userID uuid.UUID, photoID uuid.UUID) error
+	SetPrimaryPhoto(ctx context.Context, userID uuid.UUID, photoID uuid.UUID) error
+	ReorderPhotos(ctx context.Context, userID uuid.UUID, photoIDs []uuid.UUID) error
 
 	// Валидация
-	ValidateProfileUpdate(updateData *domain.ProfileUpdateRequest) error
-	ValidatePreferencesUpdate(updateData *domain.PreferencesUpdateRequest) error
+	ValidateProfileUpdate(ctx context.Context, updateData *domain.ProfileUpdateRequest) error
+	ValidatePreferencesUpdate(ctx context.Context, updateData *domain.PreferencesUpdateRequest) error
 }

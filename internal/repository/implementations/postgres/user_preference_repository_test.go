@@ -5,7 +5,6 @@ import (
 	"time"
 
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
-	repository "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/implementations/postgres"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v4"
 	"github.com/pashagolub/pgxmock"
@@ -18,7 +17,7 @@ func TestUserPreferenceRepository_Create(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewUserPreferenceRepository(mock)
+	repo := NewUserPreferenceRepository(mock)
 
 	userID := uuid.New()
 
@@ -51,7 +50,7 @@ func TestUserPreferenceRepository_GetByUserID(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewUserPreferenceRepository(mock)
+	repo := NewUserPreferenceRepository(mock)
 
 	userID := uuid.New()
 
@@ -93,7 +92,7 @@ func TestUserPreferenceRepository_GetByUserID_NotFound(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewUserPreferenceRepository(mock)
+	repo := NewUserPreferenceRepository(mock)
 
 	userID := uuid.New()
 
@@ -112,7 +111,7 @@ func TestUserPreferenceRepository_Update(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewUserPreferenceRepository(mock)
+	repo := NewUserPreferenceRepository(mock)
 
 	userID := uuid.New()
 
@@ -144,7 +143,7 @@ func TestUserPreferenceRepository_Delete(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewUserPreferenceRepository(mock)
+	repo := NewUserPreferenceRepository(mock)
 
 	userID := uuid.New()
 
@@ -162,7 +161,7 @@ func TestUserPreferenceRepository_Create_Error(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewUserPreferenceRepository(mock)
+	repo := NewUserPreferenceRepository(mock)
 
 	userID := uuid.New()
 
@@ -192,7 +191,7 @@ func TestUserPreferenceRepository_Update_Error(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewUserPreferenceRepository(mock)
+	repo := NewUserPreferenceRepository(mock)
 
 	userID := uuid.New()
 
@@ -222,7 +221,7 @@ func TestUserPreferenceRepository_Delete_Error(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewUserPreferenceRepository(mock)
+	repo := NewUserPreferenceRepository(mock)
 
 	userID := uuid.New()
 
@@ -240,7 +239,7 @@ func TestUserPreferenceRepository_GetByUserID_Error(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewUserPreferenceRepository(mock)
+	repo := NewUserPreferenceRepository(mock)
 
 	userID := uuid.New()
 
@@ -259,7 +258,7 @@ func TestUserPreferenceRepository_Create_WithDefaultValues(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewUserPreferenceRepository(mock)
+	repo := NewUserPreferenceRepository(mock)
 
 	userID := uuid.New()
 
@@ -292,7 +291,7 @@ func TestUserPreferenceRepository_Update_WithExtremeValues(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewUserPreferenceRepository(mock)
+	repo := NewUserPreferenceRepository(mock)
 
 	userID := uuid.New()
 

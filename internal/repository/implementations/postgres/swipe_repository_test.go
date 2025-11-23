@@ -5,7 +5,6 @@ import (
 	"time"
 
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
-	repository "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/implementations/postgres"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v4"
 	"github.com/pashagolub/pgxmock"
@@ -18,7 +17,7 @@ func TestSwipeRepository_Create(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewSwipeRepository(mock)
+	repo := NewSwipeRepository(mock)
 
 	swiperID := uuid.New()
 	targetID := uuid.New()
@@ -46,7 +45,7 @@ func TestSwipeRepository_GetBySwiperAndTarget(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewSwipeRepository(mock)
+	repo := NewSwipeRepository(mock)
 
 	swiperID := uuid.New()
 	targetID := uuid.New()
@@ -82,7 +81,7 @@ func TestSwipeRepository_GetBySwiperAndTarget_NotFound(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewSwipeRepository(mock)
+	repo := NewSwipeRepository(mock)
 
 	swiperID := uuid.New()
 	targetID := uuid.New()
@@ -102,7 +101,7 @@ func TestSwipeRepository_GetSwipesBySwiper(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewSwipeRepository(mock)
+	repo := NewSwipeRepository(mock)
 
 	swiperID := uuid.New()
 	limit := 10
@@ -149,7 +148,7 @@ func TestSwipeRepository_GetSwipesBySwiper_Empty(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewSwipeRepository(mock)
+	repo := NewSwipeRepository(mock)
 
 	swiperID := uuid.New()
 	limit := 10
@@ -174,7 +173,7 @@ func TestSwipeRepository_GetSwipesByTarget(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewSwipeRepository(mock)
+	repo := NewSwipeRepository(mock)
 
 	targetID := uuid.New()
 	limit := 10
@@ -221,7 +220,7 @@ func TestSwipeRepository_Exists(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewSwipeRepository(mock)
+	repo := NewSwipeRepository(mock)
 
 	swiperID := uuid.New()
 	targetID := uuid.New()
@@ -244,7 +243,7 @@ func TestSwipeRepository_Exists_NotFound(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewSwipeRepository(mock)
+	repo := NewSwipeRepository(mock)
 
 	swiperID := uuid.New()
 	targetID := uuid.New()
@@ -267,7 +266,7 @@ func TestSwipeRepository_GetSwipesStats(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewSwipeRepository(mock)
+	repo := NewSwipeRepository(mock)
 
 	userID := uuid.New()
 	likesCount := 5
@@ -294,7 +293,7 @@ func TestSwipeRepository_GetSwipesStats_Zero(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewSwipeRepository(mock)
+	repo := NewSwipeRepository(mock)
 
 	userID := uuid.New()
 	likesCount := 0
@@ -321,7 +320,7 @@ func TestSwipeRepository_GetMutualLikes(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewSwipeRepository(mock)
+	repo := NewSwipeRepository(mock)
 
 	userID := uuid.New()
 	expectedUserIDs := []uuid.UUID{uuid.New(), uuid.New()}
@@ -348,7 +347,7 @@ func TestSwipeRepository_GetMutualLikes_Empty(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewSwipeRepository(mock)
+	repo := NewSwipeRepository(mock)
 
 	userID := uuid.New()
 
@@ -369,7 +368,7 @@ func TestSwipeRepository_Create_Error(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewSwipeRepository(mock)
+	repo := NewSwipeRepository(mock)
 
 	swiperID := uuid.New()
 	targetID := uuid.New()
@@ -394,7 +393,7 @@ func TestSwipeRepository_GetSwipesStats_Error(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewSwipeRepository(mock)
+	repo := NewSwipeRepository(mock)
 
 	userID := uuid.New()
 
@@ -415,7 +414,7 @@ func TestSwipeRepository_GetMutualLikes_Error(t *testing.T) {
 	require.NoError(t, err)
 	defer mock.Close()
 
-	repo := repository.NewSwipeRepository(mock)
+	repo := NewSwipeRepository(mock)
 
 	userID := uuid.New()
 
