@@ -1,0 +1,101 @@
+syntax = "proto3";
+
+package auth;
+
+option go_package = "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/proto/auth";
+
+import "google/protobuf/timestamp.proto";
+
+// AuthService defines the authentication service
+service AuthService {
+  // Register creates a new user account
+  rpc Register(RegisterRequest) returns (RegisterResponse);
+  
+  // Login authenticates a user and creates a session
+  rpc Login(LoginRequest) returns (LoginResponse);
+  
+  // Logout terminates a user session
+  rpc Logout(LogoutRequest) returns (LogoutResponse);
+  
+  // ValidateSession checks if a session is valid and returns user info
+  rpc ValidateSession(ValidateSessionRequest) returns (ValidateSessionResponse);
+  
+  // GetUserByID returns user information by user ID
+  rpc GetUserByID(GetUserByIDRequest) returns (GetUserByIDResponse);
+}
+
+// Register messages
+message RegisterRequest {
+  string email = 1;
+  string password = 2;
+  string password_confirm = 3;
+}
+
+message RegisterResponse {
+  User user = 1;
+  Session session = 2;
+}
+
+// Login messages
+message LoginRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message LoginResponse {
+  User user = 1;
+  Session session = 2;
+}
+
+// Logout messages
+message LogoutRequest {
+  string token = 1;
+}
+
+message LogoutResponse {
+  bool success = 1;
+}
+
+// ValidateSession messages
+message ValidateSessionRequest {
+  string token = 1;
+}
+
+message ValidateSessionResponse {
+  User user = 1;
+  bool is_valid = 2;
+}
+
+// GetUserByID messages
+message GetUserByIDRequest {
+  string user_id = 1; // UUID as string
+}
+
+message GetUserByIDResponse {
+  User user = 1;
+}
+
+// User represents a user entity
+message User {
+  string id = 1; // UUID as string
+  string email = 2;
+  optional string phone = 3;
+  string name = 4;
+  google.protobuf.Timestamp birth_date = 5;
+  string gender = 6; // "male", "female", etc.
+  optional string bio = 7;
+  optional string city = 8;
+  optional string artist = 9;
+  optional string quote = 10;
+  bool is_verified = 11;
+  google.protobuf.Timestamp last_active = 12;
+  google.protobuf.Timestamp created_at = 13;
+  google.protobuf.Timestamp updated_at = 14;
+}
+
+// Session represents a user session
+message Session {
+  string token = 1;
+  string user_email = 2;
+  google.protobuf.Timestamp expires_at = 3;
+}
