@@ -59,6 +59,8 @@ const (
 	InterestTypeCinema     InterestType = "cinema"
 )
 
+var MaxStrikeReasonLength = 250
+
 type StrikeType string
 
 const (

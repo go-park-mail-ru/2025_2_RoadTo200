@@ -41,5 +41,12 @@ var (
 	ErrMatchNotFound = errors.New("match not found")
 
 	// Strike errors
-	ErrStrikeNotFound = errors.New("strike not found")
+	ErrStrikeNotFound       = errors.New("strike not found")
+	ErrStrikeAlreadyDeleted = errors.New("strike already deleted")
+	ErrDuplicateStrike      = errors.New("duplicate active strike")
+	ErrSelfStrikeNotAllowed = errors.New("self strike not allowed")
+	ErrInvalidReporterID    = errors.New("invalid reporter ID")
+	ErrInvalidTargetUserID  = errors.New("invalid target user ID")
+	ErrInvalidDateRange     = errors.New("invalid date range")
+	ErrDateRangeTooLarge    = errors.New("date range too large")
 )
