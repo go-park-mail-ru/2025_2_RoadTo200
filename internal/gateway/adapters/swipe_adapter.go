@@ -21,8 +21,8 @@ func NewSwipeServiceAdapter(client pb.CoreServiceClient) service.SwipeService {
 	}
 }
 
-func (a *SwipeServiceAdapter) ProcessSwipe(swiperID uuid.UUID, request *dto.SwipeRequest) (*dto.SwipeResponse, error) {
-	resp, err := a.client.ProcessSwipe(context.Background(), &pb.ProcessSwipeRequest{
+func (a *SwipeServiceAdapter) ProcessSwipe(ctx context.Context, swiperID uuid.UUID, request *dto.SwipeRequest) (*dto.SwipeResponse, error) {
+	resp, err := a.client.ProcessSwipe(ctx, &pb.ProcessSwipeRequest{
 		SwiperId: swiperID.String(),
 		CardId:   request.CardID,
 		Action:   request.Action,

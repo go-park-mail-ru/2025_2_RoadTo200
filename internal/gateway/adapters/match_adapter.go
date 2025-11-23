@@ -21,8 +21,8 @@ func NewMatchServiceAdapter(client pb.CoreServiceClient) service.MatchService {
 	}
 }
 
-func (a *MatchServiceAdapter) GetUserMatches(userID uuid.UUID, limit, offset int) (*dto.MatchesResponse, error) {
-	resp, err := a.client.GetUserMatches(context.Background(), &pb.GetUserMatchesRequest{
+func (a *MatchServiceAdapter) GetUserMatches(ctx context.Context, userID uuid.UUID, limit, offset int) (*dto.MatchesResponse, error) {
+	resp, err := a.client.GetUserMatches(ctx, &pb.GetUserMatchesRequest{
 		UserId: userID.String(),
 		Limit:  int32(limit),
 		Offset: int32(offset),
@@ -51,8 +51,8 @@ func (a *MatchServiceAdapter) GetUserMatches(userID uuid.UUID, limit, offset int
 	}, nil
 }
 
-func (a *MatchServiceAdapter) Unmatch(userID, targetUserID uuid.UUID) error {
-	_, err := a.client.Unmatch(context.Background(), &pb.UnmatchRequest{
+func (a *MatchServiceAdapter) Unmatch(ctx context.Context, userID, targetUserID uuid.UUID) error {
+	_, err := a.client.Unmatch(ctx, &pb.UnmatchRequest{
 		UserId:       userID.String(),
 		TargetUserId: targetUserID.String(),
 	})

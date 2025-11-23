@@ -22,8 +22,8 @@ func NewAuthServiceAdapter(client auth.AuthServiceClient) service.AuthService {
 	}
 }
 
-func (a *AuthServiceAdapter) Register(email, password, passwordConfirm string) (*domain.User, *domain.Session, error) {
-	resp, err := a.client.Register(context.Background(), &auth.RegisterRequest{
+func (a *AuthServiceAdapter) Register(ctx context.Context, email, password, passwordConfirm string) (*domain.User, *domain.Session, error) {
+	resp, err := a.client.Register(ctx, &auth.RegisterRequest{
 		Email:           email,
 		Password:        password,
 		PasswordConfirm: passwordConfirm,
@@ -35,8 +35,8 @@ func (a *AuthServiceAdapter) Register(email, password, passwordConfirm string) (
 	return protoToUser(resp.User), protoToSession(resp.Session), nil
 }
 
-func (a *AuthServiceAdapter) Login(email, password string) (*domain.User, *domain.Session, error) {
-	resp, err := a.client.Login(context.Background(), &auth.LoginRequest{
+func (a *AuthServiceAdapter) Login(ctx context.Context, email, password string) (*domain.User, *domain.Session, error) {
+	resp, err := a.client.Login(ctx, &auth.LoginRequest{
 		Email:    email,
 		Password: password,
 	})
@@ -47,15 +47,15 @@ func (a *AuthServiceAdapter) Login(email, password string) (*domain.User, *domai
 	return protoToUser(resp.User), protoToSession(resp.Session), nil
 }
 
-func (a *AuthServiceAdapter) Logout(token string) error {
-	_, err := a.client.Logout(context.Background(), &auth.LogoutRequest{
+func (a *AuthServiceAdapter) Logout(ctx context.Context, token string) error {
+	_, err := a.client.Logout(ctx, &auth.LogoutRequest{
 		Token: token,
 	})
 	return err
 }
 
-func (a *AuthServiceAdapter) ValidateSession(token string) (*domain.User, error) {
-	resp, err := a.client.ValidateSession(context.Background(), &auth.ValidateSessionRequest{
+func (a *AuthServiceAdapter) ValidateSession(ctx context.Context, token string) (*domain.User, error) {
+	resp, err := a.client.ValidateSession(ctx, &auth.ValidateSessionRequest{
 		Token: token,
 	})
 	if err != nil {
@@ -65,8 +65,8 @@ func (a *AuthServiceAdapter) ValidateSession(token string) (*domain.User, error)
 	return protoToUser(resp.User), nil
 }
 
-func (a *AuthServiceAdapter) GetUserByID(userID uuid.UUID) (*domain.User, error) {
-	resp, err := a.client.GetUserByID(context.Background(), &auth.GetUserByIDRequest{
+func (a *AuthServiceAdapter) GetUserByID(ctx context.Context, userID uuid.UUID) (*domain.User, error) {
+	resp, err := a.client.GetUserByID(ctx, &auth.GetUserByIDRequest{
 		UserId: userID.String(),
 	})
 	if err != nil {

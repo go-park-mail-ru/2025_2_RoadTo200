@@ -50,7 +50,7 @@ func (s *CoreServer) GetProfile(ctx context.Context, req *pb.GetProfileRequest) 
 		return nil, status.Errorf(codes.InvalidArgument, "invalid user_id: %v", err)
 	}
 
-	profileResp, err := s.profileService.GetProfile(userID)
+	profileResp, err := s.profileService.GetProfile(ctx, userID)
 	if err != nil {
 		s.logger.Errorf("GetProfile error: %v", err)
 		return nil, status.Errorf(codes.Internal, "failed to get profile: %v", err)
@@ -73,7 +73,7 @@ func (s *CoreServer) UpdateProfileInfo(ctx context.Context, req *pb.UpdateProfil
 
 	updateData := converters.ProtoToProfileUpdateRequest(req)
 
-	if err := s.profileService.UpdateProfileInfo(userID, updateData); err != nil {
+	if err := s.profileService.UpdateProfileInfo(ctx, userID, updateData); err != nil {
 		s.logger.Errorf("UpdateProfileInfo error: %v", err)
 		return nil, status.Errorf(codes.Internal, "failed to update profile: %v", err)
 	}
@@ -91,7 +91,7 @@ func (s *CoreServer) UpdatePreferences(ctx context.Context, req *pb.UpdatePrefer
 
 	updateData := converters.ProtoToPreferencesUpdateRequest(req)
 
-	if err := s.profileService.UpdatePreferences(userID, updateData); err != nil {
+	if err := s.profileService.UpdatePreferences(ctx, userID, updateData); err != nil {
 		s.logger.Errorf("UpdatePreferences error: %v", err)
 		return nil, status.Errorf(codes.Internal, "failed to update preferences: %v", err)
 	}
@@ -115,7 +115,7 @@ func (s *CoreServer) UpdateInterests(ctx context.Context, req *pb.UpdateInterest
 		}
 	}
 
-	if err := s.profileService.UpdateInterests(userID, interests); err != nil {
+	if err := s.profileService.UpdateInterests(ctx, userID, interests); err != nil {
 		s.logger.Errorf("UpdateInterests error: %v", err)
 		return nil, status.Errorf(codes.Internal, "failed to update interests: %v", err)
 	}
@@ -136,7 +136,7 @@ func (s *CoreServer) DeletePhoto(ctx context.Context, req *pb.DeletePhotoRequest
 		return nil, status.Errorf(codes.InvalidArgument, "invalid photo_id: %v", err)
 	}
 
-	if err := s.profileService.DeletePhoto(userID, photoID); err != nil {
+	if err := s.profileService.DeletePhoto(ctx, userID, photoID); err != nil {
 		s.logger.Errorf("DeletePhoto error: %v", err)
 		return nil, status.Errorf(codes.Internal, "failed to delete photo: %v", err)
 	}
@@ -157,7 +157,7 @@ func (s *CoreServer) SetPrimaryPhoto(ctx context.Context, req *pb.SetPrimaryPhot
 		return nil, status.Errorf(codes.InvalidArgument, "invalid photo_id: %v", err)
 	}
 
-	if err := s.profileService.SetPrimaryPhoto(userID, photoID); err != nil {
+	if err := s.profileService.SetPrimaryPhoto(ctx, userID, photoID); err != nil {
 		s.logger.Errorf("SetPrimaryPhoto error: %v", err)
 		return nil, status.Errorf(codes.Internal, "failed to set primary photo: %v", err)
 	}
@@ -182,7 +182,7 @@ func (s *CoreServer) ReorderPhotos(ctx context.Context, req *pb.ReorderPhotosReq
 		photoIDs[i] = photoID
 	}
 
-	if err := s.profileService.ReorderPhotos(userID, photoIDs); err != nil {
+	if err := s.profileService.ReorderPhotos(ctx, userID, photoIDs); err != nil {
 		s.logger.Errorf("ReorderPhotos error: %v", err)
 		return nil, status.Errorf(codes.Internal, "failed to reorder photos: %v", err)
 	}
@@ -200,7 +200,7 @@ func (s *CoreServer) GetFeed(ctx context.Context, req *pb.GetFeedRequest) (*pb.G
 		return nil, status.Errorf(codes.InvalidArgument, "invalid user_id: %v", err)
 	}
 
-	feedUsers, err := s.feedService.GetFeed(userID, int(req.Limit), int(req.Offset))
+	feedUsers, err := s.feedService.GetFeed(ctx, userID, int(req.Limit), int(req.Offset))
 	if err != nil {
 		s.logger.Errorf("GetFeed error: %v", err)
 		return nil, status.Errorf(codes.Internal, "failed to get feed: %v", err)
@@ -229,7 +229,7 @@ func (s *CoreServer) ProcessSwipe(ctx context.Context, req *pb.ProcessSwipeReque
 		Action: req.Action,
 	}
 
-	swipeResp, err := s.swipeService.ProcessSwipe(swiperID, swipeReq)
+	swipeResp, err := s.swipeService.ProcessSwipe(ctx, swiperID, swipeReq)
 	if err != nil {
 		s.logger.Errorf("ProcessSwipe error: %v", err)
 		return nil, status.Errorf(codes.Internal, "failed to process swipe: %v", err)
@@ -258,7 +258,7 @@ func (s *CoreServer) GetUserMatches(ctx context.Context, req *pb.GetUserMatchesR
 		return nil, status.Errorf(codes.InvalidArgument, "invalid user_id: %v", err)
 	}
 
-	matchesResp, err := s.matchService.GetUserMatches(userID, int(req.Limit), int(req.Offset))
+	matchesResp, err := s.matchService.GetUserMatches(ctx, userID, int(req.Limit), int(req.Offset))
 	if err != nil {
 		s.logger.Errorf("GetUserMatches error: %v", err)
 		return nil, status.Errorf(codes.Internal, "failed to get matches: %v", err)
@@ -285,7 +285,7 @@ func (s *CoreServer) Unmatch(ctx context.Context, req *pb.UnmatchRequest) (*pb.U
 		return nil, status.Errorf(codes.InvalidArgument, "invalid target_user_id: %v", err)
 	}
 
-	if err := s.matchService.Unmatch(userID, targetUserID); err != nil {
+	if err := s.matchService.Unmatch(ctx, userID, targetUserID); err != nil {
 		s.logger.Errorf("Unmatch error: %v", err)
 		return nil, status.Errorf(codes.Internal, "failed to unmatch: %v", err)
 	}
