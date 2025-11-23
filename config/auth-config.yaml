@@ -25,3 +25,6 @@ app:
     port: RD_PORT
     base: RD_BASE
     password: RD_PSWD
+
+  auth_service:
+    port: "50051"

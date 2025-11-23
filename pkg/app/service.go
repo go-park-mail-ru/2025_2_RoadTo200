@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/gateway/adapters"
+	serviceImpl "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/implementations"
 	grpcPkg "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/grpc"
 )
 
@@ -27,5 +28,6 @@ func (a *App) initServices() {
 		Feed:    adapters.NewFeedServiceAdapter(coreClient),
 		Swipe:   adapters.NewSwipeServiceAdapter(coreClient),
 		Match:   adapters.NewMatchServiceAdapter(coreClient),
+		Chat:    serviceImpl.NewChatService(a.repositories.Message, a.repositories.Match, a.resources.RedisPubSub, a.logger),
 	}
 }

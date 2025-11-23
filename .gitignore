@@ -2,13 +2,10 @@
 /vendor
 *.exe
 *.log
-*.env
 .idea
 .vscode
 .DS_Store
 .build/
 docs/
 .github/
-config/config.yaml
 MIGRATIONS_WALKTHROUGH.md
-config.yaml

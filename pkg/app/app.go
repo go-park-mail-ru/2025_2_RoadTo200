@@ -3,12 +3,14 @@ package app
 import (
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/config"
 	handler "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/http"
+	websocket "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/websocket"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
 	service "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/httpserver"
 	"github.com/gomodule/redigo/redis"
 	"github.com/minio/minio-go/v7"
+	goredis "github.com/redis/go-redis/v9"
 )
 
 type App struct {
@@ -22,9 +24,10 @@ type App struct {
 }
 
 type Resources struct {
-	Postgres interfaces.PgxIface
-	Redis    *redis.Pool
-	MinIO    *minio.Client
+	Postgres    interfaces.PgxIface
+	Redis       *redis.Pool
+	RedisPubSub *goredis.Client // for Pub/Sub (different from session Redis pool)
+	MinIO       *minio.Client
 }
 
 type Repositories struct {
@@ -45,15 +48,18 @@ type Services struct {
 	Profile service.ProfileService
 	Swipe   service.SwipeService
 	Match   service.MatchService
+	Chat    service.ChatService
 }
 
 type Handlers struct {
-	Auth    *handler.AuthHandler
-	Session *handler.SessionHandler
-	Feed    *handler.FeedHandler
-	Profile *handler.ProfileHandler
-	Swipe   *handler.SwipeHandler
-	Match   *handler.MatchHandler
+	Auth      *handler.AuthHandler
+	Session   *handler.SessionHandler
+	Feed      *handler.FeedHandler
+	Profile   *handler.ProfileHandler
+	Swipe     *handler.SwipeHandler
+	Match     *handler.MatchHandler
+	Chat      *handler.ChatHandler
+	WebSocket *websocket.WebSocketHandler
 }
 
 func Run() {

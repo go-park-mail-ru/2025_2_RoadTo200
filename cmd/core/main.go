@@ -76,12 +76,12 @@ func main() {
 	pb.RegisterCoreServiceServer(grpcServer, coreServiceServer)
 
 	// Start listening
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", cfg.Port))
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", cfg.CoreService.Port))
 	if err != nil {
 		loggerInst.Fatal(fmt.Errorf("failed to listen: %w", err))
 	}
 
-	loggerInst.Info(fmt.Sprintf("Core Service listening on port %s", cfg.Port))
+	loggerInst.Info(fmt.Sprintf("Core Service listening on port %s", cfg.CoreService.Port))
 
 	// Graceful shutdown
 	go func() {
