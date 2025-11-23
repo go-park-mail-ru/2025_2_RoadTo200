@@ -1,7 +1,6 @@
 package main
 
 import (
-	_ "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/api/docs"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/app"
 )
 
