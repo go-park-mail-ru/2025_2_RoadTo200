@@ -8,7 +8,6 @@ import (
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/constants"
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/errors"
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -17,14 +16,12 @@ import (
 var _ interfaces.StrikeRepository = (*StrikeRepository)(nil)
 
 type StrikeRepository struct {
-	db     interfaces.PgxIface
-	logger logger.Log
+	db interfaces.PgxIface
 }
 
-func NewStrikeRepository(db interfaces.PgxIface, logger logger.Log) *StrikeRepository {
+func NewStrikeRepository(db interfaces.PgxIface) *StrikeRepository {
 	return &StrikeRepository{
-		db:     db,
-		logger: logger,
+		db: db,
 	}
 }
 
