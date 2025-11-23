@@ -9,6 +9,8 @@ import (
 	"github.com/google/uuid"
 )
 
+var _ service.SwipeService = (*SwipeServiceAdapter)(nil)
+
 type SwipeServiceAdapter struct {
 	client pb.CoreServiceClient
 }

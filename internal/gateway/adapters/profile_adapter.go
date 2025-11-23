@@ -11,6 +11,8 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
+var _ service.ProfileService = (*ProfileServiceAdapter)(nil)
+
 type ProfileServiceAdapter struct {
 	client pb.CoreServiceClient
 }

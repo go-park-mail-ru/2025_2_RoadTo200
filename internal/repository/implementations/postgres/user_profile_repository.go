@@ -8,7 +8,7 @@ import (
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v5"
 )
 
 var _ interfaces.UserPhotoRepository = (*UserPhotoRepository)(nil)
@@ -279,9 +279,7 @@ func (r *UserPreferenceRepository) UpdateInterests(ctx context.Context, userID u
 		batch.Queue(updQuery, el.UserID, el.Theme)
 	}
 	res := tx.SendBatch(ctx, &batch)
-	defer res.Close()
-
-	_, err = res.Exec()
+	err = res.Close()
 	if err != nil {
 		return err
 	}
