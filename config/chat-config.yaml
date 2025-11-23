@@ -28,4 +28,4 @@ app:
     password: RD_PSWD
 
   chat_service:
-    port: "50053"
+    port: 50053

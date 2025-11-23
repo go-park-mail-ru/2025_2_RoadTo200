@@ -32,7 +32,7 @@ build:
 build-bin:
 	GOOS=linux GOARCH=amd64 go build -o ./.build/auth ./cmd/auth/main.go
 	GOOS=linux GOARCH=amd64 go build -o ./.build/core ./cmd/core/main.go
-	GOOS=linux GOARCH=amd64 go build -o ./.build/chat ./cmd/core/main.go
+	GOOS=linux GOARCH=amd64 go build -o ./.build/chat ./cmd/chat/main.go
 	GOOS=linux GOARCH=amd64 go build -o ./.build/server ./cmd/server/main.go
 
 clean:

@@ -118,7 +118,7 @@ func (r *UserRepository) Update(ctx context.Context, user *domain.User) error {
         SET email = $1, phone = $2, name = $3, password = $4, birth_date = $5, 
             gender = $6, bio = $7, city = $8, artist = $9, quote = $10, is_verified = $11,
             updated_at = NOW()
-        WHERE id = $21
+        WHERE id = $12
         RETURNING updated_at`
 
 	err := r.pool.QueryRow(ctx, query,
