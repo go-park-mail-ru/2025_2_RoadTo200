@@ -63,7 +63,7 @@ func (h *StrikeHandler) getContext(w http.ResponseWriter, r *http.Request) (uuid
 // @Failure 404 {object} map[string]string "Пользователь не найден"
 // @Failure 409 {object} map[string]string "Дублирующая жалоба"
 // @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
-// @Router /api/strikes [post]
+// @Router /api/strike [post]
 func (h *StrikeHandler) CreateStrike(w http.ResponseWriter, r *http.Request) {
 	h.logger.Trace("strikeHandler.CreateStrike")
 
@@ -116,7 +116,7 @@ func (h *StrikeHandler) CreateStrike(w http.ResponseWriter, r *http.Request) {
 // @Failure 401 {object} map[string]string "Не авторизован"
 // @Failure 404 {object} map[string]string "Жалоба не найдена"
 // @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
-// @Router /api/strikes/{id} [get]
+// @Router /api/strike/{id} [get]
 func (h *StrikeHandler) GetStrike(w http.ResponseWriter, r *http.Request) {
 	h.logger.Trace("strikeHandler.GetStrike")
 
@@ -161,7 +161,7 @@ func (h *StrikeHandler) GetStrike(w http.ResponseWriter, r *http.Request) {
 // @Failure 401 {object} map[string]string "Не авторизован"
 // @Failure 404 {object} map[string]string "Пользователь не найден"
 // @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
-// @Router /api/users/{user_id}/strikes [get]
+// @Router /api/strike/user/{user_id} [get]
 func (h *StrikeHandler) GetStrikesByUserID(w http.ResponseWriter, r *http.Request) {
 	h.logger.Trace("strikeHandler.GetStrikesByUserID")
 
@@ -211,7 +211,7 @@ func (h *StrikeHandler) GetStrikesByUserID(w http.ResponseWriter, r *http.Reques
 // @Failure 400 {object} map[string]string "Неверный запрос"
 // @Failure 401 {object} map[string]string "Не авторизован"
 // @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
-// @Router /api/strikes/type/{type} [get]
+// @Router /api/strike/type/{type} [get]
 func (h *StrikeHandler) GetStrikesByType(w http.ResponseWriter, r *http.Request) {
 	h.logger.Trace("strikeHandler.GetStrikesByType")
 
@@ -258,7 +258,7 @@ func (h *StrikeHandler) GetStrikesByType(w http.ResponseWriter, r *http.Request)
 // @Failure 400 {object} map[string]string "Неверный запрос"
 // @Failure 401 {object} map[string]string "Не авторизован"
 // @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
-// @Router /api/strikes/range [get]
+// @Router /api/strike/range [get]
 func (h *StrikeHandler) GetStrikesByDateRange(w http.ResponseWriter, r *http.Request) {
 	h.logger.Trace("strikeHandler.GetStrikesByDateRange")
 
@@ -325,7 +325,7 @@ func (h *StrikeHandler) GetStrikesByDateRange(w http.ResponseWriter, r *http.Req
 // @Failure 401 {object} map[string]string "Не авторизован"
 // @Failure 404 {object} map[string]string "Жалоба не найдена"
 // @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
-// @Router /api/strikes/{id}/status [put]
+// @Router /api/strike/{id}/status [put]
 func (h *StrikeHandler) UpdateStrikeStatus(w http.ResponseWriter, r *http.Request) {
 	h.logger.Trace("strikeHandler.UpdateStrikeStatus")
 
@@ -383,7 +383,7 @@ func (h *StrikeHandler) UpdateStrikeStatus(w http.ResponseWriter, r *http.Reques
 // @Failure 401 {object} map[string]string "Не авторизован"
 // @Failure 404 {object} map[string]string "Жалоба не найдена"
 // @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
-// @Router /api/strikes/{id} [delete]
+// @Router /api/strike/{id} [delete]
 func (h *StrikeHandler) DeleteStrike(w http.ResponseWriter, r *http.Request) {
 	h.logger.Trace("strikeHandler.DeleteStrike")
 
@@ -425,7 +425,7 @@ func (h *StrikeHandler) DeleteStrike(w http.ResponseWriter, r *http.Request) {
 // @Failure 401 {object} map[string]string "Не авторизован"
 // @Failure 404 {object} map[string]string "Пользователь не найден"
 // @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
-// @Router /api/users/{user_id}/strike-stats [get]
+// @Router /api/strike/user/{user_id}/stat [get]
 func (h *StrikeHandler) GetUserStrikeStats(w http.ResponseWriter, r *http.Request) {
 	h.logger.Trace("strikeHandler.GetUserStrikeStats")
 
