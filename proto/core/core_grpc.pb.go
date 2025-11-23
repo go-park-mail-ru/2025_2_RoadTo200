@@ -19,17 +19,25 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	CoreService_GetProfile_FullMethodName        = "/core.CoreService/GetProfile"
-	CoreService_UpdateProfileInfo_FullMethodName = "/core.CoreService/UpdateProfileInfo"
-	CoreService_UpdatePreferences_FullMethodName = "/core.CoreService/UpdatePreferences"
-	CoreService_UpdateInterests_FullMethodName   = "/core.CoreService/UpdateInterests"
-	CoreService_DeletePhoto_FullMethodName       = "/core.CoreService/DeletePhoto"
-	CoreService_SetPrimaryPhoto_FullMethodName   = "/core.CoreService/SetPrimaryPhoto"
-	CoreService_ReorderPhotos_FullMethodName     = "/core.CoreService/ReorderPhotos"
-	CoreService_GetFeed_FullMethodName           = "/core.CoreService/GetFeed"
-	CoreService_ProcessSwipe_FullMethodName      = "/core.CoreService/ProcessSwipe"
-	CoreService_GetUserMatches_FullMethodName    = "/core.CoreService/GetUserMatches"
-	CoreService_Unmatch_FullMethodName           = "/core.CoreService/Unmatch"
+	CoreService_GetProfile_FullMethodName            = "/core.CoreService/GetProfile"
+	CoreService_UpdateProfileInfo_FullMethodName     = "/core.CoreService/UpdateProfileInfo"
+	CoreService_UpdatePreferences_FullMethodName     = "/core.CoreService/UpdatePreferences"
+	CoreService_UpdateInterests_FullMethodName       = "/core.CoreService/UpdateInterests"
+	CoreService_DeletePhoto_FullMethodName           = "/core.CoreService/DeletePhoto"
+	CoreService_SetPrimaryPhoto_FullMethodName       = "/core.CoreService/SetPrimaryPhoto"
+	CoreService_ReorderPhotos_FullMethodName         = "/core.CoreService/ReorderPhotos"
+	CoreService_GetFeed_FullMethodName               = "/core.CoreService/GetFeed"
+	CoreService_ProcessSwipe_FullMethodName          = "/core.CoreService/ProcessSwipe"
+	CoreService_GetUserMatches_FullMethodName        = "/core.CoreService/GetUserMatches"
+	CoreService_Unmatch_FullMethodName               = "/core.CoreService/Unmatch"
+	CoreService_CreateStrike_FullMethodName          = "/core.CoreService/CreateStrike"
+	CoreService_GetStrike_FullMethodName             = "/core.CoreService/GetStrike"
+	CoreService_GetStrikesByUserID_FullMethodName    = "/core.CoreService/GetStrikesByUserID"
+	CoreService_GetStrikesByType_FullMethodName      = "/core.CoreService/GetStrikesByType"
+	CoreService_GetStrikesByDateRange_FullMethodName = "/core.CoreService/GetStrikesByDateRange"
+	CoreService_UpdateStrikeStatus_FullMethodName    = "/core.CoreService/UpdateStrikeStatus"
+	CoreService_DeleteStrike_FullMethodName          = "/core.CoreService/DeleteStrike"
+	CoreService_GetUserStrikeStats_FullMethodName    = "/core.CoreService/GetUserStrikeStats"
 )
 
 // CoreServiceClient is the client API for CoreService service.
@@ -53,6 +61,15 @@ type CoreServiceClient interface {
 	// Match operations
 	GetUserMatches(ctx context.Context, in *GetUserMatchesRequest, opts ...grpc.CallOption) (*GetUserMatchesResponse, error)
 	Unmatch(ctx context.Context, in *UnmatchRequest, opts ...grpc.CallOption) (*UnmatchResponse, error)
+	// Strike methods
+	CreateStrike(ctx context.Context, in *CreateStrikeRequest, opts ...grpc.CallOption) (*CreateStrikeResponse, error)
+	GetStrike(ctx context.Context, in *GetStrikeRequest, opts ...grpc.CallOption) (*GetStrikeResponse, error)
+	GetStrikesByUserID(ctx context.Context, in *GetStrikesByUserIDRequest, opts ...grpc.CallOption) (*GetStrikesByUserIDResponse, error)
+	GetStrikesByType(ctx context.Context, in *GetStrikesByTypeRequest, opts ...grpc.CallOption) (*GetStrikesByTypeResponse, error)
+	GetStrikesByDateRange(ctx context.Context, in *GetStrikesByDateRangeRequest, opts ...grpc.CallOption) (*GetStrikesByDateRangeResponse, error)
+	UpdateStrikeStatus(ctx context.Context, in *UpdateStrikeStatusRequest, opts ...grpc.CallOption) (*UpdateStrikeStatusResponse, error)
+	DeleteStrike(ctx context.Context, in *DeleteStrikeRequest, opts ...grpc.CallOption) (*DeleteStrikeResponse, error)
+	GetUserStrikeStats(ctx context.Context, in *GetUserStrikeStatsRequest, opts ...grpc.CallOption) (*GetUserStrikeStatsResponse, error)
 }
 
 type coreServiceClient struct {
@@ -173,6 +190,86 @@ func (c *coreServiceClient) Unmatch(ctx context.Context, in *UnmatchRequest, opt
 	return out, nil
 }
 
+func (c *coreServiceClient) CreateStrike(ctx context.Context, in *CreateStrikeRequest, opts ...grpc.CallOption) (*CreateStrikeResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateStrikeResponse)
+	err := c.cc.Invoke(ctx, CoreService_CreateStrike_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *coreServiceClient) GetStrike(ctx context.Context, in *GetStrikeRequest, opts ...grpc.CallOption) (*GetStrikeResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetStrikeResponse)
+	err := c.cc.Invoke(ctx, CoreService_GetStrike_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *coreServiceClient) GetStrikesByUserID(ctx context.Context, in *GetStrikesByUserIDRequest, opts ...grpc.CallOption) (*GetStrikesByUserIDResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetStrikesByUserIDResponse)
+	err := c.cc.Invoke(ctx, CoreService_GetStrikesByUserID_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *coreServiceClient) GetStrikesByType(ctx context.Context, in *GetStrikesByTypeRequest, opts ...grpc.CallOption) (*GetStrikesByTypeResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetStrikesByTypeResponse)
+	err := c.cc.Invoke(ctx, CoreService_GetStrikesByType_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *coreServiceClient) GetStrikesByDateRange(ctx context.Context, in *GetStrikesByDateRangeRequest, opts ...grpc.CallOption) (*GetStrikesByDateRangeResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetStrikesByDateRangeResponse)
+	err := c.cc.Invoke(ctx, CoreService_GetStrikesByDateRange_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *coreServiceClient) UpdateStrikeStatus(ctx context.Context, in *UpdateStrikeStatusRequest, opts ...grpc.CallOption) (*UpdateStrikeStatusResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateStrikeStatusResponse)
+	err := c.cc.Invoke(ctx, CoreService_UpdateStrikeStatus_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *coreServiceClient) DeleteStrike(ctx context.Context, in *DeleteStrikeRequest, opts ...grpc.CallOption) (*DeleteStrikeResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteStrikeResponse)
+	err := c.cc.Invoke(ctx, CoreService_DeleteStrike_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *coreServiceClient) GetUserStrikeStats(ctx context.Context, in *GetUserStrikeStatsRequest, opts ...grpc.CallOption) (*GetUserStrikeStatsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetUserStrikeStatsResponse)
+	err := c.cc.Invoke(ctx, CoreService_GetUserStrikeStats_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CoreServiceServer is the server API for CoreService service.
 // All implementations must embed UnimplementedCoreServiceServer
 // for forward compatibility.
@@ -194,6 +291,15 @@ type CoreServiceServer interface {
 	// Match operations
 	GetUserMatches(context.Context, *GetUserMatchesRequest) (*GetUserMatchesResponse, error)
 	Unmatch(context.Context, *UnmatchRequest) (*UnmatchResponse, error)
+	// Strike methods
+	CreateStrike(context.Context, *CreateStrikeRequest) (*CreateStrikeResponse, error)
+	GetStrike(context.Context, *GetStrikeRequest) (*GetStrikeResponse, error)
+	GetStrikesByUserID(context.Context, *GetStrikesByUserIDRequest) (*GetStrikesByUserIDResponse, error)
+	GetStrikesByType(context.Context, *GetStrikesByTypeRequest) (*GetStrikesByTypeResponse, error)
+	GetStrikesByDateRange(context.Context, *GetStrikesByDateRangeRequest) (*GetStrikesByDateRangeResponse, error)
+	UpdateStrikeStatus(context.Context, *UpdateStrikeStatusRequest) (*UpdateStrikeStatusResponse, error)
+	DeleteStrike(context.Context, *DeleteStrikeRequest) (*DeleteStrikeResponse, error)
+	GetUserStrikeStats(context.Context, *GetUserStrikeStatsRequest) (*GetUserStrikeStatsResponse, error)
 	mustEmbedUnimplementedCoreServiceServer()
 }
 
@@ -236,6 +342,30 @@ func (UnimplementedCoreServiceServer) GetUserMatches(context.Context, *GetUserMa
 }
 func (UnimplementedCoreServiceServer) Unmatch(context.Context, *UnmatchRequest) (*UnmatchResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Unmatch not implemented")
+}
+func (UnimplementedCoreServiceServer) CreateStrike(context.Context, *CreateStrikeRequest) (*CreateStrikeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateStrike not implemented")
+}
+func (UnimplementedCoreServiceServer) GetStrike(context.Context, *GetStrikeRequest) (*GetStrikeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetStrike not implemented")
+}
+func (UnimplementedCoreServiceServer) GetStrikesByUserID(context.Context, *GetStrikesByUserIDRequest) (*GetStrikesByUserIDResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetStrikesByUserID not implemented")
+}
+func (UnimplementedCoreServiceServer) GetStrikesByType(context.Context, *GetStrikesByTypeRequest) (*GetStrikesByTypeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetStrikesByType not implemented")
+}
+func (UnimplementedCoreServiceServer) GetStrikesByDateRange(context.Context, *GetStrikesByDateRangeRequest) (*GetStrikesByDateRangeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetStrikesByDateRange not implemented")
+}
+func (UnimplementedCoreServiceServer) UpdateStrikeStatus(context.Context, *UpdateStrikeStatusRequest) (*UpdateStrikeStatusResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateStrikeStatus not implemented")
+}
+func (UnimplementedCoreServiceServer) DeleteStrike(context.Context, *DeleteStrikeRequest) (*DeleteStrikeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteStrike not implemented")
+}
+func (UnimplementedCoreServiceServer) GetUserStrikeStats(context.Context, *GetUserStrikeStatsRequest) (*GetUserStrikeStatsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserStrikeStats not implemented")
 }
 func (UnimplementedCoreServiceServer) mustEmbedUnimplementedCoreServiceServer() {}
 func (UnimplementedCoreServiceServer) testEmbeddedByValue()                     {}
@@ -456,6 +586,150 @@ func _CoreService_Unmatch_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CoreService_CreateStrike_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateStrikeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoreServiceServer).CreateStrike(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CoreService_CreateStrike_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoreServiceServer).CreateStrike(ctx, req.(*CreateStrikeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CoreService_GetStrike_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetStrikeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoreServiceServer).GetStrike(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CoreService_GetStrike_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoreServiceServer).GetStrike(ctx, req.(*GetStrikeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CoreService_GetStrikesByUserID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetStrikesByUserIDRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoreServiceServer).GetStrikesByUserID(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CoreService_GetStrikesByUserID_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoreServiceServer).GetStrikesByUserID(ctx, req.(*GetStrikesByUserIDRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CoreService_GetStrikesByType_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetStrikesByTypeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoreServiceServer).GetStrikesByType(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CoreService_GetStrikesByType_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoreServiceServer).GetStrikesByType(ctx, req.(*GetStrikesByTypeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CoreService_GetStrikesByDateRange_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetStrikesByDateRangeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoreServiceServer).GetStrikesByDateRange(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CoreService_GetStrikesByDateRange_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoreServiceServer).GetStrikesByDateRange(ctx, req.(*GetStrikesByDateRangeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CoreService_UpdateStrikeStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateStrikeStatusRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoreServiceServer).UpdateStrikeStatus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CoreService_UpdateStrikeStatus_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoreServiceServer).UpdateStrikeStatus(ctx, req.(*UpdateStrikeStatusRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CoreService_DeleteStrike_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteStrikeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoreServiceServer).DeleteStrike(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CoreService_DeleteStrike_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoreServiceServer).DeleteStrike(ctx, req.(*DeleteStrikeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CoreService_GetUserStrikeStats_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserStrikeStatsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoreServiceServer).GetUserStrikeStats(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CoreService_GetUserStrikeStats_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoreServiceServer).GetUserStrikeStats(ctx, req.(*GetUserStrikeStatsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // CoreService_ServiceDesc is the grpc.ServiceDesc for CoreService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -506,6 +780,38 @@ var CoreService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Unmatch",
 			Handler:    _CoreService_Unmatch_Handler,
+		},
+		{
+			MethodName: "CreateStrike",
+			Handler:    _CoreService_CreateStrike_Handler,
+		},
+		{
+			MethodName: "GetStrike",
+			Handler:    _CoreService_GetStrike_Handler,
+		},
+		{
+			MethodName: "GetStrikesByUserID",
+			Handler:    _CoreService_GetStrikesByUserID_Handler,
+		},
+		{
+			MethodName: "GetStrikesByType",
+			Handler:    _CoreService_GetStrikesByType_Handler,
+		},
+		{
+			MethodName: "GetStrikesByDateRange",
+			Handler:    _CoreService_GetStrikesByDateRange_Handler,
+		},
+		{
+			MethodName: "UpdateStrikeStatus",
+			Handler:    _CoreService_UpdateStrikeStatus_Handler,
+		},
+		{
+			MethodName: "DeleteStrike",
+			Handler:    _CoreService_DeleteStrike_Handler,
+		},
+		{
+			MethodName: "GetUserStrikeStats",
+			Handler:    _CoreService_GetUserStrikeStats_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

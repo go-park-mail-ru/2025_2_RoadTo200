@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/gateway/adapters"
-	service "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/implementations"
 	grpcPkg "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/grpc"
 )
 
@@ -28,6 +27,6 @@ func (a *App) initServices() {
 		Feed:    adapters.NewFeedServiceAdapter(coreClient),
 		Swipe:   adapters.NewSwipeServiceAdapter(coreClient),
 		Match:   adapters.NewMatchServiceAdapter(coreClient),
-		Strike:  service.NewStrikeService(a.repositories.Strike, a.repositories.User, a.logger),
+		Strike:  adapters.NewStrikeServiceAdapter(coreClient),
 	}
 }
