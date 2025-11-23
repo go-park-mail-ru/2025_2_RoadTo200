@@ -32,3 +32,9 @@ app:
     secret_access_key: MN_PSWD
     address: MN_ADDRESS
     bucket_name: "terabithia-photos"
+
+  auth_service:
+    port: "50051"
+
+  core_service:
+    port: "50052"
