@@ -9,4 +9,3 @@
 docs/
 .github/
 MIGRATIONS_WALKTHROUGH.md
-*.env

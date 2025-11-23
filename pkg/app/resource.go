@@ -10,59 +10,45 @@ import (
 )
 
 func (a *App) initResources() error {
-	a.resources = &Resources{}
-
-	if err := a.initPostgres(context.Background()); err != nil {
-		return err
-	}
-
-	if err := a.initRedis(); err != nil {
-		return err
-	}
-
-	if err := a.initMinIO(); err != nil {
-		return err
-	}
-
-	a.logger.Info("✅ All connections established")
-	return nil
-}
-
-func (a *App) initPostgres(ctx context.Context) error {
+	// PostgreSQL
 	a.logger.Info("🔌 Connecting to PostgreSQL...")
-
-	psgPool, err := postgres_connect.NewConnect(ctx, &a.config.Postgres)
+	postgresPool, err := postgres_connect.NewConnect(context.Background(), &a.config.Postgres)
 	if err != nil {
 		return fmt.Errorf("failed to connect to PostgreSQL: %w", err)
 	}
-
-	a.resources.Postgres = psgPool
 	a.logger.Info("✅ Postgres connected successfully")
-	return nil
-}
 
-func (a *App) initRedis() error {
+	// Redis (for sessions)
 	a.logger.Info("🔌 Connecting to Redis...")
-
 	redisPool, err := redis_connect.NewConnection(&a.config.Redis)
 	if err != nil {
 		return fmt.Errorf("failed to connect to Redis: %w", err)
 	}
-
-	a.resources.Redis = redisPool
 	a.logger.Info("✅ Redis connected successfully")
-	return nil
-}
 
-func (a *App) initMinIO() error {
+	// MinIO
 	a.logger.Info("🔌 Connecting to MinIO...")
-
-	minioPool, err := minio_connect.NewMinioPool(&a.config.MinIO)
+	minioClient, err := minio_connect.NewMinioPool(&a.config.MinIO)
 	if err != nil {
 		return fmt.Errorf("failed to connect to MinIO: %w", err)
 	}
-
-	a.resources.MinIO = minioPool
 	a.logger.Info("✅ MinIO connected successfully")
+
+	// Redis Pub/Sub for chat
+	a.logger.Info("🔌 Connecting to Redis Pub/Sub...")
+	redisPubSub, err := redis_connect.NewPubSubClient(&a.config.Redis)
+	if err != nil {
+		return fmt.Errorf("failed to connect to Redis Pub/Sub: %w", err)
+	}
+	a.logger.Info("✅ Redis Pub/Sub connected successfully")
+
+	a.resources = &Resources{
+		Postgres:    postgresPool,
+		Redis:       redisPool,
+		RedisPubSub: redisPubSub,
+		MinIO:       minioClient,
+	}
+
+	a.logger.Info("✅ All connections established")
 	return nil
 }

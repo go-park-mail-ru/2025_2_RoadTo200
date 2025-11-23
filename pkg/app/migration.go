@@ -17,7 +17,6 @@ func (a *App) runMigrations() error {
 	a.logger.Info("🔄 Running database migrations...")
 
 	// Получаем connection string из конфигурации PostgreSQL
-
 	// УБЕРИ эти строки - они пытаются получить значения из env переменных
 	host := os.Getenv(a.config.Postgres.Host)         // ❌ Это ищет env переменную с именем "localhost"
 	sport := os.Getenv(a.config.Postgres.Port)        // ❌ Это ищет env переменную с именем "5435"
@@ -33,7 +32,7 @@ func (a *App) runMigrations() error {
 
 	dbURL := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=%s", user, password, host, port, base, "disable")
 
-	migrator, err := migration.NewMigrator(dbURL, a.config.Postgres.Migrations)
+	migrator, err := migration.NewMigrator(connStr, a.config.Postgres.Migrations)
 	if err != nil {
 		return fmt.Errorf("failed to create migrator: %w", err)
 	}

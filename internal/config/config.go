@@ -26,6 +26,7 @@ type Config struct {
 	MinIO       MinIOConfig       `yaml:"minio"`
 	AuthService AuthServiceConfig `yaml:"auth_service"`
 	CoreService CoreServiceConfig `yaml:"core_service"`
+	ChatService ChatServiceConfig `yaml:"chat_service"`
 }
 
 type CORSConfig struct {
@@ -89,20 +90,29 @@ type CoreServiceConfig struct {
 	Port string `yaml:"port"`
 }
 
+type ChatServiceConfig struct {
+	Port string `yaml:"port"`
+}
+
 func NewConfig() (*Config, error) {
 	configPath := os.Getenv("CONFIG_PATH")
 	if configPath == "" {
 		configPath = "config/config.yaml"
 	}
+	return LoadConfig(configPath)
+}
 
-	data, err := os.ReadFile(configPath)
+func LoadConfig(path string) (*Config, error) {
+	// Load .env file first (ignore error if doesn't exist)
+	_ = godotenv.Load(".env")
+
+	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read config file: %w", err)
 	}
 
 	var config appConfig
 	config.App.Mode = "dev"
-	config.App.Host = "localhost"
 	config.App.SwaggerPath = "./api/docs/swagger.json"
 	config.App.Cors = CORSConfig{
 		AllowedOrigins:   []string{},
@@ -120,10 +130,10 @@ func NewConfig() (*Config, error) {
 	}
 	config.App.Postgres = PostgresConfig{
 		MinConns:            1,
-		MaxConns:            5,
+		MaxConns:            10,
 		MaxLife:             time.Hour,
 		MaxIdle:             30 * time.Minute,
-		HealthCheckInterval: time.Minute,
+		HealthCheckInterval: 1 * time.Minute,
 
 		Migrated:   false,
 		Migrations: "./migrations/",
@@ -142,11 +152,60 @@ func NewConfig() (*Config, error) {
 		return nil, fmt.Errorf("failed to parse config: %w", err)
 	}
 
+	// Substitute environment variables
 	if config.App.Mode == "dev" {
-		err := godotenv.Load(".env")
-		if err != nil {
-			return nil, err
+		// Expand environment variables in config using os.Getenv
+		if val := os.Getenv("PG_HOST"); val != "" {
+			config.App.Postgres.Host = val
 		}
+		if val := os.Getenv("PG_PORT"); val != "" {
+			config.App.Postgres.Port = val
+		}
+		if val := os.Getenv("PG_BASE"); val != "" {
+			config.App.Postgres.Base = val
+		}
+		if val := os.Getenv("PG_USER"); val != "" {
+			config.App.Postgres.User = val
+		}
+		if val := os.Getenv("PG_PSWD"); val != "" {
+			config.App.Postgres.Password = val
+		}
+
+		if val := os.Getenv("RD_HOST"); val != "" {
+			config.App.Redis.Host = val
+		}
+		if val := os.Getenv("RD_PORT"); val != "" {
+			config.App.Redis.Port = val
+		}
+		if val := os.Getenv("RD_BASE"); val != "" {
+			config.App.Redis.Base = val
+		}
+		// RD_PSWD can be empty
+		config.App.Redis.Password = os.Getenv("RD_PSWD")
+
+		if val := os.Getenv("MN_HOST"); val != "" {
+			config.App.MinIO.Host = val
+		}
+		if val := os.Getenv("MN_USER"); val != "" {
+			config.App.MinIO.AccessKeyID = val
+		}
+		if val := os.Getenv("MN_PSWD"); val != "" {
+			config.App.MinIO.SecretAccessKey = val
+		}
+		if val := os.Getenv("MN_ADDRESS"); val != "" {
+			config.App.MinIO.Address = val
+		}
+	}
+
+	// Set defaults
+	if config.App.AuthService.Port == "" {
+		config.App.AuthService.Port = "50051"
+	}
+	if config.App.CoreService.Port == "" {
+		config.App.CoreService.Port = "50052"
+	}
+	if config.App.ChatService.Port == "" {
+		config.App.ChatService.Port = "50053"
 	}
 
 	return &config.App, nil

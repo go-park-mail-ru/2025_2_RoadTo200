@@ -8,12 +8,18 @@ import (
 )
 
 type MessageRepository interface {
+	// Create new message
 	Create(ctx context.Context, message *domain.Message) error
-	GetByID(ctx context.Context, id uuid.UUID) (*domain.Message, error)
+
+	// Get message history for a match (with pagination)
 	GetByMatchID(ctx context.Context, matchID uuid.UUID, limit, offset int) ([]domain.Message, error)
-	UpdateStatus(ctx context.Context, id uuid.UUID, status int) error
-	Delete(ctx context.Context, id uuid.UUID) error
-	MarkMessagesAsRead(ctx context.Context, matchID, userID uuid.UUID) error
+
+	// Mark all messages in match as read by receiver
+	MarkAsRead(ctx context.Context, matchID, receiverID uuid.UUID) error
+
+	// Get unread message count for user
 	GetUnreadCount(ctx context.Context, userID uuid.UUID) (int, error)
+
+	// Get all conversations (matches with last message)
 	GetConversations(ctx context.Context, userID uuid.UUID) ([]domain.Conversation, error)
 }

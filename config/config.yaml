@@ -22,16 +22,16 @@ app:
     migrated: true
 
   redis:
-    host: RD_HOST
-    port: RD_PORT
-    base: RD_BASE
-    password: RD_PSWD
+    host: $RD_HOST
+    port: $RD_PORT
+    base: $RD_BASE
+    password: $RD_PSWD
 
   minio:
-    host: MN_HOST
-    access_key_id: MN_USER
-    secret_access_key: MN_PSWD
-    address: MN_ADDRESS
+    host: $MN_HOST
+    access_key_id: $MN_USER
+    secret_access_key: $MN_PSWD
+    address: $MN_ADDRESS
     bucket_name: "terabithia-photos"
 
   auth_service:
@@ -39,3 +39,6 @@ app:
 
   core_service:
     port: "50052"
+
+  chat_service:
+    port: "50053"

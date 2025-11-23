@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
+	expectation "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/errors"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -43,6 +44,31 @@ func (r *MatchRepository) Create(ctx context.Context, match *domain.Match) error
 	// Обновим IDs в соответствии с порядком в БД
 	match.User1ID, match.User2ID = user1ID, user2ID
 	return nil
+}
+
+func (r *MatchRepository) GetByID(ctx context.Context, matchID uuid.UUID) (*domain.Match, error) {
+	query := `
+		SELECT id, user1_id, user2_id, is_active, matched_at
+		FROM match
+		WHERE id = $1
+	`
+
+	var match domain.Match
+	err := r.pool.QueryRow(ctx, query, matchID).Scan(
+		&match.ID,
+		&match.User1ID,
+		&match.User2ID,
+		&match.IsActive,
+		&match.MatchedAt,
+	)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, expectation.ErrMatchNotFound
+		}
+		return nil, fmt.Errorf("failed to get match by id: %w", err)
+	}
+
+	return &match, nil
 }
 
 func (r *MatchRepository) GetByUsers(ctx context.Context, user1ID, user2ID uuid.UUID) (*domain.Match, error) {
