@@ -2,7 +2,8 @@ app:
   host: 0.0.0.0
   port: 8081
   prefix: /api/v1
-  mode: dev
+  mode: release
+  SwaggerPath: ./data/docs/swagger.json
 
   cors:
     allowed_origins:

@@ -24,7 +24,7 @@ func (a *App) initServer() {
 
 func (a *App) setupUtilRoutes() {
 	// Swagger should be accessible without auth
-	a.server.AddHandler("/swagger/", http.HandlerFunc(handler.SwaggerHandler))
+	a.server.AddHandler("/swagger/", http.HandlerFunc(handler.RegisterSwagger(a.config.SwaggerPath)))
 
 	// Health check
 	a.server.GET("/api/health", handler.HealthHandler)
