@@ -19,8 +19,8 @@ func NewFeedServiceAdapter(client pb.CoreServiceClient) service.FeedService {
 	}
 }
 
-func (a *FeedServiceAdapter) GetFeed(userID uuid.UUID, limit, offset int) ([]dto.FeedUser, error) {
-	resp, err := a.client.GetFeed(context.Background(), &pb.GetFeedRequest{
+func (a *FeedServiceAdapter) GetFeed(ctx context.Context, userID uuid.UUID, limit, offset int) ([]dto.FeedUser, error) {
+	resp, err := a.client.GetFeed(ctx, &pb.GetFeedRequest{
 		UserId: userID.String(),
 		Limit:  int32(limit),
 		Offset: int32(offset),

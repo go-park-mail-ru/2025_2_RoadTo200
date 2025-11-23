@@ -21,8 +21,8 @@ func NewProfileServiceAdapter(client pb.CoreServiceClient) service.ProfileServic
 	}
 }
 
-func (a *ProfileServiceAdapter) GetProfile(userID uuid.UUID) (*domain.ProfileResponse, error) {
-	resp, err := a.client.GetProfile(context.Background(), &pb.GetProfileRequest{
+func (a *ProfileServiceAdapter) GetProfile(ctx context.Context, userID uuid.UUID) (*domain.ProfileResponse, error) {
+	resp, err := a.client.GetProfile(ctx, &pb.GetProfileRequest{
 		UserId: userID.String(),
 	})
 	if err != nil {
@@ -36,7 +36,7 @@ func (a *ProfileServiceAdapter) GetProfile(userID uuid.UUID) (*domain.ProfileRes
 	}, nil
 }
 
-func (a *ProfileServiceAdapter) UpdateProfileInfo(userID uuid.UUID, updateData *domain.ProfileUpdateRequest) error {
+func (a *ProfileServiceAdapter) UpdateProfileInfo(ctx context.Context, userID uuid.UUID, updateData *domain.ProfileUpdateRequest) error {
 	req := &pb.UpdateProfileInfoRequest{
 		UserId: userID.String(),
 	}
@@ -70,11 +70,11 @@ func (a *ProfileServiceAdapter) UpdateProfileInfo(userID uuid.UUID, updateData *
 		req.Longitude = updateData.Longitude
 	}
 
-	_, err := a.client.UpdateProfileInfo(context.Background(), req)
+	_, err := a.client.UpdateProfileInfo(ctx, req)
 	return err
 }
 
-func (a *ProfileServiceAdapter) UpdatePreferences(userID uuid.UUID, updateData *domain.PreferencesUpdateRequest) error {
+func (a *ProfileServiceAdapter) UpdatePreferences(ctx context.Context, userID uuid.UUID, updateData *domain.PreferencesUpdateRequest) error {
 	req := &pb.UpdatePreferencesRequest{
 		UserId: userID.String(),
 	}
@@ -97,64 +97,64 @@ func (a *ProfileServiceAdapter) UpdatePreferences(userID uuid.UUID, updateData *
 	}
 	req.GlobalSearch = &updateData.GlobalSearch
 
-	_, err := a.client.UpdatePreferences(context.Background(), req)
+	_, err := a.client.UpdatePreferences(ctx, req)
 	return err
 }
 
-func (a *ProfileServiceAdapter) UpdateInterests(userID uuid.UUID, interests []domain.Interest) error {
+func (a *ProfileServiceAdapter) UpdateInterests(ctx context.Context, userID uuid.UUID, interests []domain.Interest) error {
 	themes := make([]string, len(interests))
 	for i, interest := range interests {
 		themes[i] = string(interest.Theme)
 	}
 
-	_, err := a.client.UpdateInterests(context.Background(), &pb.UpdateInterestsRequest{
+	_, err := a.client.UpdateInterests(ctx, &pb.UpdateInterestsRequest{
 		UserId: userID.String(),
 		Themes: themes,
 	})
 	return err
 }
 
-func (a *ProfileServiceAdapter) UploadPhotos(userID uuid.UUID, photos []*multipart.FileHeader) ([]domain.UserPhoto, error) {
+func (a *ProfileServiceAdapter) UploadPhotos(ctx context.Context, userID uuid.UUID, photos []*multipart.FileHeader) ([]domain.UserPhoto, error) {
 	// Photo upload stays in Gateway (cannot send multipart via gRPC efficiently)
 	// This method should not be called through adapter
 	return nil, nil
 }
 
-func (a *ProfileServiceAdapter) DeletePhoto(userID uuid.UUID, photoID uuid.UUID) error {
-	_, err := a.client.DeletePhoto(context.Background(), &pb.DeletePhotoRequest{
+func (a *ProfileServiceAdapter) DeletePhoto(ctx context.Context, userID uuid.UUID, photoID uuid.UUID) error {
+	_, err := a.client.DeletePhoto(ctx, &pb.DeletePhotoRequest{
 		UserId:  userID.String(),
 		PhotoId: photoID.String(),
 	})
 	return err
 }
 
-func (a *ProfileServiceAdapter) SetPrimaryPhoto(userID uuid.UUID, photoID uuid.UUID) error {
-	_, err := a.client.SetPrimaryPhoto(context.Background(), &pb.SetPrimaryPhotoRequest{
+func (a *ProfileServiceAdapter) SetPrimaryPhoto(ctx context.Context, userID uuid.UUID, photoID uuid.UUID) error {
+	_, err := a.client.SetPrimaryPhoto(ctx, &pb.SetPrimaryPhotoRequest{
 		UserId:  userID.String(),
 		PhotoId: photoID.String(),
 	})
 	return err
 }
 
-func (a *ProfileServiceAdapter) ReorderPhotos(userID uuid.UUID, photoIDs []uuid.UUID) error {
+func (a *ProfileServiceAdapter) ReorderPhotos(ctx context.Context, userID uuid.UUID, photoIDs []uuid.UUID) error {
 	photoIDStrs := make([]string, len(photoIDs))
 	for i, id := range photoIDs {
 		photoIDStrs[i] = id.String()
 	}
 
-	_, err := a.client.ReorderPhotos(context.Background(), &pb.ReorderPhotosRequest{
+	_, err := a.client.ReorderPhotos(ctx, &pb.ReorderPhotosRequest{
 		UserId:   userID.String(),
 		PhotoIds: photoIDStrs,
 	})
 	return err
 }
 
-func (a *ProfileServiceAdapter) ValidateProfileUpdate(updateData *domain.ProfileUpdateRequest) error {
+func (a *ProfileServiceAdapter) ValidateProfileUpdate(ctx context.Context, updateData *domain.ProfileUpdateRequest) error {
 	// Validation stays in Gateway
 	return nil
 }
 
-func (a *ProfileServiceAdapter) ValidatePreferencesUpdate(updateData *domain.PreferencesUpdateRequest) error {
+func (a *ProfileServiceAdapter) ValidatePreferencesUpdate(ctx context.Context, updateData *domain.PreferencesUpdateRequest) error {
 	// Validation stays in Gateway
 	return nil
 }
