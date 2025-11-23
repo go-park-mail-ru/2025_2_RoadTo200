@@ -14,15 +14,16 @@ type appConfig struct {
 }
 
 type Config struct {
-	Host     string         `yaml:"host"`
-	Port     int            `yaml:"port"`
-	Prefix   string         `yaml:"prefix"`
-	Cors     CORSConfig     `yaml:"cors"`
-	Logger   LoggerConfig   `yaml:"logger"`
-	Postgres PostgresConfig `yaml:"postgres"`
-	Redis    RedisConfig    `yaml:"redis"`
-	MinIO    MinIOConfig    `yaml:"minio"`
-	Mode     string         `yaml:"mode"`
+	Host        string            `yaml:"host"`
+	Port        int               `yaml:"port"`
+	Prefix      string            `yaml:"prefix"`
+	Cors        CORSConfig        `yaml:"cors"`
+	Logger      LoggerConfig      `yaml:"logger"`
+	Postgres    PostgresConfig    `yaml:"postgres"`
+	Redis       RedisConfig       `yaml:"redis"`
+	MinIO       MinIOConfig       `yaml:"minio"`
+	AuthService AuthServiceConfig `yaml:"auth_service"`
+	CoreService CoreServiceConfig `yaml:"core_service"`
 }
 
 type CORSConfig struct {
@@ -76,6 +77,14 @@ type MinIOConfig struct {
 	UseSSL          bool   `yaml:"use_ssl"`
 	BucketName      string `yaml:"bucket_name"`
 	Region          string `yaml:"region"`
+}
+
+type AuthServiceConfig struct {
+	Port string `yaml:"port"`
+}
+
+type CoreServiceConfig struct {
+	Port string `yaml:"port"`
 }
 
 func NewConfig() (*Config, error) {
