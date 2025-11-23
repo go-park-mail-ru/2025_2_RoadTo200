@@ -32,7 +32,7 @@ app:
     access_key_id: MN_USER
     secret_access_key: MN_PSWD
     address: MN_ADDRESS
-    bucket_name: "terabithia-photos"
+    bucket_name: terabithia-photos
     
   core_service:
-    port: "50052"
+    port: 50052

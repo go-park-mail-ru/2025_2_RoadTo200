@@ -28,4 +28,4 @@ app:
     password: RD_PSWD
 
   auth_service:
-    port: "50051"
+    port: 50051
