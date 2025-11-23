@@ -9,6 +9,7 @@ import (
 
 type MatchRepository interface {
 	Create(ctx context.Context, match *domain.Match) error
+	GetByID(ctx context.Context, matchID uuid.UUID) (*domain.Match, error)
 	GetByUsers(ctx context.Context, user1ID, user2ID uuid.UUID) (*domain.Match, error)
 	GetUserMatches(ctx context.Context, userID uuid.UUID, limit, offset int) ([]domain.Match, error)
 	UpdateActive(ctx context.Context, user1ID, user2ID uuid.UUID, isActive bool) error

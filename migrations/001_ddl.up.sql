@@ -88,13 +88,19 @@ CREATE TABLE match
 -- Таблица: message
 CREATE TABLE message
 (
-    id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    match_id     UUID        NOT NULL REFERENCES match (id) ON DELETE CASCADE,
-    sender_id    UUID        NOT NULL REFERENCES "user" (id) ON DELETE CASCADE,
-    message_text TEXT        NOT NULL,
-    status       SMALLINT    NOT NULL DEFAULT 0,
-    created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    match_id    UUID        NOT NULL REFERENCES match (id) ON DELETE CASCADE,
+    sender_id   UUID        NOT NULL REFERENCES "user" (id) ON DELETE CASCADE,
+    receiver_id UUID        NOT NULL REFERENCES "user" (id) ON DELETE CASCADE,
+    content     TEXT        NOT NULL,
+    is_read     BOOLEAN     NOT NULL DEFAULT FALSE,
+    created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- Indexes for performance
+CREATE INDEX idx_message_match_id_created_at ON message(match_id, created_at DESC);
+CREATE INDEX idx_message_receiver_unread ON message(receiver_id, is_read) WHERE is_read = FALSE;
+CREATE INDEX idx_message_created_at ON message(created_at DESC);
 
 -- Таблица: subscription
 CREATE TABLE subscription

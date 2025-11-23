@@ -1,0 +1,75 @@
+syntax = "proto3";
+
+package chat;
+
+option go_package = "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/proto/chat;chat";
+
+import "google/protobuf/timestamp.proto";
+
+service ChatService {
+  rpc SendMessage(SendMessageRequest) returns (MessageResponse);
+  rpc GetMessages(GetMessagesRequest) returns (GetMessagesResponse);
+  rpc MarkAsRead(MarkAsReadRequest) returns (Empty);
+  rpc GetConversations(GetConversationsRequest) returns (GetConversationsResponse);
+  rpc GetUnreadCount(GetUnreadCountRequest) returns (GetUnreadCountResponse);
+}
+
+message Empty {}
+
+message SendMessageRequest {
+  string sender_id = 1;
+  string match_id = 2;
+  string content = 3;
+}
+
+message MessageResponse {
+  string id = 1;
+  string match_id = 2;
+  string sender_id = 3;
+  string receiver_id = 4;
+  string content = 5;
+  bool is_read = 6;
+  google.protobuf.Timestamp created_at = 7;
+}
+
+message GetMessagesRequest {
+  string user_id = 1;
+  string match_id = 2;
+  int32 limit = 3;
+  int32 offset = 4;
+}
+
+message GetMessagesResponse {
+  repeated MessageResponse messages = 1;
+}
+
+message MarkAsReadRequest {
+  string user_id = 1;
+  string match_id = 2;
+}
+
+message GetConversationsRequest {
+  string user_id = 1;
+}
+
+message Conversation {
+  string match_id = 1;
+  string other_user_id = 2;
+  string other_user_name = 3;
+  string other_user_photo = 7;
+  string last_message = 4;
+  google.protobuf.Timestamp last_message_time = 5;
+  int32 unread_count = 6;
+}
+
+message GetConversationsResponse {
+  repeated Conversation conversations = 1;
+}
+
+message GetUnreadCountRequest {
+  string user_id = 1;
+}
+
+message GetUnreadCountResponse {
+  int32 count = 1;
+}

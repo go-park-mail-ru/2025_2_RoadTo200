@@ -16,6 +16,7 @@ func (a *App) initRepository() {
 		Photo:      postgres.NewUserPhotoRepository(a.resources.Postgres, a.logger),
 		Swipe:      postgres.NewSwipeRepository(a.resources.Postgres),
 		Match:      postgres.NewMatchRepository(a.resources.Postgres),
+		Message:    postgres.NewMessageRepository(a.resources.Postgres),
 		Strike:     postgres.NewStrikeRepository(a.resources.Postgres),
 	}
 }

@@ -1,9 +1,8 @@
 app:
   host: 0.0.0.0
-  port: 8083
+  port: 8084
   prefix: /api/v1
-  mode: release
-  swagger_path: ./data/docs/core.json
+  SwaggerPath: ./data/docs/chat.json
 
   cors:
     allowed_origins:
@@ -27,12 +26,5 @@ app:
     base: RD_BASE
     password: RD_PSWD
 
-  minio:
-    host: MN_HOST
-    access_key_id: MN_USER
-    secret_access_key: MN_PSWD
-    address: MN_ADDRESS
-    bucket_name: "terabithia-photos"
-    
-  core_service:
-    port: "50052"
+  chat_service:
+    port: "50053"

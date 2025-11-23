@@ -35,6 +35,9 @@ func (a *App) setupPublicRoutes() {
 	a.server.POST("/api/register", a.handlers.Auth.Register)
 	a.server.POST("/api/login", a.handlers.Auth.Login)
 	a.server.GET("/api/session", a.handlers.Session.GetSession)
+
+	// WebSocket route (auth handled internally)
+	a.server.GET("/ws/chat", a.handlers.WebSocket.HandleConnection)
 }
 
 // Protected routes (require auth)
@@ -64,6 +67,12 @@ func (a *App) setupProtectedRoutes() {
 	a.server.GET("/api/match", a.handlers.Match.GetUserMatches)
 	a.server.DELETE("/api/match", a.handlers.Match.Unmatch)
 
+	// Chat routes
+	a.server.GET("/api/chats", a.handlers.Chat.GetConversations)
+	a.server.GET("/api/chats/unread", a.handlers.Chat.GetUnreadCount)
+	a.server.GET("/api/chats/{match_id}", a.handlers.Chat.GetMessages)
+	a.server.POST("/api/chats/{match_id}/messages", a.handlers.Chat.SendMessage)
+	a.server.POST("/api/chats/{match_id}/read", a.handlers.Chat.MarkAsRead)
 	// Strike endpoints
 	a.server.POST("/api/strike", a.handlers.Strike.CreateStrike)
 	a.server.GET("/api/strike/{id}", a.handlers.Strike.GetStrike)
