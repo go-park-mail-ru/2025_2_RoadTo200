@@ -50,6 +50,7 @@ type Services struct {
 	Swipe   service.SwipeService
 	Match   service.MatchService
 	Chat    service.ChatService
+	Strike  service.StrikeService
 }
 
 type Handlers struct {
@@ -61,7 +62,7 @@ type Handlers struct {
 	Match     *handler.MatchHandler
 	Chat      *handler.ChatHandler
 	WebSocket *websocket.WebSocketHandler
-	Strike  service.StrikeService
+	Strike    *handler.StrikeHandler
 }
 
 func Run() {

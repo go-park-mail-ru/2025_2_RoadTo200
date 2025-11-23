@@ -1,6 +1,6 @@
 app:
   host: 0.0.0.0
-  port: 8082
+  port: 8081
   prefix: /api/v1
   mode: release
   swagger_path: ./data/docs/auth.json

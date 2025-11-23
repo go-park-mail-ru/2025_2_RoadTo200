@@ -1,9 +1,9 @@
 #!/bin/bash
 
 HOST=ubuntu.vk # Хост ОС. Пример: user@ххх.хх.хх.ххх
-DOCS=0     # Флаг сборки документации
-CONF=0     # Флаг отправки конфигурации
-MIGR=0
+DOCS=1     # Флаг сборки документации
+CONF=1     # Флаг отправки конфигурации
+MIGR=1
 BUILD=1
 
 if [[ $BUILD -eq 1 ]]; then
@@ -27,6 +27,7 @@ if [[ $DOCS -eq 1 ]]; then
   echo "Deploy swagger file"
   scp ./api/auth/swagger.json $HOST:/home/ubuntu/app/back/data/docs/auth.json || echo "Error deploy auth swagger"
   scp ./api/core/swagger.json $HOST:/home/ubuntu/app/back/data/docs/core.json || echo "Error deploy core swagger"
+  scp ./api/chat/swagger.json $HOST:/home/ubuntu/app/back/data/docs/chat.json || echo "Error deploy server swagger"
   scp ./api/server/swagger.json $HOST:/home/ubuntu/app/back/data/docs/server.json || echo "Error deploy server swagger"
 fi
 
