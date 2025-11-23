@@ -28,7 +28,7 @@ func NewAuthServer(authService service.AuthService, logger logger.Log) *AuthServ
 func (s *AuthServer) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.RegisterResponse, error) {
 	s.logger.Info("gRPC: Register request")
 
-	user, session, err := s.authService.Register(req.Email, req.Password, req.PasswordConfirm)
+	user, session, err := s.authService.Register(ctx, req.Email, req.Password, req.PasswordConfirm)
 	if err != nil {
 		s.logger.Error("Register error: " + err.Error())
 		return nil, status.Errorf(codes.Internal, "registration failed: %v", err)
@@ -43,7 +43,7 @@ func (s *AuthServer) Register(ctx context.Context, req *pb.RegisterRequest) (*pb
 func (s *AuthServer) Login(ctx context.Context, req *pb.LoginRequest) (*pb.LoginResponse, error) {
 	s.logger.Info("gRPC: Login request")
 
-	user, session, err := s.authService.Login(req.Email, req.Password)
+	user, session, err := s.authService.Login(ctx, req.Email, req.Password)
 	if err != nil {
 		s.logger.Error("Login error: " + err.Error())
 		return nil, status.Errorf(codes.Unauthenticated, "login failed: %v", err)
@@ -58,7 +58,7 @@ func (s *AuthServer) Login(ctx context.Context, req *pb.LoginRequest) (*pb.Login
 func (s *AuthServer) Logout(ctx context.Context, req *pb.LogoutRequest) (*pb.LogoutResponse, error) {
 	s.logger.Info("gRPC: Logout request")
 
-	err := s.authService.Logout(req.Token)
+	err := s.authService.Logout(ctx, req.Token)
 	if err != nil {
 		s.logger.Error("Logout error: " + err.Error())
 		return nil, status.Errorf(codes.Internal, "logout failed: %v", err)
@@ -72,7 +72,7 @@ func (s *AuthServer) Logout(ctx context.Context, req *pb.LogoutRequest) (*pb.Log
 func (s *AuthServer) ValidateSession(ctx context.Context, req *pb.ValidateSessionRequest) (*pb.ValidateSessionResponse, error) {
 	s.logger.Debug("gRPC: ValidateSession request")
 
-	user, err := s.authService.ValidateSession(req.Token)
+	user, err := s.authService.ValidateSession(ctx, req.Token)
 	if err != nil {
 		s.logger.Error("ValidateSession error: " + err.Error())
 		return &pb.ValidateSessionResponse{
@@ -95,7 +95,7 @@ func (s *AuthServer) GetUserByID(ctx context.Context, req *pb.GetUserByIDRequest
 		return nil, status.Errorf(codes.InvalidArgument, "invalid user ID: %v", err)
 	}
 
-	user, err := s.authService.GetUserByID(userID)
+	user, err := s.authService.GetUserByID(ctx, userID)
 	if err != nil {
 		s.logger.Error("GetUserByID error: " + err.Error())
 		return nil, status.Errorf(codes.NotFound, "user not found: %v", err)
