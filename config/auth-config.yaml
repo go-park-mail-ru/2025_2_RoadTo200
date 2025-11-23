@@ -3,7 +3,7 @@ app:
   port: 8082
   prefix: /api/v1
   mode: release
-  SwaggerPath: ./data/docs/auth.json
+  swagger_path: ./data/docs/auth.json
 
   cors:
     allowed_origins:
