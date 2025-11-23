@@ -8,7 +8,7 @@ import (
 	"strconv"
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/config"
-	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func NewConnect(ctx context.Context, cfg *config.PostgresConfig) (*pgxpool.Pool, error) {
@@ -30,7 +30,8 @@ func NewConnect(ctx context.Context, cfg *config.PostgresConfig) (*pgxpool.Pool,
 	}
 
 	poolConfig, err := pgxpool.ParseConfig(
-		fmt.Sprintf("postgres://%s:%s@%s:%d/%s", user, password, host, port, base))
+		fmt.Sprintf("postgres://%s:%s@%s:%d/%s", user, password, host, port, base),
+	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse pool config: %w", err)
 	}
@@ -41,7 +42,7 @@ func NewConnect(ctx context.Context, cfg *config.PostgresConfig) (*pgxpool.Pool,
 	poolConfig.MaxConnIdleTime = cfg.MaxIdle
 	poolConfig.HealthCheckPeriod = cfg.HealthCheckInterval
 
-	pool, err := pgxpool.ConnectConfig(ctx, poolConfig)
+	pool, err := pgxpool.NewWithConfig(ctx, poolConfig)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create connection pool: %w", err)
 	}

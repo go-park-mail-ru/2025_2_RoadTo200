@@ -1,6 +1,7 @@
 package redis
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"testing"
@@ -69,7 +70,7 @@ func TestSessionRepository_Set(t *testing.T) {
 
 			repo := NewSessionRepository(pool)
 
-			err := repo.Set(tt.session)
+			err := repo.Set(context.Background(), tt.session)
 
 			if tt.expectedErr != "" {
 				assert.Error(t, err)
@@ -145,7 +146,7 @@ func TestSessionRepository_SetWithExpiry(t *testing.T) {
 
 			repo := NewSessionRepository(pool)
 
-			err := repo.SetWithExpiry(tt.session, tt.expiry)
+			err := repo.SetWithExpiry(context.Background(), tt.session, tt.expiry)
 
 			if tt.expectedErr != "" {
 				assert.Error(t, err)
@@ -221,7 +222,7 @@ func TestSessionRepository_Get(t *testing.T) {
 
 			repo := NewSessionRepository(pool)
 
-			session, err := repo.Get(tt.sessionID)
+			session, err := repo.Get(context.Background(), tt.sessionID)
 
 			if tt.expectedErr != "" {
 				assert.Error(t, err)
@@ -279,7 +280,7 @@ func TestSessionRepository_Delete(t *testing.T) {
 
 			repo := NewSessionRepository(pool)
 
-			err := repo.Delete(tt.sessionID)
+			err := repo.Delete(context.Background(), tt.sessionID)
 
 			if tt.expectedErr != "" {
 				assert.Error(t, err)
@@ -339,7 +340,7 @@ func TestSessionRepository_Exists(t *testing.T) {
 
 			repo := NewSessionRepository(pool)
 
-			exists, err := repo.Exists(tt.sessionID)
+			exists, err := repo.Exists(context.Background(), tt.sessionID)
 
 			if tt.expectedErr != "" {
 				assert.Error(t, err)
@@ -366,19 +367,19 @@ func TestSessionRepository_ConnectionErrors(t *testing.T) {
 		repo := NewSessionRepository(pool)
 
 		// Test all methods with connection error
-		err := repo.Set(&domain.Session{Token: "test"})
+		err := repo.Set(context.Background(), &domain.Session{Token: "test"})
 		assert.Error(t, err)
 
-		_, err = repo.Get("test")
+		_, err = repo.Get(context.Background(), "test")
 		assert.Error(t, err)
 
-		err = repo.Delete("test")
+		err = repo.Delete(context.Background(), "test")
 		assert.Error(t, err)
 
-		_, err = repo.Exists("test")
+		_, err = repo.Exists(context.Background(), "test")
 		assert.Error(t, err)
 
-		err = repo.SetWithExpiry(&domain.Session{Token: "test"}, time.Minute)
+		err = repo.SetWithExpiry(context.Background(), &domain.Session{Token: "test"}, time.Minute)
 		assert.Error(t, err)
 	})
 }
@@ -402,7 +403,7 @@ func TestSessionRepository_KeyFormat(t *testing.T) {
 
 	repo := NewSessionRepository(pool)
 
-	err := repo.Set(session)
+	err := repo.Set(context.Background(), session)
 	assert.NoError(t, err)
 
 	// Проверяем, что команда была вызвана с правильным ключом
@@ -474,16 +475,16 @@ func TestSessionRepository_FullCycle(t *testing.T) {
 	repo := NewSessionRepository(pool)
 
 	// Set
-	err := repo.Set(session)
+	err := repo.Set(context.Background(), session)
 	assert.NoError(t, err)
 
 	// Exists
-	exists, err := repo.Exists(session.Token)
+	exists, err := repo.Exists(context.Background(), session.Token)
 	assert.NoError(t, err)
 	assert.True(t, exists)
 
 	// Get
-	retrieved, err := repo.Get(session.Token)
+	retrieved, err := repo.Get(context.Background(), session.Token)
 	assert.NoError(t, err)
 	assert.Equal(t, session.UserEmail, retrieved.UserEmail)
 	assert.Equal(t, session.Token, retrieved.Token)
@@ -492,6 +493,6 @@ func TestSessionRepository_FullCycle(t *testing.T) {
 	assert.False(t, retrieved.IsExpired())
 
 	// Delete
-	err = repo.Delete(session.Token)
+	err = repo.Delete(context.Background(), session.Token)
 	assert.NoError(t, err)
 }

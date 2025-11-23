@@ -10,6 +10,7 @@ const (
 type GenderPreference string
 
 const (
+	GenderPrefBoth   GenderPreference = "both"
 	GenderPrefMale   GenderPreference = "male"
 	GenderPrefFemale GenderPreference = "female"
 )

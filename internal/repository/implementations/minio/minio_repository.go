@@ -15,13 +15,13 @@ import (
 var _ interfaces.FileStorage = (*StorageRepository)(nil)
 
 type StorageRepository struct {
-	client     *minio.Client
+	client     interfaces.MinioIface
 	bucketName string
 	address    string
 	useSSL     bool
 }
 
-func NewStorageRepository(cl *minio.Client, cfg *config.MinIOConfig) *StorageRepository {
+func NewStorageRepository(cl interfaces.MinioIface, cfg *config.MinIOConfig) *StorageRepository {
 	return &StorageRepository{
 		client:     cl,
 		bucketName: cfg.BucketName,
