@@ -423,6 +423,7 @@ type Conversation struct {
 	MatchId         string                 `protobuf:"bytes,1,opt,name=match_id,json=matchId,proto3" json:"match_id,omitempty"`
 	OtherUserId     string                 `protobuf:"bytes,2,opt,name=other_user_id,json=otherUserId,proto3" json:"other_user_id,omitempty"`
 	OtherUserName   string                 `protobuf:"bytes,3,opt,name=other_user_name,json=otherUserName,proto3" json:"other_user_name,omitempty"`
+	OtherUserPhoto  string                 `protobuf:"bytes,7,opt,name=other_user_photo,json=otherUserPhoto,proto3" json:"other_user_photo,omitempty"`
 	LastMessage     string                 `protobuf:"bytes,4,opt,name=last_message,json=lastMessage,proto3" json:"last_message,omitempty"`
 	LastMessageTime *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=last_message_time,json=lastMessageTime,proto3" json:"last_message_time,omitempty"`
 	UnreadCount     int32                  `protobuf:"varint,6,opt,name=unread_count,json=unreadCount,proto3" json:"unread_count,omitempty"`
@@ -477,6 +478,13 @@ func (x *Conversation) GetOtherUserId() string {
 func (x *Conversation) GetOtherUserName() string {
 	if x != nil {
 		return x.OtherUserName
+	}
+	return ""
+}
+
+func (x *Conversation) GetOtherUserPhoto() string {
+	if x != nil {
+		return x.OtherUserPhoto
 	}
 	return ""
 }
@@ -665,11 +673,12 @@ const file_proto_chat_chat_proto_rawDesc = "" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x19\n" +
 	"\bmatch_id\x18\x02 \x01(\tR\amatchId\"2\n" +
 	"\x17GetConversationsRequest\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\"\x83\x02\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\"\xad\x02\n" +
 	"\fConversation\x12\x19\n" +
 	"\bmatch_id\x18\x01 \x01(\tR\amatchId\x12\"\n" +
 	"\rother_user_id\x18\x02 \x01(\tR\votherUserId\x12&\n" +
-	"\x0fother_user_name\x18\x03 \x01(\tR\rotherUserName\x12!\n" +
+	"\x0fother_user_name\x18\x03 \x01(\tR\rotherUserName\x12(\n" +
+	"\x10other_user_photo\x18\a \x01(\tR\x0eotherUserPhoto\x12!\n" +
 	"\flast_message\x18\x04 \x01(\tR\vlastMessage\x12F\n" +
 	"\x11last_message_time\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\x0flastMessageTime\x12!\n" +
 	"\funread_count\x18\x06 \x01(\x05R\vunreadCount\"T\n" +

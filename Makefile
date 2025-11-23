@@ -22,6 +22,7 @@ test-coverage:
 build-docs:
 	swag init -g /cmd/auth/main.go -o api/auth/
 	swag init -g /cmd/core/main.go -o api/core/
+	swag init -g /cmd/chat/main.go -o api/chat/
 	swag init -g /cmd/server/main.go -o api/server/
 
 build:

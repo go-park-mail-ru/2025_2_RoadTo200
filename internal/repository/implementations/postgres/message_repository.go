@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"time"
 
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
@@ -108,6 +109,7 @@ func (r *MessageRepository) GetConversations(ctx context.Context, userID uuid.UU
 				ELSE m.user1_id 
 			END as other_user_id,
 			u.name as other_user_name,
+			COALESCE(p.photo_url, '') as other_user_photo,
 			msg.content as last_message,
 			msg.created_at as last_message_time,
 			(SELECT COUNT(*) FROM message m2 
@@ -117,6 +119,13 @@ func (r *MessageRepository) GetConversations(ctx context.Context, userID uuid.UU
 			WHEN m.user1_id = $1 THEN m.user2_id 
 			ELSE m.user1_id 
 		END
+		LEFT JOIN LATERAL (
+			SELECT photo_url 
+			FROM user_photo 
+			WHERE user_id = u.id 
+			ORDER BY display_order ASC 
+			LIMIT 1
+		) p ON true
 		LEFT JOIN LATERAL (
 			SELECT content, created_at 
 			FROM message 
@@ -137,10 +146,10 @@ func (r *MessageRepository) GetConversations(ctx context.Context, userID uuid.UU
 	for rows.Next() {
 		var conv domain.Conversation
 		var lastMessage *string
-		var lastMessageTime *interface{}
+		var lastMessageTime *time.Time
 
 		err := rows.Scan(
-			&conv.MatchID, &conv.OtherUserID, &conv.OtherUserName,
+			&conv.MatchID, &conv.OtherUserID, &conv.OtherUserName, &conv.OtherUserPhoto,
 			&lastMessage, &lastMessageTime, &conv.UnreadCount,
 		)
 		if err != nil {
@@ -150,11 +159,8 @@ func (r *MessageRepository) GetConversations(ctx context.Context, userID uuid.UU
 		if lastMessage != nil {
 			conv.LastMessage = *lastMessage
 		}
-		// Handle nullable timestamp
 		if lastMessageTime != nil {
-			if t, ok := (*lastMessageTime).(interface{ Time() interface{} }); ok {
-				_ = t // Use if needed
-			}
+			conv.LastMessageTime = *lastMessageTime
 		}
 
 		conversations = append(conversations, conv)

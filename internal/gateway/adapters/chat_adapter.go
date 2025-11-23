@@ -140,6 +140,7 @@ func protoToConversation(pbConv *pb.Conversation) (*domain.Conversation, error) 
 		MatchID:         matchID,
 		OtherUserID:     otherUserID,
 		OtherUserName:   pbConv.OtherUserName,
+		OtherUserPhoto:  pbConv.OtherUserPhoto,
 		LastMessage:     pbConv.LastMessage,
 		LastMessageTime: lastMessageTime,
 		UnreadCount:     int(pbConv.UnreadCount),

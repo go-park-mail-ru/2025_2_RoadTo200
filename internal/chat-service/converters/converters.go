@@ -53,6 +53,7 @@ func ConversationToProto(conv *domain.Conversation) *pb.Conversation {
 		MatchId:         conv.MatchID.String(),
 		OtherUserId:     conv.OtherUserID.String(),
 		OtherUserName:   conv.OtherUserName,
+		OtherUserPhoto:  conv.OtherUserPhoto,
 		LastMessage:     conv.LastMessage,
 		LastMessageTime: lastMessageTime,
 		UnreadCount:     int32(conv.UnreadCount),
