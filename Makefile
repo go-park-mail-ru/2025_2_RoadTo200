@@ -4,6 +4,15 @@
 run:
 	go run ./cmd/server/main.go
 
+run-auth:
+	CONFIG_PATH=config/auth-config.yaml go run ./cmd/auth/main.go
+
+run-core:
+	CONFIG_PATH=config/core-config.yaml go run ./cmd/core/main.go
+
+run-chat:
+	CONFIG_PATH=config/chat-config.yaml go run ./cmd/chat/main.go
+
 test:
 	go test ./... -v
 
@@ -44,4 +53,4 @@ sbuild:
 proto-gen:
 	protoc --go_out=. --go_opt=paths=source_relative \
 		--go-grpc_out=. --go-grpc_opt=paths=source_relative \
-		proto/auth/auth.proto proto/core/core.proto
+		proto/auth/auth.proto proto/core/core.proto proto/chat/chat.proto

@@ -3,6 +3,7 @@ package websocket
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -12,6 +13,7 @@ import (
 	service "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
+	"github.com/redis/go-redis/v9"
 )
 
 const (
@@ -40,13 +42,15 @@ var upgrader = websocket.Upgrader{
 type WebSocketHandler struct {
 	chatService service.ChatService
 	authService service.AuthService
+	redisClient *redis.Client
 	logger      logger.Log
 }
 
-func NewWebSocketHandler(chatService service.ChatService, authService service.AuthService, logger logger.Log) *WebSocketHandler {
+func NewWebSocketHandler(chatService service.ChatService, authService service.AuthService, redisClient *redis.Client, logger logger.Log) *WebSocketHandler {
 	return &WebSocketHandler{
 		chatService: chatService,
 		authService: authService,
+		redisClient: redisClient,
 		logger:      logger,
 	}
 }
@@ -81,7 +85,7 @@ func (h *WebSocketHandler) HandleConnection(w http.ResponseWriter, r *http.Reque
 	h.logger.Infof("User %s connected via WebSocket", user.ID)
 
 	// 3. Subscribe to Redis
-	msgChan, cleanup, err := h.chatService.Subscribe(r.Context(), user.ID)
+	msgChan, cleanup, err := h.subscribe(r.Context(), user.ID)
 	if err != nil {
 		h.logger.Errorf("Failed to subscribe to chat service: %v", err)
 		return
@@ -91,6 +95,42 @@ func (h *WebSocketHandler) HandleConnection(w http.ResponseWriter, r *http.Reque
 	// 4. Start loops
 	go h.writePump(conn, msgChan)
 	h.readPump(conn, user.ID)
+}
+
+// subscribe returns a channel that receives real-time messages for the user
+func (h *WebSocketHandler) subscribe(ctx context.Context, userID uuid.UUID) (<-chan domain.ChatMessage, func(), error) {
+	channelName := fmt.Sprintf("chat:user:%s", userID.String())
+	pubsub := h.redisClient.Subscribe(ctx, channelName)
+
+	// Wait for confirmation that subscription is created
+	_, err := pubsub.Receive(ctx)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to subscribe to redis: %w", err)
+	}
+
+	// Create a channel for messages
+	msgChan := make(chan domain.ChatMessage)
+
+	// Start a goroutine to pump messages
+	go func() {
+		ch := pubsub.Channel()
+		for msg := range ch {
+			var chatMsg domain.ChatMessage
+			if err := json.Unmarshal([]byte(msg.Payload), &chatMsg); err != nil {
+				h.logger.Errorf("Failed to unmarshal message: %v", err)
+				continue
+			}
+			msgChan <- chatMsg
+		}
+		close(msgChan)
+	}()
+
+	// Return cleanup function
+	cleanup := func() {
+		pubsub.Close()
+	}
+
+	return msgChan, cleanup, nil
 }
 
 // readPump pumps messages from the websocket connection to the hub.

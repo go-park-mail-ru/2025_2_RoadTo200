@@ -26,7 +26,15 @@ func NewChatHandler(chatService service.ChatService, logger logger.Log) *ChatHan
 }
 
 // GetConversations returns list of all chats with last message
-// GET /api/chats
+// @Summary Get user conversations
+// @Description Get list of all chats with last message and unread count
+// @Tags chat
+// @Accept json
+// @Produce json
+// @Success 200 {object} map[string]interface{} "conversations"
+// @Failure 401 {string} string "unauthorized"
+// @Failure 500 {string} string "internal error"
+// @Router /api/chats [get]
 func (h *ChatHandler) GetConversations(w http.ResponseWriter, r *http.Request) {
 	h.logger.Trace("ChatHandler.GetConversations")
 
@@ -55,7 +63,21 @@ func (h *ChatHandler) GetConversations(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetMessages returns message history for a specific match
-// GET /api/chats/{match_id}?limit=50&offset=0
+// @Summary Get chat messages
+// @Description Get message history for a specific match with pagination
+// @Tags chat
+// @Accept json
+// @Produce json
+// @Param match_id path string true "Match ID"
+// @Param limit query int false "Limit (default 50)"
+// @Param offset query int false "Offset (default 0)"
+// @Success 200 {object} map[string]interface{} "messages"
+// @Failure 400 {string} string "invalid request"
+// @Failure 401 {string} string "unauthorized"
+// @Failure 403 {string} string "forbidden"
+// @Failure 404 {string} string "match not found"
+// @Failure 500 {string} string "internal error"
+// @Router /api/chats/{match_id} [get]
 func (h *ChatHandler) GetMessages(w http.ResponseWriter, r *http.Request) {
 	h.logger.Trace("ChatHandler.GetMessages")
 
@@ -125,7 +147,19 @@ func (h *ChatHandler) GetMessages(w http.ResponseWriter, r *http.Request) {
 }
 
 // MarkAsRead marks all messages in a match as read
-// POST /api/chats/{match_id}/read
+// @Summary Mark messages as read
+// @Description Mark all messages in a specific match as read for the current user
+// @Tags chat
+// @Accept json
+// @Produce json
+// @Param match_id path string true "Match ID"
+// @Success 200 {object} map[string]string "message"
+// @Failure 400 {string} string "invalid request"
+// @Failure 401 {string} string "unauthorized"
+// @Failure 403 {string} string "forbidden"
+// @Failure 404 {string} string "match not found"
+// @Failure 500 {string} string "internal error"
+// @Router /api/chats/{match_id}/read [post]
 func (h *ChatHandler) MarkAsRead(w http.ResponseWriter, r *http.Request) {
 	h.logger.Trace("ChatHandler.MarkAsRead")
 
@@ -176,7 +210,20 @@ func (h *ChatHandler) MarkAsRead(w http.ResponseWriter, r *http.Request) {
 }
 
 // SendMessage sends a new message
-// POST /api/chats/{match_id}/messages
+// @Summary Send a message
+// @Description Send a new message to a match
+// @Tags chat
+// @Accept json
+// @Produce json
+// @Param match_id path string true "Match ID"
+// @Param input body dto.SendMessageRequest true "Message content"
+// @Success 201 {object} map[string]interface{} "message_id, created_at"
+// @Failure 400 {string} string "invalid request"
+// @Failure 401 {string} string "unauthorized"
+// @Failure 403 {string} string "forbidden or match not active"
+// @Failure 404 {string} string "match not found"
+// @Failure 500 {string} string "internal error"
+// @Router /api/chats/{match_id}/messages [post]
 func (h *ChatHandler) SendMessage(w http.ResponseWriter, r *http.Request) {
 	h.logger.Trace("ChatHandler.SendMessage")
 
@@ -254,7 +301,15 @@ func (h *ChatHandler) SendMessage(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetUnreadCount returns total unread message count
-// GET /api/chats/unread
+// @Summary Get unread messages count
+// @Description Get total count of unread messages for the current user
+// @Tags chat
+// @Accept json
+// @Produce json
+// @Success 200 {object} map[string]int "unread_count"
+// @Failure 401 {string} string "unauthorized"
+// @Failure 500 {string} string "internal error"
+// @Router /api/chats/unread [get]
 func (h *ChatHandler) GetUnreadCount(w http.ResponseWriter, r *http.Request) {
 	h.logger.Trace("ChatHandler.GetUnreadCount")
 

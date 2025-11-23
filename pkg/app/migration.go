@@ -15,16 +15,16 @@ func (a *App) runMigrations() error {
 	a.logger.Info("🔄 Running database migrations...")
 
 	// Получаем connection string из конфигурации PostgreSQL
-	dbURL := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=%s",
+	connStr := fmt.Sprintf(
+		"postgres://%s:%s@%s:%s/%s?sslmode=disable",
 		a.config.Postgres.User,
 		a.config.Postgres.Password,
 		a.config.Postgres.Host,
 		a.config.Postgres.Port,
 		a.config.Postgres.Base,
-		"disable",
 	)
 
-	migrator, err := migration.NewMigrator(dbURL, a.config.Postgres.Migrations)
+	migrator, err := migration.NewMigrator(connStr, a.config.Postgres.Migrations)
 	if err != nil {
 		return fmt.Errorf("failed to create migrator: %w", err)
 	}

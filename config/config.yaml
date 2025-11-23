@@ -38,3 +38,6 @@ app:
 
   core_service:
     port: "50052"
+
+  chat_service:
+    port: "50053"

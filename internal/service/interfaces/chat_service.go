@@ -23,7 +23,4 @@ type ChatService interface {
 
 	// GetUnreadCount returns total unread message count for user
 	GetUnreadCount(ctx context.Context, userID uuid.UUID) (int, error)
-
-	// Subscribe returns a channel that receives real-time messages for the user
-	Subscribe(ctx context.Context, userID uuid.UUID) (<-chan domain.ChatMessage, func(), error)
 }
