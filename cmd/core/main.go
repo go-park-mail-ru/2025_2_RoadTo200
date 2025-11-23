@@ -70,24 +70,18 @@ func main() {
 	swipeService := serviceImpl.NewSwipeService(swipeRepo, matchRepo)
 	matchService := serviceImpl.NewMatchService(matchRepo, userRepo, swipeRepo, photoRepo, loggerInst)
 
-	// Get port from environment or use default
-	port := os.Getenv("CORE_SERVICE_PORT")
-	if port == "" {
-		port = "50052"
-	}
-
 	// Create gRPC server
 	grpcServer := grpc.NewServer()
 	coreServiceServer := coreServer.NewCoreServer(profileService, feedService, swipeService, matchService, loggerInst)
 	pb.RegisterCoreServiceServer(grpcServer, coreServiceServer)
 
 	// Start listening
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", port))
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", cfg.Port))
 	if err != nil {
 		loggerInst.Fatal(fmt.Errorf("failed to listen: %w", err))
 	}
 
-	loggerInst.Info(fmt.Sprintf("Core Service listening on port %s", port))
+	loggerInst.Info(fmt.Sprintf("Core Service listening on port %s", cfg.Port))
 
 	// Graceful shutdown
 	go func() {
