@@ -16,6 +16,8 @@ type Config struct {
 	Host        string            `yaml:"host"`
 	Port        int               `yaml:"port"`
 	Prefix      string            `yaml:"prefix"`
+	Mode        string            `yaml:"mode"`
+	SwaggerPath string            `yaml:"swagger_path"`
 	Cors        CORSConfig        `yaml:"cors"`
 	Logger      LoggerConfig      `yaml:"logger"`
 	Postgres    PostgresConfig    `yaml:"postgres"`
@@ -98,6 +100,9 @@ func NewConfig() (*Config, error) {
 	}
 
 	var config appConfig
+	config.App.Mode = "dev"
+	config.App.Host = "localhost"
+	config.App.SwaggerPath = "./api/docs/swagger.json"
 	config.App.Cors = CORSConfig{
 		AllowedOrigins:   []string{},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"},

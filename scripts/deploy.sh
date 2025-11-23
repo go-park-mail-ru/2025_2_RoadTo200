@@ -1,14 +1,14 @@
 #!/bin/bash
 
 HOST=ubuntu.vk # Хост ОС. Пример: user@ххх.хх.хх.ххх
-DOCS=0     # Флаг сборки документации
-CONF=0     # Флаг отправки конфигурации
+DOCS=1     # Флаг сборки документации
+CONF=1     # Флаг отправки конфигурации
 MIGR=0
 BUILD=1
 
 if [[ $BUILD -eq 1 ]]; then
   echo  "Building..."
-  make build || exit 1
+  make build-bin || exit 1
 
   echo "Deploy binary file"
   ssh ubuntu.vk sudo systemctl stop app-back.service
@@ -32,5 +32,5 @@ fi
 
 if [[ $CONF -eq 1 ]]; then
   echo "Deploy config file"
-  scp ./config/config.yaml $HOST:/home/ubuntu/app/back/config/ || echo "Error deploy config"
+  scp ./config/* $HOST:/home/ubuntu/app/back/config/ || echo "Error deploy config"
 fi
