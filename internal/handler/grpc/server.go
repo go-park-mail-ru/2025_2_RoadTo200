@@ -6,14 +6,13 @@ import (
 
 	handler "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/http"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
-	pb "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/proto/core"
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"google.golang.org/grpc"
 )
 
-func NewGrpcServer(coreServiceServer pb.CoreServiceServer, port int) *grpc.Server {
+func NewGrpcServer(port int) *grpc.Server {
 	reg := prometheus.NewRegistry()
 
 	// Регистрируем стандартные метрики
@@ -27,8 +26,6 @@ func NewGrpcServer(coreServiceServer pb.CoreServiceServer, port int) *grpc.Serve
 	)
 
 	grpcServer := grpc.NewServer()
-
-	pb.RegisterCoreServiceServer(grpcServer, coreServiceServer)
 	// Инициализируем метрики
 	grpcMetrics.InitializeMetrics(server)
 

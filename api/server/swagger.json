@@ -17,7 +17,7 @@
         },
         "version": "1.0"
     },
-    "host": "217.16.17.116:8080",
+    "host": "localhost:8080",
     "basePath": "/",
     "paths": {
         "/api/chats": {

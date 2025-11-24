@@ -15,6 +15,9 @@ import (
 func (a *App) initServer() {
 	a.server = httpserver.NewServer()
 
+	// Settip metrics
+	a.setupMetrics()
+
 	// Global middleware
 	a.server.AddMiddleware(middleware.LogMiddleware(a.logger))
 	a.server.AddMiddleware(middleware.CORSMiddleware(&a.config.Cors))
@@ -26,7 +29,7 @@ func (a *App) initServer() {
 
 func (a *App) setupMetrics() {
 	mv := web.NewHttpMetricCollector(a.metrics.HttpMetrics).Middleware()
-	a.server.AddHandler("/metrics", promhttp.HandlerFor(a.metrics.GrpcMetrics, promhttp.HandlerOpts{}))
+	a.server.AddHandler("/metrics", promhttp.Handler())
 	a.server.SetMetricMiddleware(mv)
 }
 

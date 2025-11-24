@@ -13,13 +13,12 @@ import (
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/chat-service/server"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/chat-service/service"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/config"
+	gServer "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/grpc"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/metrics/web"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/implementations/postgres"
 	pgxConn "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/postgres"
 	redisConn "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/redis"
 	pb "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/proto/chat"
-	"google.golang.org/grpc"
 )
 
 func main() {
@@ -50,12 +49,6 @@ func main() {
 	defer redisClient.Close()
 	loggerInst.Info("✅ Redis Pub/Sub connected")
 
-	tracer, closer, err := web.NewGrpcServerInterceptor()
-	if err != nil {
-		loggerInst.Fatal(fmt.Errorf("failed to initialize tracer: %w", err))
-	}
-	defer closer.Close()
-
 	// Initialize repositories
 	messageRepo := repository.NewMessageRepository(pgPool, loggerInst)
 	matchRepo := postgres.NewMatchRepository(pgPool)
@@ -64,8 +57,8 @@ func main() {
 	chatService := service.NewChatService(messageRepo, matchRepo, redisClient, loggerInst)
 
 	// Create gRPC server
-	grpcServer := grpc.NewServer(grpc.UnaryInterceptor(tracer))
 	chatServer := server.NewChatServer(chatService, loggerInst)
+	grpcServer := gServer.NewGrpcServer(cfg.Port)
 	pb.RegisterChatServiceServer(grpcServer, chatServer)
 
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%s", cfg.ChatService.Port))

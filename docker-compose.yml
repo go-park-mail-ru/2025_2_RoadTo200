@@ -97,6 +97,8 @@ services:
       - node-exporter
     networks:
       - monitoring
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   # Grafana
   grafana:

@@ -18,6 +18,7 @@ import (
 	minioConn "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/minio"
 	pgxConn "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/postgres"
 	redisConn "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/redis"
+	pb "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/proto/core"
 )
 
 func main() {
@@ -73,7 +74,9 @@ func main() {
 
 	// Create gRPC server
 	coreServiceServer := coreServer.NewCoreServer(profileService, feedService, swipeService, matchService, strikeServie, loggerInst)
-	grpcServer := gServer.NewGrpcServer(coreServiceServer, cfg.Port)
+	grpcServer := gServer.NewGrpcServer(cfg.Port)
+
+	pb.RegisterCoreServiceServer(grpcServer, coreServiceServer)
 
 	// Start listening
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", cfg.CoreService.Port))

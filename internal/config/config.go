@@ -115,7 +115,7 @@ func LoadConfig(path string) (*Config, error) {
 	var config appConfig
 	config.App.Name = "App"
 	config.App.Mode = "dev"
-	config.App.SwaggerPath = "./api/docs/swagger.json"
+	config.App.SwaggerPath = "./api/server/swagger.json"
 	config.App.Cors = CORSConfig{
 		AllowedOrigins:   []string{},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"},
