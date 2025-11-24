@@ -5,8 +5,8 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-func (a *App) RegisterMetrics() *Metrics {
-	return &Metrics{
+func (a *App) registerMetrics() {
+	a.metrics = &Metrics{
 		HttpMetrics: metrics.NewPrometheusHttpMetrics(a.config.Name),
 		GrpcMetrics: prometheus.NewRegistry(),
 	}

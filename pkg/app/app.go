@@ -93,7 +93,7 @@ func Run() {
 		return
 	}
 
-	app.RegisterMetrics()
+	app.registerMetrics()
 	app.initRepository()
 	app.logger.Info("✅ Repositories initialized")
 	err := app.initServices()

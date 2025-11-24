@@ -5,24 +5,29 @@ import (
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/gateway/adapters"
 	grpc "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/grpc"
+	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 )
 
 func (a *App) initServices() error {
+	// Метрики для gRPC клиента
+	grpcMetrics := grpc_prometheus.NewClientMetrics()
+	a.metrics.GrpcMetrics.MustRegister(grpcMetrics)
+
 	// Initialize gRPC client for Auth Service Client
-	authClient, _, err := grpc.NewAuthClient(fmt.Sprintf("localhost:%s", a.config.AuthService.Port), a.metrics.GrpcMetrics)
+	authClient, err := grpc.NewAuthClient(fmt.Sprintf("localhost:%s", a.config.AuthService.Port))
 	if err != nil {
 		a.logger.Fatal(fmt.Errorf("failed to create auth client: %w", err))
 	}
 
 	// Initialize gRPC client for	// Core Service Client
-	coreClient, _, err := grpc.NewCoreClient(fmt.Sprintf("localhost:%s", a.config.CoreService.Port), a.metrics.GrpcMetrics)
+	coreClient, err := grpc.NewCoreClient(fmt.Sprintf("localhost:%s", a.config.CoreService.Port))
 	if err != nil {
 		a.logger.Fatal(fmt.Errorf("failed to create core client: %w", err))
 	}
 
 	// Инициализация сервисов с зависимостями
 	// Chat Service Client
-	chatClient, _, err := grpc.NewChatClient(fmt.Sprintf("localhost:%s", a.config.ChatService.Port), a.metrics.GrpcMetrics)
+	chatClient, err := grpc.NewChatClient(fmt.Sprintf("localhost:%s", a.config.ChatService.Port))
 	if err != nil {
 		a.logger.Fatal("Failed to create chat client", err)
 	}
