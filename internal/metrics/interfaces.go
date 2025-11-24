@@ -28,12 +28,12 @@ type HttpMetrics interface {
 	// IncCacheHit увеличивает счетчик попаданий в кэш
 	// service - имя сервиса
 	// cacheType - тип кэша (redis, memory, database и т.д.)
-	IncCacheHit(cacheType string)
+	//IncCacheHit(cacheType string)
 
 	// IncCacheMiss увеличивает счетчик промахов кэша
 	// service - имя сервиса
 	// cacheType - тип кэша
-	IncCacheMiss(cacheType string)
+	//IncCacheMiss(cacheType string)
 }
 
 // gRPC метрики
