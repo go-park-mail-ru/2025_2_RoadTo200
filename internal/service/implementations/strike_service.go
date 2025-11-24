@@ -265,14 +265,22 @@ func (s *StrikeService) GetUserStrikeStats(ctx context.Context, userID string) (
 	stats := &dto.StrikeStats{
 		UserID:       userID,
 		TotalStrikes: len(allStrikes),
-		StrikeTypes:  make(map[constants.StrikeType]int),
 	}
 
 	var lastStrikeAt *time.Time
 
 	for _, strike := range allStrikes {
 		// Считаем по типам
-		stats.StrikeTypes[strike.Type]++
+		switch strike.Status {
+		case "pending":
+			stats.StrikeTypes.Pending++
+		case "approved":
+			stats.StrikeTypes.Approved++
+		case "rejected":
+			stats.StrikeTypes.Rejected++
+		case "resolved":
+			stats.StrikeTypes.Resolved++
+		}
 
 		// Находим последнюю жалобу
 		if lastStrikeAt == nil || strike.CreatedAt.After(*lastStrikeAt) {

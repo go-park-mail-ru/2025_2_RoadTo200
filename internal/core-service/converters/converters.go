@@ -313,11 +313,12 @@ func StrikeStatsToProto(stats *dto.StrikeStats) *pb.StrikeStats {
 	statsProto := &pb.StrikeStats{
 		UserId:       stats.UserID,
 		TotalStrikes: int32(stats.TotalStrikes),
-		StrikeTypes:  make(map[string]int32),
-	}
-
-	for strikeType, count := range stats.StrikeTypes {
-		statsProto.StrikeTypes[string(strikeType)] = int32(count)
+		StrikeTypes: &pb.StrikeTypeStat{
+			Pending:  int32(stats.StrikeTypes.Pending),
+			Approved: int32(stats.StrikeTypes.Approved),
+			Rejected: int32(stats.StrikeTypes.Rejected),
+			Resolved: int32(stats.StrikeTypes.Resolved),
+		},
 	}
 
 	if stats.LastStrikeAt != nil {

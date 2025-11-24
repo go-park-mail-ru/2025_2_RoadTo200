@@ -196,11 +196,12 @@ func protoToStrikeStats(statsProto *pb.StrikeStats) *dto.StrikeStats {
 	stats := &dto.StrikeStats{
 		UserID:       statsProto.UserId,
 		TotalStrikes: int(statsProto.TotalStrikes),
-		StrikeTypes:  make(map[constants.StrikeType]int),
-	}
-
-	for strikeType, count := range statsProto.StrikeTypes {
-		stats.StrikeTypes[constants.StrikeType(strikeType)] = int(count)
+		StrikeTypes: dto.StrikeTypeStat{
+			Pending:  int(statsProto.StrikeTypes.Pending),
+			Approved: int(statsProto.StrikeTypes.Approved),
+			Rejected: int(statsProto.StrikeTypes.Rejected),
+			Resolved: int(statsProto.StrikeTypes.Resolved),
+		},
 	}
 
 	if statsProto.LastStrikeAt != nil {
