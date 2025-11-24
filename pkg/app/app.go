@@ -40,6 +40,7 @@ type Repositories struct {
 	Photo        interfaces.UserPhotoRepository
 	Session      interfaces.SessionRepository
 	User         interfaces.UserRepository
+	Strike       interfaces.StrikeRepository
 }
 
 type Services struct {
@@ -60,6 +61,7 @@ type Handlers struct {
 	Match     *handler.MatchHandler
 	Chat      *handler.ChatHandler
 	WebSocket *websocket.WebSocketHandler
+	Strike  service.StrikeService
 }
 
 func Run() {

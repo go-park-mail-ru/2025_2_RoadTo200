@@ -7,12 +7,13 @@
 package core
 
 import (
-	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
+
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 )
 
 const (
@@ -1938,6 +1939,990 @@ func (x *UnmatchResponse) GetSuccess() bool {
 	return false
 }
 
+type Strike struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	ReporterId    string                 `protobuf:"bytes,2,opt,name=reporter_id,json=reporterId,proto3" json:"reporter_id,omitempty"`
+	TargetUserId  string                 `protobuf:"bytes,3,opt,name=target_user_id,json=targetUserId,proto3" json:"target_user_id,omitempty"`
+	Type          string                 `protobuf:"bytes,4,opt,name=type,proto3" json:"type,omitempty"`
+	Reason        string                 `protobuf:"bytes,5,opt,name=reason,proto3" json:"reason,omitempty"`
+	Status        string                 `protobuf:"bytes,6,opt,name=status,proto3" json:"status,omitempty"`
+	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	ModeratorId   string                 `protobuf:"bytes,9,opt,name=moderator_id,json=moderatorId,proto3" json:"moderator_id,omitempty"`
+	ModeratorNote string                 `protobuf:"bytes,10,opt,name=moderator_note,json=moderatorNote,proto3" json:"moderator_note,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Strike) Reset() {
+	*x = Strike{}
+	mi := &file_proto_core_core_proto_msgTypes[29]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Strike) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Strike) ProtoMessage() {}
+
+func (x *Strike) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_core_core_proto_msgTypes[29]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Strike.ProtoReflect.Descriptor instead.
+func (*Strike) Descriptor() ([]byte, []int) {
+	return file_proto_core_core_proto_rawDescGZIP(), []int{29}
+}
+
+func (x *Strike) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *Strike) GetReporterId() string {
+	if x != nil {
+		return x.ReporterId
+	}
+	return ""
+}
+
+func (x *Strike) GetTargetUserId() string {
+	if x != nil {
+		return x.TargetUserId
+	}
+	return ""
+}
+
+func (x *Strike) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
+}
+
+func (x *Strike) GetReason() string {
+	if x != nil {
+		return x.Reason
+	}
+	return ""
+}
+
+func (x *Strike) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *Strike) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+func (x *Strike) GetUpdatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return nil
+}
+
+func (x *Strike) GetModeratorId() string {
+	if x != nil {
+		return x.ModeratorId
+	}
+	return ""
+}
+
+func (x *Strike) GetModeratorNote() string {
+	if x != nil {
+		return x.ModeratorNote
+	}
+	return ""
+}
+
+type CreateStrikeRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ReporterId    string                 `protobuf:"bytes,1,opt,name=reporter_id,json=reporterId,proto3" json:"reporter_id,omitempty"`
+	TargetUserId  string                 `protobuf:"bytes,2,opt,name=target_user_id,json=targetUserId,proto3" json:"target_user_id,omitempty"`
+	Type          string                 `protobuf:"bytes,3,opt,name=type,proto3" json:"type,omitempty"`
+	Reason        string                 `protobuf:"bytes,4,opt,name=reason,proto3" json:"reason,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateStrikeRequest) Reset() {
+	*x = CreateStrikeRequest{}
+	mi := &file_proto_core_core_proto_msgTypes[30]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateStrikeRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateStrikeRequest) ProtoMessage() {}
+
+func (x *CreateStrikeRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_core_core_proto_msgTypes[30]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateStrikeRequest.ProtoReflect.Descriptor instead.
+func (*CreateStrikeRequest) Descriptor() ([]byte, []int) {
+	return file_proto_core_core_proto_rawDescGZIP(), []int{30}
+}
+
+func (x *CreateStrikeRequest) GetReporterId() string {
+	if x != nil {
+		return x.ReporterId
+	}
+	return ""
+}
+
+func (x *CreateStrikeRequest) GetTargetUserId() string {
+	if x != nil {
+		return x.TargetUserId
+	}
+	return ""
+}
+
+func (x *CreateStrikeRequest) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
+}
+
+func (x *CreateStrikeRequest) GetReason() string {
+	if x != nil {
+		return x.Reason
+	}
+	return ""
+}
+
+type CreateStrikeResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Strike        *Strike                `protobuf:"bytes,1,opt,name=strike,proto3" json:"strike,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateStrikeResponse) Reset() {
+	*x = CreateStrikeResponse{}
+	mi := &file_proto_core_core_proto_msgTypes[31]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateStrikeResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateStrikeResponse) ProtoMessage() {}
+
+func (x *CreateStrikeResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_core_core_proto_msgTypes[31]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateStrikeResponse.ProtoReflect.Descriptor instead.
+func (*CreateStrikeResponse) Descriptor() ([]byte, []int) {
+	return file_proto_core_core_proto_rawDescGZIP(), []int{31}
+}
+
+func (x *CreateStrikeResponse) GetStrike() *Strike {
+	if x != nil {
+		return x.Strike
+	}
+	return nil
+}
+
+type GetStrikeRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	StrikeId      string                 `protobuf:"bytes,1,opt,name=strike_id,json=strikeId,proto3" json:"strike_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetStrikeRequest) Reset() {
+	*x = GetStrikeRequest{}
+	mi := &file_proto_core_core_proto_msgTypes[32]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetStrikeRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetStrikeRequest) ProtoMessage() {}
+
+func (x *GetStrikeRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_core_core_proto_msgTypes[32]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetStrikeRequest.ProtoReflect.Descriptor instead.
+func (*GetStrikeRequest) Descriptor() ([]byte, []int) {
+	return file_proto_core_core_proto_rawDescGZIP(), []int{32}
+}
+
+func (x *GetStrikeRequest) GetStrikeId() string {
+	if x != nil {
+		return x.StrikeId
+	}
+	return ""
+}
+
+type GetStrikeResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Strike        *Strike                `protobuf:"bytes,1,opt,name=strike,proto3" json:"strike,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetStrikeResponse) Reset() {
+	*x = GetStrikeResponse{}
+	mi := &file_proto_core_core_proto_msgTypes[33]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetStrikeResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetStrikeResponse) ProtoMessage() {}
+
+func (x *GetStrikeResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_core_core_proto_msgTypes[33]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetStrikeResponse.ProtoReflect.Descriptor instead.
+func (*GetStrikeResponse) Descriptor() ([]byte, []int) {
+	return file_proto_core_core_proto_rawDescGZIP(), []int{33}
+}
+
+func (x *GetStrikeResponse) GetStrike() *Strike {
+	if x != nil {
+		return x.Strike
+	}
+	return nil
+}
+
+type GetStrikesByUserIDRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Limit         int32                  `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`
+	Offset        int32                  `protobuf:"varint,3,opt,name=offset,proto3" json:"offset,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetStrikesByUserIDRequest) Reset() {
+	*x = GetStrikesByUserIDRequest{}
+	mi := &file_proto_core_core_proto_msgTypes[34]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetStrikesByUserIDRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetStrikesByUserIDRequest) ProtoMessage() {}
+
+func (x *GetStrikesByUserIDRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_core_core_proto_msgTypes[34]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetStrikesByUserIDRequest.ProtoReflect.Descriptor instead.
+func (*GetStrikesByUserIDRequest) Descriptor() ([]byte, []int) {
+	return file_proto_core_core_proto_rawDescGZIP(), []int{34}
+}
+
+func (x *GetStrikesByUserIDRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *GetStrikesByUserIDRequest) GetLimit() int32 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+func (x *GetStrikesByUserIDRequest) GetOffset() int32 {
+	if x != nil {
+		return x.Offset
+	}
+	return 0
+}
+
+type GetStrikesByUserIDResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Strikes       []*Strike              `protobuf:"bytes,1,rep,name=strikes,proto3" json:"strikes,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetStrikesByUserIDResponse) Reset() {
+	*x = GetStrikesByUserIDResponse{}
+	mi := &file_proto_core_core_proto_msgTypes[35]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetStrikesByUserIDResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetStrikesByUserIDResponse) ProtoMessage() {}
+
+func (x *GetStrikesByUserIDResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_core_core_proto_msgTypes[35]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetStrikesByUserIDResponse.ProtoReflect.Descriptor instead.
+func (*GetStrikesByUserIDResponse) Descriptor() ([]byte, []int) {
+	return file_proto_core_core_proto_rawDescGZIP(), []int{35}
+}
+
+func (x *GetStrikesByUserIDResponse) GetStrikes() []*Strike {
+	if x != nil {
+		return x.Strikes
+	}
+	return nil
+}
+
+type GetStrikesByTypeRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Type          string                 `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
+	Limit         int32                  `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`
+	Offset        int32                  `protobuf:"varint,3,opt,name=offset,proto3" json:"offset,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetStrikesByTypeRequest) Reset() {
+	*x = GetStrikesByTypeRequest{}
+	mi := &file_proto_core_core_proto_msgTypes[36]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetStrikesByTypeRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetStrikesByTypeRequest) ProtoMessage() {}
+
+func (x *GetStrikesByTypeRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_core_core_proto_msgTypes[36]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetStrikesByTypeRequest.ProtoReflect.Descriptor instead.
+func (*GetStrikesByTypeRequest) Descriptor() ([]byte, []int) {
+	return file_proto_core_core_proto_rawDescGZIP(), []int{36}
+}
+
+func (x *GetStrikesByTypeRequest) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
+}
+
+func (x *GetStrikesByTypeRequest) GetLimit() int32 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+func (x *GetStrikesByTypeRequest) GetOffset() int32 {
+	if x != nil {
+		return x.Offset
+	}
+	return 0
+}
+
+type GetStrikesByTypeResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Strikes       []*Strike              `protobuf:"bytes,1,rep,name=strikes,proto3" json:"strikes,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetStrikesByTypeResponse) Reset() {
+	*x = GetStrikesByTypeResponse{}
+	mi := &file_proto_core_core_proto_msgTypes[37]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetStrikesByTypeResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetStrikesByTypeResponse) ProtoMessage() {}
+
+func (x *GetStrikesByTypeResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_core_core_proto_msgTypes[37]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetStrikesByTypeResponse.ProtoReflect.Descriptor instead.
+func (*GetStrikesByTypeResponse) Descriptor() ([]byte, []int) {
+	return file_proto_core_core_proto_rawDescGZIP(), []int{37}
+}
+
+func (x *GetStrikesByTypeResponse) GetStrikes() []*Strike {
+	if x != nil {
+		return x.Strikes
+	}
+	return nil
+}
+
+type GetStrikesByDateRangeRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	From          *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=from,proto3" json:"from,omitempty"`
+	To            *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=to,proto3" json:"to,omitempty"`
+	Limit         int32                  `protobuf:"varint,3,opt,name=limit,proto3" json:"limit,omitempty"`
+	Offset        int32                  `protobuf:"varint,4,opt,name=offset,proto3" json:"offset,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetStrikesByDateRangeRequest) Reset() {
+	*x = GetStrikesByDateRangeRequest{}
+	mi := &file_proto_core_core_proto_msgTypes[38]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetStrikesByDateRangeRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetStrikesByDateRangeRequest) ProtoMessage() {}
+
+func (x *GetStrikesByDateRangeRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_core_core_proto_msgTypes[38]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetStrikesByDateRangeRequest.ProtoReflect.Descriptor instead.
+func (*GetStrikesByDateRangeRequest) Descriptor() ([]byte, []int) {
+	return file_proto_core_core_proto_rawDescGZIP(), []int{38}
+}
+
+func (x *GetStrikesByDateRangeRequest) GetFrom() *timestamppb.Timestamp {
+	if x != nil {
+		return x.From
+	}
+	return nil
+}
+
+func (x *GetStrikesByDateRangeRequest) GetTo() *timestamppb.Timestamp {
+	if x != nil {
+		return x.To
+	}
+	return nil
+}
+
+func (x *GetStrikesByDateRangeRequest) GetLimit() int32 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+func (x *GetStrikesByDateRangeRequest) GetOffset() int32 {
+	if x != nil {
+		return x.Offset
+	}
+	return 0
+}
+
+type GetStrikesByDateRangeResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Strikes       []*Strike              `protobuf:"bytes,1,rep,name=strikes,proto3" json:"strikes,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetStrikesByDateRangeResponse) Reset() {
+	*x = GetStrikesByDateRangeResponse{}
+	mi := &file_proto_core_core_proto_msgTypes[39]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetStrikesByDateRangeResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetStrikesByDateRangeResponse) ProtoMessage() {}
+
+func (x *GetStrikesByDateRangeResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_core_core_proto_msgTypes[39]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetStrikesByDateRangeResponse.ProtoReflect.Descriptor instead.
+func (*GetStrikesByDateRangeResponse) Descriptor() ([]byte, []int) {
+	return file_proto_core_core_proto_rawDescGZIP(), []int{39}
+}
+
+func (x *GetStrikesByDateRangeResponse) GetStrikes() []*Strike {
+	if x != nil {
+		return x.Strikes
+	}
+	return nil
+}
+
+type UpdateStrikeStatusRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	StrikeId      string                 `protobuf:"bytes,1,opt,name=strike_id,json=strikeId,proto3" json:"strike_id,omitempty"`
+	Status        string                 `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`
+	ModeratorId   string                 `protobuf:"bytes,3,opt,name=moderator_id,json=moderatorId,proto3" json:"moderator_id,omitempty"`
+	Note          string                 `protobuf:"bytes,4,opt,name=note,proto3" json:"note,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateStrikeStatusRequest) Reset() {
+	*x = UpdateStrikeStatusRequest{}
+	mi := &file_proto_core_core_proto_msgTypes[40]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateStrikeStatusRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateStrikeStatusRequest) ProtoMessage() {}
+
+func (x *UpdateStrikeStatusRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_core_core_proto_msgTypes[40]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateStrikeStatusRequest.ProtoReflect.Descriptor instead.
+func (*UpdateStrikeStatusRequest) Descriptor() ([]byte, []int) {
+	return file_proto_core_core_proto_rawDescGZIP(), []int{40}
+}
+
+func (x *UpdateStrikeStatusRequest) GetStrikeId() string {
+	if x != nil {
+		return x.StrikeId
+	}
+	return ""
+}
+
+func (x *UpdateStrikeStatusRequest) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *UpdateStrikeStatusRequest) GetModeratorId() string {
+	if x != nil {
+		return x.ModeratorId
+	}
+	return ""
+}
+
+func (x *UpdateStrikeStatusRequest) GetNote() string {
+	if x != nil {
+		return x.Note
+	}
+	return ""
+}
+
+type UpdateStrikeStatusResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Strike        *Strike                `protobuf:"bytes,1,opt,name=strike,proto3" json:"strike,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateStrikeStatusResponse) Reset() {
+	*x = UpdateStrikeStatusResponse{}
+	mi := &file_proto_core_core_proto_msgTypes[41]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateStrikeStatusResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateStrikeStatusResponse) ProtoMessage() {}
+
+func (x *UpdateStrikeStatusResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_core_core_proto_msgTypes[41]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateStrikeStatusResponse.ProtoReflect.Descriptor instead.
+func (*UpdateStrikeStatusResponse) Descriptor() ([]byte, []int) {
+	return file_proto_core_core_proto_rawDescGZIP(), []int{41}
+}
+
+func (x *UpdateStrikeStatusResponse) GetStrike() *Strike {
+	if x != nil {
+		return x.Strike
+	}
+	return nil
+}
+
+type DeleteStrikeRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	StrikeId      string                 `protobuf:"bytes,1,opt,name=strike_id,json=strikeId,proto3" json:"strike_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteStrikeRequest) Reset() {
+	*x = DeleteStrikeRequest{}
+	mi := &file_proto_core_core_proto_msgTypes[42]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteStrikeRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteStrikeRequest) ProtoMessage() {}
+
+func (x *DeleteStrikeRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_core_core_proto_msgTypes[42]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteStrikeRequest.ProtoReflect.Descriptor instead.
+func (*DeleteStrikeRequest) Descriptor() ([]byte, []int) {
+	return file_proto_core_core_proto_rawDescGZIP(), []int{42}
+}
+
+func (x *DeleteStrikeRequest) GetStrikeId() string {
+	if x != nil {
+		return x.StrikeId
+	}
+	return ""
+}
+
+type DeleteStrikeResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteStrikeResponse) Reset() {
+	*x = DeleteStrikeResponse{}
+	mi := &file_proto_core_core_proto_msgTypes[43]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteStrikeResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteStrikeResponse) ProtoMessage() {}
+
+func (x *DeleteStrikeResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_core_core_proto_msgTypes[43]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteStrikeResponse.ProtoReflect.Descriptor instead.
+func (*DeleteStrikeResponse) Descriptor() ([]byte, []int) {
+	return file_proto_core_core_proto_rawDescGZIP(), []int{43}
+}
+
+type StrikeStats struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	TotalStrikes  int32                  `protobuf:"varint,2,opt,name=total_strikes,json=totalStrikes,proto3" json:"total_strikes,omitempty"`
+	LastStrikeAt  *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=last_strike_at,json=lastStrikeAt,proto3" json:"last_strike_at,omitempty"`
+	StrikeTypes   map[string]int32       `protobuf:"bytes,4,rep,name=strike_types,json=strikeTypes,proto3" json:"strike_types,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StrikeStats) Reset() {
+	*x = StrikeStats{}
+	mi := &file_proto_core_core_proto_msgTypes[44]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StrikeStats) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StrikeStats) ProtoMessage() {}
+
+func (x *StrikeStats) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_core_core_proto_msgTypes[44]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StrikeStats.ProtoReflect.Descriptor instead.
+func (*StrikeStats) Descriptor() ([]byte, []int) {
+	return file_proto_core_core_proto_rawDescGZIP(), []int{44}
+}
+
+func (x *StrikeStats) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *StrikeStats) GetTotalStrikes() int32 {
+	if x != nil {
+		return x.TotalStrikes
+	}
+	return 0
+}
+
+func (x *StrikeStats) GetLastStrikeAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.LastStrikeAt
+	}
+	return nil
+}
+
+func (x *StrikeStats) GetStrikeTypes() map[string]int32 {
+	if x != nil {
+		return x.StrikeTypes
+	}
+	return nil
+}
+
+type GetUserStrikeStatsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetUserStrikeStatsRequest) Reset() {
+	*x = GetUserStrikeStatsRequest{}
+	mi := &file_proto_core_core_proto_msgTypes[45]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetUserStrikeStatsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetUserStrikeStatsRequest) ProtoMessage() {}
+
+func (x *GetUserStrikeStatsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_core_core_proto_msgTypes[45]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetUserStrikeStatsRequest.ProtoReflect.Descriptor instead.
+func (*GetUserStrikeStatsRequest) Descriptor() ([]byte, []int) {
+	return file_proto_core_core_proto_rawDescGZIP(), []int{45}
+}
+
+func (x *GetUserStrikeStatsRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+type GetUserStrikeStatsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Stats         *StrikeStats           `protobuf:"bytes,1,opt,name=stats,proto3" json:"stats,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetUserStrikeStatsResponse) Reset() {
+	*x = GetUserStrikeStatsResponse{}
+	mi := &file_proto_core_core_proto_msgTypes[46]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetUserStrikeStatsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetUserStrikeStatsResponse) ProtoMessage() {}
+
+func (x *GetUserStrikeStatsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_core_core_proto_msgTypes[46]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetUserStrikeStatsResponse.ProtoReflect.Descriptor instead.
+func (*GetUserStrikeStatsResponse) Descriptor() ([]byte, []int) {
+	return file_proto_core_core_proto_rawDescGZIP(), []int{46}
+}
+
+func (x *GetUserStrikeStatsResponse) GetStats() *StrikeStats {
+	if x != nil {
+		return x.Stats
+	}
+	return nil
+}
+
 var File_proto_core_core_proto protoreflect.FileDescriptor
 
 const file_proto_core_core_proto_rawDesc = "" +
@@ -2126,7 +3111,75 @@ const file_proto_core_core_proto_rawDesc = "" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12$\n" +
 	"\x0etarget_user_id\x18\x02 \x01(\tR\ftargetUserId\"+\n" +
 	"\x0fUnmatchResponse\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess2\xac\x06\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\"\xe3\x02\n" +
+	"\x06Strike\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1f\n" +
+	"\vreporter_id\x18\x02 \x01(\tR\n" +
+	"reporterId\x12$\n" +
+	"\x0etarget_user_id\x18\x03 \x01(\tR\ftargetUserId\x12\x12\n" +
+	"\x04type\x18\x04 \x01(\tR\x04type\x12\x16\n" +
+	"\x06reason\x18\x05 \x01(\tR\x06reason\x12\x16\n" +
+	"\x06status\x18\x06 \x01(\tR\x06status\x129\n" +
+	"\n" +
+	"created_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
+	"\n" +
+	"updated_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12!\n" +
+	"\fmoderator_id\x18\t \x01(\tR\vmoderatorId\x12%\n" +
+	"\x0emoderator_note\x18\n" +
+	" \x01(\tR\rmoderatorNote\"\x88\x01\n" +
+	"\x13CreateStrikeRequest\x12\x1f\n" +
+	"\vreporter_id\x18\x01 \x01(\tR\n" +
+	"reporterId\x12$\n" +
+	"\x0etarget_user_id\x18\x02 \x01(\tR\ftargetUserId\x12\x12\n" +
+	"\x04type\x18\x03 \x01(\tR\x04type\x12\x16\n" +
+	"\x06reason\x18\x04 \x01(\tR\x06reason\"<\n" +
+	"\x14CreateStrikeResponse\x12$\n" +
+	"\x06strike\x18\x01 \x01(\v2\f.core.StrikeR\x06strike\"/\n" +
+	"\x10GetStrikeRequest\x12\x1b\n" +
+	"\tstrike_id\x18\x01 \x01(\tR\bstrikeId\"9\n" +
+	"\x11GetStrikeResponse\x12$\n" +
+	"\x06strike\x18\x01 \x01(\v2\f.core.StrikeR\x06strike\"b\n" +
+	"\x19GetStrikesByUserIDRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x14\n" +
+	"\x05limit\x18\x02 \x01(\x05R\x05limit\x12\x16\n" +
+	"\x06offset\x18\x03 \x01(\x05R\x06offset\"D\n" +
+	"\x1aGetStrikesByUserIDResponse\x12&\n" +
+	"\astrikes\x18\x01 \x03(\v2\f.core.StrikeR\astrikes\"[\n" +
+	"\x17GetStrikesByTypeRequest\x12\x12\n" +
+	"\x04type\x18\x01 \x01(\tR\x04type\x12\x14\n" +
+	"\x05limit\x18\x02 \x01(\x05R\x05limit\x12\x16\n" +
+	"\x06offset\x18\x03 \x01(\x05R\x06offset\"B\n" +
+	"\x18GetStrikesByTypeResponse\x12&\n" +
+	"\astrikes\x18\x01 \x03(\v2\f.core.StrikeR\astrikes\"\xa8\x01\n" +
+	"\x1cGetStrikesByDateRangeRequest\x12.\n" +
+	"\x04from\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\x04from\x12*\n" +
+	"\x02to\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x02to\x12\x14\n" +
+	"\x05limit\x18\x03 \x01(\x05R\x05limit\x12\x16\n" +
+	"\x06offset\x18\x04 \x01(\x05R\x06offset\"G\n" +
+	"\x1dGetStrikesByDateRangeResponse\x12&\n" +
+	"\astrikes\x18\x01 \x03(\v2\f.core.StrikeR\astrikes\"\x87\x01\n" +
+	"\x19UpdateStrikeStatusRequest\x12\x1b\n" +
+	"\tstrike_id\x18\x01 \x01(\tR\bstrikeId\x12\x16\n" +
+	"\x06status\x18\x02 \x01(\tR\x06status\x12!\n" +
+	"\fmoderator_id\x18\x03 \x01(\tR\vmoderatorId\x12\x12\n" +
+	"\x04note\x18\x04 \x01(\tR\x04note\"B\n" +
+	"\x1aUpdateStrikeStatusResponse\x12$\n" +
+	"\x06strike\x18\x01 \x01(\v2\f.core.StrikeR\x06strike\"2\n" +
+	"\x13DeleteStrikeRequest\x12\x1b\n" +
+	"\tstrike_id\x18\x01 \x01(\tR\bstrikeId\"\x16\n" +
+	"\x14DeleteStrikeResponse\"\x94\x02\n" +
+	"\vStrikeStats\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12#\n" +
+	"\rtotal_strikes\x18\x02 \x01(\x05R\ftotalStrikes\x12@\n" +
+	"\x0elast_strike_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\flastStrikeAt\x12E\n" +
+	"\fstrike_types\x18\x04 \x03(\v2\".core.StrikeStats.StrikeTypesEntryR\vstrikeTypes\x1a>\n" +
+	"\x10StrikeTypesEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\x05R\x05value:\x028\x01\"4\n" +
+	"\x19GetUserStrikeStatsRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\"E\n" +
+	"\x1aGetUserStrikeStatsResponse\x12'\n" +
+	"\x05stats\x18\x01 \x01(\v2\x11.core.StrikeStatsR\x05stats2\xb8\v\n" +
 	"\vCoreService\x12?\n" +
 	"\n" +
 	"GetProfile\x12\x17.core.GetProfileRequest\x1a\x18.core.GetProfileResponse\x12T\n" +
@@ -2139,7 +3192,15 @@ const file_proto_core_core_proto_rawDesc = "" +
 	"\aGetFeed\x12\x14.core.GetFeedRequest\x1a\x15.core.GetFeedResponse\x12E\n" +
 	"\fProcessSwipe\x12\x19.core.ProcessSwipeRequest\x1a\x1a.core.ProcessSwipeResponse\x12K\n" +
 	"\x0eGetUserMatches\x12\x1b.core.GetUserMatchesRequest\x1a\x1c.core.GetUserMatchesResponse\x126\n" +
-	"\aUnmatch\x12\x14.core.UnmatchRequest\x1a\x15.core.UnmatchResponseBDZBgithub.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/proto/coreb\x06proto3"
+	"\aUnmatch\x12\x14.core.UnmatchRequest\x1a\x15.core.UnmatchResponse\x12E\n" +
+	"\fCreateStrike\x12\x19.core.CreateStrikeRequest\x1a\x1a.core.CreateStrikeResponse\x12<\n" +
+	"\tGetStrike\x12\x16.core.GetStrikeRequest\x1a\x17.core.GetStrikeResponse\x12W\n" +
+	"\x12GetStrikesByUserID\x12\x1f.core.GetStrikesByUserIDRequest\x1a .core.GetStrikesByUserIDResponse\x12Q\n" +
+	"\x10GetStrikesByType\x12\x1d.core.GetStrikesByTypeRequest\x1a\x1e.core.GetStrikesByTypeResponse\x12`\n" +
+	"\x15GetStrikesByDateRange\x12\".core.GetStrikesByDateRangeRequest\x1a#.core.GetStrikesByDateRangeResponse\x12W\n" +
+	"\x12UpdateStrikeStatus\x12\x1f.core.UpdateStrikeStatusRequest\x1a .core.UpdateStrikeStatusResponse\x12E\n" +
+	"\fDeleteStrike\x12\x19.core.DeleteStrikeRequest\x1a\x1a.core.DeleteStrikeResponse\x12W\n" +
+	"\x12GetUserStrikeStats\x12\x1f.core.GetUserStrikeStatsRequest\x1a .core.GetUserStrikeStatsResponseBDZBgithub.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/proto/coreb\x06proto3"
 
 var (
 	file_proto_core_core_proto_rawDescOnce sync.Once
@@ -2153,85 +3214,132 @@ func file_proto_core_core_proto_rawDescGZIP() []byte {
 	return file_proto_core_core_proto_rawDescData
 }
 
-var file_proto_core_core_proto_msgTypes = make([]protoimpl.MessageInfo, 29)
+var file_proto_core_core_proto_msgTypes = make([]protoimpl.MessageInfo, 48)
 var file_proto_core_core_proto_goTypes = []any{
-	(*User)(nil),                      // 0: core.User
-	(*UserPhoto)(nil),                 // 1: core.UserPhoto
-	(*UserPreference)(nil),            // 2: core.UserPreference
-	(*Interest)(nil),                  // 3: core.Interest
-	(*Match)(nil),                     // 4: core.Match
-	(*GetProfileRequest)(nil),         // 5: core.GetProfileRequest
-	(*GetProfileResponse)(nil),        // 6: core.GetProfileResponse
-	(*UpdateProfileInfoRequest)(nil),  // 7: core.UpdateProfileInfoRequest
-	(*UpdateProfileInfoResponse)(nil), // 8: core.UpdateProfileInfoResponse
-	(*UpdatePreferencesRequest)(nil),  // 9: core.UpdatePreferencesRequest
-	(*UpdatePreferencesResponse)(nil), // 10: core.UpdatePreferencesResponse
-	(*UpdateInterestsRequest)(nil),    // 11: core.UpdateInterestsRequest
-	(*UpdateInterestsResponse)(nil),   // 12: core.UpdateInterestsResponse
-	(*DeletePhotoRequest)(nil),        // 13: core.DeletePhotoRequest
-	(*DeletePhotoResponse)(nil),       // 14: core.DeletePhotoResponse
-	(*SetPrimaryPhotoRequest)(nil),    // 15: core.SetPrimaryPhotoRequest
-	(*SetPrimaryPhotoResponse)(nil),   // 16: core.SetPrimaryPhotoResponse
-	(*ReorderPhotosRequest)(nil),      // 17: core.ReorderPhotosRequest
-	(*ReorderPhotosResponse)(nil),     // 18: core.ReorderPhotosResponse
-	(*FeedUser)(nil),                  // 19: core.FeedUser
-	(*GetFeedRequest)(nil),            // 20: core.GetFeedRequest
-	(*GetFeedResponse)(nil),           // 21: core.GetFeedResponse
-	(*ProcessSwipeRequest)(nil),       // 22: core.ProcessSwipeRequest
-	(*ProcessSwipeResponse)(nil),      // 23: core.ProcessSwipeResponse
-	(*MatchResponse)(nil),             // 24: core.MatchResponse
-	(*GetUserMatchesRequest)(nil),     // 25: core.GetUserMatchesRequest
-	(*GetUserMatchesResponse)(nil),    // 26: core.GetUserMatchesResponse
-	(*UnmatchRequest)(nil),            // 27: core.UnmatchRequest
-	(*UnmatchResponse)(nil),           // 28: core.UnmatchResponse
-	(*timestamppb.Timestamp)(nil),     // 29: google.protobuf.Timestamp
+	(*User)(nil),                          // 0: core.User
+	(*UserPhoto)(nil),                     // 1: core.UserPhoto
+	(*UserPreference)(nil),                // 2: core.UserPreference
+	(*Interest)(nil),                      // 3: core.Interest
+	(*Match)(nil),                         // 4: core.Match
+	(*GetProfileRequest)(nil),             // 5: core.GetProfileRequest
+	(*GetProfileResponse)(nil),            // 6: core.GetProfileResponse
+	(*UpdateProfileInfoRequest)(nil),      // 7: core.UpdateProfileInfoRequest
+	(*UpdateProfileInfoResponse)(nil),     // 8: core.UpdateProfileInfoResponse
+	(*UpdatePreferencesRequest)(nil),      // 9: core.UpdatePreferencesRequest
+	(*UpdatePreferencesResponse)(nil),     // 10: core.UpdatePreferencesResponse
+	(*UpdateInterestsRequest)(nil),        // 11: core.UpdateInterestsRequest
+	(*UpdateInterestsResponse)(nil),       // 12: core.UpdateInterestsResponse
+	(*DeletePhotoRequest)(nil),            // 13: core.DeletePhotoRequest
+	(*DeletePhotoResponse)(nil),           // 14: core.DeletePhotoResponse
+	(*SetPrimaryPhotoRequest)(nil),        // 15: core.SetPrimaryPhotoRequest
+	(*SetPrimaryPhotoResponse)(nil),       // 16: core.SetPrimaryPhotoResponse
+	(*ReorderPhotosRequest)(nil),          // 17: core.ReorderPhotosRequest
+	(*ReorderPhotosResponse)(nil),         // 18: core.ReorderPhotosResponse
+	(*FeedUser)(nil),                      // 19: core.FeedUser
+	(*GetFeedRequest)(nil),                // 20: core.GetFeedRequest
+	(*GetFeedResponse)(nil),               // 21: core.GetFeedResponse
+	(*ProcessSwipeRequest)(nil),           // 22: core.ProcessSwipeRequest
+	(*ProcessSwipeResponse)(nil),          // 23: core.ProcessSwipeResponse
+	(*MatchResponse)(nil),                 // 24: core.MatchResponse
+	(*GetUserMatchesRequest)(nil),         // 25: core.GetUserMatchesRequest
+	(*GetUserMatchesResponse)(nil),        // 26: core.GetUserMatchesResponse
+	(*UnmatchRequest)(nil),                // 27: core.UnmatchRequest
+	(*UnmatchResponse)(nil),               // 28: core.UnmatchResponse
+	(*Strike)(nil),                        // 29: core.Strike
+	(*CreateStrikeRequest)(nil),           // 30: core.CreateStrikeRequest
+	(*CreateStrikeResponse)(nil),          // 31: core.CreateStrikeResponse
+	(*GetStrikeRequest)(nil),              // 32: core.GetStrikeRequest
+	(*GetStrikeResponse)(nil),             // 33: core.GetStrikeResponse
+	(*GetStrikesByUserIDRequest)(nil),     // 34: core.GetStrikesByUserIDRequest
+	(*GetStrikesByUserIDResponse)(nil),    // 35: core.GetStrikesByUserIDResponse
+	(*GetStrikesByTypeRequest)(nil),       // 36: core.GetStrikesByTypeRequest
+	(*GetStrikesByTypeResponse)(nil),      // 37: core.GetStrikesByTypeResponse
+	(*GetStrikesByDateRangeRequest)(nil),  // 38: core.GetStrikesByDateRangeRequest
+	(*GetStrikesByDateRangeResponse)(nil), // 39: core.GetStrikesByDateRangeResponse
+	(*UpdateStrikeStatusRequest)(nil),     // 40: core.UpdateStrikeStatusRequest
+	(*UpdateStrikeStatusResponse)(nil),    // 41: core.UpdateStrikeStatusResponse
+	(*DeleteStrikeRequest)(nil),           // 42: core.DeleteStrikeRequest
+	(*DeleteStrikeResponse)(nil),          // 43: core.DeleteStrikeResponse
+	(*StrikeStats)(nil),                   // 44: core.StrikeStats
+	(*GetUserStrikeStatsRequest)(nil),     // 45: core.GetUserStrikeStatsRequest
+	(*GetUserStrikeStatsResponse)(nil),    // 46: core.GetUserStrikeStatsResponse
+	nil,                                   // 47: core.StrikeStats.StrikeTypesEntry
+	(*timestamppb.Timestamp)(nil),         // 48: google.protobuf.Timestamp
 }
 var file_proto_core_core_proto_depIdxs = []int32{
-	29, // 0: core.User.birth_date:type_name -> google.protobuf.Timestamp
-	29, // 1: core.User.last_active:type_name -> google.protobuf.Timestamp
-	29, // 2: core.User.created_at:type_name -> google.protobuf.Timestamp
-	29, // 3: core.User.updated_at:type_name -> google.protobuf.Timestamp
-	29, // 4: core.UserPhoto.created_at:type_name -> google.protobuf.Timestamp
-	29, // 5: core.UserPreference.created_at:type_name -> google.protobuf.Timestamp
-	29, // 6: core.UserPreference.updated_at:type_name -> google.protobuf.Timestamp
-	29, // 7: core.Match.matched_at:type_name -> google.protobuf.Timestamp
+	48, // 0: core.User.birth_date:type_name -> google.protobuf.Timestamp
+	48, // 1: core.User.last_active:type_name -> google.protobuf.Timestamp
+	48, // 2: core.User.created_at:type_name -> google.protobuf.Timestamp
+	48, // 3: core.User.updated_at:type_name -> google.protobuf.Timestamp
+	48, // 4: core.UserPhoto.created_at:type_name -> google.protobuf.Timestamp
+	48, // 5: core.UserPreference.created_at:type_name -> google.protobuf.Timestamp
+	48, // 6: core.UserPreference.updated_at:type_name -> google.protobuf.Timestamp
+	48, // 7: core.Match.matched_at:type_name -> google.protobuf.Timestamp
 	0,  // 8: core.GetProfileResponse.user:type_name -> core.User
 	2,  // 9: core.GetProfileResponse.preferences:type_name -> core.UserPreference
 	1,  // 10: core.GetProfileResponse.photos:type_name -> core.UserPhoto
-	3,  // 11: core.GetProfileResponse.interests:type_name -> core.Interest
-	29, // 12: core.UpdateProfileInfoRequest.birth_date:type_name -> google.protobuf.Timestamp
-	3,  // 13: core.FeedUser.interests:type_name -> core.Interest
-	19, // 14: core.GetFeedResponse.users:type_name -> core.FeedUser
-	4,  // 15: core.MatchResponse.match:type_name -> core.Match
-	0,  // 16: core.MatchResponse.user:type_name -> core.User
-	24, // 17: core.GetUserMatchesResponse.matches:type_name -> core.MatchResponse
-	5,  // 18: core.CoreService.GetProfile:input_type -> core.GetProfileRequest
-	7,  // 19: core.CoreService.UpdateProfileInfo:input_type -> core.UpdateProfileInfoRequest
-	9,  // 20: core.CoreService.UpdatePreferences:input_type -> core.UpdatePreferencesRequest
-	11, // 21: core.CoreService.UpdateInterests:input_type -> core.UpdateInterestsRequest
-	13, // 22: core.CoreService.DeletePhoto:input_type -> core.DeletePhotoRequest
-	15, // 23: core.CoreService.SetPrimaryPhoto:input_type -> core.SetPrimaryPhotoRequest
-	17, // 24: core.CoreService.ReorderPhotos:input_type -> core.ReorderPhotosRequest
-	20, // 25: core.CoreService.GetFeed:input_type -> core.GetFeedRequest
-	22, // 26: core.CoreService.ProcessSwipe:input_type -> core.ProcessSwipeRequest
-	25, // 27: core.CoreService.GetUserMatches:input_type -> core.GetUserMatchesRequest
-	27, // 28: core.CoreService.Unmatch:input_type -> core.UnmatchRequest
-	6,  // 29: core.CoreService.GetProfile:output_type -> core.GetProfileResponse
-	8,  // 30: core.CoreService.UpdateProfileInfo:output_type -> core.UpdateProfileInfoResponse
-	10, // 31: core.CoreService.UpdatePreferences:output_type -> core.UpdatePreferencesResponse
-	12, // 32: core.CoreService.UpdateInterests:output_type -> core.UpdateInterestsResponse
-	14, // 33: core.CoreService.DeletePhoto:output_type -> core.DeletePhotoResponse
-	16, // 34: core.CoreService.SetPrimaryPhoto:output_type -> core.SetPrimaryPhotoResponse
-	18, // 35: core.CoreService.ReorderPhotos:output_type -> core.ReorderPhotosResponse
-	21, // 36: core.CoreService.GetFeed:output_type -> core.GetFeedResponse
-	23, // 37: core.CoreService.ProcessSwipe:output_type -> core.ProcessSwipeResponse
-	26, // 38: core.CoreService.GetUserMatches:output_type -> core.GetUserMatchesResponse
-	28, // 39: core.CoreService.Unmatch:output_type -> core.UnmatchResponse
-	29, // [29:40] is the sub-list for method output_type
-	18, // [18:29] is the sub-list for method input_type
-	18, // [18:18] is the sub-list for extension type_name
-	18, // [18:18] is the sub-list for extension extendee
-	0,  // [0:18] is the sub-list for field type_name
+	48, // 11: core.UpdateProfileInfoRequest.birth_date:type_name -> google.protobuf.Timestamp
+	3,  // 12: core.FeedUser.interests:type_name -> core.Interest
+	19, // 13: core.GetFeedResponse.users:type_name -> core.FeedUser
+	4,  // 14: core.MatchResponse.match:type_name -> core.Match
+	0,  // 15: core.MatchResponse.user:type_name -> core.User
+	24, // 16: core.GetUserMatchesResponse.matches:type_name -> core.MatchResponse
+	48, // 17: core.Strike.created_at:type_name -> google.protobuf.Timestamp
+	48, // 18: core.Strike.updated_at:type_name -> google.protobuf.Timestamp
+	29, // 19: core.CreateStrikeResponse.strike:type_name -> core.Strike
+	29, // 20: core.GetStrikeResponse.strike:type_name -> core.Strike
+	29, // 21: core.GetStrikesByUserIDResponse.strikes:type_name -> core.Strike
+	29, // 22: core.GetStrikesByTypeResponse.strikes:type_name -> core.Strike
+	48, // 23: core.GetStrikesByDateRangeRequest.from:type_name -> google.protobuf.Timestamp
+	48, // 24: core.GetStrikesByDateRangeRequest.to:type_name -> google.protobuf.Timestamp
+	29, // 25: core.GetStrikesByDateRangeResponse.strikes:type_name -> core.Strike
+	29, // 26: core.UpdateStrikeStatusResponse.strike:type_name -> core.Strike
+	48, // 27: core.StrikeStats.last_strike_at:type_name -> google.protobuf.Timestamp
+	47, // 28: core.StrikeStats.strike_types:type_name -> core.StrikeStats.StrikeTypesEntry
+	44, // 29: core.GetUserStrikeStatsResponse.stats:type_name -> core.StrikeStats
+	5,  // 30: core.CoreService.GetProfile:input_type -> core.GetProfileRequest
+	7,  // 31: core.CoreService.UpdateProfileInfo:input_type -> core.UpdateProfileInfoRequest
+	9,  // 32: core.CoreService.UpdatePreferences:input_type -> core.UpdatePreferencesRequest
+	11, // 33: core.CoreService.UpdateInterests:input_type -> core.UpdateInterestsRequest
+	13, // 34: core.CoreService.DeletePhoto:input_type -> core.DeletePhotoRequest
+	15, // 35: core.CoreService.SetPrimaryPhoto:input_type -> core.SetPrimaryPhotoRequest
+	17, // 36: core.CoreService.ReorderPhotos:input_type -> core.ReorderPhotosRequest
+	20, // 37: core.CoreService.GetFeed:input_type -> core.GetFeedRequest
+	22, // 38: core.CoreService.ProcessSwipe:input_type -> core.ProcessSwipeRequest
+	25, // 39: core.CoreService.GetUserMatches:input_type -> core.GetUserMatchesRequest
+	27, // 40: core.CoreService.Unmatch:input_type -> core.UnmatchRequest
+	30, // 41: core.CoreService.CreateStrike:input_type -> core.CreateStrikeRequest
+	32, // 42: core.CoreService.GetStrike:input_type -> core.GetStrikeRequest
+	34, // 43: core.CoreService.GetStrikesByUserID:input_type -> core.GetStrikesByUserIDRequest
+	36, // 44: core.CoreService.GetStrikesByType:input_type -> core.GetStrikesByTypeRequest
+	38, // 45: core.CoreService.GetStrikesByDateRange:input_type -> core.GetStrikesByDateRangeRequest
+	40, // 46: core.CoreService.UpdateStrikeStatus:input_type -> core.UpdateStrikeStatusRequest
+	42, // 47: core.CoreService.DeleteStrike:input_type -> core.DeleteStrikeRequest
+	45, // 48: core.CoreService.GetUserStrikeStats:input_type -> core.GetUserStrikeStatsRequest
+	6,  // 49: core.CoreService.GetProfile:output_type -> core.GetProfileResponse
+	8,  // 50: core.CoreService.UpdateProfileInfo:output_type -> core.UpdateProfileInfoResponse
+	10, // 51: core.CoreService.UpdatePreferences:output_type -> core.UpdatePreferencesResponse
+	12, // 52: core.CoreService.UpdateInterests:output_type -> core.UpdateInterestsResponse
+	14, // 53: core.CoreService.DeletePhoto:output_type -> core.DeletePhotoResponse
+	16, // 54: core.CoreService.SetPrimaryPhoto:output_type -> core.SetPrimaryPhotoResponse
+	18, // 55: core.CoreService.ReorderPhotos:output_type -> core.ReorderPhotosResponse
+	21, // 56: core.CoreService.GetFeed:output_type -> core.GetFeedResponse
+	23, // 57: core.CoreService.ProcessSwipe:output_type -> core.ProcessSwipeResponse
+	26, // 58: core.CoreService.GetUserMatches:output_type -> core.GetUserMatchesResponse
+	28, // 59: core.CoreService.Unmatch:output_type -> core.UnmatchResponse
+	31, // 60: core.CoreService.CreateStrike:output_type -> core.CreateStrikeResponse
+	33, // 61: core.CoreService.GetStrike:output_type -> core.GetStrikeResponse
+	35, // 62: core.CoreService.GetStrikesByUserID:output_type -> core.GetStrikesByUserIDResponse
+	37, // 63: core.CoreService.GetStrikesByType:output_type -> core.GetStrikesByTypeResponse
+	39, // 64: core.CoreService.GetStrikesByDateRange:output_type -> core.GetStrikesByDateRangeResponse
+	41, // 65: core.CoreService.UpdateStrikeStatus:output_type -> core.UpdateStrikeStatusResponse
+	43, // 66: core.CoreService.DeleteStrike:output_type -> core.DeleteStrikeResponse
+	46, // 67: core.CoreService.GetUserStrikeStats:output_type -> core.GetUserStrikeStatsResponse
+	49, // [49:68] is the sub-list for method output_type
+	30, // [30:49] is the sub-list for method input_type
+	30, // [30:30] is the sub-list for extension type_name
+	30, // [30:30] is the sub-list for extension extendee
+	0,  // [0:30] is the sub-list for field type_name
 }
 
 func init() { file_proto_core_core_proto_init() }
@@ -2250,7 +3358,7 @@ func file_proto_core_core_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_core_core_proto_rawDesc), len(file_proto_core_core_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   29,
+			NumMessages:   48,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

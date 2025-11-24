@@ -24,7 +24,7 @@ func (a *App) initServer() {
 
 func (a *App) setupUtilRoutes() {
 	// Swagger should be accessible without auth
-	a.server.AddHandler("/swagger/", http.HandlerFunc(handler.SwaggerHandler))
+	a.server.AddHandler("/swagger/", http.HandlerFunc(handler.RegisterSwagger(a.config.SwaggerPath)))
 
 	// Health check
 	a.server.GET("/api/health", handler.HealthHandler)
@@ -40,12 +40,15 @@ func (a *App) setupPublicRoutes() {
 	a.server.GET("/ws/chat", a.handlers.WebSocket.HandleConnection)
 }
 
+// Protected routes (require auth)
 func (a *App) setupProtectedRoutes() {
 	// Auth middleware for protected routes
 	a.server.AddMiddleware(middleware.AuthMiddleware(a.services.Auth))
 
-	// Protected routes (require auth)
+	// Auth endpoints
 	a.server.POST("/api/logout", a.handlers.Auth.Logout)
+
+	// Profile endpoints
 	a.server.GET("/api/profile", a.handlers.Profile.GetProfile)
 	a.server.PUT("/api/profile/info", a.handlers.Profile.UpdateProfileInfo)
 	a.server.PUT("/api/profile/preference", a.handlers.Profile.UpdatePreferences)
@@ -53,8 +56,14 @@ func (a *App) setupProtectedRoutes() {
 	a.server.PUT("/api/profile/photo/{id}", a.handlers.Profile.SetPrimaryPhoto)
 	a.server.DELETE("/api/profile/photo/{id}", a.handlers.Profile.DeletePhoto)
 	a.server.POST("/api/profile/photo", a.handlers.Profile.UploadPhotos)
+
+	// Feed endpoints
 	a.server.GET("/api/feed", a.handlers.Feed.GetFeed)
+
+	// Swipe endpoints
 	a.server.POST("/api/swipe", a.handlers.Swipe.ProcessSwipe)
+
+	// Match endpoints
 	a.server.GET("/api/match", a.handlers.Match.GetUserMatches)
 	a.server.DELETE("/api/match", a.handlers.Match.Unmatch)
 
@@ -64,6 +73,15 @@ func (a *App) setupProtectedRoutes() {
 	a.server.GET("/api/chats/{match_id}", a.handlers.Chat.GetMessages)
 	a.server.POST("/api/chats/{match_id}/messages", a.handlers.Chat.SendMessage)
 	a.server.POST("/api/chats/{match_id}/read", a.handlers.Chat.MarkAsRead)
+	// Strike endpoints
+	a.server.POST("/api/strike", a.handlers.Strike.CreateStrike)
+	a.server.GET("/api/strike/{id}", a.handlers.Strike.GetStrike)
+	a.server.PUT("/api/strike/{id}/status", a.handlers.Strike.UpdateStrikeStatus)
+	a.server.DELETE("/api/strike/{id}", a.handlers.Strike.DeleteStrike)
+	a.server.GET("/api/strike/user/{user_id}", a.handlers.Strike.GetStrikesByUserID)
+	a.server.GET("/api/strike/type/{type}", a.handlers.Strike.GetStrikesByType)
+	a.server.GET("/api/strike/range", a.handlers.Strike.GetStrikesByDateRange)
+	a.server.GET("/api/strike/user/{user_id}/stat", a.handlers.Strike.GetUserStrikeStats)
 }
 
 func (a *App) runServer() {

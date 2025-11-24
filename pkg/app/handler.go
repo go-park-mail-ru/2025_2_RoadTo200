@@ -15,5 +15,6 @@ func (a *App) initHandlers() {
 		Match:     handler.NewMatchHandler(a.services.Match, a.logger),
 		Chat:      handler.NewChatHandler(a.services.Chat, a.logger),
 		WebSocket: websocket.NewWebSocketHandler(a.services.Chat, a.services.Auth, a.resources.RedisPubSub, a.logger),
+		Strike:  handler.NewStrikeHandler(a.services.Strike, a.logger),
 	}
 }

@@ -35,5 +35,6 @@ func (a *App) initServices() {
 		Swipe:   adapters.NewSwipeServiceAdapter(coreClient),
 		Match:   adapters.NewMatchServiceAdapter(coreClient),
 		Chat:    adapters.NewChatServiceAdapter(chatClient, a.logger),
+		Strike:  adapters.NewStrikeServiceAdapter(coreClient),
 	}
 }
