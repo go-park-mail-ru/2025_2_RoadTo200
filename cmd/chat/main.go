@@ -50,10 +50,11 @@ func main() {
 	defer redisClient.Close()
 	loggerInst.Info("✅ Redis Pub/Sub connected")
 
-	tracer, err := web.NewGrpcServerInterceptor()
+	tracer, closer, err := web.NewGrpcServerInterceptor()
 	if err != nil {
 		loggerInst.Fatal(fmt.Errorf("failed to initialize tracer: %w", err))
 	}
+	defer closer.Close()
 
 	// Initialize repositories
 	messageRepo := repository.NewMessageRepository(pgPool, loggerInst)

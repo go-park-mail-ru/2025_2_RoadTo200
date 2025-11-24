@@ -1,16 +1,18 @@
 package web
 
 import (
+	"io"
+
 	traceutils "github.com/opentracing-contrib/go-grpc"
 	"github.com/opentracing/opentracing-go"
 	"github.com/uber/jaeger-client-go"
 	jaegercfg "github.com/uber/jaeger-client-go/config"
 	jaegerlog "github.com/uber/jaeger-client-go/log"
-	"github.com/uber/jaeger-lib/metrics"
+	"github.com/uber/jaeger-lib/metrics/prometheus"
 	"google.golang.org/grpc"
 )
 
-func NewGrpcServerInterceptor() (grpc.UnaryServerInterceptor, error) {
+func NewGrpcServerInterceptor() (grpc.UnaryServerInterceptor, io.Closer, error) {
 	jaegerCfgInstance := jaegercfg.Configuration{
 		ServiceName: "session",
 		Sampler: &jaegercfg.SamplerConfig{
@@ -25,20 +27,19 @@ func NewGrpcServerInterceptor() (grpc.UnaryServerInterceptor, error) {
 
 	tracer, closer, err := jaegerCfgInstance.NewTracer(
 		jaegercfg.Logger(jaegerlog.StdLogger),
-		jaegercfg.Metrics(metrics.NullFactory),
+		jaegercfg.Metrics(prometheus.New()),
 	)
 
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	opentracing.SetGlobalTracer(tracer)
-	defer closer.Close()
 
-	return traceutils.OpenTracingServerInterceptor(tracer), nil
+	return traceutils.OpenTracingServerInterceptor(tracer), closer, nil
 }
 
-func NewGrpcClientInterceptor() (grpc.UnaryClientInterceptor, error) {
+func NewGrpcClientInterceptor() (grpc.UnaryClientInterceptor, io.Closer, error) {
 	jaegerCfgInstance := jaegercfg.Configuration{
 		ServiceName: "client",
 		Sampler: &jaegercfg.SamplerConfig{
@@ -53,15 +54,14 @@ func NewGrpcClientInterceptor() (grpc.UnaryClientInterceptor, error) {
 
 	tracer, closer, err := jaegerCfgInstance.NewTracer(
 		jaegercfg.Logger(jaegerlog.StdLogger),
-		jaegercfg.Metrics(metrics.NullFactory),
+		jaegercfg.Metrics(prometheus.New()),
 	)
 
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	opentracing.SetGlobalTracer(tracer)
-	defer closer.Close()
 
-	return traceutils.OpenTracingClientInterceptor(tracer), nil
+	return traceutils.OpenTracingClientInterceptor(tracer), closer, nil
 }
