@@ -14,6 +14,7 @@ type appConfig struct {
 }
 
 type Config struct {
+	Name        string            `yaml:"name"`
 	Host        string            `yaml:"host"`
 	Port        int               `yaml:"port"`
 	Prefix      string            `yaml:"prefix"`
@@ -112,6 +113,7 @@ func LoadConfig(path string) (*Config, error) {
 	}
 
 	var config appConfig
+	config.App.Name = "App"
 	config.App.Mode = "dev"
 	config.App.SwaggerPath = "./api/docs/swagger.json"
 	config.App.Cors = CORSConfig{

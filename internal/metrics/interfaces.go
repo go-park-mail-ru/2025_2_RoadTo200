@@ -72,14 +72,6 @@ type BusinessMetrics interface {
 	SetDatabasePoolMetrics(service string, poolType string, count int)
 }
 
-type LoggerMetrics interface {
-	// SetErrorMetricsустанавливает метрики пула соединений БД
-	// service - имя сервиса
-	// operation - тип пула (open, idle, active, waiting)
-	// errorType - количество соединений
-	SetErrorMetrics(model, method, errorType string)
-}
-
 // Дополнительные бизнес-метрики которые могут понадобиться
 // SetBusinessMetric устанавливает произвольную бизнес-метрику
 type NamedMetrics interface {

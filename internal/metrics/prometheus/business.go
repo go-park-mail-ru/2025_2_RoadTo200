@@ -13,7 +13,6 @@ type PrometheusBisinessMetrics struct {
 
 	activeSessions prometheus.Gauge
 	databasePool   *prometheus.GaugeVec
-	errorCount     *prometheus.CounterVec
 }
 
 func NewPrometheusBisinessMetrics(serviceName string) *PrometheusBisinessMetrics {
@@ -33,13 +32,6 @@ func NewPrometheusBisinessMetrics(serviceName string) *PrometheusBisinessMetrics
 			},
 			[]string{"service", "type"},
 		),
-		errorCount: promauto.NewCounterVec(
-			prometheus.CounterOpts{
-				Name: "errors_total",
-				Help: "Total number of errors",
-			},
-			[]string{"service", "operation", "type"},
-		),
 	}
 }
 
@@ -49,8 +41,4 @@ func (p *PrometheusBisinessMetrics) SetActiveSessions(count int) {
 
 func (p *PrometheusBisinessMetrics) SetDatabasePoolMetrics(service string, poolType string, count int) {
 	p.databasePool.WithLabelValues(p.serviceName, poolType).Set(float64(count))
-}
-
-func (p *PrometheusBisinessMetrics) SetErrorMetrics(model, method, errorType string) {
-	p.errorCount.WithLabelValues(p.serviceName, model, method, errorType).Inc()
 }

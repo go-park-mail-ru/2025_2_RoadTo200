@@ -3,9 +3,9 @@ package app
 import (
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/config"
 	handler "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/http"
-	websocket "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/websocket"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/websocket"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/metrics/web"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/metrics"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
 	service "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/httpserver"
@@ -26,7 +26,8 @@ type App struct {
 }
 
 type Metrics struct {
-	HttpMetrics web.HttpMetricCollector
+	HttpMetrics metrics.HttpMetrics
+	GrpcMetrics metrics.GrpcMetrics
 }
 
 type Resources struct {
@@ -91,6 +92,7 @@ func Run() {
 		return
 	}
 
+	app.RegisterMetrics()
 	app.initRepository()
 	app.logger.Info("✅ Repositories initialized")
 	err := app.initServices()
