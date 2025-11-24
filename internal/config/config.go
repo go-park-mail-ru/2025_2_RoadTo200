@@ -156,6 +156,10 @@ func LoadConfig(path string) (*Config, error) {
 
 	// Substitute environment variables
 	if config.App.Mode == "dev" {
+		err := godotenv.Load(".env")
+		if err != nil {
+			return nil, err
+		}
 		// Expand environment variables in config using os.Getenv
 		if val := os.Getenv("PG_HOST"); val != "" {
 			config.App.Postgres.Host = val

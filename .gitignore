@@ -10,3 +10,5 @@ docs/
 .github/
 MIGRATIONS_WALKTHROUGH.md
 .env
+/api/*/*.go
+/api/*/*.yaml

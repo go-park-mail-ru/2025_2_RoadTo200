@@ -61,8 +61,8 @@ services:
       - "${AD_PORT}:8080"
 
   node-exporter:
-    image: prom/node-exporter:latest
-    container_name: node-exporter
+    image: prom/node-exporter:v1.10.2
+    container_name: node_exporter_vk
     command:
       - '--path.rootfs=/host'
       - '--path.procfs=/host/proc'
@@ -80,11 +80,12 @@ services:
   # Prometheus
   prometheus:
     image: prom/prometheus:v3.7.3
+    container_name: prometheus_vk
     ports:
       - "${PT_PORT}:9090"
     volumes:
       - ./infra/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus_data:/prometheus
+      - prometheus_vk_data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
@@ -100,6 +101,7 @@ services:
   # Grafana
   grafana:
     image: grafana/grafana:12.3
+    container_name: grafana_vk
     ports:
       - "${GF_PORT}:3000"
     environment:
@@ -107,19 +109,9 @@ services:
       - GF_USERS_ALLOW_SIGN_UP=false
     volumes:
       - ./infra/grafana:/etc/grafana/provisioning
-      - grafana_data:/var/lib/grafana
+      - grafana_vk_data:/var/lib/grafana
     depends_on:
       - prometheus
-    networks:
-      - monitoring
-
-  # Jaeger (опционально, для трассировки)
-  jaeger:
-    image: jaegertracing/all-in-one:1.75.0
-    ports:
-      - "${JG_PORT}:16686"  # UI
-      - "14268:14268"  # прием spans
-      - "6831:6831/udp" # Jaeger agent
     networks:
       - monitoring
 
