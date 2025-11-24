@@ -108,8 +108,10 @@ func coreProtoToInterests(pbInterests []*pb.Interest) []domain.Interest {
 func coreProtoToMatch(pbMatch *pb.Match) domain.Match {
 	user1ID, _ := uuid.Parse(pbMatch.User1Id)
 	user2ID, _ := uuid.Parse(pbMatch.User2Id)
+	matchID, _ := uuid.Parse(pbMatch.Id)
 
 	return domain.Match{
+		ID:        matchID,
 		User1ID:   user1ID,
 		User2ID:   user2ID,
 		IsActive:  pbMatch.IsActive,

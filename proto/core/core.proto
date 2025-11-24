@@ -84,10 +84,11 @@ message Interest {
 }
 
 message Match {
-  string user1_id = 1;
-  string user2_id = 2;
-  bool is_active = 3;
-  google.protobuf.Timestamp matched_at = 4;
+  string id = 1;
+  string user1_id = 2;
+  string user2_id = 3;
+  bool is_active = 4;
+  google.protobuf.Timestamp matched_at = 5;
 }
 
 // ============= Profile Messages =============

@@ -26,6 +26,7 @@ const (
 	CoreService_DeletePhoto_FullMethodName           = "/core.CoreService/DeletePhoto"
 	CoreService_SetPrimaryPhoto_FullMethodName       = "/core.CoreService/SetPrimaryPhoto"
 	CoreService_ReorderPhotos_FullMethodName         = "/core.CoreService/ReorderPhotos"
+	CoreService_UploadPhoto_FullMethodName           = "/core.CoreService/UploadPhoto"
 	CoreService_GetFeed_FullMethodName               = "/core.CoreService/GetFeed"
 	CoreService_ProcessSwipe_FullMethodName          = "/core.CoreService/ProcessSwipe"
 	CoreService_GetUserMatches_FullMethodName        = "/core.CoreService/GetUserMatches"
@@ -54,6 +55,7 @@ type CoreServiceClient interface {
 	DeletePhoto(ctx context.Context, in *DeletePhotoRequest, opts ...grpc.CallOption) (*DeletePhotoResponse, error)
 	SetPrimaryPhoto(ctx context.Context, in *SetPrimaryPhotoRequest, opts ...grpc.CallOption) (*SetPrimaryPhotoResponse, error)
 	ReorderPhotos(ctx context.Context, in *ReorderPhotosRequest, opts ...grpc.CallOption) (*ReorderPhotosResponse, error)
+	UploadPhoto(ctx context.Context, in *UploadPhotoRequest, opts ...grpc.CallOption) (*UploadPhotoResponse, error)
 	// Feed operations
 	GetFeed(ctx context.Context, in *GetFeedRequest, opts ...grpc.CallOption) (*GetFeedResponse, error)
 	// Swipe operations
@@ -144,6 +146,16 @@ func (c *coreServiceClient) ReorderPhotos(ctx context.Context, in *ReorderPhotos
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ReorderPhotosResponse)
 	err := c.cc.Invoke(ctx, CoreService_ReorderPhotos_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *coreServiceClient) UploadPhoto(ctx context.Context, in *UploadPhotoRequest, opts ...grpc.CallOption) (*UploadPhotoResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UploadPhotoResponse)
+	err := c.cc.Invoke(ctx, CoreService_UploadPhoto_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -284,6 +296,7 @@ type CoreServiceServer interface {
 	DeletePhoto(context.Context, *DeletePhotoRequest) (*DeletePhotoResponse, error)
 	SetPrimaryPhoto(context.Context, *SetPrimaryPhotoRequest) (*SetPrimaryPhotoResponse, error)
 	ReorderPhotos(context.Context, *ReorderPhotosRequest) (*ReorderPhotosResponse, error)
+	UploadPhoto(context.Context, *UploadPhotoRequest) (*UploadPhotoResponse, error)
 	// Feed operations
 	GetFeed(context.Context, *GetFeedRequest) (*GetFeedResponse, error)
 	// Swipe operations
@@ -330,6 +343,9 @@ func (UnimplementedCoreServiceServer) SetPrimaryPhoto(context.Context, *SetPrima
 }
 func (UnimplementedCoreServiceServer) ReorderPhotos(context.Context, *ReorderPhotosRequest) (*ReorderPhotosResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ReorderPhotos not implemented")
+}
+func (UnimplementedCoreServiceServer) UploadPhoto(context.Context, *UploadPhotoRequest) (*UploadPhotoResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UploadPhoto not implemented")
 }
 func (UnimplementedCoreServiceServer) GetFeed(context.Context, *GetFeedRequest) (*GetFeedResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetFeed not implemented")
@@ -510,6 +526,24 @@ func _CoreService_ReorderPhotos_Handler(srv interface{}, ctx context.Context, de
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CoreServiceServer).ReorderPhotos(ctx, req.(*ReorderPhotosRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CoreService_UploadPhoto_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UploadPhotoRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoreServiceServer).UploadPhoto(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CoreService_UploadPhoto_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoreServiceServer).UploadPhoto(ctx, req.(*UploadPhotoRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -764,6 +798,10 @@ var CoreService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ReorderPhotos",
 			Handler:    _CoreService_ReorderPhotos_Handler,
+		},
+		{
+			MethodName: "UploadPhoto",
+			Handler:    _CoreService_UploadPhoto_Handler,
 		},
 		{
 			MethodName: "GetFeed",
