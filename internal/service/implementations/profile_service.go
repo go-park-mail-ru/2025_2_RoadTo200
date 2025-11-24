@@ -199,6 +199,7 @@ func (s *ProfileService) UploadPhotos(ctx context.Context, userID uuid.UUID, pho
 	if err != nil {
 		return nil, err
 	}
+	s.logger.Debugf("Existing photos: %v", existingPhotos)
 
 	if len(existingPhotos)+len(photos) > constants.MaxPhotosPerUser {
 		return nil, errors.ErrPhotoLimitExceeded
@@ -245,6 +246,7 @@ func (s *ProfileService) UploadPhotos(ctx context.Context, userID uuid.UUID, pho
 			IsApproved:   true, // Авто-аппрув для демо
 			CreatedAt:    time.Now(),
 		}
+		s.logger.Debugf("Uploaded photo for user: %v", userPhoto)
 
 		if err := s.userPhotoRepo.Create(ctx, &userPhoto); err != nil {
 			// Пытаемся удалить загруженный файл при ошибке
@@ -255,6 +257,7 @@ func (s *ProfileService) UploadPhotos(ctx context.Context, userID uuid.UUID, pho
 		uploadedPhotos = append(uploadedPhotos, userPhoto)
 		nextOrder++
 	}
+	s.logger.Debugf("Uploaded photos result: %v", uploadedPhotos)
 
 	return uploadedPhotos, nil
 }

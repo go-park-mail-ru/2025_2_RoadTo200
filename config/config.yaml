@@ -3,7 +3,7 @@ app:
   port: 8080
   prefix: /api/v1
   mode: release
-  swagger_path: ./api/server/swagger.json
+  swagger_path: ./data/docs/server.json
 
   cors:
     allowed_origins:
@@ -12,7 +12,7 @@ app:
       - http://217.16.17.116:8001
 
   logger:
-    level: DEBUG
+    level: TRACE
 
   postgres:
     host: PG_HOST
