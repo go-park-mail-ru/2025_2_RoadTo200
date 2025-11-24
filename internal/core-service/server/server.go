@@ -65,6 +65,7 @@ func (s *CoreServer) GetProfile(ctx context.Context, req *pb.GetProfileRequest) 
 		User:        converters.UserToProto(profileResp.User),
 		Preferences: converters.PreferenceToProto(profileResp.Preferences),
 		Photos:      converters.PhotosToProto(profileResp.Photos),
+		Interests:   converters.InterestsToProto(profileResp.Interests),
 	}, nil
 }
 

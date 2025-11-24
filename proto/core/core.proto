@@ -99,6 +99,7 @@ message GetProfileResponse {
   User user = 1;
   UserPreference preferences = 2;
   repeated UserPhoto photos = 3;
+  repeated Interest interests = 4;
 }
 
 message UpdateProfileInfoRequest {
@@ -110,6 +111,7 @@ message UpdateProfileInfoRequest {
   optional string bio = 6;
   optional string artist = 7;
   optional string quote = 8;
+  optional string city = 11;
   optional double latitude = 9;
   optional double longitude = 10;
 }

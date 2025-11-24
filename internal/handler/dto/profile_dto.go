@@ -37,4 +37,5 @@ type ProfileResponse struct {
 	User        interface{} `json:"user"`
 	Preferences interface{} `json:"preferences,omitempty"`
 	Photos      interface{} `json:"photos,omitempty"`
+	Interests   interface{} `json:"interests,omitempty"`
 }

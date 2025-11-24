@@ -7,12 +7,13 @@
 package core
 
 import (
-	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
+
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 )
 
 const (
@@ -523,6 +524,7 @@ type GetProfileResponse struct {
 	User          *User                  `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
 	Preferences   *UserPreference        `protobuf:"bytes,2,opt,name=preferences,proto3" json:"preferences,omitempty"`
 	Photos        []*UserPhoto           `protobuf:"bytes,3,rep,name=photos,proto3" json:"photos,omitempty"`
+	Interests     []*Interest            `protobuf:"bytes,4,rep,name=interests,proto3" json:"interests,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -578,6 +580,13 @@ func (x *GetProfileResponse) GetPhotos() []*UserPhoto {
 	return nil
 }
 
+func (x *GetProfileResponse) GetInterests() []*Interest {
+	if x != nil {
+		return x.Interests
+	}
+	return nil
+}
+
 type UpdateProfileInfoRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
@@ -588,6 +597,7 @@ type UpdateProfileInfoRequest struct {
 	Bio           *string                `protobuf:"bytes,6,opt,name=bio,proto3,oneof" json:"bio,omitempty"`
 	Artist        *string                `protobuf:"bytes,7,opt,name=artist,proto3,oneof" json:"artist,omitempty"`
 	Quote         *string                `protobuf:"bytes,8,opt,name=quote,proto3,oneof" json:"quote,omitempty"`
+	City          *string                `protobuf:"bytes,11,opt,name=city,proto3,oneof" json:"city,omitempty"`
 	Latitude      *float64               `protobuf:"fixed64,9,opt,name=latitude,proto3,oneof" json:"latitude,omitempty"`
 	Longitude     *float64               `protobuf:"fixed64,10,opt,name=longitude,proto3,oneof" json:"longitude,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -676,6 +686,13 @@ func (x *UpdateProfileInfoRequest) GetArtist() string {
 func (x *UpdateProfileInfoRequest) GetQuote() string {
 	if x != nil && x.Quote != nil {
 		return *x.Quote
+	}
+	return ""
+}
+
+func (x *UpdateProfileInfoRequest) GetCity() string {
+	if x != nil && x.City != nil {
+		return *x.City
 	}
 	return ""
 }
@@ -2968,12 +2985,13 @@ const file_proto_core_core_proto_rawDesc = "" +
 	"\n" +
 	"matched_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tmatchedAt\",\n" +
 	"\x11GetProfileRequest\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\"\x95\x01\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\"\xc3\x01\n" +
 	"\x12GetProfileResponse\x12\x1e\n" +
 	"\x04user\x18\x01 \x01(\v2\n" +
 	".core.UserR\x04user\x126\n" +
 	"\vpreferences\x18\x02 \x01(\v2\x14.core.UserPreferenceR\vpreferences\x12'\n" +
-	"\x06photos\x18\x03 \x03(\v2\x0f.core.UserPhotoR\x06photos\"\xbc\x03\n" +
+	"\x06photos\x18\x03 \x03(\v2\x0f.core.UserPhotoR\x06photos\x12,\n" +
+	"\tinterests\x18\x04 \x03(\v2\x0e.core.InterestR\tinterests\"\xde\x03\n" +
 	"\x18UpdateProfileInfoRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x17\n" +
 	"\x04name\x18\x02 \x01(\tH\x00R\x04name\x88\x01\x01\x12\x19\n" +
@@ -2983,17 +3001,19 @@ const file_proto_core_core_proto_rawDesc = "" +
 	"\x06gender\x18\x05 \x01(\tH\x03R\x06gender\x88\x01\x01\x12\x15\n" +
 	"\x03bio\x18\x06 \x01(\tH\x04R\x03bio\x88\x01\x01\x12\x1b\n" +
 	"\x06artist\x18\a \x01(\tH\x05R\x06artist\x88\x01\x01\x12\x19\n" +
-	"\x05quote\x18\b \x01(\tH\x06R\x05quote\x88\x01\x01\x12\x1f\n" +
-	"\blatitude\x18\t \x01(\x01H\aR\blatitude\x88\x01\x01\x12!\n" +
+	"\x05quote\x18\b \x01(\tH\x06R\x05quote\x88\x01\x01\x12\x17\n" +
+	"\x04city\x18\v \x01(\tH\aR\x04city\x88\x01\x01\x12\x1f\n" +
+	"\blatitude\x18\t \x01(\x01H\bR\blatitude\x88\x01\x01\x12!\n" +
 	"\tlongitude\x18\n" +
-	" \x01(\x01H\bR\tlongitude\x88\x01\x01B\a\n" +
+	" \x01(\x01H\tR\tlongitude\x88\x01\x01B\a\n" +
 	"\x05_nameB\b\n" +
 	"\x06_phoneB\r\n" +
 	"\v_birth_dateB\t\n" +
 	"\a_genderB\x06\n" +
 	"\x04_bioB\t\n" +
 	"\a_artistB\b\n" +
-	"\x06_quoteB\v\n" +
+	"\x06_quoteB\a\n" +
+	"\x05_cityB\v\n" +
 	"\t_latitudeB\f\n" +
 	"\n" +
 	"_longitude\"5\n" +

@@ -151,10 +151,10 @@ func (s *ChatService) MarkAsRead(ctx context.Context, userID, matchID uuid.UUID)
 }
 
 // GetConversations returns all conversations for user
-func (s *ChatService) GetConversations(ctx context.Context, userID uuid.UUID) ([]domain.Conversation, error) {
+func (s *ChatService) GetConversations(ctx context.Context, userID uuid.UUID, searchQuery string) ([]domain.Conversation, error) {
 	s.logger.Trace("ChatService.GetConversations")
 
-	conversations, err := s.messageRepo.GetConversations(ctx, userID)
+	conversations, err := s.messageRepo.GetConversations(ctx, userID, searchQuery)
 	if err != nil {
 		s.logger.Errorf("Failed to get conversations: %v", err)
 		return nil, errors.ErrInternalError

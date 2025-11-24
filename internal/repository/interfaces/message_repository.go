@@ -21,5 +21,5 @@ type MessageRepository interface {
 	GetUnreadCount(ctx context.Context, userID uuid.UUID) (int, error)
 
 	// Get all conversations (matches with last message)
-	GetConversations(ctx context.Context, userID uuid.UUID) ([]domain.Conversation, error)
+	GetConversations(ctx context.Context, userID uuid.UUID, searchQuery string) ([]domain.Conversation, error)
 }

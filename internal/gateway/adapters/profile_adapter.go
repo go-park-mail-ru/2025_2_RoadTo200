@@ -35,6 +35,7 @@ func (a *ProfileServiceAdapter) GetProfile(ctx context.Context, userID uuid.UUID
 		User:        coreProtoToUser(resp.User),
 		Preferences: coreProtoToUserPreference(resp.Preferences),
 		Photos:      coreProtoToUserPhotos(resp.Photos),
+		Interests:   coreProtoToInterests(resp.Interests),
 	}, nil
 }
 
@@ -64,6 +65,9 @@ func (a *ProfileServiceAdapter) UpdateProfileInfo(ctx context.Context, userID uu
 	}
 	if updateData.Quote != nil {
 		req.Quote = updateData.Quote
+	}
+	if updateData.City != nil {
+		req.City = updateData.City
 	}
 	if updateData.Latitude != nil {
 		req.Latitude = updateData.Latitude

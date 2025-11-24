@@ -64,6 +64,7 @@ func (h *ProfileHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
 		User:        profile.User,
 		Preferences: profile.Preferences,
 		Photos:      profile.Photos,
+		Interests:   profile.Interests,
 	}
 
 	utils.WriteJSON(w, http.StatusOK, response)

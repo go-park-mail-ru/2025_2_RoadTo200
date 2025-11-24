@@ -100,7 +100,7 @@ func (r *MessageRepository) GetUnreadCount(ctx context.Context, userID uuid.UUID
 }
 
 // GetConversations returns all conversations (matches with last message) for user
-func (r *MessageRepository) GetConversations(ctx context.Context, userID uuid.UUID) ([]domain.Conversation, error) {
+func (r *MessageRepository) GetConversations(ctx context.Context, userID uuid.UUID, searchQuery string) ([]domain.Conversation, error) {
 	query := `
 		SELECT 
 			m.id as match_id,
@@ -134,9 +134,19 @@ func (r *MessageRepository) GetConversations(ctx context.Context, userID uuid.UU
 			LIMIT 1
 		) msg ON true
 		WHERE (m.user1_id = $1 OR m.user2_id = $1) AND m.is_active = true
-		ORDER BY msg.created_at DESC NULLS LAST`
+	`
 
-	rows, err := r.pool.Query(ctx, query, userID)
+	args := []interface{}{userID}
+	if searchQuery != "" {
+		query += " AND u.name ILIKE $2"
+		args = append(args, "%"+searchQuery+"%")
+	}
+
+	query += `
+		ORDER BY msg.created_at DESC NULLS LAST
+	`
+
+	rows, err := r.pool.Query(ctx, query, args...)
 	if err != nil {
 		return nil, err
 	}
