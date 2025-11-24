@@ -73,9 +73,10 @@ func (a *ChatServiceAdapter) MarkAsRead(ctx context.Context, userID, matchID uui
 	return err
 }
 
-func (a *ChatServiceAdapter) GetConversations(ctx context.Context, userID uuid.UUID) ([]domain.Conversation, error) {
+func (a *ChatServiceAdapter) GetConversations(ctx context.Context, userID uuid.UUID, searchQuery string) ([]domain.Conversation, error) {
 	req := &pb.GetConversationsRequest{
-		UserId: userID.String(),
+		UserId:      userID.String(),
+		SearchQuery: searchQuery,
 	}
 
 	resp, err := a.client.GetConversations(ctx, req)

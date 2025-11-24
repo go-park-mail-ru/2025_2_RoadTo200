@@ -19,7 +19,7 @@ type ChatService interface {
 	MarkAsRead(ctx context.Context, userID, matchID uuid.UUID) error
 
 	// GetConversations returns list of all chats with last message
-	GetConversations(ctx context.Context, userID uuid.UUID) ([]domain.Conversation, error)
+	GetConversations(ctx context.Context, userID uuid.UUID, searchQuery string) ([]domain.Conversation, error)
 
 	// GetUnreadCount returns total unread message count for user
 	GetUnreadCount(ctx context.Context, userID uuid.UUID) (int, error)

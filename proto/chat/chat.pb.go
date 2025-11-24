@@ -377,6 +377,7 @@ func (x *MarkAsReadRequest) GetMatchId() string {
 type GetConversationsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	SearchQuery   string                 `protobuf:"bytes,2,opt,name=search_query,json=searchQuery,proto3" json:"search_query,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -414,6 +415,13 @@ func (*GetConversationsRequest) Descriptor() ([]byte, []int) {
 func (x *GetConversationsRequest) GetUserId() string {
 	if x != nil {
 		return x.UserId
+	}
+	return ""
+}
+
+func (x *GetConversationsRequest) GetSearchQuery() string {
+	if x != nil {
+		return x.SearchQuery
 	}
 	return ""
 }
@@ -671,9 +679,10 @@ const file_proto_chat_chat_proto_rawDesc = "" +
 	"\bmessages\x18\x01 \x03(\v2\x15.chat.MessageResponseR\bmessages\"G\n" +
 	"\x11MarkAsReadRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x19\n" +
-	"\bmatch_id\x18\x02 \x01(\tR\amatchId\"2\n" +
+	"\bmatch_id\x18\x02 \x01(\tR\amatchId\"U\n" +
 	"\x17GetConversationsRequest\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\"\xad\x02\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12!\n" +
+	"\fsearch_query\x18\x02 \x01(\tR\vsearchQuery\"\xad\x02\n" +
 	"\fConversation\x12\x19\n" +
 	"\bmatch_id\x18\x01 \x01(\tR\amatchId\x12\"\n" +
 	"\rother_user_id\x18\x02 \x01(\tR\votherUserId\x12&\n" +

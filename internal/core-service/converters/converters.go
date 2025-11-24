@@ -184,6 +184,9 @@ func ProtoToProfileUpdateRequest(req *pb.UpdateProfileInfoRequest) *domain.Profi
 	if req.Quote != nil {
 		updateData.Quote = req.Quote
 	}
+	if req.City != nil {
+		updateData.City = req.City
+	}
 	if req.Latitude != nil {
 		updateData.Latitude = req.Latitude
 	}

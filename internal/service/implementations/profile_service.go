@@ -65,6 +65,12 @@ func (s *ProfileService) GetProfile(ctx context.Context, userID uuid.UUID) (*dom
 		return nil, err
 	}
 
+	// Получаем интересы
+	interests, err := s.preferenceRepo.GetInterests(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
 	// Обновляем время последней активности
 	go s.userRepo.UpdateLastActive(ctx, userID)
 
@@ -72,6 +78,7 @@ func (s *ProfileService) GetProfile(ctx context.Context, userID uuid.UUID) (*dom
 		User:        user,
 		Preferences: preferences,
 		Photos:      photos,
+		Interests:   interests,
 	}, nil
 }
 
@@ -97,6 +104,24 @@ func (s *ProfileService) UpdateProfileInfo(ctx context.Context, userID uuid.UUID
 	}
 	if updateData.Gender != "" {
 		user.Gender = updateData.Gender
+	}
+	if updateData.Phone != nil {
+		user.Phone = updateData.Phone
+	}
+	if updateData.BirthDate != nil {
+		user.BirthDate = *updateData.BirthDate
+	}
+	if updateData.Bio != nil {
+		user.Bio = updateData.Bio
+	}
+	if updateData.City != nil {
+		user.City = updateData.City
+	}
+	if updateData.Artist != nil {
+		user.Artist = updateData.Artist
+	}
+	if updateData.Quote != nil {
+		user.Quote = updateData.Quote
 	}
 
 	user.UpdatedAt = time.Now()

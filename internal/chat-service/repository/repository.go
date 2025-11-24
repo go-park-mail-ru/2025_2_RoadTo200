@@ -115,7 +115,7 @@ func (r *MessageRepository) GetUnreadCount(ctx context.Context, userID uuid.UUID
 	return count, nil
 }
 
-func (r *MessageRepository) GetConversations(ctx context.Context, userID uuid.UUID) ([]domain.Conversation, error) {
+func (r *MessageRepository) GetConversations(ctx context.Context, userID uuid.UUID, searchQuery string) ([]domain.Conversation, error) {
 	query := `
 		WITH LastMessages AS (
 			SELECT DISTINCT ON (match_id)
@@ -139,7 +139,7 @@ func (r *MessageRepository) GetConversations(ctx context.Context, userID uuid.UU
 				WHEN m.user1_id = $1 THEN m.user2_id
 				ELSE m.user1_id
 			END as other_user_id,
-			u.email as other_user_name, -- Using email as name for now, or join profile
+			u.name as other_user_name,
 			COALESCE(lm.content, '') as last_message,
 			COALESCE(lm.created_at, '0001-01-01'::timestamp) as last_message_time,
 			COALESCE(uc.unread_count, 0) as unread_count
@@ -148,10 +148,19 @@ func (r *MessageRepository) GetConversations(ctx context.Context, userID uuid.UU
 		LEFT JOIN LastMessages lm ON lm.match_id = m.id
 		LEFT JOIN UnreadCounts uc ON uc.match_id = m.id
 		WHERE m.user1_id = $1 OR m.user2_id = $1
+	`
+
+	args := []interface{}{userID}
+	if searchQuery != "" {
+		query += " AND u.name ILIKE $2"
+		args = append(args, "%"+searchQuery+"%")
+	}
+
+	query += `
 		ORDER BY last_message_time DESC
 	`
 
-	rows, err := r.pool.Query(ctx, query, userID)
+	rows, err := r.pool.Query(ctx, query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get conversations: %w", err)
 	}

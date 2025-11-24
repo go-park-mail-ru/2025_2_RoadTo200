@@ -90,7 +90,7 @@ func (s *ChatServer) GetConversations(ctx context.Context, req *pb.GetConversati
 		return nil, status.Error(codes.InvalidArgument, "invalid user_id")
 	}
 
-	conversations, err := s.service.GetConversations(ctx, userID)
+	conversations, err := s.service.GetConversations(ctx, userID, req.SearchQuery)
 	if err != nil {
 		s.logger.Errorf("Failed to get conversations: %v", err)
 		return nil, status.Error(codes.Internal, "failed to get conversations")

@@ -11,6 +11,7 @@ type ProfileResponse struct {
 	User        *User           `json:"user"`
 	Preferences *UserPreference `json:"preferences,omitempty"`
 	Photos      []UserPhoto     `json:"photos,omitempty"`
+	Interests   []Interest      `json:"interests,omitempty"`
 }
 
 // ProfileUpdateRequest запрос на обновление профиля
@@ -20,6 +21,7 @@ type ProfileUpdateRequest struct {
 	BirthDate *time.Time       `json:"birth_date,omitempty"`
 	Gender    constants.Gender `json:"gender,omitempty"`
 	Bio       *string          `json:"bio,omitempty"`
+	City      *string          `json:"city,omitempty"`
 	Artist    *string          `json:"artist,omitempty"`
 	Quote     *string          `json:"quote,omitempty"`
 	Latitude  *float64         `json:"latitude,omitempty"`

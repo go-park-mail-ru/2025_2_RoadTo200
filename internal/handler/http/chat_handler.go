@@ -46,8 +46,11 @@ func (h *ChatHandler) GetConversations(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Get search query
+	searchQuery := r.URL.Query().Get("search")
+
 	// Get conversations
-	conversations, err := h.chatService.GetConversations(r.Context(), userID)
+	conversations, err := h.chatService.GetConversations(r.Context(), userID, searchQuery)
 	if err != nil {
 		h.logger.Errorf("Failed to get conversations: %v", err)
 		http.Error(w, "internal error", http.StatusInternalServerError)

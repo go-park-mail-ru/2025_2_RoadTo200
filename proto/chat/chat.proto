@@ -50,6 +50,7 @@ message MarkAsReadRequest {
 
 message GetConversationsRequest {
   string user_id = 1;
+  string search_query = 2;
 }
 
 message Conversation {

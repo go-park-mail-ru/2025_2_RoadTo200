@@ -523,6 +523,7 @@ type GetProfileResponse struct {
 	User          *User                  `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
 	Preferences   *UserPreference        `protobuf:"bytes,2,opt,name=preferences,proto3" json:"preferences,omitempty"`
 	Photos        []*UserPhoto           `protobuf:"bytes,3,rep,name=photos,proto3" json:"photos,omitempty"`
+	Interests     []*Interest            `protobuf:"bytes,4,rep,name=interests,proto3" json:"interests,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -578,6 +579,13 @@ func (x *GetProfileResponse) GetPhotos() []*UserPhoto {
 	return nil
 }
 
+func (x *GetProfileResponse) GetInterests() []*Interest {
+	if x != nil {
+		return x.Interests
+	}
+	return nil
+}
+
 type UpdateProfileInfoRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
@@ -588,6 +596,7 @@ type UpdateProfileInfoRequest struct {
 	Bio           *string                `protobuf:"bytes,6,opt,name=bio,proto3,oneof" json:"bio,omitempty"`
 	Artist        *string                `protobuf:"bytes,7,opt,name=artist,proto3,oneof" json:"artist,omitempty"`
 	Quote         *string                `protobuf:"bytes,8,opt,name=quote,proto3,oneof" json:"quote,omitempty"`
+	City          *string                `protobuf:"bytes,11,opt,name=city,proto3,oneof" json:"city,omitempty"`
 	Latitude      *float64               `protobuf:"fixed64,9,opt,name=latitude,proto3,oneof" json:"latitude,omitempty"`
 	Longitude     *float64               `protobuf:"fixed64,10,opt,name=longitude,proto3,oneof" json:"longitude,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -676,6 +685,13 @@ func (x *UpdateProfileInfoRequest) GetArtist() string {
 func (x *UpdateProfileInfoRequest) GetQuote() string {
 	if x != nil && x.Quote != nil {
 		return *x.Quote
+	}
+	return ""
+}
+
+func (x *UpdateProfileInfoRequest) GetCity() string {
+	if x != nil && x.City != nil {
+		return *x.City
 	}
 	return ""
 }
@@ -1984,12 +2000,13 @@ const file_proto_core_core_proto_rawDesc = "" +
 	"\n" +
 	"matched_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tmatchedAt\",\n" +
 	"\x11GetProfileRequest\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\"\x95\x01\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\"\xc3\x01\n" +
 	"\x12GetProfileResponse\x12\x1e\n" +
 	"\x04user\x18\x01 \x01(\v2\n" +
 	".core.UserR\x04user\x126\n" +
 	"\vpreferences\x18\x02 \x01(\v2\x14.core.UserPreferenceR\vpreferences\x12'\n" +
-	"\x06photos\x18\x03 \x03(\v2\x0f.core.UserPhotoR\x06photos\"\xbc\x03\n" +
+	"\x06photos\x18\x03 \x03(\v2\x0f.core.UserPhotoR\x06photos\x12,\n" +
+	"\tinterests\x18\x04 \x03(\v2\x0e.core.InterestR\tinterests\"\xde\x03\n" +
 	"\x18UpdateProfileInfoRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x17\n" +
 	"\x04name\x18\x02 \x01(\tH\x00R\x04name\x88\x01\x01\x12\x19\n" +
@@ -1999,17 +2016,19 @@ const file_proto_core_core_proto_rawDesc = "" +
 	"\x06gender\x18\x05 \x01(\tH\x03R\x06gender\x88\x01\x01\x12\x15\n" +
 	"\x03bio\x18\x06 \x01(\tH\x04R\x03bio\x88\x01\x01\x12\x1b\n" +
 	"\x06artist\x18\a \x01(\tH\x05R\x06artist\x88\x01\x01\x12\x19\n" +
-	"\x05quote\x18\b \x01(\tH\x06R\x05quote\x88\x01\x01\x12\x1f\n" +
-	"\blatitude\x18\t \x01(\x01H\aR\blatitude\x88\x01\x01\x12!\n" +
+	"\x05quote\x18\b \x01(\tH\x06R\x05quote\x88\x01\x01\x12\x17\n" +
+	"\x04city\x18\v \x01(\tH\aR\x04city\x88\x01\x01\x12\x1f\n" +
+	"\blatitude\x18\t \x01(\x01H\bR\blatitude\x88\x01\x01\x12!\n" +
 	"\tlongitude\x18\n" +
-	" \x01(\x01H\bR\tlongitude\x88\x01\x01B\a\n" +
+	" \x01(\x01H\tR\tlongitude\x88\x01\x01B\a\n" +
 	"\x05_nameB\b\n" +
 	"\x06_phoneB\r\n" +
 	"\v_birth_dateB\t\n" +
 	"\a_genderB\x06\n" +
 	"\x04_bioB\t\n" +
 	"\a_artistB\b\n" +
-	"\x06_quoteB\v\n" +
+	"\x06_quoteB\a\n" +
+	"\x05_cityB\v\n" +
 	"\t_latitudeB\f\n" +
 	"\n" +
 	"_longitude\"5\n" +
@@ -2179,39 +2198,40 @@ var file_proto_core_core_proto_depIdxs = []int32{
 	0,  // 8: core.GetProfileResponse.user:type_name -> core.User
 	2,  // 9: core.GetProfileResponse.preferences:type_name -> core.UserPreference
 	1,  // 10: core.GetProfileResponse.photos:type_name -> core.UserPhoto
-	29, // 11: core.UpdateProfileInfoRequest.birth_date:type_name -> google.protobuf.Timestamp
-	3,  // 12: core.FeedUser.interests:type_name -> core.Interest
-	19, // 13: core.GetFeedResponse.users:type_name -> core.FeedUser
-	4,  // 14: core.MatchResponse.match:type_name -> core.Match
-	0,  // 15: core.MatchResponse.user:type_name -> core.User
-	24, // 16: core.GetUserMatchesResponse.matches:type_name -> core.MatchResponse
-	5,  // 17: core.CoreService.GetProfile:input_type -> core.GetProfileRequest
-	7,  // 18: core.CoreService.UpdateProfileInfo:input_type -> core.UpdateProfileInfoRequest
-	9,  // 19: core.CoreService.UpdatePreferences:input_type -> core.UpdatePreferencesRequest
-	11, // 20: core.CoreService.UpdateInterests:input_type -> core.UpdateInterestsRequest
-	13, // 21: core.CoreService.DeletePhoto:input_type -> core.DeletePhotoRequest
-	15, // 22: core.CoreService.SetPrimaryPhoto:input_type -> core.SetPrimaryPhotoRequest
-	17, // 23: core.CoreService.ReorderPhotos:input_type -> core.ReorderPhotosRequest
-	20, // 24: core.CoreService.GetFeed:input_type -> core.GetFeedRequest
-	22, // 25: core.CoreService.ProcessSwipe:input_type -> core.ProcessSwipeRequest
-	25, // 26: core.CoreService.GetUserMatches:input_type -> core.GetUserMatchesRequest
-	27, // 27: core.CoreService.Unmatch:input_type -> core.UnmatchRequest
-	6,  // 28: core.CoreService.GetProfile:output_type -> core.GetProfileResponse
-	8,  // 29: core.CoreService.UpdateProfileInfo:output_type -> core.UpdateProfileInfoResponse
-	10, // 30: core.CoreService.UpdatePreferences:output_type -> core.UpdatePreferencesResponse
-	12, // 31: core.CoreService.UpdateInterests:output_type -> core.UpdateInterestsResponse
-	14, // 32: core.CoreService.DeletePhoto:output_type -> core.DeletePhotoResponse
-	16, // 33: core.CoreService.SetPrimaryPhoto:output_type -> core.SetPrimaryPhotoResponse
-	18, // 34: core.CoreService.ReorderPhotos:output_type -> core.ReorderPhotosResponse
-	21, // 35: core.CoreService.GetFeed:output_type -> core.GetFeedResponse
-	23, // 36: core.CoreService.ProcessSwipe:output_type -> core.ProcessSwipeResponse
-	26, // 37: core.CoreService.GetUserMatches:output_type -> core.GetUserMatchesResponse
-	28, // 38: core.CoreService.Unmatch:output_type -> core.UnmatchResponse
-	28, // [28:39] is the sub-list for method output_type
-	17, // [17:28] is the sub-list for method input_type
-	17, // [17:17] is the sub-list for extension type_name
-	17, // [17:17] is the sub-list for extension extendee
-	0,  // [0:17] is the sub-list for field type_name
+	3,  // 11: core.GetProfileResponse.interests:type_name -> core.Interest
+	29, // 12: core.UpdateProfileInfoRequest.birth_date:type_name -> google.protobuf.Timestamp
+	3,  // 13: core.FeedUser.interests:type_name -> core.Interest
+	19, // 14: core.GetFeedResponse.users:type_name -> core.FeedUser
+	4,  // 15: core.MatchResponse.match:type_name -> core.Match
+	0,  // 16: core.MatchResponse.user:type_name -> core.User
+	24, // 17: core.GetUserMatchesResponse.matches:type_name -> core.MatchResponse
+	5,  // 18: core.CoreService.GetProfile:input_type -> core.GetProfileRequest
+	7,  // 19: core.CoreService.UpdateProfileInfo:input_type -> core.UpdateProfileInfoRequest
+	9,  // 20: core.CoreService.UpdatePreferences:input_type -> core.UpdatePreferencesRequest
+	11, // 21: core.CoreService.UpdateInterests:input_type -> core.UpdateInterestsRequest
+	13, // 22: core.CoreService.DeletePhoto:input_type -> core.DeletePhotoRequest
+	15, // 23: core.CoreService.SetPrimaryPhoto:input_type -> core.SetPrimaryPhotoRequest
+	17, // 24: core.CoreService.ReorderPhotos:input_type -> core.ReorderPhotosRequest
+	20, // 25: core.CoreService.GetFeed:input_type -> core.GetFeedRequest
+	22, // 26: core.CoreService.ProcessSwipe:input_type -> core.ProcessSwipeRequest
+	25, // 27: core.CoreService.GetUserMatches:input_type -> core.GetUserMatchesRequest
+	27, // 28: core.CoreService.Unmatch:input_type -> core.UnmatchRequest
+	6,  // 29: core.CoreService.GetProfile:output_type -> core.GetProfileResponse
+	8,  // 30: core.CoreService.UpdateProfileInfo:output_type -> core.UpdateProfileInfoResponse
+	10, // 31: core.CoreService.UpdatePreferences:output_type -> core.UpdatePreferencesResponse
+	12, // 32: core.CoreService.UpdateInterests:output_type -> core.UpdateInterestsResponse
+	14, // 33: core.CoreService.DeletePhoto:output_type -> core.DeletePhotoResponse
+	16, // 34: core.CoreService.SetPrimaryPhoto:output_type -> core.SetPrimaryPhotoResponse
+	18, // 35: core.CoreService.ReorderPhotos:output_type -> core.ReorderPhotosResponse
+	21, // 36: core.CoreService.GetFeed:output_type -> core.GetFeedResponse
+	23, // 37: core.CoreService.ProcessSwipe:output_type -> core.ProcessSwipeResponse
+	26, // 38: core.CoreService.GetUserMatches:output_type -> core.GetUserMatchesResponse
+	28, // 39: core.CoreService.Unmatch:output_type -> core.UnmatchResponse
+	29, // [29:40] is the sub-list for method output_type
+	18, // [18:29] is the sub-list for method input_type
+	18, // [18:18] is the sub-list for extension type_name
+	18, // [18:18] is the sub-list for extension extendee
+	0,  // [0:18] is the sub-list for field type_name
 }
 
 func init() { file_proto_core_core_proto_init() }
