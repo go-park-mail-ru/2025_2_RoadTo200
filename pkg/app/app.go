@@ -11,6 +11,7 @@ import (
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/httpserver"
 	"github.com/gomodule/redigo/redis"
 	"github.com/minio/minio-go/v7"
+	"github.com/prometheus/client_golang/prometheus"
 	goredis "github.com/redis/go-redis/v9"
 )
 
@@ -27,7 +28,7 @@ type App struct {
 
 type Metrics struct {
 	HttpMetrics metrics.HttpMetrics
-	GrpcMetrics metrics.GrpcMetrics
+	GrpcMetrics *prometheus.Registry
 }
 
 type Resources struct {

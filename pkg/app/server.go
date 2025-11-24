@@ -26,7 +26,7 @@ func (a *App) initServer() {
 
 func (a *App) setupMetrics() {
 	mv := web.NewHttpMetricCollector(a.metrics.HttpMetrics).Middleware()
-	a.server.AddHandler("/metrics", promhttp.Handler())
+	a.server.AddHandler("/metrics", promhttp.HandlerFor(a.metrics.GrpcMetrics, promhttp.HandlerOpts{}))
 	a.server.SetMetricMiddleware(mv)
 }
 
