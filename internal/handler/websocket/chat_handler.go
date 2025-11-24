@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"go/token"
 	"net/http"
 	"time"
 
@@ -60,12 +61,13 @@ func (h *WebSocketHandler) HandleConnection(w http.ResponseWriter, r *http.Reque
 	h.logger.Trace("WebSocketHandler.HandleConnection")
 
 	// 1. Authenticate user
-	token := r.URL.Query().Get("session_token")
-	if token == "" {
+	cookie, err := r.Cookie("session_token")
+	if err != nil || cookie.Value == "" {
 		h.logger.Warn("No session token provided")
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
+	token := cookie.Value
 
 	user, err := h.authService.ValidateSession(r.Context(), token)
 	if err != nil {
