@@ -2,6 +2,7 @@ package adapters
 
 import (
 	"context"
+	"io"
 	"mime/multipart"
 
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
@@ -121,9 +122,51 @@ func (a *ProfileServiceAdapter) UpdateInterests(ctx context.Context, userID uuid
 }
 
 func (a *ProfileServiceAdapter) UploadPhotos(ctx context.Context, userID uuid.UUID, photos []*multipart.FileHeader) ([]domain.UserPhoto, error) {
-	// Photo upload stays in Gateway (cannot send multipart via gRPC efficiently)
-	// This method should not be called through adapter
-	return nil, nil
+	var uploadedPhotos []domain.UserPhoto
+
+	for _, photoHeader := range photos {
+		file, err := photoHeader.Open()
+		if err != nil {
+			return nil, err
+		}
+
+		content, err := io.ReadAll(file)
+		file.Close()
+		if err != nil {
+			return nil, err
+		}
+
+		req := &pb.UploadPhotoRequest{
+			UserId:      userID.String(),
+			Content:     content,
+			ContentType: photoHeader.Header.Get("Content-Type"),
+		}
+
+		resp, err := a.client.UploadPhoto(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+
+		uploadedPhotos = append(uploadedPhotos, coreProtoToUserPhoto(resp.Photo))
+	}
+
+	return uploadedPhotos, nil
+}
+
+func (a *ProfileServiceAdapter) UploadPhoto(ctx context.Context, userID uuid.UUID, content []byte, contentType string) (*domain.UserPhoto, error) {
+	req := &pb.UploadPhotoRequest{
+		UserId:      userID.String(),
+		Content:     content,
+		ContentType: contentType,
+	}
+
+	resp, err := a.client.UploadPhoto(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	photo := coreProtoToUserPhoto(resp.Photo)
+	return &photo, nil
 }
 
 func (a *ProfileServiceAdapter) DeletePhoto(ctx context.Context, userID uuid.UUID, photoID uuid.UUID) error {

@@ -19,6 +19,7 @@ type ProfileService interface {
 
 	// Photos
 	UploadPhotos(ctx context.Context, userID uuid.UUID, photos []*multipart.FileHeader) ([]domain.UserPhoto, error)
+	UploadPhoto(ctx context.Context, userID uuid.UUID, content []byte, contentType string) (*domain.UserPhoto, error)
 	DeletePhoto(ctx context.Context, userID uuid.UUID, photoID uuid.UUID) error
 	SetPrimaryPhoto(ctx context.Context, userID uuid.UUID, photoID uuid.UUID) error
 	ReorderPhotos(ctx context.Context, userID uuid.UUID, photoIDs []uuid.UUID) error
