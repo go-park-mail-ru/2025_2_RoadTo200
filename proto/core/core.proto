@@ -16,6 +16,7 @@ service CoreService {
   rpc DeletePhoto(DeletePhotoRequest) returns (DeletePhotoResponse);
   rpc SetPrimaryPhoto(SetPrimaryPhotoRequest) returns (SetPrimaryPhotoResponse);
   rpc ReorderPhotos(ReorderPhotosRequest) returns (ReorderPhotosResponse);
+  rpc UploadPhoto(UploadPhotoRequest) returns (UploadPhotoResponse);
   
   // Feed operations
   rpc GetFeed(GetFeedRequest) returns (GetFeedResponse);
@@ -167,6 +168,16 @@ message ReorderPhotosRequest {
 
 message ReorderPhotosResponse {
   bool success = 1;
+}
+
+message UploadPhotoRequest {
+  string user_id = 1;
+  bytes content = 2;
+  string content_type = 3;
+}
+
+message UploadPhotoResponse {
+  UserPhoto photo = 1;
 }
 
 // ============= Feed Messages =============
