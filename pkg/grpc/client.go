@@ -10,8 +10,12 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-func NewAuthClient(addr string) (auth.AuthServiceClient, *grpc.ClientConn, error) {
-	conn, err := grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+func NewAuthClient(addr string, ict grpc.UnaryClientInterceptor) (auth.AuthServiceClient, *grpc.ClientConn, error) {
+	conn, err := grpc.NewClient(
+		addr,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithUnaryInterceptor(ict),
+	)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to connect to auth service: %w", err)
 	}
@@ -19,8 +23,12 @@ func NewAuthClient(addr string) (auth.AuthServiceClient, *grpc.ClientConn, error
 	return auth.NewAuthServiceClient(conn), conn, nil
 }
 
-func NewCoreClient(addr string) (core.CoreServiceClient, *grpc.ClientConn, error) {
-	conn, err := grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+func NewCoreClient(addr string, ict grpc.UnaryClientInterceptor) (core.CoreServiceClient, *grpc.ClientConn, error) {
+	conn, err := grpc.NewClient(
+		addr,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithUnaryInterceptor(ict),
+	)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to connect to core service: %w", err)
 	}
@@ -28,8 +36,12 @@ func NewCoreClient(addr string) (core.CoreServiceClient, *grpc.ClientConn, error
 	return core.NewCoreServiceClient(conn), conn, nil
 }
 
-func NewChatClient(addr string) (chat.ChatServiceClient, *grpc.ClientConn, error) {
-	conn, err := grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+func NewChatClient(addr string, ict grpc.UnaryClientInterceptor) (chat.ChatServiceClient, *grpc.ClientConn, error) {
+	conn, err := grpc.NewClient(
+		addr,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithUnaryInterceptor(ict),
+	)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to connect to chat service: %w", err)
 	}

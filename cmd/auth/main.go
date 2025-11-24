@@ -12,6 +12,7 @@ import (
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/auth-service/server"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/config"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/metrics/web"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/implementations/postgres"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/implementations/redis"
 	serviceImpl "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/implementations"
@@ -49,6 +50,11 @@ func main() {
 	defer redisPool.Close()
 	loggerInst.Info("✅ Redis connected")
 
+	tracer, err := web.NewGrpcServerInterceptor()
+	if err != nil {
+		loggerInst.Fatal(fmt.Errorf("failed to initialize tracer: %w", err))
+	}
+
 	// Initialize repositories
 	userRepo := postgres.NewUserRepository(pgPool, loggerInst)
 	sessionRepo := redis.NewSessionRepository(redisPool)
@@ -57,7 +63,7 @@ func main() {
 	authService := serviceImpl.NewAuthService(userRepo, sessionRepo, loggerInst)
 
 	// Create gRPC server
-	grpcServer := grpc.NewServer()
+	grpcServer := grpc.NewServer(grpc.UnaryInterceptor(tracer))
 	authServer := server.NewAuthServer(authService, loggerInst)
 	pb.RegisterAuthServiceServer(grpcServer, authServer)
 

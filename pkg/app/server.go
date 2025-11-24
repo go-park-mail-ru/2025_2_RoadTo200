@@ -14,6 +14,7 @@ func (a *App) initServer() {
 	a.server = httpserver.NewServer()
 
 	// Global middleware
+	a.server.SetMetricMiddleware(a.metrics.HttpMetrics.Middleware())
 	a.server.AddMiddleware(middleware.LogMiddleware(a.logger))
 	a.server.AddMiddleware(middleware.CORSMiddleware(&a.config.Cors))
 
@@ -43,7 +44,7 @@ func (a *App) setupPublicRoutes() {
 // Protected routes (require auth)
 func (a *App) setupProtectedRoutes() {
 	// Auth middleware for protected routes
-	a.server.AddMiddleware(middleware.AuthMiddleware(a.services.Auth))
+	a.server.SetAuthMiddleware(middleware.AuthMiddleware(a.services.Auth))
 
 	// Auth endpoints
 	a.server.POST("/api/logout", a.handlers.Auth.Logout)

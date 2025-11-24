@@ -5,6 +5,7 @@ import (
 	handler "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/http"
 	websocket "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/websocket"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/metrics/web"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
 	service "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/httpserver"
@@ -17,10 +18,15 @@ type App struct {
 	config       *config.Config
 	logger       logger.Log
 	server       *httpserver.Server
+	metrics      *Metrics
 	resources    *Resources
 	repositories *Repositories
 	services     *Services
 	handlers     *Handlers
+}
+
+type Metrics struct {
+	HttpMetrics web.HttpMetricCollector
 }
 
 type Resources struct {
@@ -87,7 +93,10 @@ func Run() {
 
 	app.initRepository()
 	app.logger.Info("✅ Repositories initialized")
-	app.initServices()
+	err := app.initServices()
+	if err != nil {
+		app.logger.Fatal(err)
+	}
 	app.logger.Info("✅ Services initialized")
 	app.initHandlers()
 	app.logger.Info("✅ Handlers initialized")

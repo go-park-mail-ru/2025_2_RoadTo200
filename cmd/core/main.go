@@ -11,6 +11,7 @@ import (
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/config"
 	coreServer "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/core-service/server"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/metrics/web"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/implementations/minio"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/implementations/postgres"
 	serviceImpl "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/implementations"
@@ -56,6 +57,11 @@ func main() {
 	}
 	loggerInst.Info("✅ MinIO connected")
 
+	tracer, err := web.NewGrpcServerInterceptor()
+	if err != nil {
+		loggerInst.Fatal(fmt.Errorf("failed to initialize tracer: %w", err))
+	}
+
 	// Initialize repositories
 	userRepo := postgres.NewUserRepository(pgPool, loggerInst)
 	photoRepo := postgres.NewUserPhotoRepository(pgPool, loggerInst)
@@ -73,7 +79,7 @@ func main() {
 	strikeServie := serviceImpl.NewStrikeService(strikeRepo, userRepo, loggerInst)
 
 	// Create gRPC server
-	grpcServer := grpc.NewServer()
+	grpcServer := grpc.NewServer(grpc.UnaryInterceptor(tracer))
 	coreServiceServer := coreServer.NewCoreServer(profileService, feedService, swipeService, matchService, strikeServie, loggerInst)
 	pb.RegisterCoreServiceServer(grpcServer, coreServiceServer)
 
