@@ -31,6 +31,7 @@ func NewChatHandler(chatService service.ChatService, logger logger.Log) *ChatHan
 // @Tags chat
 // @Accept json
 // @Produce json
+// @Param search query string false "Поиск чатов"
 // @Success 200 {object} map[string]interface{} "conversations"
 // @Failure 401 {string} string "unauthorized"
 // @Failure 500 {string} string "internal error"
