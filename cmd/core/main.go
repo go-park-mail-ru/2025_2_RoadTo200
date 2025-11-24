@@ -63,16 +63,18 @@ func main() {
 	swipeRepo := postgres.NewSwipeRepository(pgPool)
 	matchRepo := postgres.NewMatchRepository(pgPool)
 	storageRepo := minio.NewStorageRepository(minioClient, &cfg.MinIO)
+	strikeRepo := postgres.NewStrikeRepository(pgPool)
 
 	// Initialize services
 	profileService := serviceImpl.NewProfileService(userRepo, photoRepo, preferenceRepo, storageRepo, loggerInst)
 	feedService := serviceImpl.NewFeedService(userRepo, preferenceRepo, photoRepo, loggerInst)
 	swipeService := serviceImpl.NewSwipeService(swipeRepo, matchRepo)
 	matchService := serviceImpl.NewMatchService(matchRepo, userRepo, swipeRepo, photoRepo, loggerInst)
+	strikeServie := serviceImpl.NewStrikeService(strikeRepo, userRepo, loggerInst)
 
 	// Create gRPC server
 	grpcServer := grpc.NewServer()
-	coreServiceServer := coreServer.NewCoreServer(profileService, feedService, swipeService, matchService, loggerInst)
+	coreServiceServer := coreServer.NewCoreServer(profileService, feedService, swipeService, matchService, strikeServie, loggerInst)
 	pb.RegisterCoreServiceServer(grpcServer, coreServiceServer)
 
 	// Start listening

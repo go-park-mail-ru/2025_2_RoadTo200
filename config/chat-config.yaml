@@ -1,8 +1,9 @@
 app:
   host: 0.0.0.0
-  port: 8084
+  port: 8083
   prefix: /api/v1
-  SwaggerPath: ./data/docs/chat.json
+  mode: release
+  swagger_path: ./data/docs/chat.json
 
   cors:
     allowed_origins:
@@ -27,4 +28,4 @@ app:
     password: RD_PSWD
 
   chat_service:
-    port: "50053"
+    port: 50053

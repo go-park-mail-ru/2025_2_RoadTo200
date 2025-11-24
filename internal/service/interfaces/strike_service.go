@@ -19,6 +19,4 @@ type StrikeService interface {
 	UpdateStrikeStatus(ctx context.Context, strikeID string, status constants.StrikeStatus, moderatorID *uuid.UUID, note *string) error
 	DeleteStrike(ctx context.Context, strikeID string) error
 	GetUserStrikeStats(ctx context.Context, userID string) (*dto.StrikeStats, error)
-	//ValidateStrikeCreate(ctx context.Context, strikeData *dto.StrikeCreateRequest) error
-	//ValidateStrikeStatus(ctx context.Context, status constants.StrikeStatus) error
 }

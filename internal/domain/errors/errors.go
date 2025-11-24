@@ -41,7 +41,6 @@ var (
 	ErrMatchNotFound       = errors.New("match not found")
 	ErrMatchNotActive      = errors.New("match is not active")
 	ErrNotMatchParticipant = errors.New("user is not a participant of this match")
-	ErrMatchNotFound = errors.New("match not found")
 
 	// Strike errors
 	ErrStrikeNotFound       = errors.New("strike not found")

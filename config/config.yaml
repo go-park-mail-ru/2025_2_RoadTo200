@@ -1,8 +1,9 @@
 app:
   host: 0.0.0.0
-  port: 8081
+  port: 8080
   prefix: /api/v1
-  swagger_path: ./api/server/swagger.json
+  mode: release
+  swagger_path: ./data/docs/server.json
 
   cors:
     allowed_origins:
@@ -11,33 +12,35 @@ app:
       - http://217.16.17.116:8001
 
   logger:
-    level: DEBUG
+    level: TRACE
 
   postgres:
-    host: $PG_HOST
-    port: $PG_PORT
-    base: $PG_BASE
-    user: $PG_USER
-    password: $PG_PSWD
+    host: PG_HOST
+    port: PG_PORT
+    base: PG_BASE
+    user: PG_USER
+    password: PG_PSWD
+    migrated: true
+    migrations: ./data/migrations
 
   redis:
-    host: $RD_HOST
-    port: $RD_PORT
-    base: $RD_BASE
-    password: $RD_PSWD
+    host: RD_HOST
+    port: RD_PORT
+    base: RD_BASE
+    password: RD_PSWD
 
   minio:
-    host: $MN_HOST
-    access_key_id: $MN_USER
-    secret_access_key: $MN_PSWD
-    address: $MN_ADDRESS
-    bucket_name: "terabithia-photos"
+    host: MN_HOST
+    access_key_id: MN_USER
+    secret_access_key: MN_PSWD
+    address: MN_ADDRESS
+    bucket_name: terabithia-photos
 
   auth_service:
-    port: "50051"
+    port: 50051
 
   core_service:
-    port: "50052"
+    port: 50052
 
   chat_service:
-    port: "50053"
+    port: 50053

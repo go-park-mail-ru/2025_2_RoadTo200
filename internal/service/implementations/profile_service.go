@@ -199,6 +199,7 @@ func (s *ProfileService) UploadPhotos(ctx context.Context, userID uuid.UUID, pho
 	if err != nil {
 		return nil, err
 	}
+	s.logger.Debugf("Existing photos: %v", existingPhotos)
 
 	if len(existingPhotos)+len(photos) > constants.MaxPhotosPerUser {
 		return nil, errors.ErrPhotoLimitExceeded
@@ -218,6 +219,7 @@ func (s *ProfileService) UploadPhotos(ctx context.Context, userID uuid.UUID, pho
 		if err != nil {
 			return nil, fmt.Errorf("failed to open photo: %w", err)
 		}
+		defer file.Close()
 
 		// Читаем содержимое
 		fileBytes, err := io.ReadAll(file)
@@ -289,6 +291,7 @@ func (s *ProfileService) uploadPhotoFromBytes(ctx context.Context, userID uuid.U
 		IsApproved:   true, // Авто-аппрув для демо
 		CreatedAt:    time.Now(),
 	}
+	s.logger.Debugf("Uploaded photo for user: %v", userPhoto)
 
 	if err := s.userPhotoRepo.Create(ctx, &userPhoto); err != nil {
 		// Пытаемся удалить загруженный файл при ошибке

@@ -145,19 +145,36 @@ func (s *StrikeService) GetStrikesByType(ctx context.Context, strikeType constan
 	return strikes, nil
 }
 
-// GetStrikesByDateRange возвращает жалобы за определенный период
 func (s *StrikeService) GetStrikesByDateRange(ctx context.Context, from, to time.Time, limit, offset int) ([]*domain.Strike, error) {
+	// Если from нулевое (не установлено), устанавливаем минимальную дату
+	if from.IsZero() {
+		from = time.Time{} // Уже нулевое, оставляем как есть
+	}
+
+	// Если to нулевое (не установлено), устанавливаем текущее время + 1 день
+	if to.IsZero() {
+		to = time.Now().Add(24 * time.Hour)
+	}
+
 	// Валидация периода
 	if from.After(to) {
-		s.logger.Warnf("From date %s is before to %s", from, to)
+		s.logger.Warnf("From date %s is after to %s", from, to)
 		return nil, errors.ErrInvalidDateRange
 	}
 
 	// Ограничиваем максимальный период (например, 1 год)
 	maxPeriod := 365 * 24 * time.Hour
 	if to.Sub(from) > maxPeriod {
-		s.logger.Warnf("From date %s is too old", from)
+		s.logger.Warnf("Date range too large: from %s to %s (max allowed: %v)", from, to, maxPeriod)
 		return nil, errors.ErrDateRangeTooLarge
+	}
+
+	// Устанавливаем значения по умолчанию для пагинации, если не установлены
+	if limit <= 0 {
+		limit = 20
+	}
+	if offset < 0 {
+		offset = 0
 	}
 
 	strikes, err := s.strikeRepo.GetStrikesByDateRange(ctx, from, to, limit, offset)

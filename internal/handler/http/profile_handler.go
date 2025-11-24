@@ -38,7 +38,7 @@ func NewProfileHandler(profileService service.ProfileService, l logger.Log) *Pro
 // @Failure 401 {object} map[string]string "Не авторизован"
 // @Failure 404 {object} map[string]string "Профиль не найден"
 // @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
-// @Router /api/profile/profile [get]
+// @Router /api/profile [get]
 func (h *ProfileHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
 	h.logger.Trace("profileHandler.GetProfile")
 
