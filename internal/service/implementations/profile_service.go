@@ -192,7 +192,7 @@ func (s *ProfileService) UpdateInterests(ctx context.Context, userID uuid.UUID, 
 	return s.preferenceRepo.UpdateInterests(ctx, userID, inter)
 }
 
-// UploadPhotos загружает фотографии пользователя
+// UploadPhotos загружает фотографии пользователя (Multipart)
 func (s *ProfileService) UploadPhotos(ctx context.Context, userID uuid.UUID, photos []*multipart.FileHeader) ([]domain.UserPhoto, error) {
 	// Проверяем лимит фотографий
 	existingPhotos, err := s.userPhotoRepo.GetByUserID(ctx, userID)
@@ -218,45 +218,85 @@ func (s *ProfileService) UploadPhotos(ctx context.Context, userID uuid.UUID, pho
 		if err != nil {
 			return nil, fmt.Errorf("failed to open photo: %w", err)
 		}
-		defer file.Close()
 
 		// Читаем содержимое
 		fileBytes, err := io.ReadAll(file)
+		file.Close() // Close immediately after reading
 		if err != nil {
 			return nil, fmt.Errorf("failed to read photo: %w", err)
 		}
 
-		// Генерируем уникальное имя файла
-		fileExt := filepath.Ext(photoHeader.Filename)
-		fileName := fmt.Sprintf("%s/%s%s", userID.String(), uuid.New().String(), fileExt)
-
-		// Загружаем в файловое хранилище
-		photoURL, err := s.fileStorage.Upload(ctx, fileName, fileBytes, photoHeader.Header.Get("Content-Type"))
+		// Загружаем
+		userPhoto, err := s.uploadPhotoFromBytes(ctx, userID, fileBytes, photoHeader.Header.Get("Content-Type"), filepath.Ext(photoHeader.Filename), nextOrder)
 		if err != nil {
-			return nil, fmt.Errorf("failed to upload photo: %w", err)
-		}
-
-		// Создаем запись в БД
-		userPhoto := domain.UserPhoto{
-			ID:           uuid.New(),
-			UserID:       userID,
-			PhotoURL:     photoURL,
-			DisplayOrder: nextOrder,
-			IsApproved:   true, // Авто-аппрув для демо
-			CreatedAt:    time.Now(),
-		}
-
-		if err := s.userPhotoRepo.Create(ctx, &userPhoto); err != nil {
-			// Пытаемся удалить загруженный файл при ошибке
-			s.fileStorage.Delete(ctx, fileName)
 			return nil, err
 		}
 
-		uploadedPhotos = append(uploadedPhotos, userPhoto)
+		uploadedPhotos = append(uploadedPhotos, *userPhoto)
 		nextOrder++
 	}
 
 	return uploadedPhotos, nil
+}
+
+// UploadPhoto загружает одну фотографию (bytes) - для gRPC
+func (s *ProfileService) UploadPhoto(ctx context.Context, userID uuid.UUID, content []byte, contentType string) (*domain.UserPhoto, error) {
+	// Проверяем лимит фотографий
+	existingPhotos, err := s.userPhotoRepo.GetByUserID(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(existingPhotos) >= constants.MaxPhotosPerUser {
+		return nil, errors.ErrPhotoLimitExceeded
+	}
+
+	// Определяем расширение по Content-Type
+	ext := ".jpg" // default
+	if contentType == "image/png" {
+		ext = ".png"
+	} else if contentType == "image/jpeg" {
+		ext = ".jpg"
+	} else if contentType == "image/webp" {
+		ext = ".webp"
+	}
+
+	// Валидация размера и типа (упрощенная для bytes)
+	if len(content) > constants.MaxPhotoSize {
+		return nil, fmt.Errorf("file too large")
+	}
+	// TODO: Validate mime type from bytes if needed, or trust contentType
+
+	return s.uploadPhotoFromBytes(ctx, userID, content, contentType, ext, len(existingPhotos))
+}
+
+func (s *ProfileService) uploadPhotoFromBytes(ctx context.Context, userID uuid.UUID, content []byte, contentType, ext string, order int) (*domain.UserPhoto, error) {
+	// Генерируем уникальное имя файла
+	fileName := fmt.Sprintf("%s/%s%s", userID.String(), uuid.New().String(), ext)
+
+	// Загружаем в файловое хранилище
+	photoURL, err := s.fileStorage.Upload(ctx, fileName, content, contentType)
+	if err != nil {
+		return nil, fmt.Errorf("failed to upload photo: %w", err)
+	}
+
+	// Создаем запись в БД
+	userPhoto := domain.UserPhoto{
+		ID:           uuid.New(),
+		UserID:       userID,
+		PhotoURL:     photoURL,
+		DisplayOrder: order,
+		IsApproved:   true, // Авто-аппрув для демо
+		CreatedAt:    time.Now(),
+	}
+
+	if err := s.userPhotoRepo.Create(ctx, &userPhoto); err != nil {
+		// Пытаемся удалить загруженный файл при ошибке
+		s.fileStorage.Delete(ctx, fileName)
+		return nil, err
+	}
+
+	return &userPhoto, nil
 }
 
 // DeletePhoto удаляет фотографию пользователя

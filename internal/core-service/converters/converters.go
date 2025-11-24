@@ -47,7 +47,7 @@ func UserToProto(user *domain.User) *pb.User {
 	return pbUser
 }
 
-func PhotoToProto(photo domain.UserPhoto) *pb.UserPhoto {
+func UserPhotoToProto(photo domain.UserPhoto) *pb.UserPhoto {
 	return &pb.UserPhoto{
 		Id:           photo.ID.String(),
 		UserId:       photo.UserID.String(),
@@ -61,7 +61,7 @@ func PhotoToProto(photo domain.UserPhoto) *pb.UserPhoto {
 func PhotosToProto(photos []domain.UserPhoto) []*pb.UserPhoto {
 	pbPhotos := make([]*pb.UserPhoto, len(photos))
 	for i, photo := range photos {
-		pbPhotos[i] = PhotoToProto(photo)
+		pbPhotos[i] = UserPhotoToProto(photo)
 	}
 	return pbPhotos
 }

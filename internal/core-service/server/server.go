@@ -17,6 +17,25 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
+func (s *CoreServer) UploadPhoto(ctx context.Context, req *pb.UploadPhotoRequest) (*pb.UploadPhotoResponse, error) {
+	s.logger.Infof("UploadPhoto called for user_id: %s", req.UserId)
+
+	userID, err := uuid.Parse(req.UserId)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid user_id: %v", err)
+	}
+
+	photo, err := s.profileService.UploadPhoto(ctx, userID, req.Content, req.ContentType)
+	if err != nil {
+		s.logger.Errorf("UploadPhoto error: %v", err)
+		return nil, status.Errorf(codes.Internal, "failed to upload photo: %v", err)
+	}
+
+	return &pb.UploadPhotoResponse{
+		Photo: converters.UserPhotoToProto(*photo),
+	}, nil
+}
+
 type CoreServer struct {
 	pb.UnimplementedCoreServiceServer
 	profileService service.ProfileService
