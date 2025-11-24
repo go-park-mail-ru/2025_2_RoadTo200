@@ -25,9 +25,9 @@ func NewMessageRepository(pool *pgxpool.Pool, logger logger.Log) interfaces.Mess
 
 func (r *MessageRepository) Create(ctx context.Context, message *domain.Message) error {
 	query := `
-		INSERT INTO message (match_id, sender_id, receiver_id, content, is_read, created_at)
-		VALUES ($1, $2, $3, $4, $5, $6)
-		RETURNING id
+		INSERT INTO message (match_id, sender_id, receiver_id, content, is_read)
+		VALUES ($1, $2, $3, $4, $5)
+		RETURNING id, created_at
 	`
 
 	err := r.pool.QueryRow(ctx, query,
@@ -36,8 +36,7 @@ func (r *MessageRepository) Create(ctx context.Context, message *domain.Message)
 		message.ReceiverID,
 		message.Content,
 		message.IsRead,
-		message.CreatedAt,
-	).Scan(&message.ID)
+	).Scan(&message.ID, &message.CreatedAt)
 
 	if err != nil {
 		return fmt.Errorf("failed to create message: %w", err)
