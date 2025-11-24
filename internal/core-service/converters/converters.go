@@ -130,6 +130,7 @@ func FeedUsersToProto(feedUsers []dto.FeedUser) []*pb.FeedUser {
 
 func MatchToProto(match domain.Match) *pb.Match {
 	return &pb.Match{
+		Id:        match.ID.String(),
 		User1Id:   match.User1ID.String(),
 		User2Id:   match.User2ID.String(),
 		IsActive:  match.IsActive,

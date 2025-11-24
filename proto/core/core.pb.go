@@ -408,10 +408,11 @@ func (x *Interest) GetTheme() string {
 
 type Match struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	User1Id       string                 `protobuf:"bytes,1,opt,name=user1_id,json=user1Id,proto3" json:"user1_id,omitempty"`
-	User2Id       string                 `protobuf:"bytes,2,opt,name=user2_id,json=user2Id,proto3" json:"user2_id,omitempty"`
-	IsActive      bool                   `protobuf:"varint,3,opt,name=is_active,json=isActive,proto3" json:"is_active,omitempty"`
-	MatchedAt     *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=matched_at,json=matchedAt,proto3" json:"matched_at,omitempty"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	User1Id       string                 `protobuf:"bytes,2,opt,name=user1_id,json=user1Id,proto3" json:"user1_id,omitempty"`
+	User2Id       string                 `protobuf:"bytes,3,opt,name=user2_id,json=user2Id,proto3" json:"user2_id,omitempty"`
+	IsActive      bool                   `protobuf:"varint,4,opt,name=is_active,json=isActive,proto3" json:"is_active,omitempty"`
+	MatchedAt     *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=matched_at,json=matchedAt,proto3" json:"matched_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -444,6 +445,13 @@ func (x *Match) ProtoReflect() protoreflect.Message {
 // Deprecated: Use Match.ProtoReflect.Descriptor instead.
 func (*Match) Descriptor() ([]byte, []int) {
 	return file_proto_core_core_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *Match) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
 }
 
 func (x *Match) GetUser1Id() string {
@@ -2870,74 +2878,6 @@ func (*DeleteStrikeResponse) Descriptor() ([]byte, []int) {
 	return file_proto_core_core_proto_rawDescGZIP(), []int{45}
 }
 
-type StrikeTypeStat struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Pending       int32                  `protobuf:"varint,1,opt,name=pending,proto3" json:"pending,omitempty"`
-	Approved      int32                  `protobuf:"varint,2,opt,name=approved,proto3" json:"approved,omitempty"`
-	Rejected      int32                  `protobuf:"varint,3,opt,name=rejected,proto3" json:"rejected,omitempty"`
-	Resolved      int32                  `protobuf:"varint,4,opt,name=resolved,proto3" json:"resolved,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *StrikeTypeStat) Reset() {
-	*x = StrikeTypeStat{}
-	mi := &file_proto_core_core_proto_msgTypes[46]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *StrikeTypeStat) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*StrikeTypeStat) ProtoMessage() {}
-
-func (x *StrikeTypeStat) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_core_core_proto_msgTypes[46]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use StrikeTypeStat.ProtoReflect.Descriptor instead.
-func (*StrikeTypeStat) Descriptor() ([]byte, []int) {
-	return file_proto_core_core_proto_rawDescGZIP(), []int{46}
-}
-
-func (x *StrikeTypeStat) GetPending() int32 {
-	if x != nil {
-		return x.Pending
-	}
-	return 0
-}
-
-func (x *StrikeTypeStat) GetApproved() int32 {
-	if x != nil {
-		return x.Approved
-	}
-	return 0
-}
-
-func (x *StrikeTypeStat) GetRejected() int32 {
-	if x != nil {
-		return x.Rejected
-	}
-	return 0
-}
-
-func (x *StrikeTypeStat) GetResolved() int32 {
-	if x != nil {
-		return x.Resolved
-	}
-	return 0
-}
-
 type StrikeStats struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
@@ -3148,13 +3088,14 @@ const file_proto_core_core_proto_rawDesc = "" +
 	"updated_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"9\n" +
 	"\bInterest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x14\n" +
-	"\x05theme\x18\x02 \x01(\tR\x05theme\"\x95\x01\n" +
-	"\x05Match\x12\x19\n" +
-	"\buser1_id\x18\x01 \x01(\tR\auser1Id\x12\x19\n" +
-	"\buser2_id\x18\x02 \x01(\tR\auser2Id\x12\x1b\n" +
-	"\tis_active\x18\x03 \x01(\bR\bisActive\x129\n" +
+	"\x05theme\x18\x02 \x01(\tR\x05theme\"\xa5\x01\n" +
+	"\x05Match\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x19\n" +
+	"\buser1_id\x18\x02 \x01(\tR\auser1Id\x12\x19\n" +
+	"\buser2_id\x18\x03 \x01(\tR\auser2Id\x12\x1b\n" +
+	"\tis_active\x18\x04 \x01(\bR\bisActive\x129\n" +
 	"\n" +
-	"matched_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tmatchedAt\",\n" +
+	"matched_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tmatchedAt\",\n" +
 	"\x11GetProfileRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\"\xc3\x01\n" +
 	"\x12GetProfileResponse\x12\x1e\n" +
