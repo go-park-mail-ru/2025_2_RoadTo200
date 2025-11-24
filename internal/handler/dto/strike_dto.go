@@ -16,10 +16,17 @@ type StrikeCreateRequest struct {
 }
 
 type StrikeStats struct {
-	UserID       string                       `json:"user_id"`
-	TotalStrikes int                          `json:"total_strikes"`
-	LastStrikeAt *time.Time                   `json:"last_strike_at"`
-	StrikeTypes  map[constants.StrikeType]int `json:"strike_types"`
+	UserID       string         `json:"user_id"`
+	TotalStrikes int            `json:"total_strikes"`
+	LastStrikeAt *time.Time     `json:"last_strike_at"`
+	StrikeTypes  StrikeTypeStat `json:"strike_types"`
+}
+
+type StrikeTypeStat struct {
+	Pending  int `json:"pending"`
+	Approved int `json:"approved"`
+	Rejected int `json:"rejected"`
+	Resolved int `json:"resolved"`
 }
 
 type StrikeStatusUpdateRequest struct {

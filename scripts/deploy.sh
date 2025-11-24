@@ -1,10 +1,10 @@
 #!/bin/bash
 
 HOST=ubuntu.vk # Хост ОС. Пример: user@ххх.хх.хх.ххх
-DOCS=1     # Флаг сборки документации
+DOCS=0     # Флаг сборки документации
 CONF=0     # Флаг отправки конфигурации
 MIGR=0
-BILD=0
+BILD=1
 
 if [[ $MIGR -eq 1 ]]; then
   echo "Deploy migration files"

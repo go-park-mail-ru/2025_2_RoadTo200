@@ -338,11 +338,18 @@ message DeleteStrikeResponse {
   // Empty response for delete
 }
 
+message StrikeTypeStat {
+  int32 pending = 1;
+  int32 approved = 2;
+  int32 rejected = 3;
+  int32 resolved = 4;
+}
+
 message StrikeStats {
   string user_id = 1;
   int32 total_strikes = 2;
   google.protobuf.Timestamp last_strike_at = 3;
-  map<string, int32> strike_types = 4;
+  StrikeTypeStat strike_types = 4;
 }
 
 message GetUserStrikeStatsRequest {

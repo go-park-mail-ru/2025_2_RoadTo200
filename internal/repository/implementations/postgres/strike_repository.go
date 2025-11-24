@@ -32,8 +32,9 @@ func (r *StrikeRepository) CreateStrike(ctx context.Context, strike *domain.Stri
 		VALUES ($1, $2, $3, $4, $5)
 	`
 
+	strike.ID = uuid.New()
 	_, err := r.db.Exec(ctx, query,
-		uuid.New(),
+		strike.ID,
 		strike.ReporterID,
 		strike.TargetUserID,
 		strike.Reason,
@@ -241,6 +242,11 @@ func (r *StrikeRepository) DeleteStrike(ctx context.Context, strikeID string) er
 	}
 	return nil
 }
+
+//
+//func (r *StrikeRepository) GetUserStrikeStat(userID uuid.UUID) (dto.StrikeStats, error) {
+//	query := `SELECT COUNT(*) FROM strike WHERE target_user_id = $1`
+//}
 
 // HasActiveStrikeFromUser проверяет, есть ли уже активная жалоба от этого пользователя на целевого
 func (r *StrikeRepository) HasActiveStrikeFromUser(ctx context.Context, reporterID, targetUserID string) (bool, error) {

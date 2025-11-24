@@ -2883,14 +2883,14 @@ type StrikeStats struct {
 	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	TotalStrikes  int32                  `protobuf:"varint,2,opt,name=total_strikes,json=totalStrikes,proto3" json:"total_strikes,omitempty"`
 	LastStrikeAt  *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=last_strike_at,json=lastStrikeAt,proto3" json:"last_strike_at,omitempty"`
-	StrikeTypes   map[string]int32       `protobuf:"bytes,4,rep,name=strike_types,json=strikeTypes,proto3" json:"strike_types,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`
+	StrikeTypes   *StrikeTypeStat        `protobuf:"bytes,4,opt,name=strike_types,json=strikeTypes,proto3" json:"strike_types,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *StrikeStats) Reset() {
 	*x = StrikeStats{}
-	mi := &file_proto_core_core_proto_msgTypes[46]
+	mi := &file_proto_core_core_proto_msgTypes[47]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2902,7 +2902,7 @@ func (x *StrikeStats) String() string {
 func (*StrikeStats) ProtoMessage() {}
 
 func (x *StrikeStats) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_core_core_proto_msgTypes[46]
+	mi := &file_proto_core_core_proto_msgTypes[47]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2915,7 +2915,7 @@ func (x *StrikeStats) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StrikeStats.ProtoReflect.Descriptor instead.
 func (*StrikeStats) Descriptor() ([]byte, []int) {
-	return file_proto_core_core_proto_rawDescGZIP(), []int{46}
+	return file_proto_core_core_proto_rawDescGZIP(), []int{47}
 }
 
 func (x *StrikeStats) GetUserId() string {
@@ -2939,7 +2939,7 @@ func (x *StrikeStats) GetLastStrikeAt() *timestamppb.Timestamp {
 	return nil
 }
 
-func (x *StrikeStats) GetStrikeTypes() map[string]int32 {
+func (x *StrikeStats) GetStrikeTypes() *StrikeTypeStat {
 	if x != nil {
 		return x.StrikeTypes
 	}
@@ -2955,7 +2955,7 @@ type GetUserStrikeStatsRequest struct {
 
 func (x *GetUserStrikeStatsRequest) Reset() {
 	*x = GetUserStrikeStatsRequest{}
-	mi := &file_proto_core_core_proto_msgTypes[47]
+	mi := &file_proto_core_core_proto_msgTypes[48]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2967,7 +2967,7 @@ func (x *GetUserStrikeStatsRequest) String() string {
 func (*GetUserStrikeStatsRequest) ProtoMessage() {}
 
 func (x *GetUserStrikeStatsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_core_core_proto_msgTypes[47]
+	mi := &file_proto_core_core_proto_msgTypes[48]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2980,7 +2980,7 @@ func (x *GetUserStrikeStatsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetUserStrikeStatsRequest.ProtoReflect.Descriptor instead.
 func (*GetUserStrikeStatsRequest) Descriptor() ([]byte, []int) {
-	return file_proto_core_core_proto_rawDescGZIP(), []int{47}
+	return file_proto_core_core_proto_rawDescGZIP(), []int{48}
 }
 
 func (x *GetUserStrikeStatsRequest) GetUserId() string {
@@ -2999,7 +2999,7 @@ type GetUserStrikeStatsResponse struct {
 
 func (x *GetUserStrikeStatsResponse) Reset() {
 	*x = GetUserStrikeStatsResponse{}
-	mi := &file_proto_core_core_proto_msgTypes[48]
+	mi := &file_proto_core_core_proto_msgTypes[49]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3011,7 +3011,7 @@ func (x *GetUserStrikeStatsResponse) String() string {
 func (*GetUserStrikeStatsResponse) ProtoMessage() {}
 
 func (x *GetUserStrikeStatsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_core_core_proto_msgTypes[48]
+	mi := &file_proto_core_core_proto_msgTypes[49]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3024,7 +3024,7 @@ func (x *GetUserStrikeStatsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetUserStrikeStatsResponse.ProtoReflect.Descriptor instead.
 func (*GetUserStrikeStatsResponse) Descriptor() ([]byte, []int) {
-	return file_proto_core_core_proto_rawDescGZIP(), []int{48}
+	return file_proto_core_core_proto_rawDescGZIP(), []int{49}
 }
 
 func (x *GetUserStrikeStatsResponse) GetStats() *StrikeStats {
@@ -3285,15 +3285,17 @@ const file_proto_core_core_proto_rawDesc = "" +
 	"\x06strike\x18\x01 \x01(\v2\f.core.StrikeR\x06strike\"2\n" +
 	"\x13DeleteStrikeRequest\x12\x1b\n" +
 	"\tstrike_id\x18\x01 \x01(\tR\bstrikeId\"\x16\n" +
-	"\x14DeleteStrikeResponse\"\x94\x02\n" +
+	"\x14DeleteStrikeResponse\"~\n" +
+	"\x0eStrikeTypeStat\x12\x18\n" +
+	"\apending\x18\x01 \x01(\x05R\apending\x12\x1a\n" +
+	"\bapproved\x18\x02 \x01(\x05R\bapproved\x12\x1a\n" +
+	"\brejected\x18\x03 \x01(\x05R\brejected\x12\x1a\n" +
+	"\bresolved\x18\x04 \x01(\x05R\bresolved\"\xc6\x01\n" +
 	"\vStrikeStats\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12#\n" +
 	"\rtotal_strikes\x18\x02 \x01(\x05R\ftotalStrikes\x12@\n" +
-	"\x0elast_strike_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\flastStrikeAt\x12E\n" +
-	"\fstrike_types\x18\x04 \x03(\v2\".core.StrikeStats.StrikeTypesEntryR\vstrikeTypes\x1a>\n" +
-	"\x10StrikeTypesEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\x05R\x05value:\x028\x01\"4\n" +
+	"\x0elast_strike_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\flastStrikeAt\x127\n" +
+	"\fstrike_types\x18\x04 \x01(\v2\x14.core.StrikeTypeStatR\vstrikeTypes\"4\n" +
 	"\x19GetUserStrikeStatsRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\"E\n" +
 	"\x1aGetUserStrikeStatsResponse\x12'\n" +
@@ -3381,10 +3383,10 @@ var file_proto_core_core_proto_goTypes = []any{
 	(*UpdateStrikeStatusResponse)(nil),    // 43: core.UpdateStrikeStatusResponse
 	(*DeleteStrikeRequest)(nil),           // 44: core.DeleteStrikeRequest
 	(*DeleteStrikeResponse)(nil),          // 45: core.DeleteStrikeResponse
-	(*StrikeStats)(nil),                   // 46: core.StrikeStats
-	(*GetUserStrikeStatsRequest)(nil),     // 47: core.GetUserStrikeStatsRequest
-	(*GetUserStrikeStatsResponse)(nil),    // 48: core.GetUserStrikeStatsResponse
-	nil,                                   // 49: core.StrikeStats.StrikeTypesEntry
+	(*StrikeTypeStat)(nil),                // 46: core.StrikeTypeStat
+	(*StrikeStats)(nil),                   // 47: core.StrikeStats
+	(*GetUserStrikeStatsRequest)(nil),     // 48: core.GetUserStrikeStatsRequest
+	(*GetUserStrikeStatsResponse)(nil),    // 49: core.GetUserStrikeStatsResponse
 	(*timestamppb.Timestamp)(nil),         // 50: google.protobuf.Timestamp
 }
 var file_proto_core_core_proto_depIdxs = []int32{
@@ -3418,8 +3420,8 @@ var file_proto_core_core_proto_depIdxs = []int32{
 	31, // 27: core.GetStrikesByDateRangeResponse.strikes:type_name -> core.Strike
 	31, // 28: core.UpdateStrikeStatusResponse.strike:type_name -> core.Strike
 	50, // 29: core.StrikeStats.last_strike_at:type_name -> google.protobuf.Timestamp
-	49, // 30: core.StrikeStats.strike_types:type_name -> core.StrikeStats.StrikeTypesEntry
-	46, // 31: core.GetUserStrikeStatsResponse.stats:type_name -> core.StrikeStats
+	46, // 30: core.StrikeStats.strike_types:type_name -> core.StrikeTypeStat
+	47, // 31: core.GetUserStrikeStatsResponse.stats:type_name -> core.StrikeStats
 	5,  // 32: core.CoreService.GetProfile:input_type -> core.GetProfileRequest
 	7,  // 33: core.CoreService.UpdateProfileInfo:input_type -> core.UpdateProfileInfoRequest
 	9,  // 34: core.CoreService.UpdatePreferences:input_type -> core.UpdatePreferencesRequest
@@ -3439,7 +3441,7 @@ var file_proto_core_core_proto_depIdxs = []int32{
 	40, // 48: core.CoreService.GetStrikesByDateRange:input_type -> core.GetStrikesByDateRangeRequest
 	42, // 49: core.CoreService.UpdateStrikeStatus:input_type -> core.UpdateStrikeStatusRequest
 	44, // 50: core.CoreService.DeleteStrike:input_type -> core.DeleteStrikeRequest
-	47, // 51: core.CoreService.GetUserStrikeStats:input_type -> core.GetUserStrikeStatsRequest
+	48, // 51: core.CoreService.GetUserStrikeStats:input_type -> core.GetUserStrikeStatsRequest
 	6,  // 52: core.CoreService.GetProfile:output_type -> core.GetProfileResponse
 	8,  // 53: core.CoreService.UpdateProfileInfo:output_type -> core.UpdateProfileInfoResponse
 	10, // 54: core.CoreService.UpdatePreferences:output_type -> core.UpdatePreferencesResponse
@@ -3459,7 +3461,7 @@ var file_proto_core_core_proto_depIdxs = []int32{
 	41, // 68: core.CoreService.GetStrikesByDateRange:output_type -> core.GetStrikesByDateRangeResponse
 	43, // 69: core.CoreService.UpdateStrikeStatus:output_type -> core.UpdateStrikeStatusResponse
 	45, // 70: core.CoreService.DeleteStrike:output_type -> core.DeleteStrikeResponse
-	48, // 71: core.CoreService.GetUserStrikeStats:output_type -> core.GetUserStrikeStatsResponse
+	49, // 71: core.CoreService.GetUserStrikeStats:output_type -> core.GetUserStrikeStatsResponse
 	52, // [52:72] is the sub-list for method output_type
 	32, // [32:52] is the sub-list for method input_type
 	32, // [32:32] is the sub-list for extension type_name

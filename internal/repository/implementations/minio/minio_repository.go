@@ -3,6 +3,7 @@ package minio
 import (
 	"context"
 	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 	"time"
@@ -22,10 +23,14 @@ type StorageRepository struct {
 }
 
 func NewStorageRepository(cl interfaces.MinioIface, cfg *config.MinIOConfig) *StorageRepository {
+	addr := cfg.Address
+	if os.Getenv(cfg.Address) != "" {
+		addr = os.Getenv(cfg.Address)
+	}
 	return &StorageRepository{
 		client:     cl,
 		bucketName: cfg.BucketName,
-		address:    cfg.Address,
+		address:    addr,
 		useSSL:     cfg.UseSSL,
 	}
 }
