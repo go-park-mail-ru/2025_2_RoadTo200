@@ -148,8 +148,10 @@ func (s *ProfileService) UpdatePreferences(ctx context.Context, userID uuid.UUID
 	}
 
 	// Если предпочтений нет - создаем новые
+	isNew := false
 	if preferences == nil {
 		s.logger.Debugf("Create preferences with empty user: %v", userID)
+		isNew = true
 		preferences = &domain.UserPreference{
 			UserID:       userID,
 			ShowGender:   constants.GenderPrefMale,
@@ -179,7 +181,7 @@ func (s *ProfileService) UpdatePreferences(ctx context.Context, userID uuid.UUID
 	preferences.UpdatedAt = time.Now()
 
 	// Сохраняем
-	if preferences.CreatedAt.IsZero() {
+	if isNew {
 		return s.preferenceRepo.Create(ctx, preferences)
 	}
 	return s.preferenceRepo.Update(ctx, preferences)

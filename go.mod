@@ -38,6 +38,7 @@ require (
 	github.com/rs/xid v1.6.0 // indirect
 	github.com/swaggo/files v0.0.0-20220610200504-28940afbdbfe // indirect
 	github.com/tinylib/msgp v1.3.0 // indirect
+	go.uber.org/mock v0.6.0 // indirect
 	golang.org/x/sys v0.37.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20251022142026-3a174f9686a8 // indirect
 )
