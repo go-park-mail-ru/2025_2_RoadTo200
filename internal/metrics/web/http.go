@@ -25,7 +25,7 @@ func (h *HttpMetricCollector) Middleware() func(http.Handler) http.Handler {
 			start := time.Now()
 			ww := responseWriter{w, 0}
 			next.ServeHTTP(&ww, r)
-			dur := time.Since(start)
+			dur := time.Since(start).Seconds()
 
 			path := h.normalizePath(r.URL.Path)
 			h.metrics.IncHTTPRequest(r.Method, path, ww.statusCode)

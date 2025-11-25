@@ -17,19 +17,18 @@ func NewGrpcServer(port int) *grpc.Server {
 
 	// Регистрируем стандартные метрики
 	grpcMetrics := grpc_prometheus.NewServerMetrics()
-	reg.MustRegister(grpcMetrics)
 
 	// Создаем gRPC сервер с метриками
 	server := grpc.NewServer(
-		grpc.StreamInterceptor(grpc_prometheus.StreamServerInterceptor),
-		grpc.UnaryInterceptor(grpc_prometheus.UnaryServerInterceptor),
+		grpc.StreamInterceptor(grpcMetrics.StreamServerInterceptor()),
+		grpc.UnaryInterceptor(grpcMetrics.UnaryServerInterceptor()),
 	)
 
-	grpcServer := grpc.NewServer()
 	// Инициализируем метрики
 	grpcMetrics.InitializeMetrics(server)
+	reg.MustRegister(grpcMetrics)
 
-	http.Handle("/health", http.HandlerFunc(handler.HealthHandler))
+	http.Handle("/api/health", http.HandlerFunc(handler.HealthHandler))
 	http.Handle("/metrics", promhttp.HandlerFor(reg, promhttp.HandlerOpts{}))
 	go func() {
 		err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil) // порт для метрик
@@ -38,5 +37,5 @@ func NewGrpcServer(port int) *grpc.Server {
 		}
 	}()
 
-	return grpcServer
+	return server
 }

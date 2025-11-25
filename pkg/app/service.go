@@ -14,20 +14,20 @@ func (a *App) initServices() error {
 	a.metrics.MustRegister(grpcMetrics)
 
 	// Initialize gRPC client for Auth Service Client
-	authClient, err := grpc.NewAuthClient(fmt.Sprintf("localhost:%s", a.config.AuthService.Port))
+	authClient, err := grpc.NewAuthClient(fmt.Sprintf("localhost:%s", a.config.AuthService.Port), grpcMetrics)
 	if err != nil {
 		a.logger.Fatal(fmt.Errorf("failed to create auth client: %w", err))
 	}
 
 	// Initialize gRPC client for	// Core Service Client
-	coreClient, err := grpc.NewCoreClient(fmt.Sprintf("localhost:%s", a.config.CoreService.Port))
+	coreClient, err := grpc.NewCoreClient(fmt.Sprintf("localhost:%s", a.config.CoreService.Port), grpcMetrics)
 	if err != nil {
 		a.logger.Fatal(fmt.Errorf("failed to create core client: %w", err))
 	}
 
 	// Инициализация сервисов с зависимостями
 	// Chat Service Client
-	chatClient, err := grpc.NewChatClient(fmt.Sprintf("localhost:%s", a.config.ChatService.Port))
+	chatClient, err := grpc.NewChatClient(fmt.Sprintf("localhost:%s", a.config.ChatService.Port), grpcMetrics)
 	if err != nil {
 		a.logger.Fatal("Failed to create chat client", err)
 	}
