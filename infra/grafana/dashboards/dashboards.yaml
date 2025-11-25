@@ -1,4 +1,4 @@
-1apiVersion: 1
+apiVersion: 1
 
 providers:
   - name: 'default'
@@ -7,6 +7,6 @@ providers:
     type: file
     disableDeletion: false
     updateIntervalSeconds: 10
-    allowUiUpdates: true
+    allowUiUpdates: false
     options:
       path: /etc/grafana/provisioning/dashboards
