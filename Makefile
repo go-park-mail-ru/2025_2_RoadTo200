@@ -19,6 +19,23 @@ test:
 test-coverage:
 	go test ./... -cover
 
+# Test только Converters
+test-converters:
+	@echo "Running converter tests..."
+	@go test -v ./internal/core-service/converters/...
+	@go test -v ./internal/chat-service/converters/...
+	@go test -v ./internal/gateway/adapters/... -run TestCoreProto
+
+# Test с покрытием для Converters
+test-converters-coverage:
+	@echo "Running converter tests with coverage..."
+	@go test -cover ./internal/core-service/converters/...
+	@go test -cover ./internal/chat-service/converters/...
+	@go test -cover ./internal/gateway/adapters/... -run TestCoreProto
+	@echo "\nDetailed coverage:"
+	@go test -coverprofile=coverage-converters.out ./internal/core-service/converters/... ./internal/chat-service/converters/... ./internal/gateway/adapters/...
+	@go tool cover -func=coverage-converters.out | grep total
+
 build-docs:
 	swag init -g /cmd/auth/main.go -o api/auth/
 	swag init -g /cmd/core/main.go -o api/core/
