@@ -2878,6 +2878,74 @@ func (*DeleteStrikeResponse) Descriptor() ([]byte, []int) {
 	return file_proto_core_core_proto_rawDescGZIP(), []int{45}
 }
 
+type StrikeTypeStat struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Pending       int32                  `protobuf:"varint,1,opt,name=pending,proto3" json:"pending,omitempty"`
+	Approved      int32                  `protobuf:"varint,2,opt,name=approved,proto3" json:"approved,omitempty"`
+	Rejected      int32                  `protobuf:"varint,3,opt,name=rejected,proto3" json:"rejected,omitempty"`
+	Resolved      int32                  `protobuf:"varint,4,opt,name=resolved,proto3" json:"resolved,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StrikeTypeStat) Reset() {
+	*x = StrikeTypeStat{}
+	mi := &file_proto_core_core_proto_msgTypes[46]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StrikeTypeStat) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StrikeTypeStat) ProtoMessage() {}
+
+func (x *StrikeTypeStat) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_core_core_proto_msgTypes[46]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StrikeTypeStat.ProtoReflect.Descriptor instead.
+func (*StrikeTypeStat) Descriptor() ([]byte, []int) {
+	return file_proto_core_core_proto_rawDescGZIP(), []int{46}
+}
+
+func (x *StrikeTypeStat) GetPending() int32 {
+	if x != nil {
+		return x.Pending
+	}
+	return 0
+}
+
+func (x *StrikeTypeStat) GetApproved() int32 {
+	if x != nil {
+		return x.Approved
+	}
+	return 0
+}
+
+func (x *StrikeTypeStat) GetRejected() int32 {
+	if x != nil {
+		return x.Rejected
+	}
+	return 0
+}
+
+func (x *StrikeTypeStat) GetResolved() int32 {
+	if x != nil {
+		return x.Resolved
+	}
+	return 0
+}
+
 type StrikeStats struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
