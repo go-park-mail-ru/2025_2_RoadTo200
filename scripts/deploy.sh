@@ -35,4 +35,5 @@ if [[ $BILD -eq 1 ]]; then
   ssh ubuntu.vk sudo systemctl stop auth-trb.service chat-trb.service core-trb.service app-back.service
   scp ./.build/* $HOST:/home/ubuntu/app/back/bin/ || echo "Error deploy binary"
   ssh ubuntu.vk sudo systemctl start auth-trb.service chat-trb.service core-trb.service app-back.service
+  ssh ubuntu.vk /home/ubuntu/app/back/app.sh status
 fi
