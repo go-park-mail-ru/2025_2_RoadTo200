@@ -122,7 +122,9 @@ func TestMatchRepository_GetByUsers(t *testing.T) {
 	user1ID := uuid.MustParse("00000000-0000-0000-0000-000000000001")
 	user2ID := uuid.MustParse("00000000-0000-0000-0000-000000000002")
 
+	matchID := uuid.New()
 	expectedMatch := &domain.Match{
+		ID:        matchID,
 		User1ID:   user1ID,
 		User2ID:   user2ID,
 		IsActive:  true,
@@ -130,18 +132,19 @@ func TestMatchRepository_GetByUsers(t *testing.T) {
 	}
 
 	rows := mock.NewRows([]string{
-		"user1_id", "user2_id", "is_active", "matched_at",
+		"id", "user1_id", "user2_id", "is_active", "matched_at",
 	}).AddRow(
-		expectedMatch.User1ID, expectedMatch.User2ID, expectedMatch.IsActive, expectedMatch.MatchedAt,
+		expectedMatch.ID, expectedMatch.User1ID, expectedMatch.User2ID, expectedMatch.IsActive, expectedMatch.MatchedAt,
 	)
 
 	orderedUser1ID, orderedUser2ID := getOrderedUUIDs(user1ID, user2ID)
-	mock.ExpectQuery("SELECT \\* FROM match WHERE user1_id = \\$1 AND user2_id = \\$2").
+	mock.ExpectQuery("SELECT id, user1_id, user2_id, is_active, matched_at FROM match WHERE user1_id = \\$1 AND user2_id = \\$2").
 		WithArgs(orderedUser1ID, orderedUser2ID).
 		WillReturnRows(rows)
 
 	match, err := repo.GetByUsers(context.Background(), user1ID, user2ID)
 	assert.NoError(t, err)
+	assert.Equal(t, expectedMatch.ID, match.ID)
 	assert.Equal(t, expectedMatch.User1ID, match.User1ID)
 	assert.Equal(t, expectedMatch.User2ID, match.User2ID)
 	assert.Equal(t, expectedMatch.IsActive, match.IsActive)
@@ -160,7 +163,9 @@ func TestMatchRepository_GetByUsers_WithReorderedUsers(t *testing.T) {
 	user2ID := uuid.MustParse("00000000-0000-0000-0000-000000000001")
 
 	orderedUser1ID, orderedUser2ID := getOrderedUUIDs(user1ID, user2ID)
+	matchID := uuid.New()
 	expectedMatch := &domain.Match{
+		ID:        matchID,
 		User1ID:   orderedUser1ID,
 		User2ID:   orderedUser2ID,
 		IsActive:  true,
@@ -168,17 +173,18 @@ func TestMatchRepository_GetByUsers_WithReorderedUsers(t *testing.T) {
 	}
 
 	rows := mock.NewRows([]string{
-		"user1_id", "user2_id", "is_active", "matched_at",
+		"id", "user1_id", "user2_id", "is_active", "matched_at",
 	}).AddRow(
-		expectedMatch.User1ID, expectedMatch.User2ID, expectedMatch.IsActive, expectedMatch.MatchedAt,
+		expectedMatch.ID, expectedMatch.User1ID, expectedMatch.User2ID, expectedMatch.IsActive, expectedMatch.MatchedAt,
 	)
 
-	mock.ExpectQuery("SELECT \\* FROM match WHERE user1_id = \\$1 AND user2_id = \\$2").
+	mock.ExpectQuery("SELECT id, user1_id, user2_id, is_active, matched_at FROM match WHERE user1_id = \\$1 AND user2_id = \\$2").
 		WithArgs(orderedUser1ID, orderedUser2ID).
 		WillReturnRows(rows)
 
 	match, err := repo.GetByUsers(context.Background(), user1ID, user2ID)
 	assert.NoError(t, err)
+	assert.Equal(t, expectedMatch.ID, match.ID)
 	assert.Equal(t, expectedMatch.User1ID, match.User1ID)
 	assert.Equal(t, expectedMatch.User2ID, match.User2ID)
 	assert.NoError(t, mock.ExpectationsWereMet())
@@ -195,7 +201,7 @@ func TestMatchRepository_GetByUsers_NotFound(t *testing.T) {
 	user2ID := uuid.New()
 
 	orderedUser1ID, orderedUser2ID := getOrderedUUIDs(user1ID, user2ID)
-	mock.ExpectQuery("SELECT \\* FROM match WHERE user1_id = \\$1 AND user2_id = \\$2").
+	mock.ExpectQuery("SELECT id, user1_id, user2_id, is_active, matched_at FROM match WHERE user1_id = \\$1 AND user2_id = \\$2").
 		WithArgs(orderedUser1ID, orderedUser2ID).
 		WillReturnError(pgx.ErrNoRows)
 
@@ -216,7 +222,7 @@ func TestMatchRepository_GetByUsers_Error(t *testing.T) {
 	user2ID := uuid.New()
 
 	orderedUser1ID, orderedUser2ID := getOrderedUUIDs(user1ID, user2ID)
-	mock.ExpectQuery("SELECT \\* FROM match WHERE user1_id = \\$1 AND user2_id = \\$2").
+	mock.ExpectQuery("SELECT id, user1_id, user2_id, is_active, matched_at FROM match WHERE user1_id = \\$1 AND user2_id = \\$2").
 		WithArgs(orderedUser1ID, orderedUser2ID).
 		WillReturnError(pgx.ErrTxClosed)
 
@@ -237,14 +243,18 @@ func TestMatchRepository_GetUserMatches(t *testing.T) {
 	limit := 10
 	offset := 0
 
+	matchID1 := uuid.New()
+	matchID2 := uuid.New()
 	expectedMatches := []domain.Match{
 		{
+			ID:        matchID1,
 			User1ID:   uuid.New(),
 			User2ID:   userID,
 			IsActive:  true,
 			MatchedAt: time.Now(),
 		},
 		{
+			ID:        matchID2,
 			User1ID:   userID,
 			User2ID:   uuid.New(),
 			IsActive:  true,
@@ -253,23 +263,23 @@ func TestMatchRepository_GetUserMatches(t *testing.T) {
 	}
 
 	rows := mock.NewRows([]string{
-		"user1_id", "user2_id", "is_active", "matched_at",
+		"id", "user1_id", "user2_id", "is_active", "matched_at",
 	})
 	for _, match := range expectedMatches {
 		rows.AddRow(
-			match.User1ID, match.User2ID, match.IsActive, match.MatchedAt,
+			match.ID, match.User1ID, match.User2ID, match.IsActive, match.MatchedAt,
 		)
 	}
 
-	mock.ExpectQuery("SELECT user1_id, user2_id, is_active, matched_at FROM match WHERE \\(user1_id = \\$1 OR user2_id = \\$1\\) AND is_active = true ORDER BY matched_at DESC LIMIT \\$2 OFFSET \\$3").
+	mock.ExpectQuery("SELECT id, user1_id, user2_id, is_active, matched_at FROM match WHERE \\(user1_id = \\$1 OR user2_id = \\$1\\) AND is_active = true ORDER BY matched_at DESC LIMIT \\$2 OFFSET \\$3").
 		WithArgs(userID, limit, offset).
 		WillReturnRows(rows)
 
 	matches, err := repo.GetUserMatches(context.Background(), userID, limit, offset)
 	assert.NoError(t, err)
 	assert.Len(t, matches, 2)
-	assert.Equal(t, expectedMatches[0].User1ID, matches[0].User1ID)
-	assert.Equal(t, expectedMatches[1].User1ID, matches[1].User1ID)
+	assert.Equal(t, expectedMatches[0].ID, matches[0].ID)
+	assert.Equal(t, expectedMatches[1].ID, matches[1].ID)
 	assert.NoError(t, mock.ExpectationsWereMet())
 }
 
@@ -285,10 +295,10 @@ func TestMatchRepository_GetUserMatches_Empty(t *testing.T) {
 	offset := 0
 
 	rows := mock.NewRows([]string{
-		"user1_id", "user2_id", "is_active", "matched_at",
+		"id", "user1_id", "user2_id", "is_active", "matched_at",
 	})
 
-	mock.ExpectQuery("SELECT user1_id, user2_id, is_active, matched_at FROM match WHERE \\(user1_id = \\$1 OR user2_id = \\$1\\) AND is_active = true ORDER BY matched_at DESC LIMIT \\$2 OFFSET \\$3").
+	mock.ExpectQuery("SELECT id, user1_id, user2_id, is_active, matched_at FROM match WHERE \\(user1_id = \\$1 OR user2_id = \\$1\\) AND is_active = true ORDER BY matched_at DESC LIMIT \\$2 OFFSET \\$3").
 		WithArgs(userID, limit, offset).
 		WillReturnRows(rows)
 
@@ -309,7 +319,7 @@ func TestMatchRepository_GetUserMatches_QueryError(t *testing.T) {
 	limit := 10
 	offset := 0
 
-	mock.ExpectQuery("SELECT user1_id, user2_id, is_active, matched_at FROM match WHERE \\(user1_id = \\$1 OR user2_id = \\$1\\) AND is_active = true ORDER BY matched_at DESC LIMIT \\$2 OFFSET \\$3").
+	mock.ExpectQuery("SELECT id, user1_id, user2_id, is_active, matched_at FROM match WHERE \\(user1_id = \\$1 OR user2_id = \\$1\\) AND is_active = true ORDER BY matched_at DESC LIMIT \\$2 OFFSET \\$3").
 		WithArgs(userID, limit, offset).
 		WillReturnError(pgx.ErrTxClosed)
 
@@ -536,7 +546,9 @@ func TestMatchRepository_Integration_CRUD(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Test GetByUsers
+	matchID := uuid.New()
 	expectedMatch := &domain.Match{
+		ID:        matchID,
 		User1ID:   orderedUser1ID,
 		User2ID:   orderedUser2ID,
 		IsActive:  true,
@@ -544,17 +556,18 @@ func TestMatchRepository_Integration_CRUD(t *testing.T) {
 	}
 
 	rows = mock.NewRows([]string{
-		"user1_id", "user2_id", "is_active", "matched_at",
+		"id", "user1_id", "user2_id", "is_active", "matched_at",
 	}).AddRow(
-		expectedMatch.User1ID, expectedMatch.User2ID, expectedMatch.IsActive, expectedMatch.MatchedAt,
+		expectedMatch.ID, expectedMatch.User1ID, expectedMatch.User2ID, expectedMatch.IsActive, expectedMatch.MatchedAt,
 	)
 
-	mock.ExpectQuery("SELECT \\* FROM match WHERE user1_id = \\$1 AND user2_id = \\$2").
+	mock.ExpectQuery("SELECT id, user1_id, user2_id, is_active, matched_at FROM match WHERE user1_id = \\$1 AND user2_id = \\$2").
 		WithArgs(orderedUser1ID, orderedUser2ID).
 		WillReturnRows(rows)
 
 	retrievedMatch, err := repo.GetByUsers(context.Background(), user1ID, user2ID)
 	assert.NoError(t, err)
+	assert.Equal(t, expectedMatch.ID, retrievedMatch.ID)
 	assert.Equal(t, expectedMatch.User1ID, retrievedMatch.User1ID)
 
 	// Test UpdateActive
