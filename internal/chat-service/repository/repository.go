@@ -139,11 +139,19 @@ func (r *MessageRepository) GetConversations(ctx context.Context, userID uuid.UU
 				ELSE m.user1_id
 			END as other_user_id,
 			u.name as other_user_name,
+			COALESCE(up.photo_url, '') as other_user_photo,
 			COALESCE(lm.content, '') as last_message,
 			COALESCE(lm.created_at, '0001-01-01'::timestamp) as last_message_time,
 			COALESCE(uc.unread_count, 0) as unread_count
 		FROM match m
 		JOIN "user" u ON u.id = (CASE WHEN m.user1_id = $1 THEN m.user2_id ELSE m.user1_id END)
+		LEFT JOIN LATERAL (
+			SELECT photo_url 
+			FROM user_photo 
+			WHERE user_id = u.id AND is_approved = TRUE
+			ORDER BY display_order ASC 
+			LIMIT 1
+		) up ON true
 		LEFT JOIN LastMessages lm ON lm.match_id = m.id
 		LEFT JOIN UnreadCounts uc ON uc.match_id = m.id
 		WHERE m.user1_id = $1 OR m.user2_id = $1
@@ -172,6 +180,7 @@ func (r *MessageRepository) GetConversations(ctx context.Context, userID uuid.UU
 			&conv.MatchID,
 			&conv.OtherUserID,
 			&conv.OtherUserName,
+			&conv.OtherUserPhoto,
 			&conv.LastMessage,
 			&conv.LastMessageTime,
 			&conv.UnreadCount,
