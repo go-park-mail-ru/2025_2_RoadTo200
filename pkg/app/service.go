@@ -11,7 +11,7 @@ import (
 func (a *App) initServices() error {
 	// Метрики для gRPC клиента
 	grpcMetrics := grpc_prometheus.NewClientMetrics()
-	a.metrics.GrpcMetrics.MustRegister(grpcMetrics)
+	a.metrics.MustRegister(grpcMetrics)
 
 	// Initialize gRPC client for Auth Service Client
 	authClient, err := grpc.NewAuthClient(fmt.Sprintf("localhost:%s", a.config.AuthService.Port))

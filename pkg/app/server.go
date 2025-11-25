@@ -7,6 +7,7 @@ import (
 	handler "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/http"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/middleware"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/metrics/prometheus"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/metrics/web"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/httpserver"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -28,8 +29,8 @@ func (a *App) initServer() {
 }
 
 func (a *App) setupMetrics() {
-	mv := web.NewHttpMetricCollector(a.metrics.HttpMetrics).Middleware()
-	a.server.AddHandler("/metrics", promhttp.Handler())
+	mv := web.NewHttpMetricCollector(prometheus.NewPrometheusHttpMetrics(a.config.Name, a.metrics)).Middleware()
+	a.server.AddHandler("/metrics", promhttp.HandlerFor(a.metrics, promhttp.HandlerOpts{}))
 	a.server.SetMetricMiddleware(mv)
 }
 

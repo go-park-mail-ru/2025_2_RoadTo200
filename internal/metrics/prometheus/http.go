@@ -12,14 +12,17 @@ var _ metrics.HttpMetrics = (*PrometheusHttpMetrics)(nil)
 
 type PrometheusHttpMetrics struct {
 	serviceName string
+	registry    *prometheus.Registry
 
 	httpRequests *prometheus.CounterVec
 	httpDuration *prometheus.HistogramVec
 }
 
-func NewPrometheusHttpMetrics(serviceName string) *PrometheusHttpMetrics {
-	return &PrometheusHttpMetrics{
+func NewPrometheusHttpMetrics(serviceName string, reg *prometheus.Registry) *PrometheusHttpMetrics {
+
+	mtrc := &PrometheusHttpMetrics{
 		serviceName: serviceName,
+		registry:    reg,
 
 		httpRequests: promauto.NewCounterVec(
 			prometheus.CounterOpts{
@@ -37,6 +40,12 @@ func NewPrometheusHttpMetrics(serviceName string) *PrometheusHttpMetrics {
 			[]string{"method", "path", "status", "service"},
 		),
 	}
+
+	// Регистрируем только наши кастомные метрики
+	reg.MustRegister(mtrc.httpRequests)
+	reg.MustRegister(mtrc.httpDuration)
+
+	return mtrc
 }
 
 func (p *PrometheusHttpMetrics) IncHTTPRequest(method, path string, statusCode int) {

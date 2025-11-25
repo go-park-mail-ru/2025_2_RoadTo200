@@ -5,7 +5,6 @@ import (
 	handler "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/http"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/websocket"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/metrics"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
 	service "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/httpserver"
@@ -19,16 +18,11 @@ type App struct {
 	config       *config.Config
 	logger       logger.Log
 	server       *httpserver.Server
-	metrics      *Metrics
+	metrics      *prometheus.Registry
 	resources    *Resources
 	repositories *Repositories
 	services     *Services
 	handlers     *Handlers
-}
-
-type Metrics struct {
-	HttpMetrics metrics.HttpMetrics
-	GrpcMetrics *prometheus.Registry
 }
 
 type Resources struct {
