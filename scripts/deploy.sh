@@ -1,10 +1,10 @@
 #!/bin/bash
 
 HOST=ubuntu.vk # Хост ОС. Пример: user@ххх.хх.хх.ххх
-DOCS=0     # Флаг сборки документации
+DOCS=1     # Флаг сборки документации
 CONF=0     # Флаг отправки конфигурации
 MIGR=0
-BILD=1
+BILD=0
 
 if [[ $MIGR -eq 1 ]]; then
   echo "Deploy migration files"
@@ -35,4 +35,5 @@ if [[ $BILD -eq 1 ]]; then
   ssh ubuntu.vk sudo systemctl stop auth-trb.service chat-trb.service core-trb.service app-back.service
   scp ./.build/* $HOST:/home/ubuntu/app/back/bin/ || echo "Error deploy binary"
   ssh ubuntu.vk sudo systemctl start auth-trb.service chat-trb.service core-trb.service app-back.service
+  ssh ubuntu.vk /home/ubuntu/app/back/app.sh status
 fi

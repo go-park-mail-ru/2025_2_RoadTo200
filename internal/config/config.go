@@ -14,6 +14,7 @@ type appConfig struct {
 }
 
 type Config struct {
+	Name        string            `yaml:"name"`
 	Host        string            `yaml:"host"`
 	Port        int               `yaml:"port"`
 	Prefix      string            `yaml:"prefix"`
@@ -112,8 +113,9 @@ func LoadConfig(path string) (*Config, error) {
 	}
 
 	var config appConfig
+	config.App.Name = "App"
 	config.App.Mode = "dev"
-	config.App.SwaggerPath = "./api/docs/swagger.json"
+	config.App.SwaggerPath = "./api/server/swagger.json"
 	config.App.Cors = CORSConfig{
 		AllowedOrigins:   []string{},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"},
@@ -154,47 +156,51 @@ func LoadConfig(path string) (*Config, error) {
 
 	// Substitute environment variables
 	if config.App.Mode == "dev" {
+		err := godotenv.Load(".env")
+		if err != nil {
+			return nil, err
+		}
 		// Expand environment variables in config using os.Getenv
-		if val := os.Getenv("PG_HOST"); val != "" {
-			config.App.Postgres.Host = val
-		}
-		if val := os.Getenv("PG_PORT"); val != "" {
-			config.App.Postgres.Port = val
-		}
-		if val := os.Getenv("PG_BASE"); val != "" {
-			config.App.Postgres.Base = val
-		}
-		if val := os.Getenv("PG_USER"); val != "" {
-			config.App.Postgres.User = val
-		}
-		if val := os.Getenv("PG_PSWD"); val != "" {
-			config.App.Postgres.Password = val
-		}
-
-		if val := os.Getenv("RD_HOST"); val != "" {
-			config.App.Redis.Host = val
-		}
-		if val := os.Getenv("RD_PORT"); val != "" {
-			config.App.Redis.Port = val
-		}
-		if val := os.Getenv("RD_BASE"); val != "" {
-			config.App.Redis.Base = val
-		}
-		// RD_PSWD can be empty
-		config.App.Redis.Password = os.Getenv("RD_PSWD")
-
-		if val := os.Getenv("MN_HOST"); val != "" {
-			config.App.MinIO.Host = val
-		}
-		if val := os.Getenv("MN_USER"); val != "" {
-			config.App.MinIO.AccessKeyID = val
-		}
-		if val := os.Getenv("MN_PSWD"); val != "" {
-			config.App.MinIO.SecretAccessKey = val
-		}
-		if val := os.Getenv("MN_ADDRESS"); val != "" {
-			config.App.MinIO.Address = val
-		}
+		//if val := os.Getenv("PG_HOST"); val != "" {
+		//	config.App.Postgres.Host = val
+		//}
+		//if val := os.Getenv("PG_PORT"); val != "" {
+		//	config.App.Postgres.Port = val
+		//}
+		//if val := os.Getenv("PG_BASE"); val != "" {
+		//	config.App.Postgres.Base = val
+		//}
+		//if val := os.Getenv("PG_USER"); val != "" {
+		//	config.App.Postgres.User = val
+		//}
+		//if val := os.Getenv("PG_PSWD"); val != "" {
+		//	config.App.Postgres.Password = val
+		//}
+		//
+		//if val := os.Getenv("RD_HOST"); val != "" {
+		//	config.App.Redis.Host = val
+		//}
+		//if val := os.Getenv("RD_PORT"); val != "" {
+		//	config.App.Redis.Port = val
+		//}
+		//if val := os.Getenv("RD_BASE"); val != "" {
+		//	config.App.Redis.Base = val
+		//}
+		//// RD_PSWD can be empty
+		//config.App.Redis.Password = os.Getenv("RD_PSWD")
+		//
+		//if val := os.Getenv("MN_HOST"); val != "" {
+		//	config.App.MinIO.Host = val
+		//}
+		//if val := os.Getenv("MN_USER"); val != "" {
+		//	config.App.MinIO.AccessKeyID = val
+		//}
+		//if val := os.Getenv("MN_PSWD"); val != "" {
+		//	config.App.MinIO.SecretAccessKey = val
+		//}
+		//if val := os.Getenv("MN_ADDRESS"); val != "" {
+		//	config.App.MinIO.Address = val
+		//}
 	}
 
 	// Set defaults

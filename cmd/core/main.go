@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/config"
 	coreServer "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/core-service/server"
+	gServer "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/grpc"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/implementations/minio"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/implementations/postgres"
@@ -18,7 +19,6 @@ import (
 	pgxConn "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/postgres"
 	redisConn "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/redis"
 	pb "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/proto/core"
-	"google.golang.org/grpc"
 )
 
 func main() {
@@ -73,8 +73,9 @@ func main() {
 	strikeServie := serviceImpl.NewStrikeService(strikeRepo, userRepo, loggerInst)
 
 	// Create gRPC server
-	grpcServer := grpc.NewServer()
 	coreServiceServer := coreServer.NewCoreServer(profileService, feedService, swipeService, matchService, strikeServie, loggerInst)
+	grpcServer := gServer.NewGrpcServer(cfg.Port)
+
 	pb.RegisterCoreServiceServer(grpcServer, coreServiceServer)
 
 	// Start listening

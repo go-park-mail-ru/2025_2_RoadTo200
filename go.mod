@@ -10,10 +10,15 @@ require (
 	github.com/gorilla/websocket v1.5.3
 	github.com/jackc/pgx/v5 v5.7.6
 	github.com/joho/godotenv v1.5.1
+	github.com/opentracing-contrib/go-grpc v0.1.2
+	github.com/opentracing/opentracing-go v1.2.0
 	github.com/pashagolub/pgxmock/v4 v4.9.0
+	github.com/prometheus/client_golang v1.23.2
 	github.com/redis/go-redis/v9 v9.17.0
 	github.com/stretchr/testify v1.11.1
 	github.com/swaggo/swag v1.16.6
+	github.com/uber/jaeger-client-go v2.30.0+incompatible
+	github.com/uber/jaeger-lib v2.4.1+incompatible
 	golang.org/x/crypto v0.43.0
 	google.golang.org/grpc v1.77.0
 	google.golang.org/protobuf v1.36.10
@@ -21,11 +26,14 @@ require (
 )
 
 require (
+	github.com/HdrHistogram/hdrhistogram-go v1.2.0 // indirect
+	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/go-ini/ini v1.67.0 // indirect
 	github.com/goccy/go-json v0.10.5 // indirect
+	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
@@ -34,10 +42,17 @@ require (
 	github.com/lib/pq v1.10.9 // indirect
 	github.com/minio/crc64nvme v1.0.2 // indirect
 	github.com/minio/md5-simd v1.1.2 // indirect
+	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/philhofer/fwd v1.2.0 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
+	github.com/prometheus/client_model v0.6.2 // indirect
+	github.com/prometheus/common v0.66.1 // indirect
+	github.com/prometheus/procfs v0.16.1 // indirect
 	github.com/rs/xid v1.6.0 // indirect
 	github.com/swaggo/files v0.0.0-20220610200504-28940afbdbfe // indirect
 	github.com/tinylib/msgp v1.3.0 // indirect
+	go.uber.org/atomic v1.11.0 // indirect
+	go.yaml.in/yaml/v2 v2.4.2 // indirect
 	go.uber.org/mock v0.6.0 // indirect
 	golang.org/x/sys v0.37.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20251022142026-3a174f9686a8 // indirect
@@ -57,7 +72,6 @@ require (
 	github.com/minio/minio-go/v7 v7.0.95
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rafaeljusto/redigomock v2.4.0+incompatible
-	github.com/rogpeppe/go-internal v1.14.1 // indirect
 	github.com/swaggo/http-swagger v1.3.4
 	golang.org/x/mod v0.28.0 // indirect
 	golang.org/x/net v0.46.1-0.20251013234738-63d1a5100f82 // indirect

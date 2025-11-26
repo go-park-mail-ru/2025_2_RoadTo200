@@ -155,3 +155,5 @@ proto-gen:
 	test-middleware test-middleware-coverage \
 	test-handler test-handler-coverage \
 	build-docs build build-bin clean fmt tidy deploy proto-gen
+down:
+	docker stop $(docker ps -q)
