@@ -39,6 +39,8 @@ test-coverage:
 	@go tool cover -func=coverage.out | grep "handler/middleware" | awk '{sum+=$$NF; count++} END {if(count>0) printf "  %.1f%% (%d files)\n", sum/count, count; else print "  No coverage"}'
 	@echo "Converters:"
 	@go tool cover -func=coverage.out | grep "converters" | awk '{sum+=$$NF; count++} END {if(count>0) printf "  %.1f%% (%d files)\n", sum/count, count; else print "  No coverage"}'
+	@echo "Handlers:"
+	@go tool cover -func=coverage.out | grep "handler/http" | awk '{sum+=$$NF; count++} END {if(count>0) printf "  %.1f%% (%d files)\n", sum/count, count; else print "  No coverage"}'
 	@echo ""
 	@echo "💾 Full report: coverage.out"
 	@echo "🌐 HTML report: go tool cover -html=coverage.out"
@@ -100,6 +102,16 @@ test-middleware-coverage:
 	@echo "Running middleware tests with coverage..."
 	@go test ./internal/handler/middleware/... -cover
 
+# Test только Handlers
+test-handler:
+	@echo "Running handler tests..."
+	@go test ./internal/handler/http/... -v
+
+# Test Handlers с покрытием
+test-handler-coverage:
+	@echo "Running handler tests with coverage..."
+	@go test ./internal/handler/http/... -cover
+
 build-docs:
 	swag init -g /cmd/auth/main.go -o api/auth/
 	swag init -g /cmd/core/main.go -o api/core/
@@ -139,4 +151,5 @@ proto-gen:
 	test-repository test-repository-coverage \
 	test-service test-service-coverage \
 	test-middleware test-middleware-coverage \
+	test-handler test-handler-coverage \
 	build-docs build build-bin clean fmt tidy deploy proto-gen

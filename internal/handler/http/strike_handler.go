@@ -79,10 +79,11 @@ func (h *StrikeHandler) CreateStrike(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		h.logger.Errorf("CreateStrike: %v", err)
 		switch {
+		case errors.Is(err, expectation.ErrSelfStrikeNotAllowed):
+			utils.WriteJSONError(w, http.StatusForbidden, err.Error())
 		case errors.Is(err, expectation.ErrUserNotFound),
 			errors.Is(err, expectation.ErrInvalidReporterID),
-			errors.Is(err, expectation.ErrInvalidTargetUserID),
-			errors.Is(err, expectation.ErrSelfStrikeNotAllowed):
+			errors.Is(err, expectation.ErrInvalidTargetUserID):
 			utils.WriteJSONError(w, http.StatusBadRequest, err.Error())
 		case errors.Is(err, expectation.ErrDuplicateStrike):
 			utils.WriteJSONError(w, http.StatusConflict, err.Error())
