@@ -272,13 +272,13 @@ func (s *StrikeService) GetUserStrikeStats(ctx context.Context, userID string) (
 	for _, strike := range allStrikes {
 		// Считаем по типам
 		switch strike.Status {
-		case "pending":
+		case constants.StrikeStatusPending:
 			stats.StrikeTypes.Pending++
-		case "approved":
+		case constants.StrikeStatusApproved:
 			stats.StrikeTypes.Approved++
-		case "rejected":
+		case constants.StrikeStatusRejected:
 			stats.StrikeTypes.Rejected++
-		case "resolved":
+		case constants.StrikeStatusResolved:
 			stats.StrikeTypes.Resolved++
 		}
 
