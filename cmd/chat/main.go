@@ -13,12 +13,12 @@ import (
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/chat-service/server"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/chat-service/service"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/config"
+	gServer "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/grpc"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/implementations/postgres"
 	pgxConn "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/postgres"
 	redisConn "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/redis"
 	pb "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/proto/chat"
-	"google.golang.org/grpc"
 )
 
 func main() {
@@ -57,8 +57,8 @@ func main() {
 	chatService := service.NewChatService(messageRepo, matchRepo, redisClient, loggerInst)
 
 	// Create gRPC server
-	grpcServer := grpc.NewServer()
 	chatServer := server.NewChatServer(chatService, loggerInst)
+	grpcServer := gServer.NewGrpcServer(cfg.Port)
 	pb.RegisterChatServiceServer(grpcServer, chatServer)
 
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%s", cfg.ChatService.Port))

@@ -7,11 +7,17 @@ import (
 	handler "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/http"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/middleware"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/metrics/prometheus"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/metrics/web"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/httpserver"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func (a *App) initServer() {
 	a.server = httpserver.NewServer()
+
+	// Settip metrics
+	a.setupMetrics()
 
 	// Global middleware
 	a.server.AddMiddleware(middleware.LogMiddleware(a.logger))
@@ -20,6 +26,12 @@ func (a *App) initServer() {
 	a.setupPublicRoutes()
 	a.setupUtilRoutes()
 	a.setupProtectedRoutes()
+}
+
+func (a *App) setupMetrics() {
+	mv := web.NewHttpMetricCollector(prometheus.NewPrometheusHttpMetrics(a.config.Name, a.metrics)).Middleware()
+	a.server.AddHandler("/metrics", promhttp.HandlerFor(a.metrics, promhttp.HandlerOpts{}))
+	a.server.SetMetricMiddleware(mv)
 }
 
 func (a *App) setupUtilRoutes() {
@@ -43,7 +55,7 @@ func (a *App) setupPublicRoutes() {
 // Protected routes (require auth)
 func (a *App) setupProtectedRoutes() {
 	// Auth middleware for protected routes
-	a.server.AddMiddleware(middleware.AuthMiddleware(a.services.Auth))
+	a.server.SetAuthMiddleware(middleware.AuthMiddleware(a.services.Auth))
 
 	// Auth endpoints
 	a.server.POST("/api/logout", a.handlers.Auth.Logout)

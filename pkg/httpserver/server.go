@@ -8,17 +8,35 @@ import (
 type Server struct {
 	mv  []func(next http.Handler) http.Handler
 	mux *http.ServeMux
+	smv SpecificMV
+}
+
+type SpecificMV struct {
+	auth func(next http.Handler) http.Handler
+	mtrc func(next http.Handler) http.Handler
 }
 
 func NewServer() *Server {
 	return &Server{
 		mv:  make([]func(next http.Handler) http.Handler, 0),
 		mux: http.NewServeMux(),
+		smv: SpecificMV{
+			auth: func(next http.Handler) http.Handler { return next },
+			mtrc: func(next http.Handler) http.Handler { return next },
+		},
 	}
 }
 
 func (s *Server) AddMiddleware(m func(next http.Handler) http.Handler) {
 	s.mv = append(s.mv, m)
+}
+
+func (s *Server) SetAuthMiddleware(m func(next http.Handler) http.Handler) {
+	s.smv.auth = m
+}
+
+func (s *Server) SetMetricMiddleware(m func(next http.Handler) http.Handler) {
+	s.smv.mtrc = m
 }
 
 func (s *Server) AddHandler(pat string, h http.Handler, mvs ...func(next http.Handler) http.Handler) {
@@ -28,6 +46,8 @@ func (s *Server) AddHandler(pat string, h http.Handler, mvs ...func(next http.Ha
 	for _, m := range mvs {
 		h = m(h)
 	}
+	h = s.smv.auth(h)
+	h = s.smv.mtrc(h)
 	s.mux.Handle(pat, h)
 }
 

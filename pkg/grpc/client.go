@@ -6,33 +6,46 @@ import (
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/proto/auth"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/proto/chat"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/proto/core"
+	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-func NewAuthClient(addr string) (auth.AuthServiceClient, *grpc.ClientConn, error) {
-	conn, err := grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		return nil, nil, fmt.Errorf("failed to connect to auth service: %w", err)
-	}
+func initClient(addr, service string, mt *grpc_prometheus.ClientMetrics) (*grpc.ClientConn, error) {
 
-	return auth.NewAuthServiceClient(conn), conn, nil
+	// gRPC клиент с метриками
+	conn, err := grpc.NewClient(
+		addr,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithStreamInterceptor(mt.StreamClientInterceptor()),
+		grpc.WithUnaryInterceptor(mt.UnaryClientInterceptor()),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to connect to %s service: %w", service, err)
+	}
+	return conn, nil
 }
 
-func NewCoreClient(addr string) (core.CoreServiceClient, *grpc.ClientConn, error) {
-	conn, err := grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+func NewAuthClient(addr string, mt *grpc_prometheus.ClientMetrics) (auth.AuthServiceClient, error) {
+	conn, err := initClient(addr, "auth", mt)
 	if err != nil {
-		return nil, nil, fmt.Errorf("failed to connect to core service: %w", err)
+		return nil, err
 	}
-
-	return core.NewCoreServiceClient(conn), conn, nil
+	return auth.NewAuthServiceClient(conn), nil
 }
 
-func NewChatClient(addr string) (chat.ChatServiceClient, *grpc.ClientConn, error) {
-	conn, err := grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+func NewCoreClient(addr string, mt *grpc_prometheus.ClientMetrics) (core.CoreServiceClient, error) {
+	conn, err := initClient(addr, "core", mt)
 	if err != nil {
-		return nil, nil, fmt.Errorf("failed to connect to chat service: %w", err)
+		return nil, err
 	}
+	return core.NewCoreServiceClient(conn), nil
+}
 
-	return chat.NewChatServiceClient(conn), conn, nil
+func NewChatClient(addr string, mt *grpc_prometheus.ClientMetrics) (chat.ChatServiceClient, error) {
+	conn, err := initClient(addr, "chat", mt)
+	if err != nil {
+		return nil, err
+	}
+	return chat.NewChatServiceClient(conn), nil
 }

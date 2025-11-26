@@ -11,6 +11,7 @@ import (
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/auth-service/server"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/config"
+	gServer "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/grpc"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/implementations/postgres"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/implementations/redis"
@@ -18,11 +19,11 @@ import (
 	pgxConn "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/postgres"
 	redisConn "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/redis"
 	pb "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/proto/auth"
-	"google.golang.org/grpc"
 )
 
 func main() {
 	// Load config
+	os.Setenv("CONFIG_PATH", "config/auth-config.yaml")
 	cfg, err := config.NewConfig()
 	if err != nil {
 		log.Fatalf("Failed to load config: %v", err)
@@ -57,8 +58,8 @@ func main() {
 	authService := serviceImpl.NewAuthService(userRepo, sessionRepo, loggerInst)
 
 	// Create gRPC server
-	grpcServer := grpc.NewServer()
 	authServer := server.NewAuthServer(authService, loggerInst)
+	grpcServer := gServer.NewGrpcServer(cfg.Port)
 	pb.RegisterAuthServiceServer(grpcServer, authServer)
 
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%s", cfg.AuthService.Port))
