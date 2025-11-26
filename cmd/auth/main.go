@@ -23,7 +23,6 @@ import (
 
 func main() {
 	// Load config
-	os.Setenv("CONFIG_PATH", "config/auth-config.yaml")
 	cfg, err := config.NewConfig()
 	if err != nil {
 		log.Fatalf("Failed to load config: %v", err)

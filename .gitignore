@@ -12,3 +12,4 @@ MIGRATIONS_WALKTHROUGH.md
 .env
 /api/*/*.go
 /api/*/*.yaml
+coverage.out
