@@ -35,6 +35,8 @@ test-coverage:
 	@go tool cover -func=coverage.out | grep "repository/implementations" | awk '{sum+=$$NF; count++} END {if(count>0) printf "  %.1f%% (%d files)\n", sum/count, count; else print "  No coverage"}'
 	@echo "Services:"
 	@go tool cover -func=coverage.out | grep "service/implementations" | awk '{sum+=$$NF; count++} END {if(count>0) printf "  %.1f%% (%d files)\n", sum/count, count; else print "  No coverage"}'  
+	@echo "Middleware:"
+	@go tool cover -func=coverage.out | grep "handler/middleware" | awk '{sum+=$$NF; count++} END {if(count>0) printf "  %.1f%% (%d files)\n", sum/count, count; else print "  No coverage"}'
 	@echo "Converters:"
 	@go tool cover -func=coverage.out | grep "converters" | awk '{sum+=$$NF; count++} END {if(count>0) printf "  %.1f%% (%d files)\n", sum/count, count; else print "  No coverage"}'
 	@echo ""
@@ -88,6 +90,16 @@ test-service-coverage:
 	@go test -coverprofile=coverage-service.out ./internal/service/implementations/...
 	@go tool cover -func=coverage-service.out | grep total
 
+# Test только Middleware
+test-middleware:
+	@echo "Running middleware tests..."
+	@go test ./internal/handler/middleware/... -v
+
+# Test Middleware с покрытием
+test-middleware-coverage:
+	@echo "Running middleware tests with coverage..."
+	@go test ./internal/handler/middleware/... -cover
+
 build-docs:
 	swag init -g /cmd/auth/main.go -o api/auth/
 	swag init -g /cmd/core/main.go -o api/core/
@@ -121,3 +133,10 @@ proto-gen:
 	protoc --go_out=. --go_opt=paths=source_relative \
 		--go-grpc_out=. --go-grpc_opt=paths=source_relative \
 		proto/auth/auth.proto proto/core/core.proto proto/chat/chat.proto
+
+.PHONY: run run-auth run-core run-chat test test-coverage \
+	test-converters test-converters-coverage \
+	test-repository test-repository-coverage \
+	test-service test-service-coverage \
+	test-middleware test-middleware-coverage \
+	build-docs build build-bin clean fmt tidy deploy proto-gen
