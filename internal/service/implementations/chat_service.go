@@ -223,6 +223,11 @@ func (s *ChatService) publishMessage(ctx context.Context, message *domain.Messag
 }
 
 func (s *ChatService) publishEvent(ctx context.Context, matchID uuid.UUID, event domain.ChatMessage) error {
+	// Skip if Redis client is not configured (e.g., in tests)
+	if s.redisClient == nil {
+		return nil
+	}
+
 	match, err := s.matchRepo.GetByID(ctx, matchID)
 	if err != nil {
 		return fmt.Errorf("failed to get match: %w", err)

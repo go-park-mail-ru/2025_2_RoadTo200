@@ -20,26 +20,32 @@ test:
 
 # Покрытие всего кода с детальной статистикой
 test-coverage:
-	@echo "🧪 Running all tests with coverage..."
+	@echo "Running all tests with coverage..."
 	@echo ""
 	@go test ./... -cover 2>&1 | grep -E "(ok|FAIL)" | grep -v "compile: version"
 	@echo ""
-	@echo "📊 Generating coverage report..."
+	@echo "Generating coverage report..."
 	@go test ./... -coverprofile=coverage.out 2>&1 | grep -v "compile: version" | grep -v "no test files" > /dev/null
 	@echo ""
-	@echo "=== 📈 TOTAL COVERAGE ==="
+	@echo "=== TOTAL COVERAGE ==="
 	@go tool cover -func=coverage.out | grep total | awk '{printf "Total: %s\n", $$3}'
 	@echo ""
-	@echo "=== 📦 COVERAGE BY COMPONENT ==="
+	@echo "=== COVERAGE BY COMPONENT ==="
 	@echo "Repositories:"
 	@go tool cover -func=coverage.out | grep "repository/implementations" | awk '{sum+=$$NF; count++} END {if(count>0) printf "  %.1f%% (%d files)\n", sum/count, count; else print "  No coverage"}'
 	@echo "Services:"
 	@go tool cover -func=coverage.out | grep "service/implementations" | awk '{sum+=$$NF; count++} END {if(count>0) printf "  %.1f%% (%d files)\n", sum/count, count; else print "  No coverage"}'  
+	@echo "Middleware:"
+	@go tool cover -func=coverage.out | grep "handler/middleware" | awk '{sum+=$$NF; count++} END {if(count>0) printf "  %.1f%% (%d files)\n", sum/count, count; else print "  No coverage"}'
 	@echo "Converters:"
 	@go tool cover -func=coverage.out | grep "converters" | awk '{sum+=$$NF; count++} END {if(count>0) printf "  %.1f%% (%d files)\n", sum/count, count; else print "  No coverage"}'
+	@echo "Handlers:"
+	@go tool cover -func=coverage.out | grep "handler/http" | awk '{sum+=$$NF; count++} END {if(count>0) printf "  %.1f%% (%d files)\n", sum/count, count; else print "  No coverage"}'
+	@echo "Adapters:"
+	@go tool cover -func=coverage.out | grep "adapters" | awk '{sum+=$$NF; count++} END {if(count>0) printf "  %.1f%% (%d files)\n", sum/count, count; else print "  No coverage"}'
 	@echo ""
-	@echo "💾 Full report: coverage.out"
-	@echo "🌐 HTML report: go tool cover -html=coverage.out"
+	@echo "Full report: coverage.out"
+	@echo "HTML report: go tool cover -html=coverage.out"
 
 # Test только Converters
 test-converters:
@@ -88,6 +94,26 @@ test-service-coverage:
 	@go test -coverprofile=coverage-service.out ./internal/service/implementations/...
 	@go tool cover -func=coverage-service.out | grep total
 
+# Test только Middleware
+test-middleware:
+	@echo "Running middleware tests..."
+	@go test ./internal/handler/middleware/... -v
+
+# Test Middleware с покрытием
+test-middleware-coverage:
+	@echo "Running middleware tests with coverage..."
+	@go test ./internal/handler/middleware/... -cover
+
+# Test только Handlers
+test-handler:
+	@echo "Running handler tests..."
+	@go test ./internal/handler/http/... -v
+
+# Test Handlers с покрытием
+test-handler-coverage:
+	@echo "Running handler tests with coverage..."
+	@go test ./internal/handler/http/... -cover
+
 build-docs:
 	swag init -g /cmd/auth/main.go -o api/auth/
 	swag init -g /cmd/core/main.go -o api/core/
@@ -122,5 +148,12 @@ proto-gen:
 		--go-grpc_out=. --go-grpc_opt=paths=source_relative \
 		proto/auth/auth.proto proto/core/core.proto proto/chat/chat.proto
 
+.PHONY: run run-auth run-core run-chat test test-coverage \
+	test-converters test-converters-coverage \
+	test-repository test-repository-coverage \
+	test-service test-service-coverage \
+	test-middleware test-middleware-coverage \
+	test-handler test-handler-coverage \
+	build-docs build build-bin clean fmt tidy deploy proto-gen
 down:
 	docker stop $(docker ps -q)
