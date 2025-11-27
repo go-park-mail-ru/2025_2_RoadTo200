@@ -216,6 +216,13 @@ func (r *UserRepository) GetUsersForFeed(ctx context.Context, userID uuid.UUID, 
               SELECT 1 FROM swipe s
               WHERE s.swiper_user_id = $1 AND s.target_user_id = u.id
           )
+          AND EXISTS (
+              SELECT 1 
+              FROM user_interest ui1
+              JOIN user_interest ui2 ON ui1.theme = ui2.theme
+              WHERE ui1.user_id = $1 
+                AND ui2.user_id = u.id
+          )
         ORDER BY u.last_active DESC
         LIMIT $2 OFFSET $3`
 
