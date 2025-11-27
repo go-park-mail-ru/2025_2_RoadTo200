@@ -1,6 +1,9 @@
 package web
 
 import (
+	"bufio"
+	"fmt"
+	"net"
 	"net/http"
 	"regexp"
 	"strings"
@@ -8,6 +11,8 @@ import (
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/metrics"
 )
+
+var _ http.Hijacker = (*responseWriter)(nil)
 
 type HttpMetricCollector struct {
 	metrics metrics.HttpMetrics
@@ -72,4 +77,12 @@ func (rw *responseWriter) WriteHeader(code int) {
 
 func (rw *responseWriter) Write(b []byte) (int, error) {
 	return rw.ResponseWriter.Write(b)
+}
+
+func (rw *responseWriter) Hijack() (net.Conn, *bufio.ReadWriter, error) {
+	// Проверяем, реализует ли исходный ResponseWriter интерфейс Hijacker
+	if hijacker, ok := rw.ResponseWriter.(http.Hijacker); ok {
+		return hijacker.Hijack()
+	}
+	return nil, nil, fmt.Errorf("ResponseWriter does not implement http.Hijacker")
 }

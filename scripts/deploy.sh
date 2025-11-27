@@ -1,10 +1,11 @@
 #!/bin/bash
 
 HOST=ubuntu.vk # Хост ОС. Пример: user@ххх.хх.хх.ххх
-DOCS=1     # Флаг сборки документации
-CONF=0     # Флаг отправки конфигурации
+DOCS=0     # Флаг сборки документации
+CONF=1     # Флаг отправки конфигурации
 MIGR=0
-BILD=0
+INFR=0
+BILD=1
 
 if [[ $MIGR -eq 1 ]]; then
   echo "Deploy migration files"
@@ -25,6 +26,12 @@ fi
 if [[ $CONF -eq 1 ]]; then
   echo "Deploy config file"
   scp ./config/* $HOST:/home/ubuntu/app/back/config/ || echo "Error deploy config"
+fi
+
+if [[ $INFR -eq 1 ]]; then
+  echo "Deploy infra file"
+  scp ./docker-compose.yml $HOST:/home/ubuntu/app/configs/docker-compose.yaml || echo "Error deploy docker config"
+  scp -r ./infra/* $HOST:/home/ubuntu/app/configs/infra/ || echo "Error deploy metrics config"
 fi
 
 if [[ $BILD -eq 1 ]]; then
