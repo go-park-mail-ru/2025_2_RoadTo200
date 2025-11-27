@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"context"
-	"strings"
 
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
@@ -101,9 +100,6 @@ func (r *MessageRepository) GetUnreadCount(ctx context.Context, userID uuid.UUID
 
 // GetConversations returns all conversations (matches with last message) for user
 func (r *MessageRepository) GetConversations(ctx context.Context, userID uuid.UUID, searchQuery string) ([]domain.Conversation, error) {
-	// Trim пробелы из поискового запроса
-	searchQuery = strings.TrimSpace(searchQuery)
-
 	query := `
 		SELECT 
 			m.id as match_id,
@@ -141,10 +137,10 @@ func (r *MessageRepository) GetConversations(ctx context.Context, userID uuid.UU
 
 	args := []interface{}{userID}
 
-	// Добавляем условие поиска если запрос не пустой
+	// Добавляем частичный поиск по имени (case-insensitive)
 	if searchQuery != "" {
-		query += " AND LOWER(u.name) LIKE LOWER($2)"
-		args = append(args, "%"+searchQuery+"%")
+		query += " AND u.name ILIKE '%' || $2 || '%'"
+		args = append(args, searchQuery)
 	}
 
 	query += `
