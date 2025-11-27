@@ -139,8 +139,8 @@ func (r *MessageRepository) GetConversations(ctx context.Context, userID uuid.UU
 
 	// Добавляем частичный поиск по имени (case-insensitive)
 	if searchQuery != "" {
-		query += " AND u.name ILIKE '%' || $2 || '%'"
-		args = append(args, searchQuery)
+		query += " AND u.name ILIKE $2"
+		args = append(args, "%"+searchQuery+"%")
 	}
 
 	query += `
