@@ -218,8 +218,8 @@ func (r *UserRepository) GetUsersForFeed(ctx context.Context, userID uuid.UUID, 
           )
           AND EXISTS (
               SELECT 1 
-              FROM user_interest ui1
-              JOIN user_interest ui2 ON ui1.theme = ui2.theme
+              FROM interest ui1
+              JOIN interest ui2 ON ui1.theme = ui2.theme
               WHERE ui1.user_id = $1 
                 AND ui2.user_id = u.id
           )
