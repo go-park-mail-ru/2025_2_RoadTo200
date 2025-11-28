@@ -156,7 +156,6 @@ func (s *ChatService) GetConversations(ctx context.Context, userID uuid.UUID, se
 
 	conversations, err := s.messageRepo.GetConversations(ctx, userID, searchQuery)
 	if err != nil {
-		s.logger.Errorf("Failed to get conversations: %v", err)
 		return nil, errors.ErrInternalError
 	}
 

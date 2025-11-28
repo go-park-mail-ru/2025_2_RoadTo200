@@ -114,6 +114,42 @@ func (r *MessageRepository) GetUnreadCount(ctx context.Context, userID uuid.UUID
 	return count, nil
 }
 
+//func (r *MessageRepository) GetChats(ctx context.Context, userID uuid.UUID, searchQuery string) ([]uuid.UUID, error) {
+//	query := `
+//		SELECT id, user1_id, u1.name, user2_id, u2.name from match m
+//		JOIN public."user" u1 on u1.id = m.user1_id
+//		JOIN public."user" u2 on u2.id = m.user2_id
+//		WHERE (user1_id==$1 AND u1.name LIKE &2) OR (user2_id==$1 AND u2.name LIKE &2)
+//	`
+//
+//	rows, err := r.pool.Query(ctx, query, args...)
+//	if err != nil {
+//		r.logger.Errorf("failed to get conversations: %w", err)
+//		return nil, fmt.Errorf("failed to get conversations: %w", err)
+//	}
+//	defer rows.Close()
+//
+//	var conversations []domain.Conversation
+//	for rows.Next() {
+//		var conv domain.Conversation
+//		if err := rows.Scan(
+//			&conv.MatchID,
+//			&conv.OtherUserID,
+//			&conv.OtherUserName,
+//			&conv.OtherUserPhoto,
+//			&conv.LastMessage,
+//			&conv.LastMessageTime,
+//			&conv.UnreadCount,
+//		); err != nil {
+//			r.logger.Errorf("failed to scan conversation: %w", err)
+//			return nil, fmt.Errorf("failed to scan conversation: %w", err)
+//		}
+//		conversations = append(conversations, conv)
+//	}
+//
+//	return conversations, nil
+//}
+
 func (r *MessageRepository) GetConversations(ctx context.Context, userID uuid.UUID, searchQuery string) ([]domain.Conversation, error) {
 	query := `
 		WITH LastMessages AS (
@@ -154,22 +190,14 @@ func (r *MessageRepository) GetConversations(ctx context.Context, userID uuid.UU
 		) up ON true
 		LEFT JOIN LastMessages lm ON lm.match_id = m.id
 		LEFT JOIN UnreadCounts uc ON uc.match_id = m.id
-		WHERE m.user1_id = $1 OR m.user2_id = $1
-	`
-
-	args := []interface{}{userID}
-	if searchQuery != "" {
-		query += " AND u.name ILIKE $2"
-		args = append(args, "%"+searchQuery+"%")
-	}
-
-	query += `
+		WHERE (m.user1_id = $1 OR m.user2_id = $1) AND u.name ILIKE $2
 		ORDER BY last_message_time DESC
 	`
 
-	rows, err := r.pool.Query(ctx, query, args...)
+	rows, err := r.pool.Query(ctx, query, userID, "%"+searchQuery+"%")
 	if err != nil {
-		return nil, fmt.Errorf("failed to get conversations: %w", err)
+		r.logger.Errorf("failed to get conversations: %s", err)
+		return nil, fmt.Errorf("failed to get conversations: %s", err)
 	}
 	defer rows.Close()
 
@@ -185,7 +213,8 @@ func (r *MessageRepository) GetConversations(ctx context.Context, userID uuid.UU
 			&conv.LastMessageTime,
 			&conv.UnreadCount,
 		); err != nil {
-			return nil, fmt.Errorf("failed to scan conversation: %w", err)
+			r.logger.Errorf("failed to scan conversation: %s", err)
+			return nil, fmt.Errorf("failed to scan conversation: %s", err)
 		}
 		conversations = append(conversations, conv)
 	}

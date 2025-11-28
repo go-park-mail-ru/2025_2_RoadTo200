@@ -77,8 +77,8 @@
       "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
       "targets": [
         {
-          "expr": "histogram_quantile(0.50, sum(rate(grpc_server_handling_seconds_bucket{grpc_service=~\"$service\"}[5m])) by (le, grpc_service, grpc_method))",
-          "legendFormat": "{{grpc_service}}/{{grpc_method}} - p50",
+          "expr": "sum by (job) (rate(scrape_duration_seconds{job=~\"$service\"}[5m]))",
+          "legendFormat": "{{job}} - p50",
           "interval": "15s"
         }
       ],

@@ -87,12 +87,12 @@ func (s *ChatServer) MarkAsRead(ctx context.Context, req *pb.MarkAsReadRequest) 
 func (s *ChatServer) GetConversations(ctx context.Context, req *pb.GetConversationsRequest) (*pb.GetConversationsResponse, error) {
 	userID, err := uuid.Parse(req.UserId)
 	if err != nil {
+		s.logger.Warnf("Failed to parse user id: %v", err)
 		return nil, status.Error(codes.InvalidArgument, "invalid user_id")
 	}
 
 	conversations, err := s.service.GetConversations(ctx, userID, req.SearchQuery)
 	if err != nil {
-		s.logger.Errorf("Failed to get conversations: %v", err)
 		return nil, status.Error(codes.Internal, "failed to get conversations")
 	}
 
