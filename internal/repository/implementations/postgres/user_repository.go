@@ -16,23 +16,28 @@ import (
 var _ interfaces.UserRepository = (*UserRepository)(nil)
 
 type UserRepository struct {
-	pool   interfaces.PgxIface
+	pool   interfaces.PoolIface
 	logger logger.Log
 }
 
-func NewUserRepository(pool interfaces.PgxIface, l logger.Log) *UserRepository {
+func NewUserRepository(pool interfaces.PoolIface, l logger.Log) *UserRepository {
 	return &UserRepository{pool: pool, logger: l}
 }
 
 func (r *UserRepository) Create(ctx context.Context, user *domain.User) error {
 	r.logger.Trace("FeedService.Create")
+	conn, err := GetConn(ctx, r.pool)
+	if err != nil {
+		return err
+	}
+
 	query := `
 	INSERT INTO "user" (email, phone, name, password, birth_date, gender, bio, 
 					   city, artist, quote, is_verified)
 	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
 	RETURNING id, created_at, updated_at, last_active`
 
-	err := r.pool.QueryRow(ctx, query,
+	err = conn.QueryRow(ctx, query,
 		user.Email, user.Phone, user.Name, user.Password, user.BirthDate, user.Gender, user.Bio,
 		user.City, user.Artist, user.Quote, user.IsVerified).
 		Scan(&user.ID, &user.CreatedAt, &user.UpdatedAt, &user.LastActive)
@@ -45,13 +50,18 @@ func (r *UserRepository) Create(ctx context.Context, user *domain.User) error {
 
 func (r *UserRepository) GetByID(ctx context.Context, id uuid.UUID) (*domain.User, error) {
 	r.logger.Trace("FeedService.GetByID")
+	conn, err := GetConn(ctx, r.pool)
+	if err != nil {
+		return nil, err
+	}
+
 	var user domain.User
 	query := `
         SELECT id, email, phone, name, password, birth_date, gender, bio, 
                city, artist, quote, is_verified, last_active, created_at, updated_at 
         FROM "user" WHERE id = $1`
 
-	err := r.pool.QueryRow(ctx, query, id).Scan(
+	err = conn.QueryRow(ctx, query, id).Scan(
 		&user.ID, &user.Email, &user.Phone, &user.Name, &user.Password,
 		&user.BirthDate, &user.Gender, &user.Bio,
 		&user.City, &user.Artist, &user.Quote, &user.IsVerified, &user.LastActive,
@@ -69,13 +79,18 @@ func (r *UserRepository) GetByID(ctx context.Context, id uuid.UUID) (*domain.Use
 
 func (r *UserRepository) GetByEmail(ctx context.Context, email string) (*domain.User, error) {
 	r.logger.Trace("FeedService.GetByEmail")
+	conn, err := GetConn(ctx, r.pool)
+	if err != nil {
+		return nil, err
+	}
+
 	var user domain.User
 	query := `
         SELECT id, email, phone, name, password, birth_date, gender, bio, 
                city, artist, quote, is_verified, last_active, created_at, updated_at 
         FROM "user" WHERE email = $1`
 
-	err := r.pool.QueryRow(ctx, query, email).Scan(
+	err = conn.QueryRow(ctx, query, email).Scan(
 		&user.ID, &user.Email, &user.Phone, &user.Name, &user.Password,
 		&user.BirthDate, &user.Gender, &user.Bio,
 		&user.City, &user.Artist, &user.Quote, &user.IsVerified, &user.LastActive,
@@ -93,10 +108,15 @@ func (r *UserRepository) GetByEmail(ctx context.Context, email string) (*domain.
 
 func (r *UserRepository) GetByPhone(ctx context.Context, phone string) (*domain.User, error) {
 	r.logger.Trace("FeedService.GetByPhone")
+	conn, err := GetConn(ctx, r.pool)
+	if err != nil {
+		return nil, err
+	}
+
 	var user domain.User
 	query := `SELECT * FROM "user" WHERE phone = $1`
 
-	err := r.pool.QueryRow(ctx, query, phone).Scan(
+	err = conn.QueryRow(ctx, query, phone).Scan(
 		&user.ID, &user.Email, &user.Phone, &user.Name, &user.Password,
 		&user.BirthDate, &user.Gender, &user.Bio, &user.City, &user.Artist, &user.Quote,
 		&user.IsVerified, &user.LastActive, &user.CreatedAt, &user.UpdatedAt,
@@ -113,6 +133,11 @@ func (r *UserRepository) GetByPhone(ctx context.Context, phone string) (*domain.
 
 func (r *UserRepository) Update(ctx context.Context, user *domain.User) error {
 	r.logger.Trace("FeedService.Update")
+	conn, err := GetConn(ctx, r.pool)
+	if err != nil {
+		return err
+	}
+
 	query := `
         UPDATE "user" 
         SET email = $1, phone = $2, name = $3, password = $4, birth_date = $5, 
@@ -121,7 +146,7 @@ func (r *UserRepository) Update(ctx context.Context, user *domain.User) error {
         WHERE id = $12
         RETURNING updated_at`
 
-	err := r.pool.QueryRow(ctx, query,
+	err = conn.QueryRow(ctx, query,
 		user.Email, user.Phone, user.Name, user.Password, user.BirthDate, user.Gender,
 		user.Bio, user.City, user.Artist, user.Quote, user.IsVerified,
 		user.ID).
@@ -135,9 +160,14 @@ func (r *UserRepository) Update(ctx context.Context, user *domain.User) error {
 
 func (r *UserRepository) UpdateLastActive(ctx context.Context, userID uuid.UUID) error {
 	r.logger.Trace("FeedService.UpdateLastActive")
+	conn, err := GetConn(ctx, r.pool)
+	if err != nil {
+		return err
+	}
+
 	query := `UPDATE "user" SET last_active = NOW() WHERE id = $1`
 
-	_, err := r.pool.Exec(ctx, query, userID)
+	_, err = conn.Exec(ctx, query, userID)
 	if err != nil {
 		return err
 	}
@@ -146,9 +176,14 @@ func (r *UserRepository) UpdateLastActive(ctx context.Context, userID uuid.UUID)
 
 func (r *UserRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	r.logger.Trace("FeedService.Delete")
+	conn, err := GetConn(ctx, r.pool)
+	if err != nil {
+		return err
+	}
+
 	query := `DELETE FROM "user" WHERE id = $1`
 
-	_, err := r.pool.Exec(ctx, query, id)
+	_, err = conn.Exec(ctx, query, id)
 	if err != nil {
 		return err
 	}
@@ -157,6 +192,11 @@ func (r *UserRepository) Delete(ctx context.Context, id uuid.UUID) error {
 
 func (r *UserRepository) GetUsersByIDs(ctx context.Context, ids []uuid.UUID) ([]domain.User, error) {
 	r.logger.Trace("FeedService.GetUsersByIDs")
+	conn, err := GetConn(ctx, r.pool)
+	if err != nil {
+		return nil, err
+	}
+
 	if len(ids) == 0 {
 		return []domain.User{}, nil
 	}
@@ -175,7 +215,7 @@ func (r *UserRepository) GetUsersByIDs(ctx context.Context, ids []uuid.UUID) ([]
         WHERE id IN (%s)
         ORDER BY created_at DESC`, strings.Join(placeholders, ","))
 
-	rows, err := r.pool.Query(ctx, query, args...)
+	rows, err := conn.Query(ctx, query, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -206,6 +246,10 @@ func (r *UserRepository) GetUsersByIDs(ctx context.Context, ids []uuid.UUID) ([]
 
 func (r *UserRepository) GetUsersForFeed(ctx context.Context, userID uuid.UUID, limit, offset int) ([]domain.User, error) {
 	r.logger.Tracef("GetUsersForFeed called with userID:", userID, "limit:", limit, "offset:", offset)
+	conn, err := GetConn(ctx, r.pool)
+	if err != nil {
+		return nil, err
+	}
 
 	query := `
         SELECT id, email, phone, name, password, birth_date, gender, bio, 
@@ -226,7 +270,7 @@ func (r *UserRepository) GetUsersForFeed(ctx context.Context, userID uuid.UUID, 
         ORDER BY u.last_active DESC
         LIMIT $2 OFFSET $3`
 
-	rows, err := r.pool.Query(ctx, query, userID, limit, offset)
+	rows, err := conn.Query(ctx, query, userID, limit, offset)
 	if err != nil {
 		return nil, err
 	}
