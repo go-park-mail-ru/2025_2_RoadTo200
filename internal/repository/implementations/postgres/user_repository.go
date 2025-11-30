@@ -16,11 +16,11 @@ import (
 var _ interfaces.UserRepository = (*UserRepository)(nil)
 
 type UserRepository struct {
-	pool   interfaces.PoolIface
+	pool   interfaces.PgxIface
 	logger logger.Log
 }
 
-func NewUserRepository(pool interfaces.PoolIface, l logger.Log) *UserRepository {
+func NewUserRepository(pool interfaces.PgxIface, l logger.Log) *UserRepository {
 	return &UserRepository{pool: pool, logger: l}
 }
 

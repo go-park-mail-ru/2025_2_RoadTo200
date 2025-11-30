@@ -8,14 +8,10 @@ import (
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/httpserver"
 )
 
-func GetConn(ctx context.Context, pool interfaces.PoolIface) (interfaces.PgxIface, error) {
+func GetConn(ctx context.Context, pool interfaces.PgxIface) (interfaces.PgxIface, error) {
 	mctx := ctx.(*httpserver.Context)
 	if mctx.Conn() == nil {
-		conn, err := pool.Acquire(mctx)
-		if err != nil {
-			return nil, err
-		}
-		mctx.SetConn(conn)
+		return pool, nil
 	}
 	res, ok := mctx.Conn().(interfaces.PgxIface)
 	if !ok {

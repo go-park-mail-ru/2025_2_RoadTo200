@@ -11,10 +11,6 @@ import (
 	"github.com/minio/minio-go/v7"
 )
 
-type PoolIface interface {
-	Acquire(ctx context.Context) (PgxIface, error)
-}
-
 type PgxIface interface {
 	Begin(context.Context) (pgx.Tx, error)
 	SendBatch(ctx context.Context, b *pgx.Batch) pgx.BatchResults
