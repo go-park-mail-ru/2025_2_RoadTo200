@@ -14,3 +14,7 @@ type Log interface {
 	Fatal(args ...interface{})
 	Fatalf(format string, args ...interface{})
 }
+
+type LogFactory interface {
+	Fork(path, id string) Log
+}

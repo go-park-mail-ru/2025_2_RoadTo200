@@ -12,6 +12,7 @@ type Server struct {
 }
 
 type SpecificMV struct {
+	init func(next http.Handler) http.Handler
 	auth func(next http.Handler) http.Handler
 	mtrc func(next http.Handler) http.Handler
 }
@@ -21,6 +22,7 @@ func NewServer() *Server {
 		mv:  make([]func(next http.Handler) http.Handler, 0),
 		mux: http.NewServeMux(),
 		smv: SpecificMV{
+			init: InitMiddleware(nil),
 			auth: func(next http.Handler) http.Handler { return next },
 			mtrc: func(next http.Handler) http.Handler { return next },
 		},
@@ -48,6 +50,7 @@ func (s *Server) AddHandler(pat string, h http.Handler, mvs ...func(next http.Ha
 	}
 	h = s.smv.auth(h)
 	h = s.smv.mtrc(h)
+	h = s.smv.init(h)
 	s.mux.Handle(pat, h)
 }
 
