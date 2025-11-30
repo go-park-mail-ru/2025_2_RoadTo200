@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	handler "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/http"
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/logger"
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"

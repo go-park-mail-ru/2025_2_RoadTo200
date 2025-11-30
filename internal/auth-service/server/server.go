@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/auth-service/converters"
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
 	service "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/logger"
 	pb "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/proto/auth"
 	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"

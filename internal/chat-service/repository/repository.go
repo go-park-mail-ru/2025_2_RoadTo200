@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/logger"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -114,7 +114,7 @@ func (r *MessageRepository) GetUnreadCount(ctx context.Context, userID uuid.UUID
 	return count, nil
 }
 
-//func (r *MessageRepository) GetChats(ctx context.Context, userID uuid.UUID, searchQuery string) ([]uuid.UUID, error) {
+//func (r *MessageRepository) GetChats(ctx context.context, userID uuid.UUID, searchQuery string) ([]uuid.UUID, error) {
 //	query := `
 //		SELECT id, user1_id, u1.name, user2_id, u2.name from match m
 //		JOIN public."user" u1 on u1.id = m.user1_id

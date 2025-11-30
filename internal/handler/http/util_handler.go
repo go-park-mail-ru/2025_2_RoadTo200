@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/logger"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/utils"
 	httpSwagger "github.com/swaggo/http-swagger"
 )

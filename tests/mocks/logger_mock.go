@@ -4,16 +4,16 @@ import (
 	"io"
 	"sync"
 
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
+	logger2 "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/logger"
 )
 
-var _ logger.Log = (*MockLogger)(nil)
+var _ logger2.Log = (*MockLogger)(nil)
 
 // MockLogger - мок-реализация интерфейса Log для тестирования
 type MockLogger struct {
 	mu          sync.RWMutex
 	calls       []Call
-	level       logger.Level
+	level       logger2.Level
 	output      io.Writer
 	fatalPanics bool // Определяет, должен ли Fatal вызывать panic в тестах
 }
@@ -28,7 +28,7 @@ type Call struct {
 func NewMockLogger() *MockLogger {
 	return &MockLogger{
 		calls:       make([]Call, 0),
-		level:       logger.INFO,
+		level:       logger2.INFO,
 		fatalPanics: true, // По умолчанию Fatal вызывает panic в тестах
 	}
 }

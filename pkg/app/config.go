@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/config"
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/logger"
 )
 
 func (a *App) initConfig() error {

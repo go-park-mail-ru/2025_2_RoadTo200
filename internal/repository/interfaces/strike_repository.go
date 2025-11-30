@@ -31,11 +31,11 @@ type StrikeRepository interface {
 	DeleteStrike(ctx context.Context, strikeID string) error
 
 	// Получить статистику по жалобам для пользователя
-	//GetUserStrikeStats(ctx context.Context, userID string) (*StrikeStats, error)
+	//GetUserStrikeStats(ctx context.context, userID string) (*StrikeStats, error)
 
 	// Проверить, есть ли уже активная жалоба от этого пользователя на целевого
 	HasActiveStrikeFromUser(ctx context.Context, reporterID, targetUserID string) (bool, error)
 
 	// Получить количество жалоб по типам (для аналитики)
-	//GetStrikeCountByType(ctx context.Context) (map[constants.StrikeType]int, error)
+	//GetStrikeCountByType(ctx context.context) (map[constants.StrikeType]int, error)
 }
