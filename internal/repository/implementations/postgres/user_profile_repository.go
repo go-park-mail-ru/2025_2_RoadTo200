@@ -25,13 +25,17 @@ func NewUserPhotoRepository(pool interfaces.PgxIface, l logger.Log) *UserPhotoRe
 
 func (r *UserPhotoRepository) Create(ctx context.Context, photo *domain.UserPhoto) error {
 	r.logger.Trace("UserPhotoRepository.Create")
+	conn, err := GetConn(ctx, r.pool)
+	if err != nil {
+		return err
+	}
 
 	query := `
 		INSERT INTO user_photo (user_id, photo_url, display_order, is_approved)
 		VALUES ($1, $2, $3, $4)
 		RETURNING id, created_at`
 
-	err := r.pool.QueryRow(ctx, query,
+	err = conn.QueryRow(ctx, query,
 		photo.UserID, photo.PhotoURL, photo.DisplayOrder, photo.IsApproved).
 		Scan(&photo.ID, &photo.CreatedAt)
 
@@ -43,11 +47,15 @@ func (r *UserPhotoRepository) Create(ctx context.Context, photo *domain.UserPhot
 
 func (r *UserPhotoRepository) GetByID(ctx context.Context, id uuid.UUID) (*domain.UserPhoto, error) {
 	r.logger.Trace("UserPhotoRepository.GetByID")
+	conn, err := GetConn(ctx, r.pool)
+	if err != nil {
+		return nil, err
+	}
 
 	var photo domain.UserPhoto
 	query := `SELECT * FROM user_photo WHERE id = $1`
 
-	err := r.pool.QueryRow(ctx, query, id).Scan(
+	err = conn.QueryRow(ctx, query, id).Scan(
 		&photo.ID, &photo.UserID, &photo.PhotoURL, &photo.DisplayOrder,
 		&photo.IsApproved, &photo.CreatedAt,
 	)
@@ -63,10 +71,14 @@ func (r *UserPhotoRepository) GetByID(ctx context.Context, id uuid.UUID) (*domai
 
 func (r *UserPhotoRepository) GetByUserID(ctx context.Context, userID uuid.UUID) ([]domain.UserPhoto, error) {
 	r.logger.Trace("UserPhotoRepository.GetByUserID")
+	conn, err := GetConn(ctx, r.pool)
+	if err != nil {
+		return nil, err
+	}
 
 	query := `SELECT * FROM user_photo WHERE user_id = $1 ORDER BY display_order`
 
-	rows, err := r.pool.Query(ctx, query, userID)
+	rows, err := conn.Query(ctx, query, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -95,13 +107,17 @@ func (r *UserPhotoRepository) GetByUserID(ctx context.Context, userID uuid.UUID)
 
 func (r *UserPhotoRepository) Update(ctx context.Context, photo *domain.UserPhoto) error {
 	r.logger.Trace("UserPhotoRepository.Update")
+	conn, err := GetConn(ctx, r.pool)
+	if err != nil {
+		return err
+	}
 
 	query := `
 		UPDATE user_photo 
 		SET photo_url = $1, display_order = $2, is_approved = $3
 		WHERE id = $4`
 
-	_, err := r.pool.Exec(ctx, query,
+	_, err = conn.Exec(ctx, query,
 		photo.PhotoURL, photo.DisplayOrder, photo.IsApproved, photo.ID)
 
 	if err != nil {
@@ -112,10 +128,14 @@ func (r *UserPhotoRepository) Update(ctx context.Context, photo *domain.UserPhot
 
 func (r *UserPhotoRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	r.logger.Trace("UserPhotoRepository.Delete")
+	conn, err := GetConn(ctx, r.pool)
+	if err != nil {
+		return err
+	}
 
 	query := `DELETE FROM user_photo WHERE id = $1`
 
-	_, err := r.pool.Exec(ctx, query, id)
+	_, err = conn.Exec(ctx, query, id)
 	if err != nil {
 		return err
 	}
@@ -124,8 +144,12 @@ func (r *UserPhotoRepository) Delete(ctx context.Context, id uuid.UUID) error {
 
 func (r *UserPhotoRepository) UpdateDisplayOrder(ctx context.Context, userID uuid.UUID, photos []domain.UserPhoto) error {
 	r.logger.Trace("UserPhotoRepository.UpdateDisplayOrder")
+	conn, err := GetConn(ctx, r.pool)
+	if err != nil {
+		return err
+	}
 
-	tx, err := r.pool.Begin(ctx)
+	tx, err := conn.Begin(ctx)
 	if err != nil {
 		return err
 	}
@@ -163,13 +187,17 @@ func NewUserPreferenceRepository(pool interfaces.PgxIface, l logger.Log) *UserPr
 
 func (r *UserPreferenceRepository) Create(ctx context.Context, preference *domain.UserPreference) error {
 	r.logger.Trace("UserPreferenceRepository.Create")
+	conn, err := GetConn(ctx, r.pool)
+	if err != nil {
+		return err
+	}
 
 	query := `
 		INSERT INTO user_preference (user_id, show_gender, age_min, age_max, max_distance, global_search)
 		VALUES ($1, $2, $3, $4, $5, $6)
 		RETURNING created_at, updated_at`
 
-	err := r.pool.QueryRow(ctx, query,
+	err = conn.QueryRow(ctx, query,
 		preference.UserID, preference.ShowGender, preference.AgeMin, preference.AgeMax,
 		preference.MaxDistance, preference.GlobalSearch).
 		Scan(&preference.CreatedAt, &preference.UpdatedAt)
@@ -182,11 +210,15 @@ func (r *UserPreferenceRepository) Create(ctx context.Context, preference *domai
 
 func (r *UserPreferenceRepository) GetByUserID(ctx context.Context, userID uuid.UUID) (*domain.UserPreference, error) {
 	r.logger.Trace("UserPreferenceRepository.GetByUserID")
+	conn, err := GetConn(ctx, r.pool)
+	if err != nil {
+		return nil, err
+	}
 
 	var preference domain.UserPreference
 	query := `SELECT * FROM user_preference WHERE user_id = $1`
 
-	err := r.pool.QueryRow(ctx, query, userID).Scan(
+	err = conn.QueryRow(ctx, query, userID).Scan(
 		&preference.UserID, &preference.ShowGender, &preference.AgeMin, &preference.AgeMax,
 		&preference.MaxDistance, &preference.GlobalSearch, &preference.CreatedAt, &preference.UpdatedAt,
 	)
@@ -202,6 +234,10 @@ func (r *UserPreferenceRepository) GetByUserID(ctx context.Context, userID uuid.
 
 func (r *UserPreferenceRepository) Update(ctx context.Context, preference *domain.UserPreference) error {
 	r.logger.Trace("UserPreferenceRepository.Update")
+	conn, err := GetConn(ctx, r.pool)
+	if err != nil {
+		return err
+	}
 
 	query := `
 		UPDATE user_preference 
@@ -209,7 +245,7 @@ func (r *UserPreferenceRepository) Update(ctx context.Context, preference *domai
 		WHERE user_id = $6
 		RETURNING updated_at`
 
-	err := r.pool.QueryRow(ctx, query,
+	err = conn.QueryRow(ctx, query,
 		preference.ShowGender, preference.AgeMin, preference.AgeMax, preference.MaxDistance,
 		preference.GlobalSearch, preference.UserID).
 		Scan(&preference.UpdatedAt)
@@ -222,10 +258,14 @@ func (r *UserPreferenceRepository) Update(ctx context.Context, preference *domai
 
 func (r *UserPreferenceRepository) Delete(ctx context.Context, userID uuid.UUID) error {
 	r.logger.Trace("UserPreferenceRepository.Delete")
+	conn, err := GetConn(ctx, r.pool)
+	if err != nil {
+		return err
+	}
 
 	query := `DELETE FROM user_preference WHERE user_id = $1`
 
-	_, err := r.pool.Exec(ctx, query, userID)
+	_, err = conn.Exec(ctx, query, userID)
 	if err != nil {
 		return err
 	}
@@ -234,12 +274,16 @@ func (r *UserPreferenceRepository) Delete(ctx context.Context, userID uuid.UUID)
 
 func (r *UserPreferenceRepository) GetInterests(ctx context.Context, userID uuid.UUID) ([]domain.Interest, error) {
 	r.logger.Trace("UserPreferenceRepository.GetInterests")
+	conn, err := GetConn(ctx, r.pool)
+	if err != nil {
+		return nil, err
+	}
 
 	query := `
 		SELECT i.user_id, i.theme FROM interest i WHERE i.user_id = $1`
 	interests := make([]domain.Interest, 0)
 
-	res, err := r.pool.Query(ctx, query, userID)
+	res, err := conn.Query(ctx, query, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -259,13 +303,17 @@ func (r *UserPreferenceRepository) GetInterests(ctx context.Context, userID uuid
 
 func (r *UserPreferenceRepository) UpdateInterests(ctx context.Context, userID uuid.UUID, inter []domain.Interest) error {
 	r.logger.Trace("UserPreferenceRepository.UpdateInterests")
+	conn, err := GetConn(ctx, r.pool)
+	if err != nil {
+		return err
+	}
 
 	delQuery := `
 		DELETE FROM interest WHERE user_id = $1`
 	updQuery := `
 		INSERT INTO interest(user_id, theme) VALUES ($1, $2)`
 
-	tx, err := r.pool.Begin(ctx)
+	tx, err := conn.Begin(ctx)
 	if err != nil {
 		return err
 	}

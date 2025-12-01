@@ -16,24 +16,29 @@ import (
 var _ interfaces.StrikeRepository = (*StrikeRepository)(nil)
 
 type StrikeRepository struct {
-	db interfaces.PgxIface
+	pool interfaces.PgxIface
 }
 
-func NewStrikeRepository(db interfaces.PgxIface) *StrikeRepository {
+func NewStrikeRepository(pool interfaces.PgxIface) *StrikeRepository {
 	return &StrikeRepository{
-		db: db,
+		pool: pool,
 	}
 }
 
 // CreateStrike создает новую жалобу
 func (r *StrikeRepository) CreateStrike(ctx context.Context, strike *domain.Strike) error {
+	conn, err := GetConn(ctx, r.pool)
+	if err != nil {
+		return err
+	}
+
 	query := `
 		INSERT INTO strike (id, reporter_id, target_user_id, reason, type)
 		VALUES ($1, $2, $3, $4, $5)
 	`
 
 	strike.ID = uuid.New()
-	_, err := r.db.Exec(ctx, query,
+	_, err = conn.Exec(ctx, query,
 		strike.ID,
 		strike.ReporterID,
 		strike.TargetUserID,
@@ -50,6 +55,11 @@ func (r *StrikeRepository) CreateStrike(ctx context.Context, strike *domain.Stri
 
 // GetStrikeByID получает жалобу по ID
 func (r *StrikeRepository) GetStrikeByID(ctx context.Context, strikeID string) (*domain.Strike, error) {
+	conn, err := GetConn(ctx, r.pool)
+	if err != nil {
+		return nil, err
+	}
+
 	query := `
 		SELECT id, reporter_id, target_user_id, type, reason, status, created_at, updated_at, moderator_id, moderator_note
 		FROM strike 
@@ -57,7 +67,7 @@ func (r *StrikeRepository) GetStrikeByID(ctx context.Context, strikeID string) (
 	`
 
 	var strike domain.Strike
-	err := r.db.QueryRow(ctx, query, strikeID).Scan(
+	err = conn.QueryRow(ctx, query, strikeID).Scan(
 		&strike.ID,
 		&strike.ReporterID,
 		&strike.TargetUserID,
@@ -81,6 +91,11 @@ func (r *StrikeRepository) GetStrikeByID(ctx context.Context, strikeID string) (
 
 // GetStrikesByUserID получает все жалобы на конкретного пользователя
 func (r *StrikeRepository) GetStrikesByUserID(ctx context.Context, userID string, limit, offset int) ([]*domain.Strike, error) {
+	conn, err := GetConn(ctx, r.pool)
+	if err != nil {
+		return nil, err
+	}
+
 	query := `
 		SELECT id, reporter_id, target_user_id, type, reason, status, created_at, updated_at, moderator_id, moderator_note
 		FROM strike 
@@ -89,7 +104,7 @@ func (r *StrikeRepository) GetStrikesByUserID(ctx context.Context, userID string
 		LIMIT $2 OFFSET $3
 	`
 
-	rows, err := r.db.Query(ctx, query, userID, limit, offset)
+	rows, err := conn.Query(ctx, query, userID, limit, offset)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get strikes by user ID: %w", err)
 	}
@@ -125,6 +140,11 @@ func (r *StrikeRepository) GetStrikesByUserID(ctx context.Context, userID string
 
 // GetStrikesByType получает жалобы по типу нарушения
 func (r *StrikeRepository) GetStrikesByType(ctx context.Context, strikeType constants.StrikeType, limit, offset int) ([]*domain.Strike, error) {
+	conn, err := GetConn(ctx, r.pool)
+	if err != nil {
+		return nil, err
+	}
+
 	query := `
 		SELECT id, reporter_id, target_user_id, type, reason, status, created_at, updated_at, moderator_id, moderator_note
 		FROM strike 
@@ -133,7 +153,7 @@ func (r *StrikeRepository) GetStrikesByType(ctx context.Context, strikeType cons
 		LIMIT $2 OFFSET $3
 	`
 
-	rows, err := r.db.Query(ctx, query, strikeType, limit, offset)
+	rows, err := conn.Query(ctx, query, strikeType, limit, offset)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get strikes by type: %w", err)
 	}
@@ -169,6 +189,11 @@ func (r *StrikeRepository) GetStrikesByType(ctx context.Context, strikeType cons
 
 // GetStrikesByDateRange получает жалобы за определенный период
 func (r *StrikeRepository) GetStrikesByDateRange(ctx context.Context, from, to time.Time, limit, offset int) ([]*domain.Strike, error) {
+	conn, err := GetConn(ctx, r.pool)
+	if err != nil {
+		return nil, err
+	}
+
 	query := `
 		SELECT id, reporter_id, target_user_id, type, reason, status, created_at, updated_at, moderator_id, moderator_note
 		FROM strike 
@@ -177,7 +202,7 @@ func (r *StrikeRepository) GetStrikesByDateRange(ctx context.Context, from, to t
 		LIMIT $3 OFFSET $4
 	`
 
-	rows, err := r.db.Query(ctx, query, from, to, limit, offset)
+	rows, err := conn.Query(ctx, query, from, to, limit, offset)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get strikes by date range: %w", err)
 	}
@@ -213,6 +238,11 @@ func (r *StrikeRepository) GetStrikesByDateRange(ctx context.Context, from, to t
 
 // UpdateStrikeStatus обновляет статус жалобы
 func (r *StrikeRepository) UpdateStrikeStatus(ctx context.Context, strikeID string, status constants.StrikeStatus) error {
+	conn, err := GetConn(ctx, r.pool)
+	if err != nil {
+		return err
+	}
+
 	query := `
 		UPDATE strike 
 		SET status = $1, updated_at = $2
@@ -220,7 +250,7 @@ func (r *StrikeRepository) UpdateStrikeStatus(ctx context.Context, strikeID stri
 	`
 
 	now := time.Now()
-	result, err := r.db.Exec(ctx, query, status, now, strikeID)
+	result, err := conn.Exec(ctx, query, status, now, strikeID)
 	if err != nil {
 		return fmt.Errorf("failed to update strike status: %w", err)
 	}
@@ -234,9 +264,14 @@ func (r *StrikeRepository) UpdateStrikeStatus(ctx context.Context, strikeID stri
 
 // DeleteStrike удаляет жалобу
 func (r *StrikeRepository) DeleteStrike(ctx context.Context, strikeID string) error {
+	conn, err := GetConn(ctx, r.pool)
+	if err != nil {
+		return err
+	}
+
 	query := `DELETE FROM strike WHERE id = $1`
 
-	_, err := r.db.Exec(ctx, query, strikeID)
+	_, err = conn.Exec(ctx, query, strikeID)
 	if err != nil {
 		return fmt.Errorf("failed to delete strike %s: %w", strikeID, err)
 	}
@@ -250,6 +285,11 @@ func (r *StrikeRepository) DeleteStrike(ctx context.Context, strikeID string) er
 
 // HasActiveStrikeFromUser проверяет, есть ли уже активная жалоба от этого пользователя на целевого
 func (r *StrikeRepository) HasActiveStrikeFromUser(ctx context.Context, reporterID, targetUserID string) (bool, error) {
+	conn, err := GetConn(ctx, r.pool)
+	if err != nil {
+		return false, err
+	}
+
 	query := `
 		SELECT COUNT(*) 
 		FROM strike 
@@ -259,7 +299,7 @@ func (r *StrikeRepository) HasActiveStrikeFromUser(ctx context.Context, reporter
 	`
 
 	var count int
-	err := r.db.QueryRow(ctx, query, reporterID, targetUserID, constants.StrikeStatusPending).Scan(&count)
+	err = conn.QueryRow(ctx, query, reporterID, targetUserID, constants.StrikeStatusPending).Scan(&count)
 	if err != nil {
 		return false, fmt.Errorf("failed to check active strike: %w", err)
 	}

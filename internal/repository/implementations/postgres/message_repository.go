@@ -20,12 +20,17 @@ func NewMessageRepository(pool interfaces.PgxIface) *MessageRepository {
 
 // Create new message
 func (r *MessageRepository) Create(ctx context.Context, message *domain.Message) error {
+	conn, err := GetConn(ctx, r.pool)
+	if err != nil {
+		return err
+	}
+
 	query := `
 		INSERT INTO message (match_id, sender_id, receiver_id, content, is_read)
 		VALUES ($1, $2, $3, $4, $5)
 		RETURNING id, created_at`
 
-	err := r.pool.QueryRow(ctx, query,
+	err = conn.QueryRow(ctx, query,
 		message.MatchID, message.SenderID, message.ReceiverID, message.Content, message.IsRead).
 		Scan(&message.ID, &message.CreatedAt)
 
@@ -37,6 +42,11 @@ func (r *MessageRepository) Create(ctx context.Context, message *domain.Message)
 
 // GetByMatchID returns message history for a match with pagination
 func (r *MessageRepository) GetByMatchID(ctx context.Context, matchID uuid.UUID, limit, offset int) ([]domain.Message, error) {
+	conn, err := GetConn(ctx, r.pool)
+	if err != nil {
+		return nil, err
+	}
+
 	query := `
 		SELECT id, match_id, sender_id, receiver_id, content, is_read, created_at
 		FROM message 
@@ -44,7 +54,7 @@ func (r *MessageRepository) GetByMatchID(ctx context.Context, matchID uuid.UUID,
 		ORDER BY created_at ASC 
 		LIMIT $2 OFFSET $3`
 
-	rows, err := r.pool.Query(ctx, query, matchID, limit, offset)
+	rows, err := conn.Query(ctx, query, matchID, limit, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -68,12 +78,17 @@ func (r *MessageRepository) GetByMatchID(ctx context.Context, matchID uuid.UUID,
 
 // MarkAsRead marks all messages in a match as read by receiver
 func (r *MessageRepository) MarkAsRead(ctx context.Context, matchID, receiverID uuid.UUID) error {
+	conn, err := GetConn(ctx, r.pool)
+	if err != nil {
+		return err
+	}
+
 	query := `
 		UPDATE message 
 		SET is_read = TRUE 
 		WHERE match_id = $1 AND receiver_id = $2 AND is_read = FALSE`
 
-	_, err := r.pool.Exec(ctx, query, matchID, receiverID)
+	_, err = conn.Exec(ctx, query, matchID, receiverID)
 	if err != nil {
 		return err
 	}
@@ -82,6 +97,11 @@ func (r *MessageRepository) MarkAsRead(ctx context.Context, matchID, receiverID 
 
 // GetUnreadCount returns total unread message count for user
 func (r *MessageRepository) GetUnreadCount(ctx context.Context, userID uuid.UUID) (int, error) {
+	conn, err := GetConn(ctx, r.pool)
+	if err != nil {
+		return 0, err
+	}
+
 	query := `
 		SELECT COUNT(*) 
 		FROM message m
@@ -91,7 +111,7 @@ func (r *MessageRepository) GetUnreadCount(ctx context.Context, userID uuid.UUID
 		AND m.is_read = FALSE`
 
 	var count int
-	err := r.pool.QueryRow(ctx, query, userID).Scan(&count)
+	err = conn.QueryRow(ctx, query, userID).Scan(&count)
 	if err != nil {
 		return 0, err
 	}
@@ -100,6 +120,11 @@ func (r *MessageRepository) GetUnreadCount(ctx context.Context, userID uuid.UUID
 
 // GetConversations returns all conversations (matches with last message) for user
 func (r *MessageRepository) GetConversations(ctx context.Context, userID uuid.UUID, searchQuery string) ([]domain.Conversation, error) {
+	conn, err := GetConn(ctx, r.pool)
+	if err != nil {
+		return nil, err
+	}
+
 	query := `
 		SELECT 
 			m.id as match_id,
@@ -149,7 +174,7 @@ func (r *MessageRepository) GetConversations(ctx context.Context, userID uuid.UU
 			ELSE 0 
 		END, msg.created_at DESC`
 
-	rows, err := r.pool.Query(ctx, query, args...)
+	rows, err := conn.Query(ctx, query, args...)
 	if err != nil {
 		return nil, err
 	}

@@ -22,21 +22,31 @@ func NewSubscriptionRepository(pool interfaces.PgxIface) *SubscriptionRepository
 }
 
 func (r *SubscriptionRepository) Create(ctx context.Context, subscription *domain.Subscription) error {
+	conn, err := GetConn(ctx, r.pool)
+	if err != nil {
+		return err
+	}
+
 	query := `
 		INSERT INTO subscription (user_id, plan_type, start_date, end_date, is_active)
 		VALUES ($1, $2, $3, $4, $5)`
 
-	_, err := r.pool.Exec(ctx, query,
+	_, err = conn.Exec(ctx, query,
 		subscription.UserID, subscription.PlanType, subscription.StartDate, subscription.EndDate, subscription.IsActive)
 
 	return err
 }
 
 func (r *SubscriptionRepository) GetByUserID(ctx context.Context, userID uuid.UUID) (*domain.Subscription, error) {
+	conn, err := GetConn(ctx, r.pool)
+	if err != nil {
+		return nil, err
+	}
+
 	var subscription domain.Subscription
 	query := `SELECT * FROM subscription WHERE user_id = $1`
 
-	err := r.pool.QueryRow(ctx, query, userID).Scan(
+	err = conn.QueryRow(ctx, query, userID).Scan(
 		&subscription.UserID, &subscription.PlanType, &subscription.StartDate,
 		&subscription.EndDate, &subscription.IsActive, &subscription.CreatedAt,
 	)
@@ -51,12 +61,17 @@ func (r *SubscriptionRepository) GetByUserID(ctx context.Context, userID uuid.UU
 }
 
 func (r *SubscriptionRepository) Update(ctx context.Context, subscription *domain.Subscription) error {
+	conn, err := GetConn(ctx, r.pool)
+	if err != nil {
+		return err
+	}
+
 	query := `
 		UPDATE subscription 
 		SET plan_type = $1, start_date = $2, end_date = $3, is_active = $4
 		WHERE user_id = $5`
 
-	_, err := r.pool.Exec(ctx, query,
+	_, err = conn.Exec(ctx, query,
 		subscription.PlanType, subscription.StartDate, subscription.EndDate,
 		subscription.IsActive, subscription.UserID)
 
@@ -67,9 +82,14 @@ func (r *SubscriptionRepository) Update(ctx context.Context, subscription *domai
 }
 
 func (r *SubscriptionRepository) Delete(ctx context.Context, userID uuid.UUID) error {
+	conn, err := GetConn(ctx, r.pool)
+	if err != nil {
+		return err
+	}
+
 	query := `DELETE FROM subscription WHERE user_id = $1`
 
-	_, err := r.pool.Exec(ctx, query, userID)
+	_, err = conn.Exec(ctx, query, userID)
 	if err != nil {
 		return err
 	}
@@ -77,12 +97,17 @@ func (r *SubscriptionRepository) Delete(ctx context.Context, userID uuid.UUID) e
 }
 
 func (r *SubscriptionRepository) GetActiveSubscription(ctx context.Context, userID uuid.UUID) (*domain.Subscription, error) {
+	conn, err := GetConn(ctx, r.pool)
+	if err != nil {
+		return nil, err
+	}
+
 	var subscription domain.Subscription
 	query := `
 		SELECT * FROM subscription 
 		WHERE user_id = $1 AND is_active = true AND end_date > $2`
 
-	err := r.pool.QueryRow(ctx, query, userID, time.Now()).Scan(
+	err = conn.QueryRow(ctx, query, userID, time.Now()).Scan(
 		&subscription.UserID, &subscription.PlanType, &subscription.StartDate,
 		&subscription.EndDate, &subscription.IsActive, &subscription.CreatedAt,
 	)
