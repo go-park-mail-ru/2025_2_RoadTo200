@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/auth-service/repository/interfaces"
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
-	interfaces "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
 	"github.com/gomodule/redigo/redis"
 )
 

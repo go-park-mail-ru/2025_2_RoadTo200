@@ -4,13 +4,16 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/chat-service/repository/interfaces"
+	service "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/chat-service/service/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/errors"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/dto"
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/logger"
 	"github.com/google/uuid"
 )
+
+var _ service.MatchService = (*MatchService)(nil)
 
 type MatchService struct {
 	matchRepo interfaces.MatchRepository

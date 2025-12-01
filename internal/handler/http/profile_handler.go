@@ -6,11 +6,11 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/core-service/service/interfaces"
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	expectation "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/errors"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/dto"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/middleware"
-	service "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/logger"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/utils"
 	"github.com/google/uuid"

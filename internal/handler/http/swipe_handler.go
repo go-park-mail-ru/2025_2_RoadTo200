@@ -4,16 +4,16 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/core-service/service/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/errors"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/dto"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/middleware"
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/logger"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/utils"
 )
 
 type SwipeHandler struct {
-	swipeService service.SwipeService
+	swipeService service.service
 	logger       logger.Log
 }
 

@@ -1,4 +1,4 @@
-package repository
+package postgres
 
 import (
 	"context"
@@ -10,6 +10,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
+
+var _ interfaces.MessageRepository = (*MessageRepository)(nil)
 
 type MessageRepository struct {
 	pool   *pgxpool.Pool

@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	interfaces2 "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/auth-service/repository/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/errors"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
@@ -14,11 +15,11 @@ import (
 
 type AuthService struct {
 	userRepo    interfaces.UserRepository
-	sessionRepo interfaces.SessionRepository
+	sessionRepo interfaces2.SessionRepository
 	logger      logger.Log
 }
 
-func NewAuthService(userRepo interfaces.UserRepository, sessionRepo interfaces.SessionRepository, l logger.Log) *AuthService {
+func NewAuthService(userRepo interfaces.UserRepository, sessionRepo interfaces2.SessionRepository, l logger.Log) *AuthService {
 	return &AuthService{
 		userRepo:    userRepo,
 		sessionRepo: sessionRepo,

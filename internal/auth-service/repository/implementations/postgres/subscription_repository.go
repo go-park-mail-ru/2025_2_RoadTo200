@@ -5,13 +5,15 @@ import (
 	"errors"
 	"time"
 
+	interfaces2 "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/auth-service/repository/interfaces"
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
+	postgres2 "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/implementations/postgres"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 )
 
-var _ interfaces.SubscriptionRepository = (*SubscriptionRepository)(nil)
+var _ interfaces2.SubscriptionRepository = (*SubscriptionRepository)(nil)
 
 type SubscriptionRepository struct {
 	pool interfaces.PgxIface
@@ -22,7 +24,7 @@ func NewSubscriptionRepository(pool interfaces.PgxIface) *SubscriptionRepository
 }
 
 func (r *SubscriptionRepository) Create(ctx context.Context, subscription *domain.Subscription) error {
-	conn, err := GetConn(ctx, r.pool)
+	conn, err := postgres2.GetConn(ctx, r.pool)
 	if err != nil {
 		return err
 	}
@@ -38,7 +40,7 @@ func (r *SubscriptionRepository) Create(ctx context.Context, subscription *domai
 }
 
 func (r *SubscriptionRepository) GetByUserID(ctx context.Context, userID uuid.UUID) (*domain.Subscription, error) {
-	conn, err := GetConn(ctx, r.pool)
+	conn, err := postgres2.GetConn(ctx, r.pool)
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +63,7 @@ func (r *SubscriptionRepository) GetByUserID(ctx context.Context, userID uuid.UU
 }
 
 func (r *SubscriptionRepository) Update(ctx context.Context, subscription *domain.Subscription) error {
-	conn, err := GetConn(ctx, r.pool)
+	conn, err := postgres2.GetConn(ctx, r.pool)
 	if err != nil {
 		return err
 	}
@@ -82,7 +84,7 @@ func (r *SubscriptionRepository) Update(ctx context.Context, subscription *domai
 }
 
 func (r *SubscriptionRepository) Delete(ctx context.Context, userID uuid.UUID) error {
-	conn, err := GetConn(ctx, r.pool)
+	conn, err := postgres2.GetConn(ctx, r.pool)
 	if err != nil {
 		return err
 	}
@@ -97,7 +99,7 @@ func (r *SubscriptionRepository) Delete(ctx context.Context, userID uuid.UUID) e
 }
 
 func (r *SubscriptionRepository) GetActiveSubscription(ctx context.Context, userID uuid.UUID) (*domain.Subscription, error) {
-	conn, err := GetConn(ctx, r.pool)
+	conn, err := postgres2.GetConn(ctx, r.pool)
 	if err != nil {
 		return nil, err
 	}
