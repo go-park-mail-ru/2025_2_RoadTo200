@@ -6,8 +6,10 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/auth-service/repository/interfaces"
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
+	utils "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/implementations/postgres"
+	bdIface "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/logger"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -16,17 +18,17 @@ import (
 var _ interfaces.UserRepository = (*UserRepository)(nil)
 
 type UserRepository struct {
-	pool   interfaces.PgxIface
+	pool   bdIface.PgxIface
 	logger logger.Log
 }
 
-func NewUserRepository(pool interfaces.PgxIface, l logger.Log) *UserRepository {
+func NewUserRepository(pool bdIface.PgxIface, l logger.Log) *UserRepository {
 	return &UserRepository{pool: pool, logger: l}
 }
 
 func (r *UserRepository) Create(ctx context.Context, user *domain.User) error {
 	r.logger.Trace("FeedService.Create")
-	conn, err := GetConn(ctx, r.pool)
+	conn, err := utils.GetConn(ctx, r.pool)
 	if err != nil {
 		return err
 	}
@@ -50,7 +52,7 @@ func (r *UserRepository) Create(ctx context.Context, user *domain.User) error {
 
 func (r *UserRepository) GetByID(ctx context.Context, id uuid.UUID) (*domain.User, error) {
 	r.logger.Trace("FeedService.GetByID")
-	conn, err := GetConn(ctx, r.pool)
+	conn, err := utils.GetConn(ctx, r.pool)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +81,7 @@ func (r *UserRepository) GetByID(ctx context.Context, id uuid.UUID) (*domain.Use
 
 func (r *UserRepository) GetByEmail(ctx context.Context, email string) (*domain.User, error) {
 	r.logger.Trace("FeedService.GetByEmail")
-	conn, err := GetConn(ctx, r.pool)
+	conn, err := utils.GetConn(ctx, r.pool)
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +110,7 @@ func (r *UserRepository) GetByEmail(ctx context.Context, email string) (*domain.
 
 func (r *UserRepository) GetByPhone(ctx context.Context, phone string) (*domain.User, error) {
 	r.logger.Trace("FeedService.GetByPhone")
-	conn, err := GetConn(ctx, r.pool)
+	conn, err := utils.GetConn(ctx, r.pool)
 	if err != nil {
 		return nil, err
 	}
@@ -133,7 +135,7 @@ func (r *UserRepository) GetByPhone(ctx context.Context, phone string) (*domain.
 
 func (r *UserRepository) Update(ctx context.Context, user *domain.User) error {
 	r.logger.Trace("FeedService.Update")
-	conn, err := GetConn(ctx, r.pool)
+	conn, err := utils.GetConn(ctx, r.pool)
 	if err != nil {
 		return err
 	}
@@ -160,7 +162,7 @@ func (r *UserRepository) Update(ctx context.Context, user *domain.User) error {
 
 func (r *UserRepository) UpdateLastActive(ctx context.Context, userID uuid.UUID) error {
 	r.logger.Trace("FeedService.UpdateLastActive")
-	conn, err := GetConn(ctx, r.pool)
+	conn, err := utils.GetConn(ctx, r.pool)
 	if err != nil {
 		return err
 	}
@@ -176,7 +178,7 @@ func (r *UserRepository) UpdateLastActive(ctx context.Context, userID uuid.UUID)
 
 func (r *UserRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	r.logger.Trace("FeedService.Delete")
-	conn, err := GetConn(ctx, r.pool)
+	conn, err := utils.GetConn(ctx, r.pool)
 	if err != nil {
 		return err
 	}
@@ -192,7 +194,7 @@ func (r *UserRepository) Delete(ctx context.Context, id uuid.UUID) error {
 
 func (r *UserRepository) GetUsersByIDs(ctx context.Context, ids []uuid.UUID) ([]domain.User, error) {
 	r.logger.Trace("FeedService.GetUsersByIDs")
-	conn, err := GetConn(ctx, r.pool)
+	conn, err := utils.GetConn(ctx, r.pool)
 	if err != nil {
 		return nil, err
 	}
@@ -246,7 +248,7 @@ func (r *UserRepository) GetUsersByIDs(ctx context.Context, ids []uuid.UUID) ([]
 
 func (r *UserRepository) GetUsersForFeed(ctx context.Context, userID uuid.UUID, limit, offset int) ([]domain.User, error) {
 	r.logger.Tracef("GetUsersForFeed called with userID:", userID, "limit:", limit, "offset:", offset)
-	conn, err := GetConn(ctx, r.pool)
+	conn, err := utils.GetConn(ctx, r.pool)
 	if err != nil {
 		return nil, err
 	}

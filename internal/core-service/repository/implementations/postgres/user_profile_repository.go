@@ -4,8 +4,10 @@ import (
 	"context"
 	"errors"
 
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/core-service/repository/interfaces"
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
+	utils "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/implementations/postgres"
+	bdIface "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/logger"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -15,17 +17,17 @@ var _ interfaces.UserPhotoRepository = (*UserPhotoRepository)(nil)
 var _ interfaces.UserPreferenceRepository = (*UserPreferenceRepository)(nil)
 
 type UserPhotoRepository struct {
-	pool   interfaces.PgxIface
+	pool   bdIface.PgxIface
 	logger logger.Log
 }
 
-func NewUserPhotoRepository(pool interfaces.PgxIface, l logger.Log) *UserPhotoRepository {
+func NewUserPhotoRepository(pool bdIface.PgxIface, l logger.Log) *UserPhotoRepository {
 	return &UserPhotoRepository{pool: pool, logger: l}
 }
 
 func (r *UserPhotoRepository) Create(ctx context.Context, photo *domain.UserPhoto) error {
 	r.logger.Trace("UserPhotoRepository.Create")
-	conn, err := GetConn(ctx, r.pool)
+	conn, err := utils.GetConn(ctx, r.pool)
 	if err != nil {
 		return err
 	}
@@ -47,7 +49,7 @@ func (r *UserPhotoRepository) Create(ctx context.Context, photo *domain.UserPhot
 
 func (r *UserPhotoRepository) GetByID(ctx context.Context, id uuid.UUID) (*domain.UserPhoto, error) {
 	r.logger.Trace("UserPhotoRepository.GetByID")
-	conn, err := GetConn(ctx, r.pool)
+	conn, err := utils.GetConn(ctx, r.pool)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +73,7 @@ func (r *UserPhotoRepository) GetByID(ctx context.Context, id uuid.UUID) (*domai
 
 func (r *UserPhotoRepository) GetByUserID(ctx context.Context, userID uuid.UUID) ([]domain.UserPhoto, error) {
 	r.logger.Trace("UserPhotoRepository.GetByUserID")
-	conn, err := GetConn(ctx, r.pool)
+	conn, err := utils.GetConn(ctx, r.pool)
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +109,7 @@ func (r *UserPhotoRepository) GetByUserID(ctx context.Context, userID uuid.UUID)
 
 func (r *UserPhotoRepository) Update(ctx context.Context, photo *domain.UserPhoto) error {
 	r.logger.Trace("UserPhotoRepository.Update")
-	conn, err := GetConn(ctx, r.pool)
+	conn, err := utils.GetConn(ctx, r.pool)
 	if err != nil {
 		return err
 	}
@@ -128,7 +130,7 @@ func (r *UserPhotoRepository) Update(ctx context.Context, photo *domain.UserPhot
 
 func (r *UserPhotoRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	r.logger.Trace("UserPhotoRepository.Delete")
-	conn, err := GetConn(ctx, r.pool)
+	conn, err := utils.GetConn(ctx, r.pool)
 	if err != nil {
 		return err
 	}
@@ -144,7 +146,7 @@ func (r *UserPhotoRepository) Delete(ctx context.Context, id uuid.UUID) error {
 
 func (r *UserPhotoRepository) UpdateDisplayOrder(ctx context.Context, userID uuid.UUID, photos []domain.UserPhoto) error {
 	r.logger.Trace("UserPhotoRepository.UpdateDisplayOrder")
-	conn, err := GetConn(ctx, r.pool)
+	conn, err := utils.GetConn(ctx, r.pool)
 	if err != nil {
 		return err
 	}
@@ -177,17 +179,17 @@ func (r *UserPhotoRepository) UpdateDisplayOrder(ctx context.Context, userID uui
 }
 
 type UserPreferenceRepository struct {
-	pool   interfaces.PgxIface
+	pool   bdIface.PgxIface
 	logger logger.Log
 }
 
-func NewUserPreferenceRepository(pool interfaces.PgxIface, l logger.Log) *UserPreferenceRepository {
+func NewUserPreferenceRepository(pool bdIface.PgxIface, l logger.Log) *UserPreferenceRepository {
 	return &UserPreferenceRepository{pool: pool, logger: l}
 }
 
 func (r *UserPreferenceRepository) Create(ctx context.Context, preference *domain.UserPreference) error {
 	r.logger.Trace("UserPreferenceRepository.Create")
-	conn, err := GetConn(ctx, r.pool)
+	conn, err := utils.GetConn(ctx, r.pool)
 	if err != nil {
 		return err
 	}
@@ -210,7 +212,7 @@ func (r *UserPreferenceRepository) Create(ctx context.Context, preference *domai
 
 func (r *UserPreferenceRepository) GetByUserID(ctx context.Context, userID uuid.UUID) (*domain.UserPreference, error) {
 	r.logger.Trace("UserPreferenceRepository.GetByUserID")
-	conn, err := GetConn(ctx, r.pool)
+	conn, err := utils.GetConn(ctx, r.pool)
 	if err != nil {
 		return nil, err
 	}
@@ -234,7 +236,7 @@ func (r *UserPreferenceRepository) GetByUserID(ctx context.Context, userID uuid.
 
 func (r *UserPreferenceRepository) Update(ctx context.Context, preference *domain.UserPreference) error {
 	r.logger.Trace("UserPreferenceRepository.Update")
-	conn, err := GetConn(ctx, r.pool)
+	conn, err := utils.GetConn(ctx, r.pool)
 	if err != nil {
 		return err
 	}
@@ -258,7 +260,7 @@ func (r *UserPreferenceRepository) Update(ctx context.Context, preference *domai
 
 func (r *UserPreferenceRepository) Delete(ctx context.Context, userID uuid.UUID) error {
 	r.logger.Trace("UserPreferenceRepository.Delete")
-	conn, err := GetConn(ctx, r.pool)
+	conn, err := utils.GetConn(ctx, r.pool)
 	if err != nil {
 		return err
 	}
@@ -274,7 +276,7 @@ func (r *UserPreferenceRepository) Delete(ctx context.Context, userID uuid.UUID)
 
 func (r *UserPreferenceRepository) GetInterests(ctx context.Context, userID uuid.UUID) ([]domain.Interest, error) {
 	r.logger.Trace("UserPreferenceRepository.GetInterests")
-	conn, err := GetConn(ctx, r.pool)
+	conn, err := utils.GetConn(ctx, r.pool)
 	if err != nil {
 		return nil, err
 	}
@@ -303,7 +305,7 @@ func (r *UserPreferenceRepository) GetInterests(ctx context.Context, userID uuid
 
 func (r *UserPreferenceRepository) UpdateInterests(ctx context.Context, userID uuid.UUID, inter []domain.Interest) error {
 	r.logger.Trace("UserPreferenceRepository.UpdateInterests")
-	conn, err := GetConn(ctx, r.pool)
+	conn, err := utils.GetConn(ctx, r.pool)
 	if err != nil {
 		return err
 	}

@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/core-service/repository/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/constants"
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/errors"
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
+	utils "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/implementations/postgres"
+	bdIface "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 )
@@ -16,10 +18,10 @@ import (
 var _ interfaces.StrikeRepository = (*StrikeRepository)(nil)
 
 type StrikeRepository struct {
-	pool interfaces.PgxIface
+	pool bdIface.PgxIface
 }
 
-func NewStrikeRepository(pool interfaces.PgxIface) *StrikeRepository {
+func NewStrikeRepository(pool bdIface.PgxIface) *StrikeRepository {
 	return &StrikeRepository{
 		pool: pool,
 	}
@@ -27,7 +29,7 @@ func NewStrikeRepository(pool interfaces.PgxIface) *StrikeRepository {
 
 // CreateStrike создает новую жалобу
 func (r *StrikeRepository) CreateStrike(ctx context.Context, strike *domain.Strike) error {
-	conn, err := GetConn(ctx, r.pool)
+	conn, err := utils.GetConn(ctx, r.pool)
 	if err != nil {
 		return err
 	}
@@ -55,7 +57,7 @@ func (r *StrikeRepository) CreateStrike(ctx context.Context, strike *domain.Stri
 
 // GetStrikeByID получает жалобу по ID
 func (r *StrikeRepository) GetStrikeByID(ctx context.Context, strikeID string) (*domain.Strike, error) {
-	conn, err := GetConn(ctx, r.pool)
+	conn, err := utils.GetConn(ctx, r.pool)
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +93,7 @@ func (r *StrikeRepository) GetStrikeByID(ctx context.Context, strikeID string) (
 
 // GetStrikesByUserID получает все жалобы на конкретного пользователя
 func (r *StrikeRepository) GetStrikesByUserID(ctx context.Context, userID string, limit, offset int) ([]*domain.Strike, error) {
-	conn, err := GetConn(ctx, r.pool)
+	conn, err := utils.GetConn(ctx, r.pool)
 	if err != nil {
 		return nil, err
 	}
@@ -140,7 +142,7 @@ func (r *StrikeRepository) GetStrikesByUserID(ctx context.Context, userID string
 
 // GetStrikesByType получает жалобы по типу нарушения
 func (r *StrikeRepository) GetStrikesByType(ctx context.Context, strikeType constants.StrikeType, limit, offset int) ([]*domain.Strike, error) {
-	conn, err := GetConn(ctx, r.pool)
+	conn, err := utils.GetConn(ctx, r.pool)
 	if err != nil {
 		return nil, err
 	}
@@ -189,7 +191,7 @@ func (r *StrikeRepository) GetStrikesByType(ctx context.Context, strikeType cons
 
 // GetStrikesByDateRange получает жалобы за определенный период
 func (r *StrikeRepository) GetStrikesByDateRange(ctx context.Context, from, to time.Time, limit, offset int) ([]*domain.Strike, error) {
-	conn, err := GetConn(ctx, r.pool)
+	conn, err := utils.GetConn(ctx, r.pool)
 	if err != nil {
 		return nil, err
 	}
@@ -238,7 +240,7 @@ func (r *StrikeRepository) GetStrikesByDateRange(ctx context.Context, from, to t
 
 // UpdateStrikeStatus обновляет статус жалобы
 func (r *StrikeRepository) UpdateStrikeStatus(ctx context.Context, strikeID string, status constants.StrikeStatus) error {
-	conn, err := GetConn(ctx, r.pool)
+	conn, err := utils.GetConn(ctx, r.pool)
 	if err != nil {
 		return err
 	}
@@ -264,7 +266,7 @@ func (r *StrikeRepository) UpdateStrikeStatus(ctx context.Context, strikeID stri
 
 // DeleteStrike удаляет жалобу
 func (r *StrikeRepository) DeleteStrike(ctx context.Context, strikeID string) error {
-	conn, err := GetConn(ctx, r.pool)
+	conn, err := utils.GetConn(ctx, r.pool)
 	if err != nil {
 		return err
 	}
@@ -285,7 +287,7 @@ func (r *StrikeRepository) DeleteStrike(ctx context.Context, strikeID string) er
 
 // HasActiveStrikeFromUser проверяет, есть ли уже активная жалоба от этого пользователя на целевого
 func (r *StrikeRepository) HasActiveStrikeFromUser(ctx context.Context, reporterID, targetUserID string) (bool, error) {
-	conn, err := GetConn(ctx, r.pool)
+	conn, err := utils.GetConn(ctx, r.pool)
 	if err != nil {
 		return false, err
 	}

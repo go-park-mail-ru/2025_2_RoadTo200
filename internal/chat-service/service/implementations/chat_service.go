@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/chat-service/repository/interfaces"
 	service "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/chat-service/service/interfaces"
+	interfaces2 "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/core-service/repository/interfaces"
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/errors"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/dto"
@@ -19,14 +20,14 @@ var _ service.ChatService = (*ChatService)(nil)
 
 type ChatService struct {
 	messageRepo interfaces.MessageRepository
-	matchRepo   interfaces.MatchRepository
+	matchRepo   interfaces2.MatchRepository
 	redisClient *redis.Client
 	logger      logger.Log
 }
 
 func NewChatService(
 	messageRepo interfaces.MessageRepository,
-	matchRepo interfaces.MatchRepository,
+	matchRepo interfaces2.MatchRepository,
 	redisClient *redis.Client,
 	logger logger.Log,
 ) *ChatService {

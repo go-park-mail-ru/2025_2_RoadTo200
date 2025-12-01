@@ -4,21 +4,21 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/chat-service/repository/interfaces"
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
+	bdIface "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/logger"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 var _ interfaces.MessageRepository = (*MessageRepository)(nil)
 
 type MessageRepository struct {
-	pool   *pgxpool.Pool
+	pool   bdIface.PgxIface
 	logger logger.Log
 }
 
-func NewMessageRepository(pool *pgxpool.Pool, logger logger.Log) interfaces.MessageRepository {
+func NewMessageRepository(pool bdIface.PgxIface, logger logger.Log) interfaces.MessageRepository {
 	return &MessageRepository{
 		pool:   pool,
 		logger: logger,
@@ -115,42 +115,6 @@ func (r *MessageRepository) GetUnreadCount(ctx context.Context, userID uuid.UUID
 
 	return count, nil
 }
-
-//func (r *MessageRepository) GetChats(ctx context.context, userID uuid.UUID, searchQuery string) ([]uuid.UUID, error) {
-//	query := `
-//		SELECT id, user1_id, u1.name, user2_id, u2.name from match m
-//		JOIN public."user" u1 on u1.id = m.user1_id
-//		JOIN public."user" u2 on u2.id = m.user2_id
-//		WHERE (user1_id==$1 AND u1.name LIKE &2) OR (user2_id==$1 AND u2.name LIKE &2)
-//	`
-//
-//	rows, err := r.pool.Query(ctx, query, args...)
-//	if err != nil {
-//		r.logger.Errorf("failed to get conversations: %w", err)
-//		return nil, fmt.Errorf("failed to get conversations: %w", err)
-//	}
-//	defer rows.Close()
-//
-//	var conversations []domain.Conversation
-//	for rows.Next() {
-//		var conv domain.Conversation
-//		if err := rows.Scan(
-//			&conv.MatchID,
-//			&conv.OtherUserID,
-//			&conv.OtherUserName,
-//			&conv.OtherUserPhoto,
-//			&conv.LastMessage,
-//			&conv.LastMessageTime,
-//			&conv.UnreadCount,
-//		); err != nil {
-//			r.logger.Errorf("failed to scan conversation: %w", err)
-//			return nil, fmt.Errorf("failed to scan conversation: %w", err)
-//		}
-//		conversations = append(conversations, conv)
-//	}
-//
-//	return conversations, nil
-//}
 
 func (r *MessageRepository) GetConversations(ctx context.Context, userID uuid.UUID, searchQuery string) ([]domain.Conversation, error) {
 	query := `

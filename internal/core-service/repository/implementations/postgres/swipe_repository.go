@@ -4,8 +4,10 @@ import (
 	"context"
 	"errors"
 
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/core-service/repository/interfaces"
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
+	utils "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/implementations/postgres"
+	bdIface "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 )
@@ -13,15 +15,15 @@ import (
 var _ interfaces.SwipeRepository = (*SwipeRepository)(nil)
 
 type SwipeRepository struct {
-	pool interfaces.PgxIface
+	pool bdIface.PgxIface
 }
 
-func NewSwipeRepository(pool interfaces.PgxIface) *SwipeRepository {
+func NewSwipeRepository(pool bdIface.PgxIface) *SwipeRepository {
 	return &SwipeRepository{pool: pool}
 }
 
 func (r *SwipeRepository) Create(ctx context.Context, swipe *domain.Swipe) error {
-	conn, err := GetConn(ctx, r.pool)
+	conn, err := utils.GetConn(ctx, r.pool)
 	if err != nil {
 		return err
 	}
@@ -42,7 +44,7 @@ func (r *SwipeRepository) Create(ctx context.Context, swipe *domain.Swipe) error
 }
 
 func (r *SwipeRepository) GetBySwiperAndTarget(ctx context.Context, swiperID, targetID uuid.UUID) (*domain.Swipe, error) {
-	conn, err := GetConn(ctx, r.pool)
+	conn, err := utils.GetConn(ctx, r.pool)
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +66,7 @@ func (r *SwipeRepository) GetBySwiperAndTarget(ctx context.Context, swiperID, ta
 }
 
 func (r *SwipeRepository) GetSwipesBySwiper(ctx context.Context, swiperID uuid.UUID, limit, offset int) ([]domain.Swipe, error) {
-	conn, err := GetConn(ctx, r.pool)
+	conn, err := utils.GetConn(ctx, r.pool)
 	if err != nil {
 		return nil, err
 	}
@@ -101,7 +103,7 @@ func (r *SwipeRepository) GetSwipesBySwiper(ctx context.Context, swiperID uuid.U
 }
 
 func (r *SwipeRepository) GetSwipesByTarget(ctx context.Context, targetID uuid.UUID, limit, offset int) ([]domain.Swipe, error) {
-	conn, err := GetConn(ctx, r.pool)
+	conn, err := utils.GetConn(ctx, r.pool)
 	if err != nil {
 		return nil, err
 	}
@@ -138,7 +140,7 @@ func (r *SwipeRepository) GetSwipesByTarget(ctx context.Context, targetID uuid.U
 }
 
 func (r *SwipeRepository) Exists(ctx context.Context, swiperID, targetID uuid.UUID) (bool, error) {
-	conn, err := GetConn(ctx, r.pool)
+	conn, err := utils.GetConn(ctx, r.pool)
 	if err != nil {
 		return false, err
 	}
@@ -154,7 +156,7 @@ func (r *SwipeRepository) Exists(ctx context.Context, swiperID, targetID uuid.UU
 }
 
 func (r *SwipeRepository) GetSwipesStats(ctx context.Context, userID uuid.UUID) (int, int, int, error) {
-	conn, err := GetConn(ctx, r.pool)
+	conn, err := utils.GetConn(ctx, r.pool)
 	if err != nil {
 		return 0, 0, 0, err
 	}
@@ -178,7 +180,7 @@ func (r *SwipeRepository) GetSwipesStats(ctx context.Context, userID uuid.UUID) 
 }
 
 func (r *SwipeRepository) GetMutualLikes(ctx context.Context, userID uuid.UUID) ([]uuid.UUID, error) {
-	conn, err := GetConn(ctx, r.pool)
+	conn, err := utils.GetConn(ctx, r.pool)
 	if err != nil {
 		return nil, err
 	}

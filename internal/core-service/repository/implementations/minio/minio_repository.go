@@ -9,20 +9,21 @@ import (
 	"time"
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/config"
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/core-service/repository/interfaces"
+	bdIface "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
 	"github.com/minio/minio-go/v7"
 )
 
 var _ interfaces.FileStorage = (*StorageRepository)(nil)
 
 type StorageRepository struct {
-	client     interfaces.MinioIface
+	client     bdIface.MinioIface
 	bucketName string
 	address    string
 	useSSL     bool
 }
 
-func NewStorageRepository(cl interfaces.MinioIface, cfg *config.MinIOConfig) *StorageRepository {
+func NewStorageRepository(cl bdIface.MinioIface, cfg *config.MinIOConfig) *StorageRepository {
 	addr := cfg.Address
 	if os.Getenv(cfg.Address) != "" {
 		addr = os.Getenv(cfg.Address)

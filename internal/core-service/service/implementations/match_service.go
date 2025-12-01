@@ -4,8 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/chat-service/repository/interfaces"
-	service "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/chat-service/service/interfaces"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/core-service/repository/interfaces"
+	interfaces2 "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/core-service/repository/interfaces"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/core-service/service/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/errors"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/dto"
@@ -16,7 +17,7 @@ import (
 var _ service.MatchService = (*MatchService)(nil)
 
 type MatchService struct {
-	matchRepo interfaces.MatchRepository
+	matchRepo interfaces2.MatchRepository
 	userRepo  interfaces.UserRepository
 	swipeRepo interfaces.SwipeRepository
 	photoRepo interfaces.UserPhotoRepository // Добавляем репозиторий фотографий
@@ -24,7 +25,7 @@ type MatchService struct {
 }
 
 func NewMatchService(
-	matchRepo interfaces.MatchRepository,
+	matchRepo interfaces2.MatchRepository,
 	userRepo interfaces.UserRepository,
 	swipeRepo interfaces.SwipeRepository,
 	photoRepo interfaces.UserPhotoRepository, // Добавляем параметр

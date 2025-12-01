@@ -5,9 +5,11 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/core-service/repository/interfaces"
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	expectation "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/errors"
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
+	utils "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/implementations/postgres"
+	bdIface "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 )
@@ -15,15 +17,15 @@ import (
 var _ interfaces.MatchRepository = (*MatchRepository)(nil)
 
 type MatchRepository struct {
-	pool interfaces.PgxIface
+	pool bdIface.PgxIface
 }
 
-func NewMatchRepository(pool interfaces.PgxIface) *MatchRepository {
+func NewMatchRepository(pool bdIface.PgxIface) *MatchRepository {
 	return &MatchRepository{pool: pool}
 }
 
 func (r *MatchRepository) Create(ctx context.Context, match *domain.Match) error {
-	conn, err := GetConn(ctx, r.pool)
+	conn, err := utils.GetConn(ctx, r.pool)
 	if err != nil {
 		return err
 	}
@@ -52,7 +54,7 @@ func (r *MatchRepository) Create(ctx context.Context, match *domain.Match) error
 }
 
 func (r *MatchRepository) GetByID(ctx context.Context, matchID uuid.UUID) (*domain.Match, error) {
-	conn, err := GetConn(ctx, r.pool)
+	conn, err := utils.GetConn(ctx, r.pool)
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +84,7 @@ func (r *MatchRepository) GetByID(ctx context.Context, matchID uuid.UUID) (*doma
 }
 
 func (r *MatchRepository) GetByUsers(ctx context.Context, user1ID, user2ID uuid.UUID) (*domain.Match, error) {
-	conn, err := GetConn(ctx, r.pool)
+	conn, err := utils.GetConn(ctx, r.pool)
 	if err != nil {
 		return nil, err
 	}
@@ -109,7 +111,7 @@ func (r *MatchRepository) GetByUsers(ctx context.Context, user1ID, user2ID uuid.
 }
 
 func (r *MatchRepository) GetUserMatches(ctx context.Context, userID uuid.UUID, limit, offset int) ([]domain.Match, error) {
-	conn, err := GetConn(ctx, r.pool)
+	conn, err := utils.GetConn(ctx, r.pool)
 	if err != nil {
 		return nil, err
 	}
@@ -148,7 +150,7 @@ func (r *MatchRepository) GetUserMatches(ctx context.Context, userID uuid.UUID, 
 }
 
 func (r *MatchRepository) UpdateActive(ctx context.Context, user1ID, user2ID uuid.UUID, isActive bool) error {
-	conn, err := GetConn(ctx, r.pool)
+	conn, err := utils.GetConn(ctx, r.pool)
 	if err != nil {
 		return err
 	}
@@ -167,7 +169,7 @@ func (r *MatchRepository) UpdateActive(ctx context.Context, user1ID, user2ID uui
 }
 
 func (r *MatchRepository) Delete(ctx context.Context, user1ID, user2ID uuid.UUID) error {
-	conn, err := GetConn(ctx, r.pool)
+	conn, err := utils.GetConn(ctx, r.pool)
 	if err != nil {
 		return err
 	}
@@ -186,7 +188,7 @@ func (r *MatchRepository) Delete(ctx context.Context, user1ID, user2ID uuid.UUID
 }
 
 func (r *MatchRepository) CheckMutualLike(ctx context.Context, user1ID, user2ID uuid.UUID) (bool, error) {
-	conn, err := GetConn(ctx, r.pool)
+	conn, err := utils.GetConn(ctx, r.pool)
 	if err != nil {
 		return false, err
 	}
