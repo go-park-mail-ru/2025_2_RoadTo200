@@ -74,7 +74,7 @@ func main() {
 
 	// Create gRPC server
 	coreServiceServer := coreServer.NewCoreServer(profileService, feedService, swipeService, matchService, strikeServie, loggerInst)
-	grpcServer := gServer.NewGrpcServer(cfg.Port)
+	grpcServer := gServer.NewGrpcServer(cfg.Port, loggerInst)
 
 	pb.RegisterCoreServiceServer(grpcServer, coreServiceServer)
 

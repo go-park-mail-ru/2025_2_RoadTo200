@@ -58,7 +58,7 @@ func main() {
 
 	// Create gRPC server
 	authServer := server.NewAuthServer(authService, loggerInst)
-	grpcServer := gServer.NewGrpcServer(cfg.Port)
+	grpcServer := gServer.NewGrpcServer(cfg.Port, loggerInst)
 	pb.RegisterAuthServiceServer(grpcServer, authServer)
 
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%s", cfg.AuthService.Port))
