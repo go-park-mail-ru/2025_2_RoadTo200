@@ -4,40 +4,12 @@
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 -- Создаем пользовательские ENUM типы для повышения целостности данных
-CREATE TYPE gender_enum AS ENUM ('male', 'female', 'other');
 CREATE TYPE gender_preference_enum AS ENUM ('male', 'female', 'both');
 CREATE TYPE swipe_type_enum AS ENUM ('like', 'dislike', 'super_like');
 CREATE TYPE plan_type_enum AS ENUM ('premium', 'gold', 'platinum');
 CREATE TYPE interest_theme_enum AS ENUM ('workout', 'fun', 'party', 'chill', 'love', 'relax', 'yoga', 'friendship', 'culture', 'cinema');
-
--- Таблица: user
-CREATE TABLE "user"
-(
-    id          UUID PRIMARY KEY                  DEFAULT gen_random_uuid(),
-    email       TEXT UNIQUE              NOT NULL,
-    phone       TEXT UNIQUE,
-    name        TEXT                     NOT NULL,
-    password    TEXT                     NOT NULL,
-    birth_date  DATE,
-    gender      gender_enum,
-    bio         TEXT,
-    city        TEXT,
-    artist      TEXT,
-    quote       TEXT,
-    is_verified BOOLEAN     NOT NULL DEFAULT FALSE,
-    last_active TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    CONSTRAINT user_email_check CHECK (email ~* '^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$'),
-    CONSTRAINT user_age_check CHECK (birth_date <= (NOW() - INTERVAL '18 years')::date),
-    CONSTRAINT user_name_length_check CHECK (LENGTH(name) BETWEEN 1 AND 50),
-    CONSTRAINT user_password_length_check CHECK (LENGTH(TRIM(password)) BETWEEN 8 AND 60),
-    CONSTRAINT user_phone_format_check CHECK (phone IS NULL OR phone ~ '^\+?[0-9\s\-\(\)]{10,20}$'),
-    CONSTRAINT user_bio_length_check CHECK (LENGTH(TRIM(bio)) < 255),
-    CONSTRAINT user_city_check CHECK (LENGTH(city) BETWEEN 1 AND 50),
-    CONSTRAINT user_artist_check CHECK (LENGTH(artist) BETWEEN 1 AND 50),
-    CONSTRAINT user_quote_check CHECK (LENGTH(quote) BETWEEN 1 AND 50)
-);
+CREATE TYPE strike_reason_type AS ENUM ('spam', 'fake_profile', 'offensive_content', 'harassment', 'inappropriate_content', 'underage', 'copyright_violation', 'other');
+CREATE TYPE strike_status_type AS ENUM ('pending', 'approved', 'rejected', 'resolved');
 
 -- Таблица: user_photo
 CREATE TABLE user_photo
@@ -74,34 +46,6 @@ CREATE TABLE swipe
     CONSTRAINT swipe_no_self_swipe_check CHECK (swiper_user_id <> target_user_id)
 );
 
--- Таблица: match
-CREATE TABLE match
-(
-    id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user1_id   UUID        NOT NULL REFERENCES "user" (id) ON DELETE CASCADE,
-    user2_id   UUID        NOT NULL REFERENCES "user" (id) ON DELETE CASCADE,
-    is_active  BOOLEAN     NOT NULL DEFAULT TRUE,
-    matched_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    CONSTRAINT match_no_self_match_check CHECK (user1_id <> user2_id)
-);
-
--- Таблица: message
-CREATE TABLE message
-(
-    id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    match_id    UUID        NOT NULL REFERENCES match (id) ON DELETE CASCADE,
-    sender_id   UUID        NOT NULL REFERENCES "user" (id) ON DELETE CASCADE,
-    receiver_id UUID        NOT NULL REFERENCES "user" (id) ON DELETE CASCADE,
-    content     TEXT        NOT NULL,
-    is_read     BOOLEAN     NOT NULL DEFAULT FALSE,
-    created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
-);
-
--- Indexes for performance
-CREATE INDEX idx_message_match_id_created_at ON message(match_id, created_at DESC);
-CREATE INDEX idx_message_receiver_unread ON message(receiver_id, is_read) WHERE is_read = FALSE;
-CREATE INDEX idx_message_created_at ON message(created_at DESC);
-
 -- Таблица: subscription
 CREATE TABLE subscription
 (
@@ -123,6 +67,25 @@ CREATE TABLE interest
 );
 
 
+CREATE TABLE strike (
+                        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                        reporter_id UUID NOT NULL REFERENCES "user" (id) ON DELETE CASCADE,
+                        target_user_id UUID NOT NULL REFERENCES "user" (id) ON DELETE CASCADE,
+                        type strike_reason_type NOT NULL,
+                        reason TEXT,
+                        status strike_status_type NOT NULL DEFAULT 'pending',
+                        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                        updated_at TIMESTAMPTZ,
+                        moderator_id UUID REFERENCES "user" (id) ON DELETE CASCADE,
+                        moderator_note TEXT,
+
+                        UNIQUE (reporter_id, target_user_id),
+                        CONSTRAINT strike_reason_check CHECK (LENGTH(reason) BETWEEN 1 AND 250),
+                        CONSTRAINT strike_note_check CHECK (LENGTH(moderator_note) BETWEEN 1 AND 250),
+                        CONSTRAINT chk_strikes_dates CHECK (created_at <= COALESCE(updated_at, NOW())),
+                        CONSTRAINT chk_strikes_self_report CHECK (reporter_id != target_user_id)
+);
+
 -- Функция для обновления updated_at
 CREATE OR REPLACE FUNCTION update_updated_at_column()
     RETURNS TRIGGER AS
@@ -134,28 +97,18 @@ END;
 $$ LANGUAGE plpgsql;
 -- end;
 
--- Триггеры для автоматического обновления updated_at
-CREATE TRIGGER update_user_updated_at
+CREATE TRIGGER update_strike_updated_at
     BEFORE UPDATE
-    ON "user"
-    FOR EACH ROW
-EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER update_user_preference_updated_at
-    BEFORE UPDATE
-    ON user_preference
+    ON strike
     FOR EACH ROW
 EXECUTE FUNCTION update_updated_at_column();
 
 -- Индексы для производительности
-CREATE INDEX IF NOT EXISTS idx_user_email ON "user"(email);
-CREATE INDEX IF NOT EXISTS idx_user_phone ON "user"(phone);
 CREATE INDEX IF NOT EXISTS idx_user_photo_user_id ON user_photo(user_id);
 CREATE INDEX IF NOT EXISTS idx_swipe_swiper_id ON swipe(swiper_user_id);
 CREATE INDEX IF NOT EXISTS idx_swipe_target_id ON swipe(target_user_id);
-CREATE INDEX IF NOT EXISTS idx_message_sender_id ON message(sender_id);
-CREATE INDEX IF NOT EXISTS idx_message_match_id ON message(match_id);
-CREATE INDEX IF NOT EXISTS idx_match_user1_id ON match(user1_id);
-CREATE INDEX IF NOT EXISTS idx_match_user2_id ON match(user2_id);
+CREATE INDEX idx_message_match_id_created_at ON message(match_id, created_at DESC);
+CREATE INDEX idx_message_receiver_unread ON message(receiver_id, is_read) WHERE is_read = FALSE;
+CREATE INDEX idx_message_created_at ON message(created_at DESC);
 
 SELECT 'DDL executed successfully' as status;
