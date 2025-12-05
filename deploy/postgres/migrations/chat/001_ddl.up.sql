@@ -14,6 +14,8 @@ CREATE TABLE match
     user2_id   UUID        NOT NULL REFERENCES "user" (id) ON DELETE CASCADE,
     is_active  BOOLEAN     NOT NULL DEFAULT TRUE,
     matched_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+    CONSTRAINT match_unique UNIQUE (user1_id, user2_id),
     CONSTRAINT match_no_self_match_check CHECK (user1_id <> user2_id)
 );
 

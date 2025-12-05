@@ -253,6 +253,7 @@ func (r *UserRepository) GetUsersByIDs(ctx context.Context, ids []uuid.UUID) ([]
 	return users, nil
 }
 
+// TODO: нужно переделать
 func (r *UserRepository) GetUsersForFeed(ctx context.Context, userID uuid.UUID, limit, offset int) ([]domain.User, error) {
 	r.logger.Tracef("GetUsersForFeed called with userID:", userID, "limit:", limit, "offset:", offset)
 	conn, err := utils.GetConn(ctx, r.pool)

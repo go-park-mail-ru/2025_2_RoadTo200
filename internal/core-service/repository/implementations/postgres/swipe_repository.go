@@ -184,7 +184,7 @@ func (r *SwipeRepository) GetMutualLikes(ctx context.Context, userID uuid.UUID) 
 	if err != nil {
 		return nil, err
 	}
-
+	// TODO: нужно придумать как помечать обработанные ибо матч в другом домене
 	query := `
 		SELECT s1.swiper_user_id 
 		FROM swipe s1
@@ -192,11 +192,7 @@ func (r *SwipeRepository) GetMutualLikes(ctx context.Context, userID uuid.UUID) 
 		WHERE s1.target_user_id = $1 
 		AND s1.swipe_type = 'like' 
 		AND s2.swipe_type = 'like'
-		AND NOT EXISTS (
-			SELECT 1 FROM match m 
-			WHERE (m.user1_id = s1.swiper_user_id AND m.user2_id = s1.target_user_id)
-			OR (m.user1_id = s1.target_user_id AND m.user2_id = s1.swiper_user_id)
-		)`
+	`
 
 	rows, err := conn.Query(ctx, query, userID)
 	if err != nil {
