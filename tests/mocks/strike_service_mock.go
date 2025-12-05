@@ -16,7 +16,7 @@ import (
 
 	constants "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/constants"
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
-	dto "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/dto"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/dto"
 	uuid "github.com/google/uuid"
 	gomock "go.uber.org/mock/gomock"
 )

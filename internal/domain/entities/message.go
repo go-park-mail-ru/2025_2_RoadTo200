@@ -28,6 +28,17 @@ type ChatMessage struct {
 	Error     string    `json:"error,omitempty"`
 }
 
+type LastMessage struct {
+	MatchID   uuid.UUID `json:"message_id,omitempty"`
+	Content   string    `json:"content,omitempty"`
+	CreatedAt time.Time `json:"created_at,omitempty"`
+}
+
+type UnreadCount struct {
+	MatchID uuid.UUID `json:"message_id,omitempty"`
+	Amount  int       `json:"content,omitempty"`
+}
+
 // Conversation - chat preview for conversations list
 type Conversation struct {
 	MatchID         uuid.UUID `json:"match_id"`

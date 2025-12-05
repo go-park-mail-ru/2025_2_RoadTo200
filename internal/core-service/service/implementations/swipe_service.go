@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	interfaces2 "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/chat-service/repository/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/core-service/repository/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/constants"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
@@ -14,10 +15,10 @@ import (
 
 type SwipeService struct {
 	swipeRepo interfaces.SwipeRepository
-	matchRepo interfaces.MatchRepository
+	matchRepo interfaces2.MatchRepository
 }
 
-func NewSwipeService(swipeRepo interfaces.SwipeRepository, matchRepo interfaces.MatchRepository) *SwipeService {
+func NewSwipeService(swipeRepo interfaces.SwipeRepository, matchRepo interfaces2.MatchRepository) *SwipeService {
 	return &SwipeService{
 		swipeRepo: swipeRepo,
 		matchRepo: matchRepo,

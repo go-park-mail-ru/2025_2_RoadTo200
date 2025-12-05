@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"strings"
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/auth-service/repository/interfaces"
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
@@ -30,6 +29,7 @@ func (r *UserRepository) Create(ctx context.Context, user *domain.User) error {
 	r.logger.Trace("FeedService.Create")
 	conn, err := utils.GetConn(ctx, r.pool)
 	if err != nil {
+		r.logger.Errorf("get DB context error: %s", err.Error())
 		return err
 	}
 
@@ -54,6 +54,7 @@ func (r *UserRepository) GetByID(ctx context.Context, id uuid.UUID) (*domain.Use
 	r.logger.Trace("FeedService.GetByID")
 	conn, err := utils.GetConn(ctx, r.pool)
 	if err != nil {
+		r.logger.Errorf("get DB context error: %s", err.Error())
 		return nil, err
 	}
 
@@ -83,6 +84,7 @@ func (r *UserRepository) GetByEmail(ctx context.Context, email string) (*domain.
 	r.logger.Trace("FeedService.GetByEmail")
 	conn, err := utils.GetConn(ctx, r.pool)
 	if err != nil {
+		r.logger.Errorf("get DB context error: %s", err.Error())
 		return nil, err
 	}
 
@@ -112,6 +114,7 @@ func (r *UserRepository) GetByPhone(ctx context.Context, phone string) (*domain.
 	r.logger.Trace("FeedService.GetByPhone")
 	conn, err := utils.GetConn(ctx, r.pool)
 	if err != nil {
+		r.logger.Errorf("get DB context error: %s", err.Error())
 		return nil, err
 	}
 
@@ -137,6 +140,7 @@ func (r *UserRepository) Update(ctx context.Context, user *domain.User) error {
 	r.logger.Trace("FeedService.Update")
 	conn, err := utils.GetConn(ctx, r.pool)
 	if err != nil {
+		r.logger.Errorf("get DB context error: %s", err.Error())
 		return err
 	}
 
@@ -164,6 +168,7 @@ func (r *UserRepository) UpdateLastActive(ctx context.Context, userID uuid.UUID)
 	r.logger.Trace("FeedService.UpdateLastActive")
 	conn, err := utils.GetConn(ctx, r.pool)
 	if err != nil {
+		r.logger.Errorf("get DB context error: %s", err.Error())
 		return err
 	}
 
@@ -180,6 +185,7 @@ func (r *UserRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	r.logger.Trace("FeedService.Delete")
 	conn, err := utils.GetConn(ctx, r.pool)
 	if err != nil {
+		r.logger.Errorf("get DB context error: %s", err.Error())
 		return err
 	}
 
@@ -196,6 +202,7 @@ func (r *UserRepository) GetUsersByIDs(ctx context.Context, ids []uuid.UUID) ([]
 	r.logger.Trace("FeedService.GetUsersByIDs")
 	conn, err := utils.GetConn(ctx, r.pool)
 	if err != nil {
+		r.logger.Errorf("get DB context error: %s", err.Error())
 		return nil, err
 	}
 
@@ -210,14 +217,14 @@ func (r *UserRepository) GetUsersByIDs(ctx context.Context, ids []uuid.UUID) ([]
 		args[i] = id
 	}
 
-	query := fmt.Sprintf(`
+	query := `
         SELECT id, email, phone, name, password, birth_date, gender, bio, 
                city, artist, quote, is_verified, last_active, created_at, updated_at 
         FROM "user" 
-        WHERE id IN (%s)
-        ORDER BY created_at DESC`, strings.Join(placeholders, ","))
+        WHERE id IN ($1)
+        ORDER BY created_at DESC`
 
-	rows, err := conn.Query(ctx, query, args...)
+	rows, err := conn.Query(ctx, query, args)
 	if err != nil {
 		return nil, err
 	}
@@ -250,6 +257,7 @@ func (r *UserRepository) GetUsersForFeed(ctx context.Context, userID uuid.UUID, 
 	r.logger.Tracef("GetUsersForFeed called with userID:", userID, "limit:", limit, "offset:", offset)
 	conn, err := utils.GetConn(ctx, r.pool)
 	if err != nil {
+		r.logger.Errorf("get DB context error: %s", err.Error())
 		return nil, err
 	}
 

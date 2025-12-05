@@ -4,9 +4,10 @@ import (
 	"context"
 	"fmt"
 
+	interfaces2 "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/chat-service/repository/interfaces"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/chat-service/service/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/core-service/repository/interfaces"
-	interfaces2 "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/core-service/repository/interfaces"
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/core-service/service/interfaces"
+	service2 "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/core-service/service/implementations"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/errors"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/dto"
@@ -116,10 +117,10 @@ func (s *MatchService) GetUserMatches(ctx context.Context, userID uuid.UUID, lim
 		photos := userPhotos[matchedUserID]
 
 		// Вычисляем возраст
-		age := calculateAge(matchedUser.BirthDate)
+		age := service2.calculateAge(matchedUser.BirthDate)
 
 		// Получаем описание
-		description := getDescription(matchedUser.Bio)
+		description := service2.getDescription(matchedUser.Bio)
 
 		matchResponses = append(matchResponses, dto.MatchResponse{
 			Match:       match,
