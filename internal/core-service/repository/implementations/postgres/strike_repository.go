@@ -2,13 +2,14 @@ package postgres
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/core-service/repository/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/constants"
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/errors"
+	expectations "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/errors"
 	utils "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/implementations/postgres"
 	bdIface "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
 	"github.com/google/uuid"
@@ -82,8 +83,8 @@ func (r *StrikeRepository) GetStrikeByID(ctx context.Context, strikeID string) (
 		&strike.ModeratorNote,
 	)
 	if err != nil {
-		if err == pgx.ErrNoRows {
-			return nil, errors.ErrStrikeNotFound
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, expectations.ErrStrikeNotFound
 		}
 		return nil, fmt.Errorf("failed to get strike by ID: %w", err)
 	}
@@ -258,7 +259,7 @@ func (r *StrikeRepository) UpdateStrikeStatus(ctx context.Context, strikeID stri
 	}
 
 	if result.RowsAffected() == 0 {
-		return errors.ErrStrikeNotFound
+		return expectations.ErrStrikeNotFound
 	}
 
 	return nil
