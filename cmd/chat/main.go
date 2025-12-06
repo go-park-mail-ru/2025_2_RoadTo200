@@ -9,12 +9,11 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/chat-service/repository"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/chat-service/repository/implementations/postgres"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/chat-service/server"
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/chat-service/service"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/chat-service/service/implementations"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/config"
 	gServer "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/grpc"
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/implementations/postgres"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/logger"
 	pgxConn "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/postgres"
 	redisConn "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/redis"
@@ -50,7 +49,7 @@ func main() {
 	loggerInst.Info("✅ Redis Pub/Sub connected")
 
 	// Initialize repositories
-	messageRepo := repository.NewMessageRepository(pgPool, loggerInst)
+	messageRepo := postgres.NewMessageRepository(pgPool, loggerInst)
 	matchRepo := postgres.NewMatchRepository(pgPool)
 
 	// Initialize chat service
@@ -58,7 +57,7 @@ func main() {
 
 	// Create gRPC server
 	chatServer := server.NewChatServer(chatService, loggerInst)
-	grpcServer := gServer.NewGrpcServer(cfg.Port)
+	grpcServer := gServer.NewGrpcServer(cfg.Port, loggerInst)
 	pb.RegisterChatServiceServer(grpcServer, chatServer)
 
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%s", cfg.ChatService.Port))

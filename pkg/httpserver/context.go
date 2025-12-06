@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/logger"
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/postgres"
 )
 
 var _ context.Context = (*Context)(nil)
@@ -13,7 +12,7 @@ var _ context.Context = (*Context)(nil)
 type Context struct {
 	context context.Context
 	logger  logger.Log
-	conn    postgres.PgxIface
+	conn    interface{}
 }
 
 func NewContext(ctx context.Context, logger logger.Log) *Context {
@@ -23,11 +22,16 @@ func NewContext(ctx context.Context, logger logger.Log) *Context {
 	}
 }
 
-func (ctx Context) Logger() logger.Log {
+func (ctx *Context) Logger() logger.Log {
 	return ctx.logger
 }
-func (ctx Context) Conn() postgres.PgxIface {
+
+func (ctx *Context) Conn() interface{} {
 	return ctx.conn
+}
+
+func (ctx *Context) SetConn(conn interface{}) {
+	ctx.conn = conn
 }
 
 func (ctx *Context) Value(key any) any {

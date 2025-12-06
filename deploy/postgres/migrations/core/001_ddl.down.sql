@@ -1,0 +1,11 @@
+drop table strike;
+drop table interest;
+drop table user_preference cascade;
+drop table user_photo cascade;
+drop table subscription cascade;
+drop table swipe cascade;
+drop type strike_reason_type;
+drop type strike_status_type;
+drop type gender_preference_enum;
+drop type plan_type_enum;
+drop type interest_theme_enum;

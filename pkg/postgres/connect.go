@@ -16,12 +16,11 @@ func NewConnect(ctx context.Context, cfg *config.PostgresConfig) (*pgxpool.Pool,
 		return nil, fmt.Errorf("PostgreSQL port is empty")
 	}
 
-	// УБЕРИ эти строки - они пытаются получить значения из env переменных
-	host := os.Getenv(cfg.Host)         // ❌ Это ищет env переменную с именем "localhost"
-	sport := os.Getenv(cfg.Port)        // ❌ Это ищет env переменную с именем "5435"
-	user := os.Getenv(cfg.User)         // ❌ Это ищет env переменную с именем "postgres"
-	password := os.Getenv(cfg.Password) // ❌ Это ищет env переменную с именем "password"
-	base := os.Getenv(cfg.Base)         // ❌ Это ищет env переменную с именем "dating_app"
+	host := os.Getenv(cfg.Host)
+	sport := os.Getenv(cfg.Port)
+	user := os.Getenv(cfg.User)
+	password := os.Getenv(cfg.Password)
+	base := os.Getenv(cfg.Base)
 
 	// Преобразуем порт в число
 	port, err := strconv.Atoi(sport)

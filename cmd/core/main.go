@@ -9,11 +9,11 @@ import (
 	"syscall"
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/config"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/core-service/repository/implementations/minio"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/core-service/repository/implementations/postgres"
 	coreServer "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/core-service/server"
+	serviceImpl "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/core-service/service/implementations"
 	gServer "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/grpc"
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/implementations/minio"
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/implementations/postgres"
-	serviceImpl "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/implementations"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/logger"
 	minioConn "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/minio"
 	pgxConn "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/postgres"
@@ -74,7 +74,7 @@ func main() {
 
 	// Create gRPC server
 	coreServiceServer := coreServer.NewCoreServer(profileService, feedService, swipeService, matchService, strikeServie, loggerInst)
-	grpcServer := gServer.NewGrpcServer(cfg.Port)
+	grpcServer := gServer.NewGrpcServer(cfg.Port, loggerInst)
 
 	pb.RegisterCoreServiceServer(grpcServer, coreServiceServer)
 

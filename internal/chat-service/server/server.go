@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/chat-service/converters"
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/chat-service/service"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/chat-service/service/implementations"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/logger"
 	pb "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/proto/chat"
 	"github.com/google/uuid"

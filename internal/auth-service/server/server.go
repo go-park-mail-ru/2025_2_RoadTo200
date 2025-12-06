@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/auth-service/converters"
-	service "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
+	service "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/auth-service/service/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/logger"
 	pb "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/proto/auth"
 	"github.com/google/uuid"

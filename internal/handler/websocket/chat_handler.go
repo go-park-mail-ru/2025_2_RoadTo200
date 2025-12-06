@@ -7,10 +7,12 @@ import (
 	"net/http"
 	"time"
 
+	service "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/chat-service/service/interfaces"
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/dto"
-	service "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/middleware"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/logger"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/utils"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 	"github.com/redis/go-redis/v9"
@@ -41,15 +43,13 @@ var upgrader = websocket.Upgrader{
 
 type WebSocketHandler struct {
 	chatService service.ChatService
-	authService service.AuthService
 	redisClient *redis.Client
 	logger      logger.Log
 }
 
-func NewWebSocketHandler(chatService service.ChatService, authService service.AuthService, redisClient *redis.Client, logger logger.Log) *WebSocketHandler {
+func NewWebSocketHandler(chatService service.ChatService, redisClient *redis.Client, logger logger.Log) *WebSocketHandler {
 	return &WebSocketHandler{
 		chatService: chatService,
-		authService: authService,
 		redisClient: redisClient,
 		logger:      logger,
 	}
@@ -60,20 +60,28 @@ func (h *WebSocketHandler) HandleConnection(w http.ResponseWriter, r *http.Reque
 	h.logger.Trace("WebSocketHandler.HandleConnection")
 
 	// 1. Authenticate user
-	cookie, err := r.Cookie("session_token")
-	if err != nil || cookie.Value == "" {
-		h.logger.Warn("No session token provided")
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
-	token := cookie.Value
+	//cookie, err := r.Cookie("session_token")
+	//if err != nil || cookie.Value == "" {
+	//	h.logger.Warn("No session token provided")
+	//	http.Error(w, "Unauthorized", http.StatusUnauthorized)
+	//	return
+	//}
+	//token := cookie.Value
+	//
+	//user, err := h.authService.ValidateSession(r.Context(), token)
+	//if err != nil {
+	//	h.logger.Warnf("Invalid session: %v", err)
+	//	http.Error(w, "Unauthorized", http.StatusUnauthorized)
+	//	return
+	//}
 
-	user, err := h.authService.ValidateSession(r.Context(), token)
+	userID, err := middleware.GetUserIDFromContext(r.Context())
 	if err != nil {
-		h.logger.Warnf("Invalid session: %v", err)
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		h.logger.Warnf("GetFeed err: %v\n", err)
+		utils.WriteJSONError(w, http.StatusUnauthorized, "unauthorized")
 		return
 	}
+	h.logger.Debugf("UserID from context: %v", userID)
 
 	// 2. Upgrade connection
 	conn, err := upgrader.Upgrade(w, r, nil)
@@ -83,10 +91,10 @@ func (h *WebSocketHandler) HandleConnection(w http.ResponseWriter, r *http.Reque
 	}
 	defer conn.Close()
 
-	h.logger.Infof("User %s connected via WebSocket", user.ID)
+	h.logger.Infof("User %s connected via WebSocket", userID)
 
 	// 3. Subscribe to Redis
-	msgChan, cleanup, err := h.subscribe(r.Context(), user.ID)
+	msgChan, cleanup, err := h.subscribe(r.Context(), userID)
 	if err != nil {
 		h.logger.Errorf("Failed to subscribe to chat service: %v", err)
 		return
@@ -95,7 +103,7 @@ func (h *WebSocketHandler) HandleConnection(w http.ResponseWriter, r *http.Reque
 
 	// 4. Start loops
 	go h.writePump(conn, msgChan)
-	h.readPump(conn, user.ID)
+	h.readPump(conn, userID)
 }
 
 // subscribe returns a channel that receives real-time messages for the user

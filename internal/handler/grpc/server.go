@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	handler "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/http"
+	grpcserver "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/grpc"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/logger"
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/prometheus/client_golang/prometheus"
@@ -12,7 +13,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-func NewGrpcServer(port int) *grpc.Server {
+func NewGrpcServer(port int, l logger.Log) *grpc.Server {
 	reg := prometheus.NewRegistry()
 
 	// Регистрируем стандартные метрики
@@ -20,8 +21,14 @@ func NewGrpcServer(port int) *grpc.Server {
 
 	// Создаем gRPC сервер с метриками
 	server := grpc.NewServer(
-		grpc.StreamInterceptor(grpcMetrics.StreamServerInterceptor()),
-		grpc.UnaryInterceptor(grpcMetrics.UnaryServerInterceptor()),
+		grpc.ChainUnaryInterceptor(
+			grpcserver.ContextInjectorInterceptor(l),
+			grpcMetrics.UnaryServerInterceptor(),
+		),
+		grpc.ChainStreamInterceptor(
+			grpcserver.StreamContextInjectorInterceptor(l),
+			grpcMetrics.StreamServerInterceptor(),
+		),
 	)
 
 	// Инициализируем метрики
