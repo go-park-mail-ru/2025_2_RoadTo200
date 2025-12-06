@@ -8,6 +8,7 @@ import (
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	utils "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/implementations/postgres"
 	bdIface "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/logger"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 )
@@ -15,7 +16,8 @@ import (
 var _ interfaces.SwipeRepository = (*SwipeRepository)(nil)
 
 type SwipeRepository struct {
-	pool bdIface.PgxIface
+	pool   bdIface.PgxIface
+	logger logger.Log
 }
 
 func NewSwipeRepository(pool bdIface.PgxIface) *SwipeRepository {
@@ -184,14 +186,12 @@ func (r *SwipeRepository) GetMutualLikes(ctx context.Context, userID uuid.UUID) 
 	if err != nil {
 		return nil, err
 	}
-	// TODO: нужно придумать как помечать обработанные ибо матч в другом домене
+
 	query := `
-		SELECT s1.swiper_user_id 
-		FROM swipe s1
+		SELECT s1.swiper_user_id FROM swipe s1
 		INNER JOIN swipe s2 ON s1.swiper_user_id = s2.target_user_id AND s1.target_user_id = s2.swiper_user_id
-		WHERE s1.target_user_id = $1 
-		AND s1.swipe_type = 'like' 
-		AND s2.swipe_type = 'like'
+					AND s1.swipe_type = 'like' AND s2.swipe_type = 'like'
+		WHERE s1.target_user_id = $1
 	`
 
 	rows, err := conn.Query(ctx, query, userID)
@@ -210,4 +210,41 @@ func (r *SwipeRepository) GetMutualLikes(ctx context.Context, userID uuid.UUID) 
 	}
 
 	return userIDs, nil
+}
+
+func (r *SwipeRepository) GetUsersForFeed(ctx context.Context, userID uuid.UUID, limit, offset int) ([]uuid.UUID, error) {
+	r.logger.Tracef("GetUsersForFeed called with userID:", userID, "limit:", limit, "offset:", offset)
+	conn, err := utils.GetConn(ctx, r.pool)
+	if err != nil {
+		r.logger.Errorf("get DB context error: %s", err.Error())
+		return nil, err
+	}
+
+	query := `
+			SELECT i1.user_id FROM interest i
+			INNER JOIN interest i1 ON i1.theme = i.theme AND i1.user_id <> i.user_id
+			LEFT JOIN swipe s ON i.user_id <> s.swiper_user_id AND i1.user_id <> target_user_id
+			WHERE s.id IS NULL
+			LIMIT $2 OFFSET $3`
+
+	rows, err := conn.Query(ctx, query, userID, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	r.logger.Debugf("Getting users for feed with userID: %v", userID)
+	var users []uuid.UUID
+	for rows.Next() {
+		r.logger.Trace("Scanning a user row in GetUsersForFeed")
+		var user uuid.UUID
+		err := rows.Scan(&user)
+		r.logger.Debugf("Scanned user: %s", user)
+		if err != nil {
+			r.logger.Errorf("Error while scanning user rows: %s", err)
+			return nil, err
+		}
+		users = append(users, user)
+	}
+	r.logger.Trace("Finished scanning users in GetUsersForFeed")
+	return users, nil
 }

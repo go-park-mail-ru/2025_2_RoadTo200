@@ -15,4 +15,5 @@ type SwipeRepository interface {
 	Exists(ctx context.Context, swiperID, targetID uuid.UUID) (bool, error)
 	GetSwipesStats(ctx context.Context, userID uuid.UUID) (likesCount, dislikesCount, superLikesCount int, err error)
 	GetMutualLikes(ctx context.Context, userID uuid.UUID) ([]uuid.UUID, error)
+	GetUsersForFeed(ctx context.Context, userID uuid.UUID, limit, offset int) ([]uuid.UUID, error)
 }

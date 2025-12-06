@@ -66,7 +66,6 @@ CREATE TABLE interest
     UNIQUE (user_id, theme)
 );
 
-
 CREATE TABLE strike (
                         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
                         reporter_id UUID NOT NULL REFERENCES "user" (id) ON DELETE CASCADE,

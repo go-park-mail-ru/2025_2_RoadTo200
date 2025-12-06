@@ -16,5 +16,4 @@ type UserRepository interface {
 	UpdateLastActive(ctx context.Context, userID uuid.UUID) error
 	Delete(ctx context.Context, id uuid.UUID) error
 	GetUsersByIDs(ctx context.Context, ids []uuid.UUID) ([]domain.User, error)
-	GetUsersForFeed(ctx context.Context, userID uuid.UUID, limit, offset int) ([]domain.User, error)
 }
