@@ -1,42 +1,34 @@
--- ===========================================
--- Создание сервисной учетной записи для приложения
--- Предполагается, что все таблицы находятся в схеме public
--- ===========================================
-
 -- 1. Создаем пользователя для приложения
 CREATE USER app_service WITH
-    PASSWORD 'sysadm'  -- Пароль должен быть в переменной окружения
+    PASSWORD 'sysadm'
     NOSUPERUSER
     NOCREATEDB
     NOCREATEROLE
     NOINHERIT
     NOREPLICATION
-    CONNECTION LIMIT 50;  -- Ограничиваем количество одновременных подключений
+    CONNECTION LIMIT 100;
 
 COMMENT ON ROLE app_service IS 'Сервисная учетная запись для основного приложения';
 
 -- 2. Даем права на подключение к базе данных
--- (замените 'your_database_name' на имя вашей БД)
 GRANT CONNECT ON DATABASE "Tinder" TO app_service;
 
 -- 3. Даем права на использование схемы public
 GRANT USAGE ON SCHEMA public TO app_service;
 
 -- 8. Настраиваем дефолтные права для будущих таблиц
--- (чтобы не забывать давать права при добавлении новых таблиц)
 ALTER DEFAULT PRIVILEGES IN SCHEMA public
     GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO app_service;
 
 ALTER DEFAULT PRIVILEGES IN SCHEMA public
     GRANT EXECUTE ON FUNCTIONS TO app_service;
 
--- 9. Отзыв лишних прав (принцип минимальных привилегий)
+-- 9. Отзыв лишних прав
 REVOKE ALL ON DATABASE "Tinder" FROM PUBLIC;
 REVOKE ALL ON SCHEMA public FROM PUBLIC;
 REVOKE ALL ON ALL TABLES IN SCHEMA public FROM PUBLIC;
 REVOKE ALL ON ALL FUNCTIONS IN SCHEMA public FROM PUBLIC;
 
--- Даем права на просмотр статистики (только если включен pg_stat_statements)
 CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
 
 -- 1. Создаем пользователя для мониторинга
@@ -52,31 +44,25 @@ CREATE USER monitor_user WITH
 COMMENT ON ROLE monitor_user IS 'Пользователь для систем мониторинга (Prometheus, Grafana)';
 
 -- 2. Даем права на подключение к базе данных
-GRANT CONNECT ON DATABASE Tinder TO monitor_user;
+GRANT CONNECT ON DATABASE "Tinder" TO monitor_user;
 
 -- 3. Даем роль pg_monitor (включает права на статистику)
 GRANT pg_monitor TO monitor_user;
 
 -- 4. Дополнительные права для мониторинга
 
--- Доступ к схеме public (только для просмотра)
+-- Доступ к схеме public
 GRANT USAGE ON SCHEMA public TO monitor_user;
 
--- Чтение всех таблиц (если нужно для мониторинга бизнес-метрик)
+-- Чтение всех таблиц
 GRANT SELECT ON ALL TABLES IN SCHEMA public TO monitor_user;
 
--- 5. Даем доступ к pg_stat_statements (если расширение используется)
--- Эта роль уже включена в pg_monitor, но можно дать явно:
+-- 5. Даем доступ к pg_stat_statements
 GRANT SELECT ON pg_stat_statements TO monitor_user;
 
 -- 6. Настройка для будущих таблиц
 ALTER DEFAULT PRIVILEGES IN SCHEMA public
     GRANT SELECT ON TABLES TO monitor_user;
-
-
--- ===========================================
--- Проверка прав
--- ===========================================
 
 -- Проверяем, что у пользователя есть нужные права
 SELECT
