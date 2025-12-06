@@ -14,7 +14,7 @@ import (
 	"github.com/minio/minio-go/v7"
 )
 
-var _ interfaces.FileStorage = (*StorageRepository)(nil)
+var _ interfaces.StorageRepository = (*StorageRepository)(nil)
 
 type StorageRepository struct {
 	client     bdIface.MinioIface

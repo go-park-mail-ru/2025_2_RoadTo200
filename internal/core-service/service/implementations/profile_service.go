@@ -22,7 +22,7 @@ type ProfileService struct {
 	userRepo       interfaces.UserRepository
 	userPhotoRepo  interfaces.UserPhotoRepository
 	preferenceRepo interfaces.UserPreferenceRepository
-	fileStorage    interfaces.FileStorage // Интерфейс для работы с файловым хранилищем
+	fileStorage    interfaces.StorageRepository // Интерфейс для работы с файловым хранилищем
 	logger         logger.Log
 }
 
@@ -30,7 +30,7 @@ func NewProfileService(
 	userRepo interfaces.UserRepository,
 	userPhotoRepo interfaces.UserPhotoRepository,
 	preferenceRepo interfaces.UserPreferenceRepository,
-	fileStorage interfaces.FileStorage,
+	fileStorage interfaces.StorageRepository,
 	l logger.Log,
 ) *ProfileService {
 	return &ProfileService{

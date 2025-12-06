@@ -1,12 +1,5 @@
 package constants
 
-type Gender string
-
-const (
-	GenderMale   Gender = "male"
-	GenderFemale Gender = "female"
-)
-
 type GenderPreference string
 
 const (
@@ -21,14 +14,6 @@ const (
 	SwipeTypeLike      SwipeType = "like"
 	SwipeTypeDislike   SwipeType = "dislike"
 	SwipeTypeSuperLike SwipeType = "super_like"
-)
-
-type PlanType string
-
-const (
-	PlanTypePremium  PlanType = "premium"
-	PlanTypeGold     PlanType = "gold"
-	PlanTypePlatinum PlanType = "platinum"
 )
 
 const (

@@ -1,7 +1,7 @@
 package domain
 
 import (
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/constants"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/core-service/domain/constants"
 	"github.com/google/uuid"
 )
 

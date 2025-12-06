@@ -4,7 +4,7 @@ import (
 	"context"
 	"mime/multipart"
 
-	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
+	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/core-service/domain/entities"
 	"github.com/google/uuid"
 )
 

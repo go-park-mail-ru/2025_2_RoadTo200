@@ -3,8 +3,10 @@ package domain
 import (
 	"time"
 
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/constants"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/core-service/domain/constants"
 )
+
+// TODO: remove user
 
 // ProfileResponse представляет полный ответ профиля для фронта
 type ProfileResponse struct {

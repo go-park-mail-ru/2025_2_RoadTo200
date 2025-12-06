@@ -11,7 +11,7 @@ import (
 	"github.com/rafaeljusto/redigomock"
 	"github.com/stretchr/testify/assert"
 
-	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
+	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/auth-service/domain/entities"
 )
 
 func TestSessionRepository_Set(t *testing.T) {
