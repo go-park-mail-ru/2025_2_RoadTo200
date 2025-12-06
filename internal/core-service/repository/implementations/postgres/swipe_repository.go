@@ -223,7 +223,7 @@ func (r *SwipeRepository) GetUsersForFeed(ctx context.Context, userID uuid.UUID,
 	query := `
 			SELECT i1.user_id FROM interest i
 			INNER JOIN interest i1 ON i1.theme = i.theme AND i1.user_id <> i.user_id
-			LEFT JOIN swipe s ON i.user_id <> s.swiper_user_id AND i1.user_id <> target_user_id
+			LEFT JOIN swipe s ON i.user_id = s.swiper_user_id AND i1.user_id = s.target_user_id
 			WHERE s.id IS NULL
 			LIMIT $2 OFFSET $3`
 

@@ -209,7 +209,7 @@ func (r *MessageRepository) GetUnreadCounts(ctx context.Context, userID uuid.UUI
 	return res, nil
 }
 
-func (r *MessageRepository) GetChats(ctx context.Context, userID uuid.UUID, searchQuery string) ([]domain.Conversation, error) {
+func (r *MessageRepository) GetChats(ctx context.Context, userID uuid.UUID) ([]domain.Conversation, error) {
 	conn, err := utils.GetConn(ctx, r.pool)
 	if err != nil {
 		r.logger.Errorf("get DB context error: %s", err.Error())
@@ -222,22 +222,12 @@ func (r *MessageRepository) GetChats(ctx context.Context, userID uuid.UUID, sear
 			CASE
 				WHEN m.user1_id = $1 THEN m.user2_id
 				ELSE m.user1_id
-			END as other_user_id,
-			u.name as other_user_name,
-			COALESCE(up.photo_url, '') as other_user_photo
+			END as other_user_id
 		FROM match m
-		JOIN "user" u ON u.id = (CASE WHEN m.user1_id = $1 THEN m.user2_id ELSE m.user1_id END)
-		LEFT JOIN LATERAL (
-			SELECT photo_url 
-			FROM user_photo 
-			WHERE user_id = u.id AND is_approved = TRUE
-			ORDER BY display_order ASC 
-			LIMIT 1
-		) up ON true
-		WHERE (m.user1_id = $1 OR m.user2_id = $1) AND u.name ILIKE $2
+		WHERE (m.user1_id = $1 OR m.user2_id = $1)
 	`
 
-	rows, err := conn.Query(ctx, query, userID, "%"+searchQuery+"%")
+	rows, err := conn.Query(ctx, query, userID)
 	if err != nil {
 		r.logger.Errorf("failed to get conversations: %s", err)
 		return nil, fmt.Errorf("failed to get conversations: %s", err)
@@ -250,8 +240,6 @@ func (r *MessageRepository) GetChats(ctx context.Context, userID uuid.UUID, sear
 		if err := rows.Scan(
 			&conv.MatchID,
 			&conv.OtherUserID,
-			&conv.OtherUserName,
-			&conv.OtherUserPhoto,
 		); err != nil {
 			r.logger.Errorf("failed to scan conversation: %s", err)
 			return nil, fmt.Errorf("failed to scan conversation: %s", err)
