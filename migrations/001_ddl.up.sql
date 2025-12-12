@@ -25,6 +25,8 @@ CREATE TABLE "user"
     artist      TEXT,
     quote       TEXT,
     is_verified BOOLEAN     NOT NULL DEFAULT FALSE,
+    is_premium  BOOLEAN     NOT NULL DEFAULT FALSE,
+    super_likes_count INT   NOT NULL DEFAULT 0,
     last_active TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),

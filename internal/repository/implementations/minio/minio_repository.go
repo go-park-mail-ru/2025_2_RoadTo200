@@ -64,12 +64,7 @@ func (m *StorageRepository) DeleteByURL(ctx context.Context, url string) error {
 }
 
 func (m *StorageRepository) GetURL(ctx context.Context, filename string) string {
-	protocol := "http"
-	if m.useSSL {
-		protocol = "https"
-	}
-
-	return fmt.Sprintf("%s://%s/%s/%s", protocol, m.address, m.bucketName, filename)
+	return fmt.Sprintf("%s/%s/%s", m.address, m.bucketName, filename)
 }
 
 // PresignedURL генерирует URL с временным доступом (опционально)
