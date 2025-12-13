@@ -26,9 +26,9 @@ const (
 type PlanType string
 
 const (
-	PlanTypePremium  PlanType = "premium"
-	PlanTypeGold     PlanType = "gold"
-	PlanTypePlatinum PlanType = "platinum"
+	PlanTypeWeek    PlanType = "week"
+	PlanTypeMonth   PlanType = "month"
+	PlanTypeQuarter PlanType = "quarter"
 )
 
 const (

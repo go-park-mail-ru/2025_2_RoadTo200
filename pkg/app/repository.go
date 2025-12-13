@@ -9,14 +9,15 @@ import (
 func (a *App) initRepository() {
 	// Репозитории
 	a.repositories = &Repositories{
-		Storage:    minio.NewStorageRepository(a.resources.MinIO, &a.config.MinIO),
-		User:       postgres.NewUserRepository(a.resources.Postgres, a.logger),
-		Session:    redis.NewSessionRepository(a.resources.Redis),
-		Preference: postgres.NewUserPreferenceRepository(a.resources.Postgres, a.logger),
-		Photo:      postgres.NewUserPhotoRepository(a.resources.Postgres, a.logger),
-		Swipe:      postgres.NewSwipeRepository(a.resources.Postgres),
-		Match:      postgres.NewMatchRepository(a.resources.Postgres),
-		Message:    postgres.NewMessageRepository(a.resources.Postgres),
-		Strike:     postgres.NewStrikeRepository(a.resources.Postgres),
+		Storage:      minio.NewStorageRepository(a.resources.MinIO, &a.config.MinIO),
+		User:         postgres.NewUserRepository(a.resources.Postgres, a.logger),
+		Session:      redis.NewSessionRepository(a.resources.Redis),
+		Preference:   postgres.NewUserPreferenceRepository(a.resources.Postgres, a.logger),
+		Photo:        postgres.NewUserPhotoRepository(a.resources.Postgres, a.logger),
+		Swipe:        postgres.NewSwipeRepository(a.resources.Postgres),
+		Match:        postgres.NewMatchRepository(a.resources.Postgres),
+		Message:      postgres.NewMessageRepository(a.resources.Postgres),
+		Strike:       postgres.NewStrikeRepository(a.resources.Postgres),
+		Subscription: postgres.NewSubscriptionRepository(a.resources.Postgres),
 	}
 }

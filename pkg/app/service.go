@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/gateway/adapters"
+	payment_service "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/implementations"
 	grpc "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/grpc"
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 )
@@ -41,6 +42,12 @@ func (a *App) initServices() error {
 		Match:   adapters.NewMatchServiceAdapter(coreClient),
 		Chat:    adapters.NewChatServiceAdapter(chatClient, a.logger),
 		Strike:  adapters.NewStrikeServiceAdapter(coreClient),
+		Payment: payment_service.NewPaymentService(
+			a.repositories.User,
+			a.repositories.Subscription,
+			a.config,
+			a.logger,
+		),
 	}
 	return nil
 }
