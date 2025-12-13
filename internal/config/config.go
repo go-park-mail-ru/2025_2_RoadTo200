@@ -28,6 +28,7 @@ type Config struct {
 	AuthService AuthServiceConfig `yaml:"auth_service"`
 	CoreService CoreServiceConfig `yaml:"core_service"`
 	ChatService ChatServiceConfig `yaml:"chat_service"`
+	Payment     PaymentConfig     `yaml:"payment"`
 }
 
 type CORSConfig struct {
@@ -93,6 +94,13 @@ type CoreServiceConfig struct {
 
 type ChatServiceConfig struct {
 	Port string `yaml:"port"`
+}
+
+type PaymentConfig struct {
+	Receiver           string `yaml:"receiver"`            // Номер кошелька получателя
+	ClientID           string `yaml:"client_id"`           // OAuth2 client_id
+	ClientSecret       string `yaml:"client_secret"`       // OAuth2 client_secret
+	NotificationSecret string `yaml:"notification_secret"` // Секрет для проверки webhook
 }
 
 func NewConfig() (*Config, error) {
@@ -212,6 +220,20 @@ func LoadConfig(path string) (*Config, error) {
 	}
 	if config.App.ChatService.Port == "" {
 		config.App.ChatService.Port = "50053"
+	}
+
+	// Load payment config from environment variables
+	if config.App.Payment.Receiver == "" {
+		config.App.Payment.Receiver = os.Getenv("MONEY_RECEIVER")
+	}
+	if config.App.Payment.ClientID == "" {
+		config.App.Payment.ClientID = os.Getenv("MONEY_CLIENT_ID")
+	}
+	if config.App.Payment.ClientSecret == "" {
+		config.App.Payment.ClientSecret = os.Getenv("MONEY_CLIENT_SECRET")
+	}
+	if config.App.Payment.NotificationSecret == "" {
+		config.App.Payment.NotificationSecret = os.Getenv("MONEY_NOTIFICATION_SECRET")
 	}
 
 	return &config.App, nil

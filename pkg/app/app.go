@@ -53,6 +53,7 @@ type Services struct {
 	Match   service.MatchService
 	Chat    service.ChatService
 	Strike  service.StrikeService
+	Payment service.PaymentService
 }
 
 type Handlers struct {
@@ -65,6 +66,7 @@ type Handlers struct {
 	Chat      *handler.ChatHandler
 	WebSocket *websocket.WebSocketHandler
 	Strike    *handler.StrikeHandler
+	Payment   *handler.PaymentHandler
 }
 
 func Run() {
