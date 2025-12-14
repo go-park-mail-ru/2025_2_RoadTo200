@@ -57,57 +57,32 @@ jobs:
         run: |
           go install github.com/swaggo/swag/cmd/swag@latest
 
+      - name: Add server to known_hosts
+        env:
+          DEPLOY_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SSH_CONFIG: ${{ secrets.SSH_CONFIG }}
+        run: |
+          # Создаем приватный ключ для SSH
+          mkdir -p ~/.ssh
+          echo $DEPLOY_KEY > ~/.ssh/openkey.pem
+          chmod 600 ~/.ssh/deploy_key
+          
+          echo $SSH_CONFIG > ~/ssh/config
+          chmod 644 ~/.ssh/config
+          
+          ssh-keyscan -H $SERVER_HOST >> ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
       - name: Build
         env:
           SERVER_HOST: ${{ secrets.SERVER_HOST }}
           SERVER_USER: ${{ secrets.SERVER_USER }}
         run: |
-          make build-docs
-          make build-bin
+          # Запускаем локальный скрипт деплоя
+          chmod +x ./scripts/deploy.sh
+          ./scripts/deploy.sh 
 
-      - name: Deploy docs
-        uses: appleboy/scp-action@v1
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: 22
-          source: "./api/server/docs.json"
-          target: "./app/back/data/docs/server.json"
-          strip_components: 0
-          overwrite: true
-          rm: false
-
-      - name: Stop app
-        uses: appleboy/scp-action@v1
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: 22
-          script: sudo systemctl stop auth-trb.service chat-trb.service core-trb.service app-back.service
-
-      - name: Deploy bins
-        uses: appleboy/scp-action@v1
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: 22
-          source: "./.build/*"
-          target: "./app/back/bin/"
-          strip_components: 0
-          overwrite: true
-          rm: false
-
-      - name: Start app
-        uses: appleboy/scp-action@v1
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: 22
-          script: sudo systemctl start auth-trb.service chat-trb.service core-trb.service app-back.service
 #      - name: Run project
 #        env:
 #          SERVER_HOST: ${{ secrets.SERVER_HOST }}
