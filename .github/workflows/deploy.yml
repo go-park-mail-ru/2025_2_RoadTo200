@@ -61,17 +61,14 @@ jobs:
         env:
           DEPLOY_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           SERVER_HOST: ${{ secrets.SERVER_HOST }}
-          SSH_CONFIG: ${{ secrets.SSH_CONFIG }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
         run: |
           # Создаем приватный ключ для SSH
           mkdir -p ~/.ssh
-          echo $DEPLOY_KEY > ~/.ssh/openkey.pem
-          chmod 600 ~/.ssh/openkey.pem
+          echo $DEPLOY_KEY > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
           
-          echo $SSH_CONFIG > ~/.ssh/config
-          chmod 644 ~/.ssh/config
-          
-          ssh-keyscan -H $SERVER_HOST >> ~/.ssh/known_hosts
+          ssh-keyscan -t rsa,ed25519,ecdsa $SERVER_HOST | tr -d "#" >> ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts
 
       - name: Build
@@ -81,7 +78,7 @@ jobs:
         run: |
           # Запускаем локальный скрипт деплоя
           chmod +x ./scripts/deploy.sh
-          ./scripts/deploy.sh 
+          ./scripts/deploy.sh "$SERVER_USER@$SERVER_HOST"
 
 #      - name: Run project
 #        env:
