@@ -63,11 +63,12 @@ jobs:
           SERVER_HOST: ${{ secrets.SERVER_HOST }}
         run: |
           # Создаем приватный ключ для SSH
-          echo "$DEPLOY_KEY" > deploy_key
-          chmod 600 deploy_key
-          
           mkdir -p ~/.ssh
+          echo "$DEPLOY_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          
           ssh-keyscan -H $SERVER_HOST >> ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
 
       - name: Build and Deploy to server
         env:
