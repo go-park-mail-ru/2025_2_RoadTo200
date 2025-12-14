@@ -72,7 +72,7 @@ jobs:
           SERVER_HOST: ${{ secrets.SERVER_HOST }}
           SERVER_USER: ${{ secrets.SERVER_USER }}
         run: |
-        # Запускаем локальный скрипт деплоя
+          # Запускаем локальный скрипт деплоя
           chmod +x ./scripts/deploy.sh
           ./scripts/deploy.sh "$SERVER_USER@$SERVER_HOST"
 
