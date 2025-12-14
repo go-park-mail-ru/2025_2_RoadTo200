@@ -67,13 +67,13 @@ jobs:
           mkdir -p ~/.ssh
           echo -n "$DEPLOY_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/deploy_key $SERVER_USER@$SERVER_HOST echo "SSH connection successful"
 
       - name: Build
         env:
           SERVER_HOST: ${{ secrets.SERVER_HOST }}
           SERVER_USER: ${{ secrets.SERVER_USER }}
         run: |
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/deploy_key $SERVER_USER@$SERVER_HOST echo "SSH connection successful"
           # Запускаем локальный скрипт деплоя
           chmod +x ./scripts/deploy.sh
           ./scripts/deploy.sh "$SERVER_USER@$SERVER_HOST"
