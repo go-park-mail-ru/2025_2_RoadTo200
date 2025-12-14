@@ -56,11 +56,14 @@ jobs:
       - name: Build and Deploy to server
         env:
           DEPLOY_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          HOST: ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
         run: |
           # Создаем приватный ключ для SSH
           echo "$DEPLOY_KEY" > deploy_key
           chmod 600 deploy_key
+          
+          HOST="$SERVER_USER@$SERVER_HOST"
           
           # Запускаем локальный скрипт деплоя
           chmod +x ./scripts/deploy.sh
