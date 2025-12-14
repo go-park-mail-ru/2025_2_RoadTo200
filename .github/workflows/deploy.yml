@@ -78,7 +78,7 @@ jobs:
           overwrite: true
           rm: false
 
-      - name: Deploy docs
+      - name: Deploy bins
         uses: appleboy/scp-action@v0.1.4
         with:
           host: ${{ secrets.SERVER_HOST }}
