@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "$HOST"
+HOST=$1
 if [[ -z $HOST ]]; then
   HOST=ubuntu.vk # Хост ОС. Пример: user@ххх.хх.хх.ххх
 fi

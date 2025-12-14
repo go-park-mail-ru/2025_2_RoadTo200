@@ -66,11 +66,9 @@ jobs:
           echo "$DEPLOY_KEY" > deploy_key
           chmod 600 deploy_key
           
-          HOST="$SERVER_USER@$SERVER_HOST"
-          
           # Запускаем локальный скрипт деплоя
           chmod +x ./scripts/deploy.sh
-          ./scripts/deploy.sh
+          ./scripts/deploy.sh "$SERVER_USER@$SERVER_HOST"
 
 #      - name: Run project
 #        env:
