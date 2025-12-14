@@ -68,7 +68,7 @@ jobs:
           echo -n "$DEPLOY_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
           
-          scp -o StrictHostKeyChecking=no -i ~/.ssh/deploy_key $SERVER_USER@$SERVER_HOST echo "SSH connection successful"
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/deploy_key $SERVER_USER@$SERVER_HOST echo "SSH connection successful"
           
           # Запускаем локальный скрипт деплоя
           chmod +x ./scripts/deploy.sh
