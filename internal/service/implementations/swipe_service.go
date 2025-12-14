@@ -5,22 +5,32 @@ import (
 	"time"
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/constants"
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
+	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/errors"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/dto"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
+	serviceInterfaces "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
 	"github.com/google/uuid"
 )
 
 type SwipeService struct {
-	swipeRepo interfaces.SwipeRepository
-	matchRepo interfaces.MatchRepository
+	swipeRepo           interfaces.SwipeRepository
+	matchRepo           interfaces.MatchRepository
+	userRepo            interfaces.UserRepository
+	notificationService serviceInterfaces.NotificationService
 }
 
-func NewSwipeService(swipeRepo interfaces.SwipeRepository, matchRepo interfaces.MatchRepository) *SwipeService {
+func NewSwipeService(
+	swipeRepo interfaces.SwipeRepository,
+	matchRepo interfaces.MatchRepository,
+	userRepo interfaces.UserRepository,
+	notificationService serviceInterfaces.NotificationService,
+) *SwipeService {
 	return &SwipeService{
-		swipeRepo: swipeRepo,
-		matchRepo: matchRepo,
+		swipeRepo:           swipeRepo,
+		matchRepo:           matchRepo,
+		userRepo:            userRepo,
+		notificationService: notificationService,
 	}
 }
 
@@ -57,9 +67,26 @@ func (s *SwipeService) ProcessSwipe(ctx context.Context, swiperID uuid.UUID, req
 		Message: "Swipe processed successfully",
 	}
 
-	// Если это лайк - проверяем на мэтч
-	if swipeType == constants.SwipeTypeLike {
-		// Проверяем взаимный лайк
+	// Отправляем уведомления в зависимости от типа свайпа
+	if swipeType == constants.SwipeTypeSuperLike {
+		// При суперлайке всегда отправляем уведомление получателю
+		swiperIDPtr := &swiperID
+		if err := s.notificationService.SendNotification(ctx, card, constants.NotificationTypeSuperLike, swiperIDPtr, nil); err != nil {
+			// Логируем ошибку, но не прерываем выполнение
+			// Уведомление - это дополнительная функция
+		}
+	} else if swipeType == constants.SwipeTypeLike {
+		// При лайке проверяем, есть ли у получателя премиум
+		targetUser, err := s.userRepo.GetByID(ctx, card)
+		if err == nil && targetUser != nil && targetUser.IsPremium {
+			// Если есть премиум - отправляем уведомление о лайке
+			swiperIDPtr := &swiperID
+			if err := s.notificationService.SendNotification(ctx, card, constants.NotificationTypeLike, swiperIDPtr, nil); err != nil {
+				// Логируем ошибку, но не прерываем выполнение
+			}
+		}
+
+		// Проверяем на мэтч
 		hasMutualLike, err := s.matchRepo.CheckMutualLike(ctx, swiperID, card)
 		if err != nil {
 			return nil, err
@@ -76,6 +103,21 @@ func (s *SwipeService) ProcessSwipe(ctx context.Context, swiperID uuid.UUID, req
 
 			if err := s.matchRepo.Create(ctx, match); err != nil {
 				return nil, err
+			}
+
+			// Отправляем уведомления о матче обоим пользователям
+			matchIDPtr := &match.ID
+			swiperIDPtr := &swiperID
+			cardIDPtr := &card
+
+			// Уведомление первому пользователю (swiper)
+			if err := s.notificationService.SendNotification(ctx, swiperID, constants.NotificationTypeMatch, cardIDPtr, matchIDPtr); err != nil {
+				// Логируем ошибку, но не прерываем выполнение
+			}
+
+			// Уведомление второму пользователю (target)
+			if err := s.notificationService.SendNotification(ctx, card, constants.NotificationTypeMatch, swiperIDPtr, matchIDPtr); err != nil {
+				// Логируем ошибку, но не прерываем выполнение
 			}
 
 			response.IsMatch = true

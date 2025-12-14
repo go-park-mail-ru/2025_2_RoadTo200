@@ -34,6 +34,13 @@ func (a *App) initServices() error {
 	}
 	// Note: we should probably close chatConn on shutdown, but for now we rely on app exit.
 
+	// NotificationService создается локально (не через gRPC)
+	notificationService := payment_service.NewNotificationService(
+		a.repositories.Notification,
+		a.resources.RedisPubSub,
+		a.logger,
+	)
+
 	a.services = &Services{
 		Auth:    adapters.NewAuthServiceAdapter(authClient),
 		Feed:    adapters.NewFeedServiceAdapter(coreClient),
@@ -48,6 +55,7 @@ func (a *App) initServices() error {
 			a.config,
 			a.logger,
 		),
+		Notification: notificationService,
 	}
 	return nil
 }

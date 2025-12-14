@@ -49,6 +49,14 @@ func main() {
 	defer redisPool.Close()
 	loggerInst.Info("✅ Redis connected")
 
+	// Connect to Redis Pub/Sub for notifications
+	redisPubSub, err := redisConn.NewPubSubClient(&cfg.Redis)
+	if err != nil {
+		loggerInst.Fatal(fmt.Errorf("failed to connect to Redis Pub/Sub: %w", err))
+	}
+	defer redisPubSub.Close()
+	loggerInst.Info("✅ Redis Pub/Sub connected")
+
 	// Connect to MinIO
 	minioClient, err := minioConn.NewMinioPool(&cfg.MinIO)
 	if err != nil {
@@ -64,11 +72,13 @@ func main() {
 	matchRepo := postgres.NewMatchRepository(pgPool)
 	storageRepo := minio.NewStorageRepository(minioClient, &cfg.MinIO)
 	strikeRepo := postgres.NewStrikeRepository(pgPool)
+	notificationRepo := postgres.NewNotificationRepository(pgPool)
 
 	// Initialize services
 	profileService := serviceImpl.NewProfileService(userRepo, photoRepo, preferenceRepo, storageRepo, loggerInst)
 	feedService := serviceImpl.NewFeedService(userRepo, preferenceRepo, photoRepo, loggerInst)
-	swipeService := serviceImpl.NewSwipeService(swipeRepo, matchRepo)
+	notificationService := serviceImpl.NewNotificationService(notificationRepo, redisPubSub, loggerInst)
+	swipeService := serviceImpl.NewSwipeService(swipeRepo, matchRepo, userRepo, notificationService)
 	matchService := serviceImpl.NewMatchService(matchRepo, userRepo, swipeRepo, photoRepo, loggerInst)
 	strikeServie := serviceImpl.NewStrikeService(strikeRepo, userRepo, loggerInst)
 

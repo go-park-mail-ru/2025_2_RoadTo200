@@ -19,5 +19,6 @@ func (a *App) initRepository() {
 		Message:      postgres.NewMessageRepository(a.resources.Postgres),
 		Strike:       postgres.NewStrikeRepository(a.resources.Postgres),
 		Subscription: postgres.NewSubscriptionRepository(a.resources.Postgres),
+		Notification: postgres.NewNotificationRepository(a.resources.Postgres),
 	}
 }

@@ -48,11 +48,12 @@ func (a *App) setupPublicRoutes() {
 	a.server.POST("/api/login", a.handlers.Auth.Login)
 	a.server.GET("/api/session", a.handlers.Session.GetSession)
 
-	// WebSocket route (auth handled internally)
+	// WebSocket routes (auth handled internally)
 	a.server.GET("/ws/chat", a.handlers.WebSocket.HandleConnection)
+	a.server.GET("/ws/notifications", a.handlers.NotificationWS.HandleConnection)
 
 	// Payment webhook (no auth required, but signature is verified)
-	a.server.POST("/notificate_premium", a.handlers.Payment.HandleWebhook)
+	a.server.POST("/api/notificate_premium", a.handlers.Payment.HandleWebhook)
 }
 
 // Protected routes (require auth)
@@ -100,6 +101,10 @@ func (a *App) setupProtectedRoutes() {
 
 	// Payment endpoints
 	a.server.POST("/api/payment/create", a.handlers.Payment.CreatePayment)
+
+	// Notification endpoints
+	a.server.GET("/api/notifications", a.handlers.Notification.GetNotifications)
+	a.server.PUT("/api/notifications/{notification_id}/read", a.handlers.Notification.MarkAsRead)
 }
 
 func (a *App) runServer() {

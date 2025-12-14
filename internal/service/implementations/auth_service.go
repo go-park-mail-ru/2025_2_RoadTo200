@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
+	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/errors"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
@@ -56,14 +56,16 @@ func (s *AuthService) Register(ctx context.Context, email, password, passwordCon
 
 	// Создание пользователя
 	user := &domain.User{
-		ID:         uuid.New(),
-		Email:      email,
-		Password:   string(hashedPassword),
-		Name:       email,  // можно генерировать или оставить пустым
-		Gender:     "male", // ← пустая строка вместо NULL
-		IsVerified: true,
-		CreatedAt:  time.Now(),
-		UpdatedAt:  time.Now(),
+		ID:              uuid.New(),
+		Email:           email,
+		Password:        string(hashedPassword),
+		Name:            email,  // можно генерировать или оставить пустым
+		Gender:          "male", // ← пустая строка вместо NULL
+		IsVerified:      true,
+		IsPremium:       false,
+		SuperLikesCount: 3, // Начальное количество суперлайков
+		CreatedAt:       time.Now(),
+		UpdatedAt:       time.Now(),
 	}
 
 	if err := s.userRepo.Create(ctx, user); err != nil {
