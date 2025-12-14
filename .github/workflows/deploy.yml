@@ -66,7 +66,7 @@ jobs:
           make build-bin
 
       - name: Deploy docs
-        uses: appleboy/scp-action@v0.1.4
+        uses: appleboy/scp-action@v1
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
@@ -78,8 +78,17 @@ jobs:
           overwrite: true
           rm: false
 
+      - name: Stop app
+        uses: appleboy/scp-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          script: sudo systemctl stop auth-trb.service chat-trb.service core-trb.service app-back.service
+
       - name: Deploy bins
-        uses: appleboy/scp-action@v0.1.4
+        uses: appleboy/scp-action@v1
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
@@ -91,6 +100,14 @@ jobs:
           overwrite: true
           rm: false
 
+      - name: Start app
+        uses: appleboy/scp-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          script: sudo systemctl start auth-trb.service chat-trb.service core-trb.service app-back.service
 #      - name: Run project
 #        env:
 #          SERVER_HOST: ${{ secrets.SERVER_HOST }}
