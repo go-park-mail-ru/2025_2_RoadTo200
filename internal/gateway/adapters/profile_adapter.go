@@ -32,12 +32,53 @@ func (a *ProfileServiceAdapter) GetProfile(ctx context.Context, userID uuid.UUID
 		return nil, err
 	}
 
-	return &domain.ProfileResponse{
+	profile := &domain.ProfileResponse{
 		User:        coreProtoToUser(resp.User),
 		Preferences: coreProtoToUserPreference(resp.Preferences),
 		Photos:      coreProtoToUserPhotos(resp.Photos),
 		Interests:   coreProtoToInterests(resp.Interests),
-	}, nil
+	}
+
+	// Добавляем информацию об отношениях, если она есть
+	if resp.IsLiked != nil {
+		isLiked := *resp.IsLiked
+		profile.IsLiked = &isLiked
+	}
+	if resp.IsMatched != nil {
+		isMatched := *resp.IsMatched
+		profile.IsMatched = &isMatched
+	}
+
+	return profile, nil
+}
+
+func (a *ProfileServiceAdapter) GetProfileWithRelations(ctx context.Context, viewerID, targetID uuid.UUID) (*domain.ProfileResponse, error) {
+	resp, err := a.client.GetProfileWithRelations(ctx, &pb.GetProfileWithRelationsRequest{
+		ViewerId: viewerID.String(),
+		TargetId: targetID.String(),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	profile := &domain.ProfileResponse{
+		User:        coreProtoToUser(resp.User),
+		Preferences: coreProtoToUserPreference(resp.Preferences),
+		Photos:      coreProtoToUserPhotos(resp.Photos),
+		Interests:   coreProtoToInterests(resp.Interests),
+	}
+
+	// Добавляем информацию об отношениях, если она есть
+	if resp.IsLiked != nil {
+		isLiked := *resp.IsLiked
+		profile.IsLiked = &isLiked
+	}
+	if resp.IsMatched != nil {
+		isMatched := *resp.IsMatched
+		profile.IsMatched = &isMatched
+	}
+
+	return profile, nil
 }
 
 func (a *ProfileServiceAdapter) UpdateProfileInfo(ctx context.Context, userID uuid.UUID, updateData *domain.ProfileUpdateRequest) error {

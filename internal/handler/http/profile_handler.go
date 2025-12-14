@@ -70,6 +70,88 @@ func (h *ProfileHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
 	utils.WriteJSON(w, http.StatusOK, response)
 }
 
+// GetProfileByID godoc
+// @Summary Получить профиль пользователя по ID
+// @Description Возвращает полную информацию о профиле указанного пользователя
+// @Tags profile
+// @Produce json
+// @Security SessionToken
+// @Param id path string true "ID пользователя"
+// @Success 200 {object} dto.ProfileResponse "Профиль пользователя"
+// @Failure 400 {object} map[string]string "Неверный ID пользователя"
+// @Failure 401 {object} map[string]string "Не авторизован"
+// @Failure 404 {object} map[string]string "Профиль не найден"
+// @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
+// @Router /api/profile/{id} [get]
+func (h *ProfileHandler) GetProfileByID(w http.ResponseWriter, r *http.Request) {
+	h.logger.Trace("profileHandler.GetProfileByID")
+
+	// Проверяем авторизацию (пользователь должен быть авторизован)
+	_, err := middleware.GetUserIDFromContext(r.Context())
+	if err != nil {
+		h.logger.Warnf("GetUserFromContext: %v", err)
+		utils.WriteJSONError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	// Получаем ID пользователя из пути
+	userIDStr := r.PathValue("id")
+	if userIDStr == "" {
+		// Если ID не указан в пути, пытаемся извлечь из URL
+		path := r.URL.Path
+		parts := strings.Split(path, "/")
+		for i, part := range parts {
+			if part == "profile" && i+1 < len(parts) {
+				userIDStr = parts[i+1]
+				break
+			}
+		}
+	}
+
+	if userIDStr == "" {
+		utils.WriteJSONError(w, http.StatusBadRequest, "user ID is required")
+		return
+	}
+
+	userID, err := uuid.Parse(userIDStr)
+	if err != nil {
+		h.logger.Warnf("Invalid user ID: %v", err)
+		utils.WriteJSONError(w, http.StatusBadRequest, "invalid user ID")
+		return
+	}
+
+	// Получаем ID текущего пользователя (viewer)
+	viewerID, err := middleware.GetUserIDFromContext(r.Context())
+	if err != nil {
+		h.logger.Warnf("GetUserFromContext: %v", err)
+		utils.WriteJSONError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	// Получаем профиль пользователя с информацией об отношениях
+	profile, err := h.profileService.GetProfileWithRelations(r.Context(), viewerID, userID)
+	if err != nil {
+		if errors.Is(err, expectation.ErrProfileNotFound) {
+			utils.WriteJSONError(w, http.StatusNotFound, "profile not found")
+			return
+		}
+		h.logger.Errorf("GetProfileWithRelations: %v", err)
+		utils.WriteJSONError(w, http.StatusInternalServerError, "internal server error")
+		return
+	}
+
+	response := dto.ProfileResponse{
+		User:        profile.User,
+		Preferences: profile.Preferences,
+		Photos:      profile.Photos,
+		Interests:   profile.Interests,
+		IsLiked:     profile.IsLiked,
+		IsMatched:   profile.IsMatched,
+	}
+
+	utils.WriteJSON(w, http.StatusOK, response)
+}
+
 // getContext функция извлечения контекста и проверки формата тела
 func (h *ProfileHandler) getContext(w http.ResponseWriter, r *http.Request) (uuid.UUID, error) {
 	userID, err := middleware.GetUserIDFromContext(r.Context())

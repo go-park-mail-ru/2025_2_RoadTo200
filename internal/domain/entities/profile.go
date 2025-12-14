@@ -12,6 +12,8 @@ type ProfileResponse struct {
 	Preferences *UserPreference `json:"preferences,omitempty"`
 	Photos      []UserPhoto     `json:"photos,omitempty"`
 	Interests   []Interest      `json:"interests,omitempty"`
+	IsLiked     *bool           `json:"is_liked,omitempty"`   // Лайкнул ли текущий пользователь этого пользователя
+	IsMatched   *bool           `json:"is_matched,omitempty"` // Есть ли матч между текущим и этим пользователем
 }
 
 // ProfileUpdateRequest запрос на обновление профиля

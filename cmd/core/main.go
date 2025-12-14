@@ -75,10 +75,10 @@ func main() {
 	notificationRepo := postgres.NewNotificationRepository(pgPool)
 
 	// Initialize services
-	profileService := serviceImpl.NewProfileService(userRepo, photoRepo, preferenceRepo, storageRepo, loggerInst)
+	profileService := serviceImpl.NewProfileService(userRepo, photoRepo, preferenceRepo, swipeRepo, matchRepo, storageRepo, loggerInst)
 	feedService := serviceImpl.NewFeedService(userRepo, preferenceRepo, photoRepo, loggerInst)
 	notificationService := serviceImpl.NewNotificationService(notificationRepo, redisPubSub, loggerInst)
-	swipeService := serviceImpl.NewSwipeService(swipeRepo, matchRepo, userRepo, notificationService)
+	swipeService := serviceImpl.NewSwipeService(swipeRepo, matchRepo, userRepo, notificationService, loggerInst)
 	matchService := serviceImpl.NewMatchService(matchRepo, userRepo, swipeRepo, photoRepo, loggerInst)
 	strikeServie := serviceImpl.NewStrikeService(strikeRepo, userRepo, loggerInst)
 

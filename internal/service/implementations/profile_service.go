@@ -22,6 +22,8 @@ type ProfileService struct {
 	userRepo       interfaces.UserRepository
 	userPhotoRepo  interfaces.UserPhotoRepository
 	preferenceRepo interfaces.UserPreferenceRepository
+	swipeRepo      interfaces.SwipeRepository
+	matchRepo      interfaces.MatchRepository
 	fileStorage    interfaces.FileStorage // Интерфейс для работы с файловым хранилищем
 	logger         logger.Log
 }
@@ -30,6 +32,8 @@ func NewProfileService(
 	userRepo interfaces.UserRepository,
 	userPhotoRepo interfaces.UserPhotoRepository,
 	preferenceRepo interfaces.UserPreferenceRepository,
+	swipeRepo interfaces.SwipeRepository,
+	matchRepo interfaces.MatchRepository,
 	fileStorage interfaces.FileStorage,
 	l logger.Log,
 ) *ProfileService {
@@ -37,6 +41,8 @@ func NewProfileService(
 		userRepo:       userRepo,
 		userPhotoRepo:  userPhotoRepo,
 		preferenceRepo: preferenceRepo,
+		swipeRepo:      swipeRepo,
+		matchRepo:      matchRepo,
 		fileStorage:    fileStorage,
 		logger:         l,
 	}
@@ -80,6 +86,74 @@ func (s *ProfileService) GetProfile(ctx context.Context, userID uuid.UUID) (*dom
 		Photos:      photos,
 		Interests:   interests,
 	}, nil
+}
+
+// GetProfileWithRelations возвращает профиль пользователя с информацией о отношениях с viewer
+func (s *ProfileService) GetProfileWithRelations(ctx context.Context, viewerID, targetID uuid.UUID) (*domain.ProfileResponse, error) {
+	s.logger.Infof("GetProfileWithRelations called: viewerID=%s, targetID=%s", viewerID, targetID)
+
+	// Получаем базовый профиль
+	profile, err := s.GetProfile(ctx, targetID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Проверяем, лайкнул ли target (пользователь из URL) viewer (пользователь из контекста)
+	// swiper_user_id = targetID (тот, чей профиль смотрим)
+	// target_user_id = viewerID (тот, кто смотрит)
+	s.logger.Infof("Checking swipe: swiper_user_id=%s (targetID), target_user_id=%s (viewerID)", targetID, viewerID)
+	swipe, err := s.swipeRepo.GetBySwiperAndTarget(ctx, targetID, viewerID)
+	if err != nil {
+		s.logger.Warnf("GetBySwiperAndTarget error: %v (swiper=%s, target=%s)", err, targetID, viewerID)
+	} else {
+		if swipe != nil {
+			s.logger.Infof("Swipe found: swiper=%s, target=%s, type=%s", swipe.SwiperUserID, swipe.TargetUserID, swipe.SwipeType)
+		} else {
+			s.logger.Infof("No swipe found: swiper=%s, target=%s", targetID, viewerID)
+		}
+	}
+
+	isLiked := false
+	if err == nil && swipe != nil {
+		// Проверяем, что это лайк или суперлайк
+		isLiked = swipe.SwipeType == constants.SwipeTypeLike || swipe.SwipeType == constants.SwipeTypeSuperLike
+		s.logger.Infof("isLiked calculated: %v (swipe_type=%s)", isLiked, swipe.SwipeType)
+	} else {
+		s.logger.Infof("isLiked set to false (err=%v, swipe=%v)", err, swipe != nil)
+	}
+
+	// Проверяем, есть ли матч между пользователями
+	s.logger.Infof("Checking match: user1=%s, user2=%s", viewerID, targetID)
+	match, err := s.matchRepo.GetByUsers(ctx, viewerID, targetID)
+	if err != nil {
+		s.logger.Warnf("GetByUsers error: %v (user1=%s, user2=%s)", err, viewerID, targetID)
+	} else {
+		if match != nil {
+			s.logger.Infof("Match found: id=%s, user1=%s, user2=%s, is_active=%v", match.ID, match.User1ID, match.User2ID, match.IsActive)
+		} else {
+			s.logger.Infof("No match found: user1=%s, user2=%s", viewerID, targetID)
+		}
+	}
+
+	isMatched := false
+	if err == nil && match != nil && match.IsActive {
+		isMatched = true
+		s.logger.Infof("isMatched calculated: %v", isMatched)
+	} else {
+		s.logger.Infof("isMatched set to false (err=%v, match=%v, is_active=%v)", err, match != nil, match != nil && match.IsActive)
+	}
+
+	// Создаем расширенный ответ
+	response := profile
+
+	// Добавляем информацию об отношениях только если viewer != target
+	if viewerID != targetID {
+		// Используем указатели для опциональных полей
+		response.IsLiked = &isLiked
+		response.IsMatched = &isMatched
+	}
+
+	return response, nil
 }
 
 // UpdateProfileInfo обновляет основную информацию профиля

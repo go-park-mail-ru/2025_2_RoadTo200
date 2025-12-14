@@ -8,6 +8,7 @@ import (
 )
 
 type Swipe struct {
+	ID           uuid.UUID           `json:"id" db:"id"`
 	SwiperUserID uuid.UUID           `json:"swiper_user_id" db:"swiper_user_id"`
 	TargetUserID uuid.UUID           `json:"target_user_id" db:"target_user_id"`
 	SwipeType    constants.SwipeType `json:"swipe_type" db:"swipe_type"`

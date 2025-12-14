@@ -2,6 +2,8 @@ package postgres
 
 import (
 	"context"
+	"fmt"
+	"os"
 
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
@@ -24,11 +26,24 @@ func (r *NotificationRepository) Create(ctx context.Context, notification *domai
 		VALUES ($1, $2, $3, $4, $5)
 		RETURNING id, created_at`
 
+	// Логируем параметры для отладки
+	// fmt.Printf("DEBUG: Creating notification - user_id=%s, type=%s, from_user_id=%v, match_id=%v, is_read=%v\n",
+	// 	notification.UserID, notification.Type, notification.FromUserID, notification.MatchID, notification.IsRead)
+
 	err := r.pool.QueryRow(ctx, query,
 		notification.UserID, notification.Type, notification.FromUserID, notification.MatchID, notification.IsRead).
 		Scan(&notification.ID, &notification.CreatedAt)
 
-	return err
+	if err != nil {
+		// Детальная информация об ошибке - выводим полный текст ошибки
+		errMsg := fmt.Sprintf("failed to insert notification: user_id=%s, type=%s, from_user_id=%v, match_id=%v, error=%v",
+			notification.UserID, notification.Type, notification.FromUserID, notification.MatchID, err)
+		// Выводим в stderr для гарантированного логирования
+		fmt.Fprintf(os.Stderr, "NOTIFICATION REPO ERROR: %s\n", errMsg)
+		return fmt.Errorf("%s: %w", errMsg, err)
+	}
+
+	return nil
 }
 
 func (r *NotificationRepository) GetByUserID(ctx context.Context, userID uuid.UUID, limit, offset int) ([]domain.Notification, error) {

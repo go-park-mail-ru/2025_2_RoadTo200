@@ -24,11 +24,11 @@ func (r *SwipeRepository) Create(ctx context.Context, swipe *domain.Swipe) error
 	query := `
 		INSERT INTO swipe (swiper_user_id, target_user_id, swipe_type)
 		VALUES ($1, $2, $3)
-		RETURNING created_at`
+		RETURNING id, created_at`
 
 	err := r.pool.QueryRow(ctx, query,
 		swipe.SwiperUserID, swipe.TargetUserID, swipe.SwipeType).
-		Scan(&swipe.CreatedAt)
+		Scan(&swipe.ID, &swipe.CreatedAt)
 
 	if err != nil {
 		return err
@@ -41,7 +41,7 @@ func (r *SwipeRepository) GetBySwiperAndTarget(ctx context.Context, swiperID, ta
 	query := `SELECT * FROM swipe WHERE swiper_user_id = $1 AND target_user_id = $2`
 
 	err := r.pool.QueryRow(ctx, query, swiperID, targetID).Scan(
-		&swipe.SwiperUserID, &swipe.TargetUserID, &swipe.SwipeType, &swipe.CreatedAt,
+		&swipe.ID, &swipe.SwiperUserID, &swipe.TargetUserID, &swipe.SwipeType, &swipe.CreatedAt,
 	)
 
 	if err != nil {
@@ -70,7 +70,7 @@ func (r *SwipeRepository) GetSwipesBySwiper(ctx context.Context, swiperID uuid.U
 	for rows.Next() {
 		var swipe domain.Swipe
 		err := rows.Scan(
-			&swipe.SwiperUserID, &swipe.TargetUserID, &swipe.SwipeType, &swipe.CreatedAt,
+			&swipe.ID, &swipe.SwiperUserID, &swipe.TargetUserID, &swipe.SwipeType, &swipe.CreatedAt,
 		)
 		if err != nil {
 			return nil, err
@@ -102,7 +102,7 @@ func (r *SwipeRepository) GetSwipesByTarget(ctx context.Context, targetID uuid.U
 	for rows.Next() {
 		var swipe domain.Swipe
 		err := rows.Scan(
-			&swipe.SwiperUserID, &swipe.TargetUserID, &swipe.SwipeType, &swipe.CreatedAt,
+			&swipe.ID, &swipe.SwiperUserID, &swipe.TargetUserID, &swipe.SwipeType, &swipe.CreatedAt,
 		)
 		if err != nil {
 			return nil, err
