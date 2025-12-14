@@ -1,10 +1,10 @@
 #!/bin/bash
 
 HOST=ubuntu.vk # Хост ОС. Пример: user@ххх.хх.хх.ххх
-DOCS=0     # Флаг сборки документации
+DOCS=1     # Флаг сборки документации
 CONF=1     # Флаг отправки конфигурации
-MIGR=0
-INFR=0
+MIGR=1
+INFR=1
 BILD=1
 
 if [[ $MIGR -eq 1 ]]; then

@@ -7,7 +7,6 @@
 .DS_Store
 .build/
 docs/
-.github/
 MIGRATIONS_WALKTHROUGH.md
 .env
 /api/*/*.go
