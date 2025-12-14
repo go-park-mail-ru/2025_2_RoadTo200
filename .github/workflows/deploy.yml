@@ -70,12 +70,7 @@ jobs:
           
           ssh-keyscan -t rsa,ed25519,ecdsa $SERVER_HOST | tr -d "#" > ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts
-
-      - name: Build
-        env:
-          SERVER_HOST: ${{ secrets.SERVER_HOST }}
-          SERVER_USER: ${{ secrets.SERVER_USER }}
-        run: |
+          
           ssh -o BatchMode=yes -o ConnectTimeout=5 -o StrictHostKeyChecking=no -i ~/.ssh/deploy_key $SERVER_USER@$SERVER_HOST "echo 'SSH connection successful'"
           
           # Запускаем локальный скрипт деплоя
