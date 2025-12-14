@@ -76,7 +76,7 @@ jobs:
           SERVER_HOST: ${{ secrets.SERVER_HOST }}
           SERVER_USER: ${{ secrets.SERVER_USER }}
         run: |
-          ssh -o BatchMode=yes -o ConnectTimeout=5 -i ~/.ssh/id_rsa $SERVER_USER@$SERVER_HOST "echo 'SSH connection successful'"
+          ssh -o BatchMode=yes -o ConnectTimeout=5 -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST "echo 'SSH connection successful'"
           
           # Запускаем локальный скрипт деплоя
           chmod +x ./scripts/deploy.sh
