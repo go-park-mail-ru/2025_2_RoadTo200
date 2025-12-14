@@ -53,19 +53,27 @@ jobs:
         with:
           go-version: '1.25'
 
-      - name: Install dependencies
-        run: go mod download
+      - name: Install swag
+        run: |
+          go install github.com/swaggo/swag/cmd/swag@latest
 
-      - name: Build and Deploy to server
+      - name: Add server to known_hosts
         env:
           DEPLOY_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           SERVER_HOST: ${{ secrets.SERVER_HOST }}
-          SERVER_USER: ${{ secrets.SERVER_USER }}
         run: |
           # Создаем приватный ключ для SSH
           echo "$DEPLOY_KEY" > deploy_key
           chmod 600 deploy_key
           
+          mkdir -p ~/.ssh
+          ssh-keyscan -H $SERVER_HOST >> ~/.ssh/known_hosts
+
+      - name: Build and Deploy to server
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+        run: |
           # Запускаем локальный скрипт деплоя
           chmod +x ./scripts/deploy.sh
           ./scripts/deploy.sh "$SERVER_USER@$SERVER_HOST"

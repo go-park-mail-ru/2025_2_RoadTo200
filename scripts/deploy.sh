@@ -18,7 +18,6 @@ fi
 
 if [[ $DOCS -eq 1 ]]; then
   echo "Building swagger docs"
-  mkdir app app/auth
   make build-docs &&
   echo "Deploy swagger file"
   scp ./api/auth/swagger.json $HOST:/home/ubuntu/app/back/data/docs/auth.json || echo "Error deploy auth swagger"
@@ -44,8 +43,8 @@ if [[ $BILD -eq 1 ]]; then
   make build-bin || exit 1
 
   echo "Deploy binary file"
-  ssh ubuntu.vk sudo systemctl stop auth-trb.service chat-trb.service core-trb.service app-back.service
+  ssh $HOST sudo systemctl stop auth-trb.service chat-trb.service core-trb.service app-back.service
   scp ./.build/* $HOST:/home/ubuntu/app/back/bin/ || echo "Error deploy binary"
-  ssh ubuntu.vk sudo systemctl start auth-trb.service chat-trb.service core-trb.service app-back.service
-  ssh ubuntu.vk /home/ubuntu/app/back/app.sh status
+  ssh $HOST sudo systemctl start auth-trb.service chat-trb.service core-trb.service app-back.service
+  ssh $HOST /home/ubuntu/app/back/app.sh status
 fi
