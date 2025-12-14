@@ -65,9 +65,7 @@ jobs:
         run: |
           # Создаем приватный ключ для SSH
           mkdir -p ~/.ssh
-          cat > ~/.ssh/deploy_key << 'EOF'
-          ${{ secrets.SSH_PRIVATE_KEY }}
-          EOF
+          echo -n "$DEPLOY_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
           
           scp -o StrictHostKeyChecking=no -i ~/.ssh/deploy_key $SERVER_USER@$SERVER_HOST echo "SSH connection successful"
