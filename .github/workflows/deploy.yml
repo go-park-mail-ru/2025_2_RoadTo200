@@ -67,7 +67,7 @@ jobs:
           chmod 600 ~/.ssh/deploy_key
           ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST echo "SSH connection successful"
 
-      - name: Add server to known_hosts
+      - name: Build
         env:
           SERVER_HOST: ${{ secrets.SERVER_HOST }}
           SERVER_USER: ${{ secrets.SERVER_USER }}
