@@ -1,9 +1,10 @@
 #!/bin/bash
 
 HOST=$1
-if [[ -z $HOST ]]; then
-  HOST=ubuntu.vk # Хост ОС. Пример: user@ххх.хх.хх.ххх
-fi
+echo "$HOST"
+#if [[ -z $HOST ]]; then
+#  HOST=ubuntu.vk # Хост ОС. Пример: user@ххх.хх.хх.ххх
+#fi
 DOCS=1     # Флаг сборки документации
 CONF=1     # Флаг отправки конфигурации
 MIGR=1
@@ -17,6 +18,7 @@ fi
 
 if [[ $DOCS -eq 1 ]]; then
   echo "Building swagger docs"
+  mkdir app app/auth
   make build-docs &&
   echo "Deploy swagger file"
   scp ./api/auth/swagger.json $HOST:/home/ubuntu/app/back/data/docs/auth.json || echo "Error deploy auth swagger"
