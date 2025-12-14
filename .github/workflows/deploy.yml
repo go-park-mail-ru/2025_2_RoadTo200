@@ -67,7 +67,7 @@ jobs:
           mkdir -p ~/.ssh
           echo -n "$DEPLOY_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST echo "SSH connection successful"
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/deploy_key $SERVER_USER@$SERVER_HOST echo "SSH connection successful"
 
       - name: Build
         env:
