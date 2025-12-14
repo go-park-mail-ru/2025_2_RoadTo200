@@ -144,12 +144,15 @@ func (s *PaymentService) ProcessWebhook(ctx context.Context, webhookData map[str
 		endDate = startDate.AddDate(0, 3, 0)
 	}
 
-	// Обновляем is_premium
+	// Обновляем is_premium и добавляем 6 суперлайков при активации премиума
 	user.IsPremium = true
+	// Добавляем 6 суперлайков к текущему количеству (не заменяем)
+	user.SuperLikesCount += 6
 	err = s.userRepo.Update(ctx, user)
 	if err != nil {
 		return fmt.Errorf("failed to update user premium status: %w", err)
 	}
+	s.logger.Infof("Updated user premium status: userID=%s, is_premium=true, super_likes_count=%d", userID, user.SuperLikesCount)
 
 	// Создаем или обновляем подписку
 	subscription := &domain.Subscription{

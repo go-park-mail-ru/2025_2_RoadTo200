@@ -82,3 +82,11 @@ const (
 	StrikeStatusRejected StrikeStatus = "rejected"
 	StrikeStatusResolved StrikeStatus = "resolved"
 )
+
+type NotificationType string
+
+const (
+	NotificationTypeMatch     NotificationType = "match"
+	NotificationTypeSuperLike NotificationType = "super_like"
+	NotificationTypeLike      NotificationType = "like"
+)

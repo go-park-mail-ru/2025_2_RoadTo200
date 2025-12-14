@@ -43,30 +43,34 @@ type Repositories struct {
 	Session      interfaces.SessionRepository
 	User         interfaces.UserRepository
 	Strike       interfaces.StrikeRepository
+	Notification interfaces.NotificationRepository
 }
 
 type Services struct {
-	Auth    service.AuthService
-	Feed    service.FeedService
-	Profile service.ProfileService
-	Swipe   service.SwipeService
-	Match   service.MatchService
-	Chat    service.ChatService
-	Strike  service.StrikeService
-	Payment service.PaymentService
+	Auth         service.AuthService
+	Feed         service.FeedService
+	Profile      service.ProfileService
+	Swipe        service.SwipeService
+	Match        service.MatchService
+	Chat         service.ChatService
+	Strike       service.StrikeService
+	Payment      service.PaymentService
+	Notification service.NotificationService
 }
 
 type Handlers struct {
-	Auth      *handler.AuthHandler
-	Session   *handler.SessionHandler
-	Feed      *handler.FeedHandler
-	Profile   *handler.ProfileHandler
-	Swipe     *handler.SwipeHandler
-	Match     *handler.MatchHandler
-	Chat      *handler.ChatHandler
-	WebSocket *websocket.WebSocketHandler
-	Strike    *handler.StrikeHandler
-	Payment   *handler.PaymentHandler
+	Auth           *handler.AuthHandler
+	Session        *handler.SessionHandler
+	Feed           *handler.FeedHandler
+	Profile        *handler.ProfileHandler
+	Swipe          *handler.SwipeHandler
+	Match          *handler.MatchHandler
+	Chat           *handler.ChatHandler
+	WebSocket      *websocket.WebSocketHandler
+	NotificationWS *websocket.NotificationWebSocketHandler
+	Strike         *handler.StrikeHandler
+	Payment        *handler.PaymentHandler
+	Notification   *handler.NotificationHandler
 }
 
 func Run() {
