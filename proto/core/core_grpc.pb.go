@@ -19,26 +19,27 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	CoreService_GetProfile_FullMethodName            = "/core.CoreService/GetProfile"
-	CoreService_UpdateProfileInfo_FullMethodName     = "/core.CoreService/UpdateProfileInfo"
-	CoreService_UpdatePreferences_FullMethodName     = "/core.CoreService/UpdatePreferences"
-	CoreService_UpdateInterests_FullMethodName       = "/core.CoreService/UpdateInterests"
-	CoreService_DeletePhoto_FullMethodName           = "/core.CoreService/DeletePhoto"
-	CoreService_SetPrimaryPhoto_FullMethodName       = "/core.CoreService/SetPrimaryPhoto"
-	CoreService_ReorderPhotos_FullMethodName         = "/core.CoreService/ReorderPhotos"
-	CoreService_UploadPhoto_FullMethodName           = "/core.CoreService/UploadPhoto"
-	CoreService_GetFeed_FullMethodName               = "/core.CoreService/GetFeed"
-	CoreService_ProcessSwipe_FullMethodName          = "/core.CoreService/ProcessSwipe"
-	CoreService_GetUserMatches_FullMethodName        = "/core.CoreService/GetUserMatches"
-	CoreService_Unmatch_FullMethodName               = "/core.CoreService/Unmatch"
-	CoreService_CreateStrike_FullMethodName          = "/core.CoreService/CreateStrike"
-	CoreService_GetStrike_FullMethodName             = "/core.CoreService/GetStrike"
-	CoreService_GetStrikesByUserID_FullMethodName    = "/core.CoreService/GetStrikesByUserID"
-	CoreService_GetStrikesByType_FullMethodName      = "/core.CoreService/GetStrikesByType"
-	CoreService_GetStrikesByDateRange_FullMethodName = "/core.CoreService/GetStrikesByDateRange"
-	CoreService_UpdateStrikeStatus_FullMethodName    = "/core.CoreService/UpdateStrikeStatus"
-	CoreService_DeleteStrike_FullMethodName          = "/core.CoreService/DeleteStrike"
-	CoreService_GetUserStrikeStats_FullMethodName    = "/core.CoreService/GetUserStrikeStats"
+	CoreService_GetProfile_FullMethodName              = "/core.CoreService/GetProfile"
+	CoreService_GetProfileWithRelations_FullMethodName = "/core.CoreService/GetProfileWithRelations"
+	CoreService_UpdateProfileInfo_FullMethodName       = "/core.CoreService/UpdateProfileInfo"
+	CoreService_UpdatePreferences_FullMethodName       = "/core.CoreService/UpdatePreferences"
+	CoreService_UpdateInterests_FullMethodName         = "/core.CoreService/UpdateInterests"
+	CoreService_DeletePhoto_FullMethodName             = "/core.CoreService/DeletePhoto"
+	CoreService_SetPrimaryPhoto_FullMethodName         = "/core.CoreService/SetPrimaryPhoto"
+	CoreService_ReorderPhotos_FullMethodName           = "/core.CoreService/ReorderPhotos"
+	CoreService_UploadPhoto_FullMethodName             = "/core.CoreService/UploadPhoto"
+	CoreService_GetFeed_FullMethodName                 = "/core.CoreService/GetFeed"
+	CoreService_ProcessSwipe_FullMethodName            = "/core.CoreService/ProcessSwipe"
+	CoreService_GetUserMatches_FullMethodName          = "/core.CoreService/GetUserMatches"
+	CoreService_Unmatch_FullMethodName                 = "/core.CoreService/Unmatch"
+	CoreService_CreateStrike_FullMethodName            = "/core.CoreService/CreateStrike"
+	CoreService_GetStrike_FullMethodName               = "/core.CoreService/GetStrike"
+	CoreService_GetStrikesByUserID_FullMethodName      = "/core.CoreService/GetStrikesByUserID"
+	CoreService_GetStrikesByType_FullMethodName        = "/core.CoreService/GetStrikesByType"
+	CoreService_GetStrikesByDateRange_FullMethodName   = "/core.CoreService/GetStrikesByDateRange"
+	CoreService_UpdateStrikeStatus_FullMethodName      = "/core.CoreService/UpdateStrikeStatus"
+	CoreService_DeleteStrike_FullMethodName            = "/core.CoreService/DeleteStrike"
+	CoreService_GetUserStrikeStats_FullMethodName      = "/core.CoreService/GetUserStrikeStats"
 )
 
 // CoreServiceClient is the client API for CoreService service.
@@ -49,6 +50,7 @@ const (
 type CoreServiceClient interface {
 	// Profile operations
 	GetProfile(ctx context.Context, in *GetProfileRequest, opts ...grpc.CallOption) (*GetProfileResponse, error)
+	GetProfileWithRelations(ctx context.Context, in *GetProfileWithRelationsRequest, opts ...grpc.CallOption) (*GetProfileResponse, error)
 	UpdateProfileInfo(ctx context.Context, in *UpdateProfileInfoRequest, opts ...grpc.CallOption) (*UpdateProfileInfoResponse, error)
 	UpdatePreferences(ctx context.Context, in *UpdatePreferencesRequest, opts ...grpc.CallOption) (*UpdatePreferencesResponse, error)
 	UpdateInterests(ctx context.Context, in *UpdateInterestsRequest, opts ...grpc.CallOption) (*UpdateInterestsResponse, error)
@@ -86,6 +88,16 @@ func (c *coreServiceClient) GetProfile(ctx context.Context, in *GetProfileReques
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetProfileResponse)
 	err := c.cc.Invoke(ctx, CoreService_GetProfile_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *coreServiceClient) GetProfileWithRelations(ctx context.Context, in *GetProfileWithRelationsRequest, opts ...grpc.CallOption) (*GetProfileResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetProfileResponse)
+	err := c.cc.Invoke(ctx, CoreService_GetProfileWithRelations_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -290,6 +302,7 @@ func (c *coreServiceClient) GetUserStrikeStats(ctx context.Context, in *GetUserS
 type CoreServiceServer interface {
 	// Profile operations
 	GetProfile(context.Context, *GetProfileRequest) (*GetProfileResponse, error)
+	GetProfileWithRelations(context.Context, *GetProfileWithRelationsRequest) (*GetProfileResponse, error)
 	UpdateProfileInfo(context.Context, *UpdateProfileInfoRequest) (*UpdateProfileInfoResponse, error)
 	UpdatePreferences(context.Context, *UpdatePreferencesRequest) (*UpdatePreferencesResponse, error)
 	UpdateInterests(context.Context, *UpdateInterestsRequest) (*UpdateInterestsResponse, error)
@@ -325,6 +338,9 @@ type UnimplementedCoreServiceServer struct{}
 
 func (UnimplementedCoreServiceServer) GetProfile(context.Context, *GetProfileRequest) (*GetProfileResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetProfile not implemented")
+}
+func (UnimplementedCoreServiceServer) GetProfileWithRelations(context.Context, *GetProfileWithRelationsRequest) (*GetProfileResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetProfileWithRelations not implemented")
 }
 func (UnimplementedCoreServiceServer) UpdateProfileInfo(context.Context, *UpdateProfileInfoRequest) (*UpdateProfileInfoResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateProfileInfo not implemented")
@@ -418,6 +434,24 @@ func _CoreService_GetProfile_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CoreServiceServer).GetProfile(ctx, req.(*GetProfileRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CoreService_GetProfileWithRelations_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetProfileWithRelationsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoreServiceServer).GetProfileWithRelations(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CoreService_GetProfileWithRelations_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoreServiceServer).GetProfileWithRelations(ctx, req.(*GetProfileWithRelationsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -774,6 +808,10 @@ var CoreService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetProfile",
 			Handler:    _CoreService_GetProfile_Handler,
+		},
+		{
+			MethodName: "GetProfileWithRelations",
+			Handler:    _CoreService_GetProfileWithRelations_Handler,
 		},
 		{
 			MethodName: "UpdateProfileInfo",

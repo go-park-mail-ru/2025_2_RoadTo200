@@ -66,6 +66,7 @@ func (a *App) setupProtectedRoutes() {
 
 	// Profile endpoints
 	a.server.GET("/api/profile", a.handlers.Profile.GetProfile)
+	a.server.GET("/api/profile/{id}", a.handlers.Profile.GetProfileByID)
 	a.server.PUT("/api/profile/info", a.handlers.Profile.UpdateProfileInfo)
 	a.server.PUT("/api/profile/preference", a.handlers.Profile.UpdatePreferences)
 	a.server.PUT("/api/profile/interest", a.handlers.Profile.UpdateInterests)

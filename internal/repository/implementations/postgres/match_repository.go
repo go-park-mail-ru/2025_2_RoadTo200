@@ -32,10 +32,10 @@ func (r *MatchRepository) Create(ctx context.Context, match *domain.Match) error
 	query := `
 		INSERT INTO match (user1_id, user2_id, is_active)
 		VALUES ($1, $2, $3)
-		RETURNING matched_at`
+		RETURNING id, matched_at`
 
 	err := r.pool.QueryRow(ctx, query, user1ID, user2ID, match.IsActive).
-		Scan(&match.MatchedAt)
+		Scan(&match.ID, &match.MatchedAt)
 
 	if err != nil {
 		return err

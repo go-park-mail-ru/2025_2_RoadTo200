@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/errors"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/dto"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/middleware"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
 	service "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/utils"
@@ -41,9 +42,9 @@ func (h *NotificationHandler) GetNotifications(w http.ResponseWriter, r *http.Re
 	h.logger.Trace("NotificationHandler.GetNotifications")
 
 	// Получаем userID из контекста (установлен middleware)
-	userID, ok := r.Context().Value("userID").(uuid.UUID)
-	if !ok {
-		h.logger.Warn("userID not found in context")
+	userID, err := middleware.GetUserIDFromContext(r.Context())
+	if err != nil {
+		h.logger.Warnf("GetUserIDFromContext: %v", err)
 		utils.WriteJSONError(w, http.StatusUnauthorized, "unauthorized")
 		return
 	}
@@ -98,9 +99,9 @@ func (h *NotificationHandler) MarkAsRead(w http.ResponseWriter, r *http.Request)
 	h.logger.Trace("NotificationHandler.MarkAsRead")
 
 	// Получаем userID из контекста
-	userID, ok := r.Context().Value("userID").(uuid.UUID)
-	if !ok {
-		h.logger.Warn("userID not found in context")
+	userID, err := middleware.GetUserIDFromContext(r.Context())
+	if err != nil {
+		h.logger.Warnf("GetUserIDFromContext: %v", err)
 		utils.WriteJSONError(w, http.StatusUnauthorized, "unauthorized")
 		return
 	}

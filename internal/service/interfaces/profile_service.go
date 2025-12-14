@@ -11,6 +11,7 @@ import (
 type ProfileService interface {
 	// Profile
 	GetProfile(ctx context.Context, userID uuid.UUID) (*domain.ProfileResponse, error)
+	GetProfileWithRelations(ctx context.Context, viewerID, targetID uuid.UUID) (*domain.ProfileResponse, error)
 	UpdateProfileInfo(ctx context.Context, userID uuid.UUID, updateData *domain.ProfileUpdateRequest) error
 
 	// Preferences

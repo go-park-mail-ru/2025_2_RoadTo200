@@ -17,15 +17,17 @@ func coreProtoToUser(pbUser *pb.User) *domain.User {
 	id, _ := uuid.Parse(pbUser.Id)
 
 	user := &domain.User{
-		ID:         id,
-		Email:      pbUser.Email,
-		Name:       pbUser.Name,
-		BirthDate:  pbUser.BirthDate.AsTime(),
-		Gender:     constants.Gender(pbUser.Gender),
-		IsVerified: pbUser.IsVerified,
-		LastActive: pbUser.LastActive.AsTime(),
-		CreatedAt:  pbUser.CreatedAt.AsTime(),
-		UpdatedAt:  pbUser.UpdatedAt.AsTime(),
+		ID:              id,
+		Email:           pbUser.Email,
+		Name:            pbUser.Name,
+		BirthDate:       pbUser.BirthDate.AsTime(),
+		Gender:          constants.Gender(pbUser.Gender),
+		IsVerified:      pbUser.IsVerified,
+		IsPremium:       pbUser.IsPremium,
+		SuperLikesCount: int(pbUser.SuperLikesCount),
+		LastActive:      pbUser.LastActive.AsTime(),
+		CreatedAt:       pbUser.CreatedAt.AsTime(),
+		UpdatedAt:       pbUser.UpdatedAt.AsTime(),
 	}
 
 	if pbUser.Phone != nil {

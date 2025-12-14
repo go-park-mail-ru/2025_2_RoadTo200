@@ -17,15 +17,17 @@ func UserToProto(user *domain.User) *pb.User {
 	}
 
 	pbUser := &pb.User{
-		Id:         user.ID.String(),
-		Email:      user.Email,
-		Name:       user.Name,
-		BirthDate:  timestamppb.New(user.BirthDate),
-		Gender:     string(user.Gender),
-		IsVerified: user.IsVerified,
-		LastActive: timestamppb.New(user.LastActive),
-		CreatedAt:  timestamppb.New(user.CreatedAt),
-		UpdatedAt:  timestamppb.New(user.UpdatedAt),
+		Id:              user.ID.String(),
+		Email:           user.Email,
+		Name:            user.Name,
+		BirthDate:       timestamppb.New(user.BirthDate),
+		Gender:          string(user.Gender),
+		IsVerified:      user.IsVerified,
+		IsPremium:       user.IsPremium,
+		SuperLikesCount: int32(user.SuperLikesCount),
+		LastActive:      timestamppb.New(user.LastActive),
+		CreatedAt:       timestamppb.New(user.CreatedAt),
+		UpdatedAt:       timestamppb.New(user.UpdatedAt),
 	}
 
 	if user.Phone != nil {

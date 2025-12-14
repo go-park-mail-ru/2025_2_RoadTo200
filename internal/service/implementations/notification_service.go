@@ -36,7 +36,21 @@ func NewNotificationService(
 
 // SendNotification создает уведомление в БД и отправляет через WebSocket
 func (s *NotificationService) SendNotification(ctx context.Context, userID uuid.UUID, notificationType constants.NotificationType, fromUserID *uuid.UUID, matchID *uuid.UUID) error {
-	s.logger.Tracef("NotificationService.SendNotification: userID=%s, type=%s", userID, notificationType)
+	s.logger.Infof("=== NotificationService.SendNotification START ===")
+	s.logger.Infof("Parameters: userID=%s, type=%s, fromUserID=%v, matchID=%v",
+		userID, notificationType, fromUserID, matchID)
+
+	// Проверяем, что notificationRepo не nil
+	if s.notificationRepo == nil {
+		s.logger.Error("CRITICAL: notificationRepo is nil!")
+		return fmt.Errorf("notificationRepo is nil")
+	}
+
+	// Проверяем, что fromUserID не nil для матча
+	if notificationType == constants.NotificationTypeMatch && fromUserID == nil {
+		s.logger.Error("CRITICAL: fromUserID is nil for match notification!")
+		return fmt.Errorf("fromUserID is required for match notification")
+	}
 
 	// Создаем уведомление
 	notification := &domain.Notification{
@@ -47,16 +61,25 @@ func (s *NotificationService) SendNotification(ctx context.Context, userID uuid.
 		IsRead:     false,
 	}
 
+	s.logger.Infof("Notification struct created: UserID=%s, Type=%s, FromUserID=%v, MatchID=%v",
+		notification.UserID, notification.Type, notification.FromUserID, notification.MatchID)
+
 	// Сохраняем в БД
+	s.logger.Infof("Calling notificationRepo.Create...")
 	if err := s.notificationRepo.Create(ctx, notification); err != nil {
-		s.logger.Errorf("Failed to create notification: %v", err)
+		s.logger.Errorf("ERROR: Failed to create notification in DB: %v", err)
+		s.logger.Errorf("Error details: type=%T, error=%+v", err, err)
 		return fmt.Errorf("failed to create notification: %w", err)
 	}
+
+	s.logger.Infof("SUCCESS: Notification created in DB: id=%s, userID=%s, type=%s", notification.ID, userID, notificationType)
 
 	// Публикуем в Redis для отправки через WebSocket
 	if err := s.publishNotification(ctx, notification); err != nil {
 		s.logger.Warnf("Failed to publish notification to Redis: %v", err)
 		// Не возвращаем ошибку, уведомление уже сохранено в БД
+	} else {
+		s.logger.Infof("Notification published to Redis: id=%s, userID=%s", notification.ID, userID)
 	}
 
 	return nil
