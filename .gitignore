@@ -13,3 +13,4 @@ MIGRATIONS_WALKTHROUGH.md
 /api/*/*.go
 /api/*/*.yaml
 coverage.out
+*_easyjson.go

@@ -1,5 +1,7 @@
 package dto
 
+//go:generate easyjson -all -no_std_marshalers strike_dto.go
+
 import (
 	"time"
 
