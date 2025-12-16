@@ -1,5 +1,7 @@
 package dto
 
+//go:generate easyjson -all -no_std_marshalers payment_dto.go
+
 // CreatePaymentRequest запрос на создание платежа
 // @Description Запрос для создания ссылки на оплату премиум-подписки
 type CreatePaymentRequest struct {

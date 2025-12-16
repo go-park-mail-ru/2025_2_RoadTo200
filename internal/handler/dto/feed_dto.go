@@ -1,5 +1,7 @@
 package dto
 
+//go:generate easyjson -all -no_std_marshalers feed_dto.go
+
 import domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 
 // FeedUser represents user data for feed

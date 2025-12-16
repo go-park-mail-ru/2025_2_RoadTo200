@@ -3,6 +3,8 @@ package utils
 import (
 	"encoding/json"
 	"net/http"
+
+	"github.com/mailru/easyjson"
 )
 
 func WriteJSON(w http.ResponseWriter, status int, payload interface{}) {
@@ -13,7 +15,17 @@ func WriteJSON(w http.ResponseWriter, status int, payload interface{}) {
 		return
 	}
 
-	data, err := json.Marshal(payload)
+	var data []byte
+	var err error
+
+	// Проверяем, реализует ли тип интерфейс easyjson.Marshaler
+	if marshaler, ok := payload.(easyjson.Marshaler); ok {
+		data, err = easyjson.Marshal(marshaler)
+	} else {
+		// Используем стандартный json для типов без easyjson
+		data, err = json.Marshal(payload)
+	}
+
 	if err != nil {
 		http.Error(w, `{"error":"internal error"}`, http.StatusInternalServerError)
 		return
@@ -26,6 +38,12 @@ func WriteJSONError(w http.ResponseWriter, status int, message string) {
 }
 
 func ReadJSON(r *http.Request, dst interface{}) error {
+	// Проверяем, реализует ли тип интерфейс easyjson.Unmarshaler
+	// easyjson.Unmarshaler должен быть указателем
+	if unmarshaler, ok := dst.(easyjson.Unmarshaler); ok {
+		return easyjson.UnmarshalFromReader(r.Body, unmarshaler)
+	}
+
 	dec := json.NewDecoder(r.Body)
 	dec.DisallowUnknownFields()
 	return dec.Decode(dst)

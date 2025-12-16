@@ -2216,12 +2216,14 @@
             "enum": [
                 "match",
                 "super_like",
-                "like"
+                "like",
+                "message"
             ],
             "x-enum-varnames": [
                 "NotificationTypeMatch",
                 "NotificationTypeSuperLike",
-                "NotificationTypeLike"
+                "NotificationTypeLike",
+                "NotificationTypeMessage"
             ]
         },
         "constants.StrikeStatus": {

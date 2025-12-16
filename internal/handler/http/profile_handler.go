@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"encoding/json"
 	"errors"
 	"net/http"
 	"strings"
@@ -265,7 +264,7 @@ func (h *ProfileHandler) UpdateProfileInfo(w http.ResponseWriter, r *http.Reques
 	}
 
 	var req domain.ProfileUpdateRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+	if err := utils.ReadJSON(r, &req); err != nil {
 		h.logger.Warnf("handleJSONRequest: %v", err)
 		utils.WriteJSONError(w, http.StatusBadRequest, "invalid JSON")
 		return
@@ -307,7 +306,7 @@ func (h *ProfileHandler) UpdatePreferences(w http.ResponseWriter, r *http.Reques
 	}
 
 	var req domain.PreferencesUpdateRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+	if err := utils.ReadJSON(r, &req); err != nil {
 		h.logger.Warnf("handleJSONRequest: %v", err)
 		utils.WriteJSONError(w, http.StatusBadRequest, "invalid JSON")
 		return
@@ -345,7 +344,7 @@ func (h *ProfileHandler) UpdateInterests(w http.ResponseWriter, r *http.Request)
 	}
 
 	var req []domain.Interest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+	if err := utils.ReadJSON(r, &req); err != nil {
 		h.logger.Warnf("handleJSONRequest: %v", err)
 		utils.WriteJSONError(w, http.StatusBadRequest, "invalid JSON")
 		return

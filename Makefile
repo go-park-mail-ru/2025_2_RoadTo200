@@ -26,23 +26,26 @@ test-coverage:
 	@echo ""
 	@echo "Generating coverage report..."
 	@go test ./... -coverprofile=coverage.out 2>&1 | grep -v "compile: version" | grep -v "no test files" > /dev/null
+	@echo "Filtering out generated files (easyjson, mocks)..."
+	@grep -v "_easyjson.go\|_mock.go\|_mocks.go\|mock_" coverage.out > coverage_filtered.out || true
+	@mv coverage_filtered.out coverage.out 2>/dev/null || true
 	@echo ""
 	@echo "=== TOTAL COVERAGE ==="
 	@go tool cover -func=coverage.out | grep total | awk '{printf "Total: %s\n", $$3}'
 	@echo ""
 	@echo "=== COVERAGE BY COMPONENT ==="
 	@echo "Repositories:"
-	@go tool cover -func=coverage.out | grep "repository/implementations" | awk '{sum+=$$NF; count++} END {if(count>0) printf "  %.1f%% (%d files)\n", sum/count, count; else print "  No coverage"}'
+	@go tool cover -func=coverage.out | grep "repository/implementations" | grep -v "_easyjson\|_mock" | awk '{sum+=$$NF; count++} END {if(count>0) printf "  %.1f%% (%d files)\n", sum/count, count; else print "  No coverage"}'
 	@echo "Services:"
-	@go tool cover -func=coverage.out | grep "service/implementations" | awk '{sum+=$$NF; count++} END {if(count>0) printf "  %.1f%% (%d files)\n", sum/count, count; else print "  No coverage"}'  
+	@go tool cover -func=coverage.out | grep "service/implementations" | grep -v "_easyjson\|_mock" | awk '{sum+=$$NF; count++} END {if(count>0) printf "  %.1f%% (%d files)\n", sum/count, count; else print "  No coverage"}'  
 	@echo "Middleware:"
-	@go tool cover -func=coverage.out | grep "handler/middleware" | awk '{sum+=$$NF; count++} END {if(count>0) printf "  %.1f%% (%d files)\n", sum/count, count; else print "  No coverage"}'
+	@go tool cover -func=coverage.out | grep "handler/middleware" | grep -v "_easyjson\|_mock" | awk '{sum+=$$NF; count++} END {if(count>0) printf "  %.1f%% (%d files)\n", sum/count, count; else print "  No coverage"}'
 	@echo "Converters:"
-	@go tool cover -func=coverage.out | grep "converters" | awk '{sum+=$$NF; count++} END {if(count>0) printf "  %.1f%% (%d files)\n", sum/count, count; else print "  No coverage"}'
+	@go tool cover -func=coverage.out | grep "converters" | grep -v "_easyjson\|_mock" | awk '{sum+=$$NF; count++} END {if(count>0) printf "  %.1f%% (%d files)\n", sum/count, count; else print "  No coverage"}'
 	@echo "Handlers:"
-	@go tool cover -func=coverage.out | grep "handler/http" | awk '{sum+=$$NF; count++} END {if(count>0) printf "  %.1f%% (%d files)\n", sum/count, count; else print "  No coverage"}'
+	@go tool cover -func=coverage.out | grep "handler/http" | grep -v "_easyjson\|_mock" | awk '{sum+=$$NF; count++} END {if(count>0) printf "  %.1f%% (%d files)\n", sum/count, count; else print "  No coverage"}'
 	@echo "Adapters:"
-	@go tool cover -func=coverage.out | grep "adapters" | awk '{sum+=$$NF; count++} END {if(count>0) printf "  %.1f%% (%d files)\n", sum/count, count; else print "  No coverage"}'
+	@go tool cover -func=coverage.out | grep "adapters" | grep -v "_easyjson\|_mock" | awk '{sum+=$$NF; count++} END {if(count>0) printf "  %.1f%% (%d files)\n", sum/count, count; else print "  No coverage"}'
 	@echo ""
 	@echo "Full report: coverage.out"
 	@echo "HTML report: go tool cover -html=coverage.out"
@@ -120,13 +123,13 @@ build-docs:
 	swag init -g ./cmd/chat/main.go -o api/chat/
 	swag init -g ./cmd/server/main.go -o api/server/
 
-build:
+build: generate
 	go build -o ./.build/auth ./cmd/auth/main.go
 	go build -o ./.build/core ./cmd/core/main.go
 	go build -o ./.build/chat ./cmd/chat/main.go
 	go build -o ./.build/server ./cmd/server/main.go
 
-build-bin:
+build-bin: generate
 	GOOS=linux GOARCH=amd64 go build -o ./.build/auth ./cmd/auth/main.go
 	GOOS=linux GOARCH=amd64 go build -o ./.build/core ./cmd/core/main.go
 	GOOS=linux GOARCH=amd64 go build -o ./.build/chat ./cmd/chat/main.go
@@ -150,12 +153,28 @@ proto-gen:
 		--go-grpc_out=. --go-grpc_opt=paths=source_relative \
 		proto/auth/auth.proto proto/core/core.proto proto/chat/chat.proto
 
+# Generate easyjson code for all DTO and domain entities
+generate:
+	@echo "Installing easyjson if not present..."
+	@which easyjson > /dev/null || go install github.com/mailru/easyjson/easyjson@latest
+	@echo "Generating easyjson code..."
+	@go generate ./internal/handler/dto/...
+	@go generate ./internal/domain/entities/...
+	@echo "Applying fixes for UserPreference MarshalEasyJSON (pointer method)..."
+	@if [ -f internal/domain/entities/user_preference_easyjson.go ]; then \
+		if grep -q "func (v UserPreference) MarshalEasyJSON" internal/domain/entities/user_preference_easyjson.go; then \
+			python3 -c "import re; f=open('internal/domain/entities/user_preference_easyjson.go', 'r'); content=f.read(); f.close(); content=re.sub(r'func \(v UserPreference\) MarshalEasyJSON\(w \*jwriter\.Writer\) \{\s+easyjson82fcc681EncodeGithubComGoParkMailRu20252RoadTo200BackendInternalDomainEntities\(w, v\)\s+\}', 'func (v *UserPreference) MarshalEasyJSON(w *jwriter.Writer) {\n\tif v == nil {\n\t\tw.RawString(\"null\")\n\t\treturn\n\t}\n\teasyjson82fcc681EncodeGithubComGoParkMailRu20252RoadTo200BackendInternalDomainEntities(w, *v)\n}', content, flags=re.MULTILINE|re.DOTALL); f=open('internal/domain/entities/user_preference_easyjson.go', 'w'); f.write(content); f.close()" 2>/dev/null || \
+			python -c "import re; f=open('internal/domain/entities/user_preference_easyjson.go', 'r'); content=f.read(); f.close(); content=re.sub(r'func \(v UserPreference\) MarshalEasyJSON\(w \*jwriter\.Writer\) \{\s+easyjson82fcc681EncodeGithubComGoParkMailRu20252RoadTo200BackendInternalDomainEntities\(w, v\)\s+\}', 'func (v *UserPreference) MarshalEasyJSON(w *jwriter.Writer) {\n\tif v == nil {\n\t\tw.RawString(\"null\")\n\t\treturn\n\t}\n\teasyjson82fcc681EncodeGithubComGoParkMailRu20252RoadTo200BackendInternalDomainEntities(w, *v)\n}', content, flags=re.MULTILINE|re.DOTALL); f=open('internal/domain/entities/user_preference_easyjson.go', 'w'); f.write(content); f.close()" 2>/dev/null || true; \
+		fi; \
+	fi
+	@echo "Easyjson generation complete!"
+
 .PHONY: run run-auth run-core run-chat test test-coverage \
 	test-converters test-converters-coverage \
 	test-repository test-repository-coverage \
 	test-service test-service-coverage \
 	test-middleware test-middleware-coverage \
 	test-handler test-handler-coverage \
-	build-docs build build-bin clean fmt tidy deploy proto-gen
+	build-docs build build-bin clean fmt tidy deploy proto-gen generate
 down:
 	docker stop $(docker ps -q)

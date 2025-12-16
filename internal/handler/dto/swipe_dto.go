@@ -1,5 +1,7 @@
 package dto
 
+//go:generate easyjson -all -no_std_marshalers swipe_dto.go
+
 // SwipeRequest represents swipe request
 type SwipeRequest struct {
 	CardID string `json:"card_id" example:"550e8400-e29b-41d4-a716-446655440000"`
