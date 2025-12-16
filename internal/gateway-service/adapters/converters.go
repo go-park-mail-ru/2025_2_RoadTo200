@@ -1,27 +1,30 @@
 package adapters
 
 import (
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/constants"
-	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
+	auth_c "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/auth-service/domain/constants"
+	auth_d "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/auth-service/domain/entities"
+	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/chat-service/domain/entities"
+	core_c "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/core-service/domain/constants"
+	core_d "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/core-service/domain/entities"
 	pb "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/proto/core"
 	"github.com/google/uuid"
 )
 
 // Proto → Domain converters (shared across all adapters)
 
-func coreProtoToUser(pbUser *pb.User) *domain.User {
+func coreProtoToUser(pbUser *pb.User) *auth_d.User {
 	if pbUser == nil {
 		return nil
 	}
 
 	id, _ := uuid.Parse(pbUser.Id)
 
-	user := &domain.User{
+	user := &auth_d.User{
 		ID:         id,
 		Email:      pbUser.Email,
 		Name:       pbUser.Name,
 		BirthDate:  pbUser.BirthDate.AsTime(),
-		Gender:     constants.Gender(pbUser.Gender),
+		Gender:     auth_c.Gender(pbUser.Gender),
 		IsVerified: pbUser.IsVerified,
 		LastActive: pbUser.LastActive.AsTime(),
 		CreatedAt:  pbUser.CreatedAt.AsTime(),
@@ -47,16 +50,16 @@ func coreProtoToUser(pbUser *pb.User) *domain.User {
 	return user
 }
 
-func coreProtoToUserPreference(pbPref *pb.UserPreference) *domain.UserPreference {
+func coreProtoToUserPreference(pbPref *pb.UserPreference) *core_d.UserPreference {
 	if pbPref == nil {
 		return nil
 	}
 
 	userID, _ := uuid.Parse(pbPref.UserId)
 
-	return &domain.UserPreference{
+	return &core_d.UserPreference{
 		UserID:       userID,
-		ShowGender:   constants.GenderPreference(pbPref.ShowGender),
+		ShowGender:   core_c.GenderPreference(pbPref.ShowGender),
 		AgeMin:       int(pbPref.AgeMin),
 		AgeMax:       int(pbPref.AgeMax),
 		MaxDistance:  int(pbPref.MaxDistance),
@@ -66,11 +69,11 @@ func coreProtoToUserPreference(pbPref *pb.UserPreference) *domain.UserPreference
 	}
 }
 
-func coreProtoToUserPhoto(pbPhoto *pb.UserPhoto) domain.UserPhoto {
+func coreProtoToUserPhoto(pbPhoto *pb.UserPhoto) core_d.UserPhoto {
 	id, _ := uuid.Parse(pbPhoto.Id)
 	userID, _ := uuid.Parse(pbPhoto.UserId)
 
-	return domain.UserPhoto{
+	return core_d.UserPhoto{
 		ID:           id,
 		UserID:       userID,
 		PhotoURL:     pbPhoto.PhotoUrl,
@@ -80,25 +83,25 @@ func coreProtoToUserPhoto(pbPhoto *pb.UserPhoto) domain.UserPhoto {
 	}
 }
 
-func coreProtoToUserPhotos(pbPhotos []*pb.UserPhoto) []domain.UserPhoto {
-	photos := make([]domain.UserPhoto, len(pbPhotos))
+func coreProtoToUserPhotos(pbPhotos []*pb.UserPhoto) []core_d.UserPhoto {
+	photos := make([]core_d.UserPhoto, len(pbPhotos))
 	for i, pbPhoto := range pbPhotos {
 		photos[i] = coreProtoToUserPhoto(pbPhoto)
 	}
 	return photos
 }
 
-func coreProtoToInterest(pbInterest *pb.Interest) domain.Interest {
+func coreProtoToInterest(pbInterest *pb.Interest) core_d.Interest {
 	userID, _ := uuid.Parse(pbInterest.UserId)
 
-	return domain.Interest{
+	return core_d.Interest{
 		UserID: userID,
-		Theme:  constants.InterestType(pbInterest.Theme),
+		Theme:  core_c.InterestType(pbInterest.Theme),
 	}
 }
 
-func coreProtoToInterests(pbInterests []*pb.Interest) []domain.Interest {
-	interests := make([]domain.Interest, len(pbInterests))
+func coreProtoToInterests(pbInterests []*pb.Interest) []core_d.Interest {
+	interests := make([]core_d.Interest, len(pbInterests))
 	for i, pbInterest := range pbInterests {
 		interests[i] = coreProtoToInterest(pbInterest)
 	}

@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"strconv"
 
+	service "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/chat-service/service/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/errors"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/dto"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/middleware"
-	service "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/logger"
 	"github.com/google/uuid"
 )

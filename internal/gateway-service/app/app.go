@@ -1,58 +1,37 @@
 package app
 
 import (
+	auth "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/auth-service/service/interfaces"
+	chat "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/chat-service/service/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/config"
+	core "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/core-service/service/interfaces"
 	handler "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/http"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/websocket"
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
-	service "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/httpserver"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/logger"
-	"github.com/gomodule/redigo/redis"
-	"github.com/minio/minio-go/v7"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/redis"
 	"github.com/prometheus/client_golang/prometheus"
 	goredis "github.com/redis/go-redis/v9"
 )
 
 type App struct {
-	config       *config.Config
-	logger       logger.Log
-	server       *httpserver.Server
-	metrics      *prometheus.Registry
-	resources    *Resources
-	repositories *Repositories
-	services     *Services
-	handlers     *Handlers
-}
-
-type Resources struct {
-	Postgres    interfaces.PgxIface
-	Redis       *redis.Pool
+	config      *config.Config
+	logger      logger.Log
+	server      *httpserver.Server
+	metrics     *prometheus.Registry
 	RedisPubSub *goredis.Client // for Pub/Sub (different from session Redis pool)
-	MinIO       *minio.Client
-}
-
-type Repositories struct {
-	Storage      interfaces.FileStorage
-	Match        interfaces.MatchRepository
-	Message      interfaces.MessageRepository
-	Subscription interfaces.SubscriptionRepository
-	Swipe        interfaces.SwipeRepository
-	Preference   interfaces.UserPreferenceRepository
-	Photo        interfaces.UserPhotoRepository
-	Session      interfaces.SessionRepository
-	User         interfaces.UserRepository
-	Strike       interfaces.StrikeRepository
+	services    *Services
+	handlers    *Handlers
 }
 
 type Services struct {
-	Auth    service.AuthService
-	Feed    service.FeedService
-	Profile service.ProfileService
-	Swipe   service.SwipeService
-	Match   service.MatchService
-	Chat    service.ChatService
-	Strike  service.StrikeService
+	Auth    auth.AuthService
+	Feed    core.FeedService
+	Profile core.ProfileService
+	Swipe   core.SwipeService
+	Match   chat.MatchService
+	Chat    chat.ChatService
+	Strike  core.StrikeService
 }
 
 type Handlers struct {
@@ -78,19 +57,16 @@ func Run() {
 		app.logger.Fatal(err)
 		return
 	}
-	if err := app.initResources(); err != nil {
-		app.logger.Fatal(err)
+	pub, err := redis.NewPubSubClient(&app.config.Redis)
+	if err != nil {
+		app.logger.Fatalf("Redis error %s", err)
 		return
 	}
-	if err := app.runMigrations(); err != nil {
-		app.logger.Fatal(err)
-		return
-	}
+	app.RedisPubSub = pub
 
 	app.registerMetrics()
-	app.initRepository()
 	app.logger.Info("✅ Repositories initialized")
-	err := app.initServices()
+	err = app.initServices()
 	if err != nil {
 		app.logger.Fatal(err)
 	}

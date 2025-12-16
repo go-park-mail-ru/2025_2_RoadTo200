@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/chat-service/domain/entities"
+	_ "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/chat-service/domain/entities"
 	interfaces2 "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/chat-service/repository/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/chat-service/service/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/core-service/repository/interfaces"
-	service2 "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/core-service/service/implementations"
+	service2 "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/core-service/service/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/errors"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/dto"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/logger"
@@ -19,7 +19,6 @@ var _ service.MatchService = (*MatchService)(nil)
 
 type MatchService struct {
 	matchRepo interfaces2.MatchRepository
-	userRepo  interfaces.UserRepository
 	swipeRepo interfaces.SwipeRepository
 	photoRepo interfaces.UserPhotoRepository // Добавляем репозиторий фотографий
 	logger    logger.Log
@@ -27,14 +26,12 @@ type MatchService struct {
 
 func NewMatchService(
 	matchRepo interfaces2.MatchRepository,
-	userRepo interfaces.UserRepository,
 	swipeRepo interfaces.SwipeRepository,
 	photoRepo interfaces.UserPhotoRepository, // Добавляем параметр
 	l logger.Log,
 ) *MatchService {
 	return &MatchService{
 		matchRepo: matchRepo,
-		userRepo:  userRepo,
 		swipeRepo: swipeRepo,
 		photoRepo: photoRepo, // Инициализируем
 		logger:    l,
@@ -77,10 +74,10 @@ func (s *MatchService) GetUserMatches(ctx context.Context, userID uuid.UUID, lim
 		}
 	}
 	// Получаем информацию о пользователях
-	users, err := s.userRepo.GetUsersByIDs(ctx, userIDs)
-	if err != nil {
-		return nil, err
-	}
+	//users, err := s.userRepo.GetUsersByIDs(ctx, userIDs)
+	//if err != nil {
+	//	return nil, err
+	//}
 
 	// Получаем фотографии для всех пользователей
 	userPhotos, err := s.getUsersPhotos(ctx, userIDs)
@@ -89,15 +86,14 @@ func (s *MatchService) GetUserMatches(ctx context.Context, userID uuid.UUID, lim
 	}
 
 	// Создаем мапу для быстрого доступа
-	userMap := make(map[uuid.UUID]domain.User)
-	for _, user := range users {
-		userMap[user.ID] = user
-	}
+	//userMap := make(map[uuid.UUID]domain.User)
+	//for _, user := range users {
+	//	userMap[user.ID] = user
+	//}
 
 	// Формируем ответ
 	var matchResponses []dto.MatchResponse
 	for _, match := range matches {
-		var matchedUser domain.User
 		var ok bool
 		var matchedUserID uuid.UUID
 
@@ -107,7 +103,6 @@ func (s *MatchService) GetUserMatches(ctx context.Context, userID uuid.UUID, lim
 			matchedUserID = match.User1ID
 		}
 
-		matchedUser, ok = userMap[matchedUserID]
 		if !ok {
 			s.logger.Warnf("User not found for match: %v\n", match)
 			continue
@@ -116,18 +111,16 @@ func (s *MatchService) GetUserMatches(ctx context.Context, userID uuid.UUID, lim
 		// Получаем фотографии для этого пользователя
 		photos := userPhotos[matchedUserID]
 
-		// Вычисляем возраст
-		age := service2.calculateAge(matchedUser.BirthDate)
-
-		// Получаем описание
-		description := service2.getDescription(matchedUser.Bio)
+		//// Вычисляем возраст
+		//age := service2.calculateAge(matchedUser.BirthDate)
+		//
+		//// Получаем описание
+		//description := service2.getDescription(matchedUser.Bio)
 
 		matchResponses = append(matchResponses, dto.MatchResponse{
 			Match:       match,
-			User:        matchedUser,
+			User:        matchedUserID,
 			Photos:      photos,      // Добавляем фотографии
-			Age:         age,         // Добавляем возраст
-			Description: description, // Добавляем описание
 			PhotosCount: len(photos), // Добавляем количество фото
 		})
 	}

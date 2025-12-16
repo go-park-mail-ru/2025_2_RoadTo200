@@ -10,6 +10,8 @@ import (
 	"github.com/google/uuid"
 )
 
+var _ LogFactory = (*Factory)(nil)
+
 type Factory struct {
 	mu        *sync.Mutex
 	out       io.Writer

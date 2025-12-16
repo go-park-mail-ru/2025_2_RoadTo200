@@ -13,7 +13,7 @@ import (
 )
 
 type SwipeHandler struct {
-	swipeService service.service
+	swipeService service.SwipeService
 	logger       logger.Log
 }
 

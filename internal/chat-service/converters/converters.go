@@ -3,7 +3,7 @@ package converters
 import (
 	"time"
 
-	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
+	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/chat-service/domain/entities"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/dto"
 	pb "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/proto/chat"
 	"github.com/google/uuid"

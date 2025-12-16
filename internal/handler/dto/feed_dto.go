@@ -1,6 +1,6 @@
 package dto
 
-import domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
+import domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/core-service/domain/entities"
 
 // FeedUser represents user data for feed
 type FeedUser struct {

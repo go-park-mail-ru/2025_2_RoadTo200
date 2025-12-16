@@ -4,6 +4,7 @@ import (
 	//"encoding/json"
 	"net/http"
 
+	service "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/auth-service/service/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/dto"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/logger"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/utils"

@@ -7,8 +7,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/core-service/domain/constants"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/core-service/service/interfaces"
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/constants"
 	expectation "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/errors"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/dto"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/middleware"

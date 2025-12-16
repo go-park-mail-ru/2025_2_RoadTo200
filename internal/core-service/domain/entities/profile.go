@@ -3,6 +3,8 @@ package domain
 import (
 	"time"
 
+	cons "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/auth-service/domain/constants"
+	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/auth-service/domain/entities"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/core-service/domain/constants"
 )
 
@@ -10,7 +12,7 @@ import (
 
 // ProfileResponse представляет полный ответ профиля для фронта
 type ProfileResponse struct {
-	User        *User           `json:"user"`
+	User        *domain.User    `json:"user"`
 	Preferences *UserPreference `json:"preferences,omitempty"`
 	Photos      []UserPhoto     `json:"photos,omitempty"`
 	Interests   []Interest      `json:"interests,omitempty"`
@@ -18,16 +20,16 @@ type ProfileResponse struct {
 
 // ProfileUpdateRequest запрос на обновление профиля
 type ProfileUpdateRequest struct {
-	Name      string           `json:"name,omitempty"`
-	Phone     *string          `json:"phone,omitempty"`
-	BirthDate *time.Time       `json:"birth_date,omitempty"`
-	Gender    constants.Gender `json:"gender,omitempty"`
-	Bio       *string          `json:"bio,omitempty"`
-	City      *string          `json:"city,omitempty"`
-	Artist    *string          `json:"artist,omitempty"`
-	Quote     *string          `json:"quote,omitempty"`
-	Latitude  *float64         `json:"latitude,omitempty"`
-	Longitude *float64         `json:"longitude,omitempty"`
+	Name      string      `json:"name,omitempty"`
+	Phone     *string     `json:"phone,omitempty"`
+	BirthDate *time.Time  `json:"birth_date,omitempty"`
+	Gender    cons.Gender `json:"gender,omitempty"`
+	Bio       *string     `json:"bio,omitempty"`
+	City      *string     `json:"city,omitempty"`
+	Artist    *string     `json:"artist,omitempty"`
+	Quote     *string     `json:"quote,omitempty"`
+	Latitude  *float64    `json:"latitude,omitempty"`
+	Longitude *float64    `json:"longitude,omitempty"`
 }
 
 // PreferencesUpdateRequest запрос на обновление предпочтений

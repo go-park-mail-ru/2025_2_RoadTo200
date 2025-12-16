@@ -12,7 +12,7 @@ import (
 )
 
 type FeedHandler struct {
-	feedService service.service
+	feedService service.FeedService
 	logger      logger.Log
 }
 

@@ -14,7 +14,7 @@ import (
 )
 
 func (a *App) initServer() {
-	a.server = httpserver.NewServer()
+	a.server = httpserver.NewServer(a.config)
 
 	// Settip metrics
 	a.setupMetrics()

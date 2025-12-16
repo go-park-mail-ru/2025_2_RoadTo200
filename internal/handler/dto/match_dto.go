@@ -1,6 +1,9 @@
 package dto
 
-import domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
+import (
+	auth "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/auth-service/domain/entities"
+	chat "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/chat-service/domain/entities"
+)
 
 // UnmatchRequest represents unmatch request
 type UnmatchRequest struct {
@@ -8,12 +11,12 @@ type UnmatchRequest struct {
 }
 
 type MatchResponse struct {
-	Match       domain.Match `json:"match"`
-	User        domain.User  `json:"user"`
-	Photos      []string     `json:"photos"`       // Добавляем фотографии
-	Age         int          `json:"age"`          // Добавляем возраст
-	Description string       `json:"description"`  // Добавляем описание
-	PhotosCount int          `json:"photos_count"` // Добавляем количество фото
+	Match       chat.Match `json:"match"`
+	User        auth.User  `json:"user"`
+	Photos      []string   `json:"photos"`       // Добавляем фотографии
+	Age         int        `json:"age"`          // Добавляем возраст
+	Description string     `json:"description"`  // Добавляем описание
+	PhotosCount int        `json:"photos_count"` // Добавляем количество фото
 }
 
 type MatchesResponse struct {

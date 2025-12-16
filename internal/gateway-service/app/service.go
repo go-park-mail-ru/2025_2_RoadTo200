@@ -3,7 +3,7 @@ package app
 import (
 	"fmt"
 
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/gateway/adapters"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/gateway-service/adapters"
 	grpc "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/grpc"
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 )

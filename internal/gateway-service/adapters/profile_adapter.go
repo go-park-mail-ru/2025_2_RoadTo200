@@ -5,8 +5,8 @@ import (
 	"io"
 	"mime/multipart"
 
+	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/core-service/domain/entities"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/core-service/service/interfaces"
-	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	pb "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/proto/core"
 	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/timestamppb"

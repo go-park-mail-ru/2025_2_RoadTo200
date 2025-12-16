@@ -3,9 +3,9 @@ package adapters
 import (
 	"context"
 
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/constants"
-	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
-	service "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/auth-service/domain/constants"
+	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/auth-service/domain/entities"
+	service "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/auth-service/service/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/proto/auth"
 	"github.com/google/uuid"
 )

@@ -3,8 +3,8 @@ package adapters
 import (
 	"context"
 
+	service "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/chat-service/service/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/dto"
-	service "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
 	pb "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/proto/core"
 	"github.com/google/uuid"
 )
