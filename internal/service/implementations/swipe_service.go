@@ -103,12 +103,67 @@ func (s *SwipeService) ProcessSwipe(ctx context.Context, swiperID uuid.UUID, req
 		}
 		s.logger.Infof("Super likes count decreased: user=%s, remaining=%d", swiperID, swiper.SuperLikesCount)
 
-		// При суперлайке всегда отправляем уведомление получателю
-		swiperIDPtr := &swiperID
-		if err := s.notificationService.SendNotification(ctx, card, constants.NotificationTypeSuperLike, swiperIDPtr, nil); err != nil {
-			s.logger.Errorf("Failed to send super_like notification: %v", err)
+		// Проверяем на мэтч (суперлайк тоже может создать матч, если второй пользователь лайкнул или суперлайкнул)
+		s.logger.Debugf("Checking for mutual like (super_like): swiper=%s, target=%s", swiperID, card)
+		hasMutualLike, err := s.matchRepo.CheckMutualLike(ctx, swiperID, card)
+		if err != nil {
+			s.logger.Errorf("Error checking mutual like for super_like: %v", err)
+			return nil, err
+		}
+
+		s.logger.Debugf("Mutual like check result (super_like): hasMutualLike=%v", hasMutualLike)
+
+		if hasMutualLike {
+			// Создаем мэтч
+			match := &domain.Match{
+				User1ID:   swiperID,
+				User2ID:   card,
+				IsActive:  true,
+				MatchedAt: time.Now(),
+			}
+
+			if err := s.matchRepo.Create(ctx, match); err != nil {
+				s.logger.Errorf("Failed to create match for super_like: %v", err)
+				return nil, err
+			}
+
+			s.logger.Infof("Match created from super_like: user1=%s, user2=%s, matchID=%s", swiperID, card, match.ID)
+
+			// Отправляем уведомления о матче обоим пользователям
+			matchIDPtr := &match.ID
+			swiperIDPtr := &swiperID
+			cardIDPtr := &card
+
+			if s.notificationService == nil {
+				s.logger.Error("CRITICAL: NotificationService is nil! Cannot send match notifications")
+			} else {
+				// Уведомление первому пользователю (swiper)
+				s.logger.Infof("Sending match notification to user1 (super_like): swiperID=%s, fromUserID=%s, matchID=%s", swiperID, card, match.ID)
+				if err := s.notificationService.SendNotification(ctx, swiperID, constants.NotificationTypeMatch, cardIDPtr, matchIDPtr); err != nil {
+					s.logger.Errorf("Failed to send match notification to user1 (super_like): %v", err)
+				} else {
+					s.logger.Infof("Match notification sent successfully to user1 (super_like): %s", swiperID)
+				}
+
+				// Уведомление второму пользователю (target)
+				s.logger.Infof("Sending match notification to user2 (super_like): targetID=%s, fromUserID=%s, matchID=%s", card, swiperID, match.ID)
+				if err := s.notificationService.SendNotification(ctx, card, constants.NotificationTypeMatch, swiperIDPtr, matchIDPtr); err != nil {
+					s.logger.Errorf("Failed to send match notification to user2 (super_like): %v", err)
+				} else {
+					s.logger.Infof("Match notification sent successfully to user2 (super_like): %s", card)
+				}
+			}
+
+			response.IsMatch = true
+			response.Message = "It's a match!"
 		} else {
-			s.logger.Infof("Super_like notification sent: from=%s, to=%s", swiperID, card)
+			// При суперлайке всегда отправляем уведомление получателю (если нет матча)
+			swiperIDPtr := &swiperID
+			if err := s.notificationService.SendNotification(ctx, card, constants.NotificationTypeSuperLike, swiperIDPtr, nil); err != nil {
+				s.logger.Errorf("Failed to send super_like notification: %v", err)
+			} else {
+				s.logger.Infof("Super_like notification sent: from=%s, to=%s", swiperID, card)
+			}
 		}
 	} else if swipeType == constants.SwipeTypeLike {
 		// Сначала проверяем на мэтч (важно делать это до отправки уведомления о лайке)

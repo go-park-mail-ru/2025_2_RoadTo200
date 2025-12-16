@@ -162,7 +162,8 @@ func (r *MatchRepository) CheckMutualLike(ctx context.Context, user1ID, user2ID 
 			INNER JOIN swipe s2 ON s1.swiper_user_id = s2.target_user_id AND s1.target_user_id = s2.swiper_user_id
 			WHERE s1.swiper_user_id = $1 AND s1.target_user_id = $2
 			AND s2.swiper_user_id = $2 AND s2.target_user_id = $1
-			AND s1.swipe_type = 'like' AND s2.swipe_type = 'like'
+			AND s1.swipe_type IN ('like', 'super_like')
+			AND s2.swipe_type IN ('like', 'super_like')
 		)`
 
 	var exists bool

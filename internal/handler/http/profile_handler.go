@@ -194,22 +194,42 @@ func (h *ProfileHandler) UploadPhotos(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	h.logger.Infof("UploadPhotos request: userID=%s, Content-Type=%s, Content-Length=%s",
+		userID, r.Header.Get("Content-Type"), r.Header.Get("Content-Length"))
+
+	// Проверяем размер запроса
+	if r.ContentLength > 0 {
+		h.logger.Infof("Request content length: %d bytes (%.2f MB)",
+			r.ContentLength, float64(r.ContentLength)/(1024*1024))
+	}
+
 	if err := r.ParseMultipartForm(32 << 20); err != nil {
-		h.logger.Warnf("ParseMultipartForm: %v", err)
+		h.logger.Errorf("ParseMultipartForm failed: %v (max memory: %d bytes, content-length: %s)",
+			err, 32<<20, r.Header.Get("Content-Length"))
 		utils.WriteJSONError(w, http.StatusBadRequest, "failed to parse form data")
 		return
 	}
 
+	h.logger.Infof("MultipartForm parsed successfully: form=%v", r.MultipartForm != nil)
+
 	files := r.MultipartForm.File["photos"]
+	h.logger.Infof("Files received: count=%d", len(files))
+
 	if len(files) == 0 {
 		h.logger.Warnf("uploadPhotos: no files uploaded")
 		utils.WriteJSONError(w, http.StatusBadRequest, "no photos provided")
 		return
 	}
 
+	// Логируем информацию о каждом файле
+	for i, fileHeader := range files {
+		h.logger.Infof("File %d: filename=%s, size=%d bytes (%.2f MB), Content-Type=%s",
+			i+1, fileHeader.Filename, fileHeader.Size, float64(fileHeader.Size)/(1024*1024), fileHeader.Header.Get("Content-Type"))
+	}
+
 	uploadedPhotos, err := h.profileService.UploadPhotos(r.Context(), userID, files)
 	if err != nil {
-		h.logger.Errorf("uploadPhotos: %v", err)
+		h.logger.Errorf("uploadPhotos failed: %v", err)
 		status := http.StatusBadRequest
 		if errors.Is(err, expectation.ErrPhotoLimitExceeded) {
 			status = http.StatusForbidden
@@ -218,6 +238,7 @@ func (h *ProfileHandler) UploadPhotos(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	h.logger.Infof("UploadPhotos successful: uploaded %d photos", len(uploadedPhotos))
 	utils.WriteJSON(w, http.StatusOK, uploadedPhotos)
 }
 

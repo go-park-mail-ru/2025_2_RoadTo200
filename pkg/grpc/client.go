@@ -11,14 +11,23 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
+const (
+	// MaxMessageSize максимальный размер сообщения gRPC (15MB для поддержки файлов до 10MB)
+	MaxMessageSize = 15 * 1024 * 1024
+)
+
 func initClient(addr, service string, mt *grpc_prometheus.ClientMetrics) (*grpc.ClientConn, error) {
 
-	// gRPC клиент с метриками
+	// gRPC клиент с метриками и увеличенным лимитом размера сообщений
 	conn, err := grpc.NewClient(
 		addr,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithStreamInterceptor(mt.StreamClientInterceptor()),
 		grpc.WithUnaryInterceptor(mt.UnaryClientInterceptor()),
+		grpc.WithDefaultCallOptions(
+			grpc.MaxCallRecvMsgSize(MaxMessageSize),
+			grpc.MaxCallSendMsgSize(MaxMessageSize),
+		),
 	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to %s service: %w", service, err)

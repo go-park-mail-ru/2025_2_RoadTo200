@@ -89,4 +89,5 @@ const (
 	NotificationTypeMatch     NotificationType = "match"
 	NotificationTypeSuperLike NotificationType = "super_like"
 	NotificationTypeLike      NotificationType = "like"
+	NotificationTypeMessage   NotificationType = "message"
 )
