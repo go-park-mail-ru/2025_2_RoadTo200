@@ -16,6 +16,7 @@ import (
 	gServer "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/grpc"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/implementations/postgres"
+	serviceImpl "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/implementations"
 	pgxConn "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/postgres"
 	redisConn "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/redis"
 	pb "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/proto/chat"
@@ -52,9 +53,13 @@ func main() {
 	// Initialize repositories
 	messageRepo := repository.NewMessageRepository(pgPool, loggerInst)
 	matchRepo := postgres.NewMatchRepository(pgPool)
+	notificationRepo := postgres.NewNotificationRepository(pgPool)
+
+	// Initialize notification service
+	notificationService := serviceImpl.NewNotificationService(notificationRepo, redisClient, loggerInst)
 
 	// Initialize chat service
-	chatService := service.NewChatService(messageRepo, matchRepo, redisClient, loggerInst)
+	chatService := service.NewChatService(messageRepo, matchRepo, notificationService, redisClient, loggerInst)
 
 	// Create gRPC server
 	chatServer := server.NewChatServer(chatService, loggerInst)
