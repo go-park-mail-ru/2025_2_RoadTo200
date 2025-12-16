@@ -35,10 +35,10 @@ func (l *Logger) log(level Level, format string, args ...interface{}) {
 
 	prefix := ""
 	if l.prefix != "" {
-		prefix = "[" + l.prefix + "] "
+		prefix = l.prefix
 	}
 
-	logEntry := fmt.Sprintf("%s%s%s: %s\n", timestamp, prefix, levelName, msg)
+	logEntry := fmt.Sprintf("%s%s %s: %s\n", timestamp, prefix, levelName, msg)
 	l.out.Write([]byte(logEntry))
 
 	if level == FATAL {

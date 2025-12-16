@@ -3,6 +3,9 @@ package httpserver
 import (
 	"fmt"
 	"net/http"
+
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/config"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/logger"
 )
 
 type Server struct {
@@ -17,12 +20,12 @@ type SpecificMV struct {
 	mtrc func(next http.Handler) http.Handler
 }
 
-func NewServer() *Server {
+func NewServer(cfg config.Config) *Server {
 	return &Server{
 		mv:  make([]func(next http.Handler) http.Handler, 0),
 		mux: http.NewServeMux(),
 		smv: SpecificMV{
-			init: InitMiddleware(nil),
+			init: InitMiddleware(logger.NewFactory(&cfg.Logger)),
 			auth: func(next http.Handler) http.Handler { return next },
 			mtrc: func(next http.Handler) http.Handler { return next },
 		},

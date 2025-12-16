@@ -16,5 +16,5 @@ type Log interface {
 }
 
 type LogFactory interface {
-	Fork(path, id string) Log
+	Fork(path string) *Logger
 }

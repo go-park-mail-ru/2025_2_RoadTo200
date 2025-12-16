@@ -8,8 +8,8 @@ import (
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/chat-service/domain/entities"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/chat-service/repository/interfaces"
 	expectation "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/errors"
-	utils "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/implementations/postgres"
 	bdIface "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/utils"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 )
