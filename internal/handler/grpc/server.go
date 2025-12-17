@@ -17,7 +17,7 @@ const (
 	MaxMessageSize = 15 * 1024 * 1024
 )
 
-func NewGrpcServer(port int) *grpc.Server {
+func NewGrpcServer(port int, logger logger.Log) *grpc.Server {
 	reg := prometheus.NewRegistry()
 
 	// Регистрируем стандартные метрики

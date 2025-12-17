@@ -2,7 +2,6 @@ package redis
 
 import (
 	"fmt"
-	"os"
 	"strconv"
 	"time"
 
@@ -11,10 +10,10 @@ import (
 )
 
 func NewConnection(cfg *config.RedisConfig) (*redis.Pool, error) {
-	host := os.Getenv(cfg.Host)         // ❌ Это ищет env переменную с именем "localhost"
-	sport := os.Getenv(cfg.Port)        // ❌ Это ищет env переменную с именем "5435"
-	password := os.Getenv(cfg.Password) // ❌ Это ищет env переменную с именем "password"
-	base := os.Getenv(cfg.Base)         // ❌ Это ищет env переменную с именем "dating_app"
+	host := cfg.Host
+	sport := cfg.Port
+	password := cfg.Password
+	base := cfg.Base
 
 	// Преобразуем порт и базу в числа
 	port, err := strconv.Atoi(sport)

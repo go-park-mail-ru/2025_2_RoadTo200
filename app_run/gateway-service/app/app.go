@@ -1,18 +1,27 @@
 package app
 
 import (
+	"context"
+	"fmt"
+
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/config"
 	handler "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/http"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/websocket"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
 	service "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/httpserver"
-	"github.com/gomodule/redigo/redis"
-	"github.com/minio/minio-go/v7"
 	"github.com/prometheus/client_golang/prometheus"
 	goredis "github.com/redis/go-redis/v9"
 )
+
+type Resources struct {
+	Redis       *goredis.Client
+	RedisPubSub *goredis.PubSub
+}
+
+type Repositories struct {
+	// Add repository fields if needed
+}
 
 type App struct {
 	config       *config.Config
@@ -23,27 +32,6 @@ type App struct {
 	repositories *Repositories
 	services     *Services
 	handlers     *Handlers
-}
-
-type Resources struct {
-	Postgres    interfaces.PgxIface
-	Redis       *redis.Pool
-	RedisPubSub *goredis.Client // for Pub/Sub (different from session Redis pool)
-	MinIO       *minio.Client
-}
-
-type Repositories struct {
-	Storage      interfaces.FileStorage
-	Match        interfaces.MatchRepository
-	Message      interfaces.MessageRepository
-	Subscription interfaces.SubscriptionRepository
-	Swipe        interfaces.SwipeRepository
-	Preference   interfaces.UserPreferenceRepository
-	Photo        interfaces.UserPhotoRepository
-	Session      interfaces.SessionRepository
-	User         interfaces.UserRepository
-	Strike       interfaces.StrikeRepository
-	Notification interfaces.NotificationRepository
 }
 
 type Services struct {
@@ -73,19 +61,37 @@ type Handlers struct {
 	Notification   *handler.NotificationHandler
 }
 
+func (a *App) initResources() error {
+	// Initialize Redis client
+	rdb := goredis.NewClient(&goredis.Options{
+		Addr:     fmt.Sprintf("%s:%s", a.config.Redis.Host, a.config.Redis.Port),
+		Password: a.config.Redis.Password,
+		DB:       0,
+	})
+
+	// Test Redis connection
+	if err := rdb.Ping(context.Background()).Err(); err != nil {
+		return fmt.Errorf("failed to connect to Redis: %w", err)
+	}
+
+	pubsub := rdb.Subscribe(context.Background())
+	a.resources = &Resources{
+		Redis:       rdb,
+		RedisPubSub: pubsub,
+	}
+
+	return nil
+}
+
 func Run() {
 	app := &App{}
 
 	if err := app.initConfig(); err != nil {
-		app.logger.Fatal(err)
+		fmt.Printf("Failed to init config: %v\n", err)
 		return
 	}
 	if err := app.initLogger(); err != nil {
-		app.logger.Fatal(err)
-		return
-	}
-	if err := app.initResources(); err != nil {
-		app.logger.Fatal(err)
+		fmt.Printf("Failed to init logger: %v\n", err)
 		return
 	}
 	if err := app.runMigrations(); err != nil {
@@ -94,11 +100,21 @@ func Run() {
 	}
 
 	app.registerMetrics()
-	app.initRepository()
+	app.logger.Info("✅ Metrics registered")
+
+	if err := app.initResources(); err != nil {
+		app.logger.Fatal(err)
+		return
+	}
+	app.logger.Info("✅ Resources initialized")
+
+	app.repositories = &Repositories{}
 	app.logger.Info("✅ Repositories initialized")
+
 	err := app.initServices()
 	if err != nil {
 		app.logger.Fatal(err)
+		return
 	}
 	app.logger.Info("✅ Services initialized")
 	app.initHandlers()

@@ -112,9 +112,6 @@ func NewConfig() (*Config, error) {
 }
 
 func LoadConfig(path string) (*Config, error) {
-	// Load .env file first (ignore error if doesn't exist)
-	_ = godotenv.Load(".env")
-
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read config file: %w", err)
@@ -164,6 +161,7 @@ func LoadConfig(path string) (*Config, error) {
 
 	// Substitute environment variables
 	if config.App.Mode == "dev" {
+		// Load .env file first (ignore error if doesn't exist)
 		err := godotenv.Load(".env")
 		if err != nil {
 			return nil, err

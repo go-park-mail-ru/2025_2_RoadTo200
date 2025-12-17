@@ -1,6 +1,8 @@
 package app
 
-import "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
+import (
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
+)
 
 func (a *App) initLogger() error {
 	logg := logger.New(&a.config.Logger)

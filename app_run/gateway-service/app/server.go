@@ -6,7 +6,6 @@ import (
 
 	handler "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/http"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/middleware"
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/metrics/prometheus"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/metrics/web"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/httpserver"
@@ -113,7 +112,7 @@ func (a *App) runServer() {
 	a.logger.Infof("Server starting on %s", addr)
 
 	if err := a.server.Run(addr); err != nil {
-		logger.Fatal("Server failed: ", err)
+		a.logger.Fatal(fmt.Errorf("server failed: %w", err))
 	}
 	a.logger.Info("Server stopped")
 }
