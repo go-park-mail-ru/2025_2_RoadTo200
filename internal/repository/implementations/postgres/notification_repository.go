@@ -60,7 +60,7 @@ func (r *NotificationRepository) GetByUserID(ctx context.Context, userID uuid.UU
 	}
 	defer rows.Close()
 
-	var notifications []domain.Notification
+	notifications := make([]domain.Notification, 0) // Initialize as empty slice instead of nil
 	for rows.Next() {
 		var notification domain.Notification
 		err := rows.Scan(

@@ -169,12 +169,36 @@ generate:
 	fi
 	@echo "Easyjson generation complete!"
 
+# Generate mocks for all interfaces
+mocks:
+	@echo "Installing mockgen if not present..."
+	@which mockgen > /dev/null || go install go.uber.org/mock/mockgen@latest
+	@echo "Generating mocks..."
+	@mockgen -source=internal/repository/interfaces/user_repository.go -destination=tests/mocks/user_repository_mock.go -package=mocks
+	@mockgen -source=internal/repository/interfaces/subscription_repository.go -destination=tests/mocks/subscription_repository_mock.go -package=mocks
+	@mockgen -source=internal/repository/interfaces/match_repository.go -destination=tests/mocks/match_repository_mock.go -package=mocks
+	@mockgen -source=internal/repository/interfaces/message_repository.go -destination=tests/mocks/message_repository_mock.go -package=mocks
+	@mockgen -source=internal/repository/interfaces/session_repository.go -destination=tests/mocks/session_repository_mock.go -package=mocks
+	@mockgen -source=internal/repository/interfaces/strike_repository.go -destination=tests/mocks/strike_repository_mock.go -package=mocks
+	@mockgen -source=internal/repository/interfaces/swipe_repository.go -destination=tests/mocks/swipe_repository_mock.go -package=mocks
+	@mockgen -source=internal/repository/interfaces/notification_repository.go -destination=tests/mocks/notification_repository_mock.go -package=mocks
+	@mockgen -source=internal/service/interfaces/auth_service.go -destination=tests/mocks/auth_service_mock.go -package=mocks
+	@mockgen -source=internal/service/interfaces/chat_service.go -destination=tests/mocks/chat_service_mock.go -package=mocks
+	@mockgen -source=internal/service/interfaces/feed_service.go -destination=tests/mocks/feed_service_mock.go -package=mocks
+	@mockgen -source=internal/service/interfaces/match_service.go -destination=tests/mocks/match_service_mock.go -package=mocks
+	@mockgen -source=internal/service/interfaces/profile_service.go -destination=tests/mocks/profile_service_mock.go -package=mocks
+	@mockgen -source=internal/service/interfaces/strike_service.go -destination=tests/mocks/strike_service_mock.go -package=mocks
+	@mockgen -source=internal/service/interfaces/swipe_service.go -destination=tests/mocks/swipe_service_mock.go -package=mocks
+	@mockgen -source=internal/service/interfaces/notification_service.go -destination=tests/mocks/notification_service_mock.go -package=mocks
+	@mockgen -source=internal/service/interfaces/payment_service.go -destination=tests/mocks/payment_service_mock.go -package=mocks
+	@echo "Mock generation complete!"
+
 .PHONY: run run-auth run-core run-chat test test-coverage \
 	test-converters test-converters-coverage \
 	test-repository test-repository-coverage \
 	test-service test-service-coverage \
 	test-middleware test-middleware-coverage \
 	test-handler test-handler-coverage \
-	build-docs build build-bin clean fmt tidy deploy proto-gen generate
+	build-docs build build-bin clean fmt tidy deploy proto-gen generate mocks
 down:
 	docker stop $(docker ps -q)
