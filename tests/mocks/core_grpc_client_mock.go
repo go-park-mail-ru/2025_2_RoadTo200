@@ -142,6 +142,26 @@ func (mr *MockCoreServiceClientMockRecorder) GetProfile(ctx, in any, opts ...any
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProfile", reflect.TypeOf((*MockCoreServiceClient)(nil).GetProfile), varargs...)
 }
 
+// GetProfileWithRelations mocks base method.
+func (m *MockCoreServiceClient) GetProfileWithRelations(ctx context.Context, in *core.GetProfileWithRelationsRequest, opts ...grpc.CallOption) (*core.GetProfileResponse, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, in}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetProfileWithRelations", varargs...)
+	ret0, _ := ret[0].(*core.GetProfileResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetProfileWithRelations indicates an expected call of GetProfileWithRelations.
+func (mr *MockCoreServiceClientMockRecorder) GetProfileWithRelations(ctx, in any, opts ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, in}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProfileWithRelations", reflect.TypeOf((*MockCoreServiceClient)(nil).GetProfileWithRelations), varargs...)
+}
+
 // GetStrike mocks base method.
 func (m *MockCoreServiceClient) GetStrike(ctx context.Context, in *core.GetStrikeRequest, opts ...grpc.CallOption) (*core.GetStrikeResponse, error) {
 	m.ctrl.T.Helper()
@@ -539,6 +559,21 @@ func (m *MockCoreServiceServer) GetProfile(arg0 context.Context, arg1 *core.GetP
 func (mr *MockCoreServiceServerMockRecorder) GetProfile(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProfile", reflect.TypeOf((*MockCoreServiceServer)(nil).GetProfile), arg0, arg1)
+}
+
+// GetProfileWithRelations mocks base method.
+func (m *MockCoreServiceServer) GetProfileWithRelations(arg0 context.Context, arg1 *core.GetProfileWithRelationsRequest) (*core.GetProfileResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetProfileWithRelations", arg0, arg1)
+	ret0, _ := ret[0].(*core.GetProfileResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetProfileWithRelations indicates an expected call of GetProfileWithRelations.
+func (mr *MockCoreServiceServerMockRecorder) GetProfileWithRelations(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProfileWithRelations", reflect.TypeOf((*MockCoreServiceServer)(nil).GetProfileWithRelations), arg0, arg1)
 }
 
 // GetStrike mocks base method.
