@@ -2,6 +2,13 @@
 /vendor
 *.exe
 *.log
-*.env
+.idea
 .vscode
 .DS_Store
+.build/
+docs/
+MIGRATIONS_WALKTHROUGH.md
+.env
+/api/*/*.go
+/api/*/*.yaml
+coverage.out

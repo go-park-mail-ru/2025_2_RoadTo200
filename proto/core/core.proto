@@ -1,0 +1,361 @@
+syntax = "proto3";
+
+package core;
+
+option go_package = "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/proto/core";
+
+import "google/protobuf/timestamp.proto";
+
+// CoreService объединяет Profile, Feed, Swipe и Match функциональность
+service CoreService {
+  // Profile operations
+  rpc GetProfile(GetProfileRequest) returns (GetProfileResponse);
+  rpc UpdateProfileInfo(UpdateProfileInfoRequest) returns (UpdateProfileInfoResponse);
+  rpc UpdatePreferences(UpdatePreferencesRequest) returns (UpdatePreferencesResponse);
+  rpc UpdateInterests(UpdateInterestsRequest) returns (UpdateInterestsResponse);
+  rpc DeletePhoto(DeletePhotoRequest) returns (DeletePhotoResponse);
+  rpc SetPrimaryPhoto(SetPrimaryPhotoRequest) returns (SetPrimaryPhotoResponse);
+  rpc ReorderPhotos(ReorderPhotosRequest) returns (ReorderPhotosResponse);
+  rpc UploadPhoto(UploadPhotoRequest) returns (UploadPhotoResponse);
+  
+  // Feed operations
+  rpc GetFeed(GetFeedRequest) returns (GetFeedResponse);
+  
+  // Swipe operations
+  rpc ProcessSwipe(ProcessSwipeRequest) returns (ProcessSwipeResponse);
+  
+  // Match operations
+  rpc GetUserMatches(GetUserMatchesRequest) returns (GetUserMatchesResponse);
+  rpc Unmatch(UnmatchRequest) returns (UnmatchResponse);
+
+  // Strike methods
+  rpc CreateStrike(CreateStrikeRequest) returns (CreateStrikeResponse);
+  rpc GetStrike(GetStrikeRequest) returns (GetStrikeResponse);
+  rpc GetStrikesByUserID(GetStrikesByUserIDRequest) returns (GetStrikesByUserIDResponse);
+  rpc GetStrikesByType(GetStrikesByTypeRequest) returns (GetStrikesByTypeResponse);
+  rpc GetStrikesByDateRange(GetStrikesByDateRangeRequest) returns (GetStrikesByDateRangeResponse);
+  rpc UpdateStrikeStatus(UpdateStrikeStatusRequest) returns (UpdateStrikeStatusResponse);
+  rpc DeleteStrike(DeleteStrikeRequest) returns (DeleteStrikeResponse);
+  rpc GetUserStrikeStats(GetUserStrikeStatsRequest) returns (GetUserStrikeStatsResponse);
+}
+
+// ============= Common Messages =============
+
+message User {
+  string id = 1;
+  string email = 2;
+  optional string phone = 3;
+  string name = 4;
+  google.protobuf.Timestamp birth_date = 5;
+  string gender = 6;
+  optional string bio = 7;
+  optional string city = 8;
+  optional string artist = 9;
+  optional string quote = 10;
+  bool is_verified = 11;
+  google.protobuf.Timestamp last_active = 12;
+  google.protobuf.Timestamp created_at = 13;
+  google.protobuf.Timestamp updated_at = 14;
+}
+
+message UserPhoto {
+  string id = 1;
+  string user_id = 2;
+  string photo_url = 3;
+  int32 display_order = 4;
+  bool is_approved = 5;
+  google.protobuf.Timestamp created_at = 6;
+}
+
+message UserPreference {
+  string user_id = 1;
+  string show_gender = 2;
+  int32 age_min = 3;
+  int32 age_max = 4;
+  int32 max_distance = 5;
+  bool global_search = 6;
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
+}
+
+message Interest {
+  string user_id = 1;
+  string theme = 2;
+}
+
+message Match {
+  string id = 1;
+  string user1_id = 2;
+  string user2_id = 3;
+  bool is_active = 4;
+  google.protobuf.Timestamp matched_at = 5;
+}
+
+// ============= Profile Messages =============
+
+message GetProfileRequest {
+  string user_id = 1;
+}
+
+message GetProfileResponse {
+  User user = 1;
+  UserPreference preferences = 2;
+  repeated UserPhoto photos = 3;
+  repeated Interest interests = 4;
+}
+
+message UpdateProfileInfoRequest {
+  string user_id = 1;
+  optional string name = 2;
+  optional string phone = 3;
+  optional google.protobuf.Timestamp birth_date = 4;
+  optional string gender = 5;
+  optional string bio = 6;
+  optional string artist = 7;
+  optional string quote = 8;
+  optional string city = 11;
+  optional double latitude = 9;
+  optional double longitude = 10;
+}
+
+message UpdateProfileInfoResponse {
+  bool success = 1;
+}
+
+message UpdatePreferencesRequest {
+  string user_id = 1;
+  optional string show_gender = 2;
+  optional int32 age_min = 3;
+  optional int32 age_max = 4;
+  optional int32 max_distance = 5;
+  optional bool global_search = 6;
+}
+
+message UpdatePreferencesResponse {
+  bool success = 1;
+}
+
+message UpdateInterestsRequest {
+  string user_id = 1;
+  repeated string themes = 2;
+}
+
+message UpdateInterestsResponse {
+  bool success = 1;
+}
+
+message DeletePhotoRequest {
+  string user_id = 1;
+  string photo_id = 2;
+}
+
+message DeletePhotoResponse {
+  bool success = 1;
+}
+
+message SetPrimaryPhotoRequest {
+  string user_id = 1;
+  string photo_id = 2;
+}
+
+message SetPrimaryPhotoResponse {
+  bool success = 1;
+}
+
+message ReorderPhotosRequest {
+  string user_id = 1;
+  repeated string photo_ids = 2;
+}
+
+message ReorderPhotosResponse {
+  bool success = 1;
+}
+
+message UploadPhotoRequest {
+  string user_id = 1;
+  bytes content = 2;
+  string content_type = 3;
+}
+
+message UploadPhotoResponse {
+  UserPhoto photo = 1;
+}
+
+// ============= Feed Messages =============
+
+message FeedUser {
+  string id = 1;
+  string name = 2;
+  int32 age = 3;
+  string gender = 4;
+  string description = 5;
+  repeated string images = 6;
+  int32 photos_count = 7;
+  optional string artist = 8;
+  optional string quote = 9;
+  repeated Interest interests = 10;
+}
+
+message GetFeedRequest {
+  string user_id = 1;
+  int32 limit = 2;
+  int32 offset = 3;
+}
+
+message GetFeedResponse {
+  repeated FeedUser users = 1;
+  int32 total = 2;
+  int32 limit = 3;
+  int32 offset = 4;
+}
+
+// ============= Swipe Messages =============
+
+message ProcessSwipeRequest {
+  string swiper_id = 1;
+  string card_id = 2;
+  string action = 3; // "like", "dislike", "super_like"
+}
+
+message ProcessSwipeResponse {
+  bool is_match = 1;
+  optional string match_id = 2;
+  optional string message = 3;
+}
+
+// ============= Match Messages =============
+
+message MatchResponse {
+  Match match = 1;
+  User user = 2;
+  repeated string photos = 3;
+  int32 age = 4;
+  string description = 5;
+  int32 photos_count = 6;
+}
+
+message GetUserMatchesRequest {
+  string user_id = 1;
+  int32 limit = 2;
+  int32 offset = 3;
+}
+
+message GetUserMatchesResponse {
+  repeated MatchResponse matches = 1;
+  int32 total = 2;
+  int32 limit = 3;
+  int32 offset = 4;
+}
+
+message UnmatchRequest {
+  string user_id = 1;
+  string target_user_id = 2;
+}
+
+message UnmatchResponse {
+  bool success = 1;
+}
+
+message Strike {
+  string id = 1;
+  string reporter_id = 2;
+  string target_user_id = 3;
+  string type = 4;
+  string reason = 5;
+  string status = 6;
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
+  string moderator_id = 9;
+  string moderator_note = 10;
+}
+
+message CreateStrikeRequest {
+  string reporter_id = 1;
+  string target_user_id = 2;
+  string type = 3;
+  string reason = 4;
+}
+
+message CreateStrikeResponse {
+  Strike strike = 1;
+}
+
+message GetStrikeRequest {
+  string strike_id = 1;
+}
+
+message GetStrikeResponse {
+  Strike strike = 1;
+}
+
+message GetStrikesByUserIDRequest {
+  string user_id = 1;
+  int32 limit = 2;
+  int32 offset = 3;
+}
+
+message GetStrikesByUserIDResponse {
+  repeated Strike strikes = 1;
+}
+
+message GetStrikesByTypeRequest {
+  string type = 1;
+  int32 limit = 2;
+  int32 offset = 3;
+}
+
+message GetStrikesByTypeResponse {
+  repeated Strike strikes = 1;
+}
+
+message GetStrikesByDateRangeRequest {
+  google.protobuf.Timestamp from = 1;
+  google.protobuf.Timestamp to = 2;
+  int32 limit = 3;
+  int32 offset = 4;
+}
+
+message GetStrikesByDateRangeResponse {
+  repeated Strike strikes = 1;
+}
+
+message UpdateStrikeStatusRequest {
+  string strike_id = 1;
+  string status = 2;
+  string moderator_id = 3;
+  string note = 4;
+}
+
+message UpdateStrikeStatusResponse {
+  Strike strike = 1;
+}
+
+message DeleteStrikeRequest {
+  string strike_id = 1;
+}
+
+message DeleteStrikeResponse {
+  // Empty response for delete
+}
+
+message StrikeTypeStat {
+  int32 pending = 1;
+  int32 approved = 2;
+  int32 rejected = 3;
+  int32 resolved = 4;
+}
+
+message StrikeStats {
+  string user_id = 1;
+  int32 total_strikes = 2;
+  google.protobuf.Timestamp last_strike_at = 3;
+  StrikeTypeStat strike_types = 4;
+}
+
+message GetUserStrikeStatsRequest {
+  string user_id = 1;
+}
+
+message GetUserStrikeStatsResponse {
+  StrikeStats stats = 1;
+}
