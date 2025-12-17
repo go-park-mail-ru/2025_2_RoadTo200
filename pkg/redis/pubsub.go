@@ -12,12 +12,11 @@ import (
 
 // NewPubSubClient creates a new Redis client for Pub/Sub
 func NewPubSubClient(cfg *config.RedisConfig) (*redis.Client, error) {
-	host := os.Getenv(cfg.Host)         // ❌ Это ищет env переменную с именем "localhost"
-	sport := os.Getenv(cfg.Port)        // ❌ Это ищет env переменную с именем "5435"
-	password := os.Getenv(cfg.Password) // ❌ Это ищет env переменную с именем "password"
-	base := os.Getenv(cfg.Base)         // ❌ Это ищет env переменную с именем "dating_app"
+	host := os.Getenv(cfg.Host)
+	sport := os.Getenv(cfg.Port)
+	password := os.Getenv(cfg.Password)
+	base := os.Getenv(cfg.Base)
 
-	// Преобразуем порт и базу в числа
 	port, err := strconv.Atoi(sport)
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert port to int: %w", err)

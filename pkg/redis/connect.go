@@ -2,6 +2,7 @@ package redis
 
 import (
 	"fmt"
+	"os"
 	"strconv"
 	"time"
 
@@ -10,10 +11,10 @@ import (
 )
 
 func NewConnection(cfg *config.RedisConfig) (*redis.Pool, error) {
-	host := cfg.Host
-	sport := cfg.Port
-	password := cfg.Password
-	base := cfg.Base
+	host := os.Getenv(cfg.Host)
+	sport := os.Getenv(cfg.Port)
+	password := os.Getenv(cfg.Password)
+	base := os.Getenv(cfg.Base)
 
 	// Преобразуем порт и базу в числа
 	port, err := strconv.Atoi(sport)

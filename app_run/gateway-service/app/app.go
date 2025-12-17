@@ -1,7 +1,6 @@
 package app
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/config"
@@ -10,14 +9,10 @@ import (
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
 	service "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/httpserver"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/redis"
 	"github.com/prometheus/client_golang/prometheus"
 	goredis "github.com/redis/go-redis/v9"
 )
-
-type Resources struct {
-	Redis       *goredis.Client
-	RedisPubSub *goredis.PubSub
-}
 
 type Repositories struct {
 	// Add repository fields if needed
@@ -28,7 +23,7 @@ type App struct {
 	logger       logger.Log
 	server       *httpserver.Server
 	metrics      *prometheus.Registry
-	resources    *Resources
+	resources    *goredis.Client
 	repositories *Repositories
 	services     *Services
 	handlers     *Handlers
@@ -61,28 +56,6 @@ type Handlers struct {
 	Notification   *handler.NotificationHandler
 }
 
-func (a *App) initResources() error {
-	// Initialize Redis client
-	rdb := goredis.NewClient(&goredis.Options{
-		Addr:     fmt.Sprintf("%s:%s", a.config.Redis.Host, a.config.Redis.Port),
-		Password: a.config.Redis.Password,
-		DB:       0,
-	})
-
-	// Test Redis connection
-	if err := rdb.Ping(context.Background()).Err(); err != nil {
-		return fmt.Errorf("failed to connect to Redis: %w", err)
-	}
-
-	pubsub := rdb.Subscribe(context.Background())
-	a.resources = &Resources{
-		Redis:       rdb,
-		RedisPubSub: pubsub,
-	}
-
-	return nil
-}
-
 func Run() {
 	app := &App{}
 
@@ -102,16 +75,18 @@ func Run() {
 	app.registerMetrics()
 	app.logger.Info("✅ Metrics registered")
 
-	if err := app.initResources(); err != nil {
+	rds, err := redis.NewPubSubClient(&app.config.Redis)
+	if err != nil {
 		app.logger.Fatal(err)
 		return
 	}
+	app.resources = rds
 	app.logger.Info("✅ Resources initialized")
 
 	app.repositories = &Repositories{}
 	app.logger.Info("✅ Repositories initialized")
 
-	err := app.initServices()
+	err = app.initServices()
 	if err != nil {
 		app.logger.Fatal(err)
 		return

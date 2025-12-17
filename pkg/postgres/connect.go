@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"os"
 	"strconv"
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/config"
@@ -15,11 +16,11 @@ func NewConnect(ctx context.Context, cfg *config.PostgresConfig) (*pgxpool.Pool,
 	}
 
 	// Use config values directly
-	host := cfg.Host
-	sport := cfg.Port
-	user := cfg.User
-	password := cfg.Password
-	base := cfg.Base
+	host := os.Getenv(cfg.Host)
+	sport := os.Getenv(cfg.Port)
+	user := os.Getenv(cfg.User)
+	password := os.Getenv(cfg.Password)
+	base := os.Getenv(cfg.Base)
 
 	// Преобразуем порт в число
 	port, err := strconv.Atoi(sport)
