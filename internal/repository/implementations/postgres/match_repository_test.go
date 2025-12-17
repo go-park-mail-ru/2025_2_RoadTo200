@@ -37,8 +37,8 @@ func TestMatchRepository_Create(t *testing.T) {
 		IsActive: true,
 	}
 
-	rows := mock.NewRows([]string{"matched_at"}).
-		AddRow(time.Now())
+	rows := mock.NewRows([]string{"id", "matched_at"}).
+		AddRow(uuid.New(), time.Now())
 
 	orderedUser1ID, orderedUser2ID := getOrderedUUIDs(user1ID, user2ID)
 	mock.ExpectQuery("INSERT INTO match").
@@ -47,6 +47,7 @@ func TestMatchRepository_Create(t *testing.T) {
 
 	err = repo.Create(context.Background(), match)
 	assert.NoError(t, err)
+	assert.NotEqual(t, uuid.Nil, match.ID)
 	assert.False(t, match.MatchedAt.IsZero())
 	assert.Equal(t, orderedUser1ID, match.User1ID)
 	assert.Equal(t, orderedUser2ID, match.User2ID)
@@ -70,8 +71,8 @@ func TestMatchRepository_Create_WithReorderedUsers(t *testing.T) {
 		IsActive: true,
 	}
 
-	rows := mock.NewRows([]string{"matched_at"}).
-		AddRow(time.Now())
+	rows := mock.NewRows([]string{"id", "matched_at"}).
+		AddRow(uuid.New(), time.Now())
 
 	orderedUser1ID, orderedUser2ID := getOrderedUUIDs(user1ID, user2ID)
 	mock.ExpectQuery("INSERT INTO match").
@@ -80,6 +81,7 @@ func TestMatchRepository_Create_WithReorderedUsers(t *testing.T) {
 
 	err = repo.Create(context.Background(), match)
 	assert.NoError(t, err)
+	assert.NotEqual(t, uuid.Nil, match.ID)
 	assert.False(t, match.MatchedAt.IsZero())
 	assert.Equal(t, orderedUser1ID, match.User1ID)
 	assert.Equal(t, orderedUser2ID, match.User2ID)
@@ -466,7 +468,7 @@ func TestMatchRepository_CheckMutualLike(t *testing.T) {
 
 	rows := mock.NewRows([]string{"exists"}).AddRow(true)
 
-	mock.ExpectQuery("SELECT EXISTS\\( SELECT 1 FROM swipe s1 INNER JOIN swipe s2 ON s1.swiper_user_id = s2.target_user_id AND s1.target_user_id = s2.swiper_user_id WHERE s1.swiper_user_id = \\$1 AND s1.target_user_id = \\$2 AND s2.swiper_user_id = \\$2 AND s2.target_user_id = \\$1 AND s1.swipe_type = 'like' AND s2.swipe_type = 'like' \\)").
+	mock.ExpectQuery("SELECT EXISTS\\( SELECT 1 FROM swipe s1 INNER JOIN swipe s2 ON s1.swiper_user_id = s2.target_user_id AND s1.target_user_id = s2.swiper_user_id WHERE s1.swiper_user_id = \\$1 AND s1.target_user_id = \\$2 AND s2.swiper_user_id = \\$2 AND s2.target_user_id = \\$1 AND s1.swipe_type IN \\('like', 'super_like'\\) AND s2.swipe_type IN \\('like', 'super_like'\\) \\)").
 		WithArgs(user1ID, user2ID).
 		WillReturnRows(rows)
 
@@ -488,7 +490,7 @@ func TestMatchRepository_CheckMutualLike_False(t *testing.T) {
 
 	rows := mock.NewRows([]string{"exists"}).AddRow(false)
 
-	mock.ExpectQuery("SELECT EXISTS\\( SELECT 1 FROM swipe s1 INNER JOIN swipe s2 ON s1.swiper_user_id = s2.target_user_id AND s1.target_user_id = s2.swiper_user_id WHERE s1.swiper_user_id = \\$1 AND s1.target_user_id = \\$2 AND s2.swiper_user_id = \\$2 AND s2.target_user_id = \\$1 AND s1.swipe_type = 'like' AND s2.swipe_type = 'like' \\)").
+	mock.ExpectQuery("SELECT EXISTS\\( SELECT 1 FROM swipe s1 INNER JOIN swipe s2 ON s1.swiper_user_id = s2.target_user_id AND s1.target_user_id = s2.swiper_user_id WHERE s1.swiper_user_id = \\$1 AND s1.target_user_id = \\$2 AND s2.swiper_user_id = \\$2 AND s2.target_user_id = \\$1 AND s1.swipe_type IN \\('like', 'super_like'\\) AND s2.swipe_type IN \\('like', 'super_like'\\) \\)").
 		WithArgs(user1ID, user2ID).
 		WillReturnRows(rows)
 
@@ -508,7 +510,7 @@ func TestMatchRepository_CheckMutualLike_Error(t *testing.T) {
 	user1ID := uuid.New()
 	user2ID := uuid.New()
 
-	mock.ExpectQuery("SELECT EXISTS\\( SELECT 1 FROM swipe s1 INNER JOIN swipe s2 ON s1.swiper_user_id = s2.target_user_id AND s1.target_user_id = s2.swiper_user_id WHERE s1.swiper_user_id = \\$1 AND s1.target_user_id = \\$2 AND s2.swiper_user_id = \\$2 AND s2.target_user_id = \\$1 AND s1.swipe_type = 'like' AND s2.swipe_type = 'like' \\)").
+	mock.ExpectQuery("SELECT EXISTS\\( SELECT 1 FROM swipe s1 INNER JOIN swipe s2 ON s1.swiper_user_id = s2.target_user_id AND s1.target_user_id = s2.swiper_user_id WHERE s1.swiper_user_id = \\$1 AND s1.target_user_id = \\$2 AND s2.swiper_user_id = \\$2 AND s2.target_user_id = \\$1 AND s1.swipe_type IN \\('like', 'super_like'\\) AND s2.swipe_type IN \\('like', 'super_like'\\) \\)").
 		WithArgs(user1ID, user2ID).
 		WillReturnError(pgx.ErrTxClosed)
 
@@ -536,7 +538,7 @@ func TestMatchRepository_Integration_CRUD(t *testing.T) {
 		IsActive: true,
 	}
 
-	rows := mock.NewRows([]string{"matched_at"}).AddRow(time.Now())
+	rows := mock.NewRows([]string{"id", "matched_at"}).AddRow(uuid.New(), time.Now())
 
 	mock.ExpectQuery("INSERT INTO match").
 		WithArgs(orderedUser1ID, orderedUser2ID, match.IsActive).

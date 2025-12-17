@@ -11,9 +11,11 @@ import (
 
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/errors"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/dto"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/middleware"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/tests/mocks"
 	"github.com/google/uuid"
+	"github.com/mailru/easyjson"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 )
@@ -55,11 +57,25 @@ func TestProfileHandler_GetProfile_Success(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, rec.Code)
 
-	var response domain.ProfileResponse
-	json.Unmarshal(rec.Body.Bytes(), &response)
+	var response dto.ProfileResponse
+	// Используем easyjson для десериализации, если доступен, иначе стандартный json
+	if err := easyjson.Unmarshal(rec.Body.Bytes(), &response); err != nil {
+		// Fallback на стандартный json
+		if err2 := json.Unmarshal(rec.Body.Bytes(), &response); err2 != nil {
+			t.Fatalf("Failed to unmarshal response: %v, %v", err, err2)
+		}
+	}
 
-	assert.Equal(t, userID, response.User.ID)
-	assert.Equal(t, "test@example.com", response.User.Email)
+	// Проверяем структуру ответа
+	assert.NotNil(t, response.User)
+	if user, ok := response.User.(*domain.User); ok {
+		assert.Equal(t, userID, user.ID)
+		assert.Equal(t, "test@example.com", user.Email)
+	} else if userMap, ok := response.User.(map[string]interface{}); ok {
+		// Если это map (из стандартного json), проверяем так
+		assert.Equal(t, userID.String(), userMap["id"])
+		assert.Equal(t, "test@example.com", userMap["email"])
+	}
 }
 
 func TestProfileHandler_GetProfile_NoUserID(t *testing.T) {

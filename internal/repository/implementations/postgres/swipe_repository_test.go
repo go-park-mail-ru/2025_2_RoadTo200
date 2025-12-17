@@ -27,8 +27,8 @@ func TestSwipeRepository_Create(t *testing.T) {
 		SwipeType:    constants.SwipeTypeLike,
 	}
 
-	rows := mock.NewRows([]string{"created_at"}).
-		AddRow(time.Now())
+	rows := mock.NewRows([]string{"id", "created_at"}).
+		AddRow(uuid.New(), time.Now())
 
 	mock.ExpectQuery("INSERT INTO swipe").
 		WithArgs(swipe.SwiperUserID, swipe.TargetUserID, swipe.SwipeType).
@@ -36,6 +36,7 @@ func TestSwipeRepository_Create(t *testing.T) {
 
 	err = repo.Create(context.Background(), swipe)
 	assert.NoError(t, err)
+	assert.NotEqual(t, uuid.Nil, swipe.ID)
 	assert.False(t, swipe.CreatedAt.IsZero())
 	assert.NoError(t, mock.ExpectationsWereMet())
 }
@@ -73,6 +74,7 @@ func TestSwipeRepository_GetBySwiperAndTarget(t *testing.T) {
 	targetID := uuid.New()
 
 	expectedSwipe := &domain.Swipe{
+		ID:           uuid.New(),
 		SwiperUserID: swiperID,
 		TargetUserID: targetID,
 		SwipeType:    constants.SwipeTypeLike,
@@ -80,9 +82,9 @@ func TestSwipeRepository_GetBySwiperAndTarget(t *testing.T) {
 	}
 
 	rows := mock.NewRows([]string{
-		"swiper_user_id", "target_user_id", "swipe_type", "created_at",
+		"id", "swiper_user_id", "target_user_id", "swipe_type", "created_at",
 	}).AddRow(
-		expectedSwipe.SwiperUserID, expectedSwipe.TargetUserID, expectedSwipe.SwipeType, expectedSwipe.CreatedAt,
+		expectedSwipe.ID, expectedSwipe.SwiperUserID, expectedSwipe.TargetUserID, expectedSwipe.SwipeType, expectedSwipe.CreatedAt,
 	)
 
 	mock.ExpectQuery("SELECT \\* FROM swipe WHERE swiper_user_id = \\$1 AND target_user_id = \\$2").
@@ -91,6 +93,7 @@ func TestSwipeRepository_GetBySwiperAndTarget(t *testing.T) {
 
 	swipe, err := repo.GetBySwiperAndTarget(context.Background(), swiperID, targetID)
 	assert.NoError(t, err)
+	assert.Equal(t, expectedSwipe.ID, swipe.ID)
 	assert.Equal(t, expectedSwipe.SwiperUserID, swipe.SwiperUserID)
 	assert.Equal(t, expectedSwipe.TargetUserID, swipe.TargetUserID)
 	assert.Equal(t, expectedSwipe.SwipeType, swipe.SwipeType)
@@ -150,12 +153,14 @@ func TestSwipeRepository_GetSwipesBySwiper(t *testing.T) {
 
 	expectedSwipes := []domain.Swipe{
 		{
+			ID:           uuid.New(),
 			SwiperUserID: swiperID,
 			TargetUserID: uuid.New(),
 			SwipeType:    constants.SwipeTypeLike,
 			CreatedAt:    time.Now(),
 		},
 		{
+			ID:           uuid.New(),
 			SwiperUserID: swiperID,
 			TargetUserID: uuid.New(),
 			SwipeType:    constants.SwipeTypeDislike,
@@ -164,11 +169,11 @@ func TestSwipeRepository_GetSwipesBySwiper(t *testing.T) {
 	}
 
 	rows := mock.NewRows([]string{
-		"swiper_user_id", "target_user_id", "swipe_type", "created_at",
+		"id", "swiper_user_id", "target_user_id", "swipe_type", "created_at",
 	})
 	for _, swipe := range expectedSwipes {
 		rows.AddRow(
-			swipe.SwiperUserID, swipe.TargetUserID, swipe.SwipeType, swipe.CreatedAt,
+			swipe.ID, swipe.SwiperUserID, swipe.TargetUserID, swipe.SwipeType, swipe.CreatedAt,
 		)
 	}
 
@@ -179,6 +184,8 @@ func TestSwipeRepository_GetSwipesBySwiper(t *testing.T) {
 	swipes, err := repo.GetSwipesBySwiper(context.Background(), swiperID, limit, offset)
 	assert.NoError(t, err)
 	assert.Len(t, swipes, 2)
+	assert.Equal(t, expectedSwipes[0].ID, swipes[0].ID)
+	assert.Equal(t, expectedSwipes[1].ID, swipes[1].ID)
 	assert.Equal(t, expectedSwipes[0].TargetUserID, swipes[0].TargetUserID)
 	assert.Equal(t, expectedSwipes[1].TargetUserID, swipes[1].TargetUserID)
 	assert.NoError(t, mock.ExpectationsWereMet())
@@ -243,12 +250,14 @@ func TestSwipeRepository_GetSwipesByTarget(t *testing.T) {
 
 	expectedSwipes := []domain.Swipe{
 		{
+			ID:           uuid.New(),
 			SwiperUserID: uuid.New(),
 			TargetUserID: targetID,
 			SwipeType:    constants.SwipeTypeLike,
 			CreatedAt:    time.Now(),
 		},
 		{
+			ID:           uuid.New(),
 			SwiperUserID: uuid.New(),
 			TargetUserID: targetID,
 			SwipeType:    constants.SwipeTypeSuperLike,
@@ -257,11 +266,11 @@ func TestSwipeRepository_GetSwipesByTarget(t *testing.T) {
 	}
 
 	rows := mock.NewRows([]string{
-		"swiper_user_id", "target_user_id", "swipe_type", "created_at",
+		"id", "swiper_user_id", "target_user_id", "swipe_type", "created_at",
 	})
 	for _, swipe := range expectedSwipes {
 		rows.AddRow(
-			swipe.SwiperUserID, swipe.TargetUserID, swipe.SwipeType, swipe.CreatedAt,
+			swipe.ID, swipe.SwiperUserID, swipe.TargetUserID, swipe.SwipeType, swipe.CreatedAt,
 		)
 	}
 
@@ -272,6 +281,8 @@ func TestSwipeRepository_GetSwipesByTarget(t *testing.T) {
 	swipes, err := repo.GetSwipesByTarget(context.Background(), targetID, limit, offset)
 	assert.NoError(t, err)
 	assert.Len(t, swipes, 2)
+	assert.Equal(t, expectedSwipes[0].ID, swipes[0].ID)
+	assert.Equal(t, expectedSwipes[1].ID, swipes[1].ID)
 	assert.Equal(t, expectedSwipes[0].SwiperUserID, swipes[0].SwiperUserID)
 	assert.Equal(t, expectedSwipes[1].SwiperUserID, swipes[1].SwiperUserID)
 	assert.NoError(t, mock.ExpectationsWereMet())
