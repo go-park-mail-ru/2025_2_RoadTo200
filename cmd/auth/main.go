@@ -1,7 +1,9 @@
 package main
 
-import "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/app_run/auth-service/app"
+import (
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/app_run/auth-service"
+)
 
 func main() {
-	app.Run()
+	auth_service.Run()
 }
