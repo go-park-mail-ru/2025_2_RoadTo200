@@ -21,19 +21,40 @@ func NewMessageRepository(pool interfaces.PgxIface) *MessageRepository {
 
 // Create new message
 func (r *MessageRepository) Create(ctx context.Context, message *domain.Message) error {
+	// Начинаем транзакцию
+	tx, err := r.pool.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
+	// Вставляем сообщение
 	query := `
 		INSERT INTO message (match_id, sender_id, receiver_id, content, is_read)
 		VALUES ($1, $2, $3, $4, $5)
 		RETURNING id, created_at`
 
-	err := r.pool.QueryRow(ctx, query,
+	err = tx.QueryRow(ctx, query,
 		message.MatchID, message.SenderID, message.ReceiverID, message.Content, message.IsRead).
 		Scan(&message.ID, &message.CreatedAt)
 
 	if err != nil {
 		return err
 	}
-	return nil
+
+	// Обновляем match: убираем expires_at (устанавливаем NULL), так как кто-то написал сообщение
+	// Матч теперь активен навсегда
+	updateMatchQuery := `
+		UPDATE match 
+		SET expires_at = NULL 
+		WHERE id = $1 AND expires_at IS NOT NULL`
+
+	_, err = tx.Exec(ctx, updateMatchQuery, message.MatchID)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit(ctx)
 }
 
 // GetByMatchID returns message history for a match with pagination
@@ -89,7 +110,8 @@ func (r *MessageRepository) GetUnreadCount(ctx context.Context, userID uuid.UUID
 		JOIN match mt ON m.match_id = mt.id
 		WHERE (mt.user1_id = $1 OR mt.user2_id = $1)
 		AND m.receiver_id = $1
-		AND m.is_read = FALSE`
+		AND m.is_read = FALSE
+		AND mt.is_active = TRUE`
 
 	var count int
 	err := r.pool.QueryRow(ctx, query, userID).Scan(&count)
@@ -133,7 +155,8 @@ func (r *MessageRepository) GetConversations(ctx context.Context, userID uuid.UU
 			ORDER BY created_at DESC 
 			LIMIT 1
 		) msg ON true
-		WHERE (m.user1_id = $1 OR m.user2_id = $1) AND m.is_active = true
+		WHERE (m.user1_id = $1 OR m.user2_id = $1)
+		  AND m.is_active = TRUE
 	`
 
 	args := []interface{}{userID}

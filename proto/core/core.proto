@@ -94,6 +94,7 @@ message Match {
   string user2_id = 3;
   bool is_active = 4;
   google.protobuf.Timestamp matched_at = 5;
+  google.protobuf.Timestamp expires_at = 6; // NULL если кто-то написал сообщение (матч активен навсегда)
 }
 
 // ============= Profile Messages =============
@@ -139,8 +140,6 @@ message UpdatePreferencesRequest {
   optional string show_gender = 2;
   optional int32 age_min = 3;
   optional int32 age_max = 4;
-  optional int32 max_distance = 5;
-  optional bool global_search = 6;
 }
 
 message UpdatePreferencesResponse {

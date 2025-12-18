@@ -112,11 +112,19 @@ func coreProtoToMatch(pbMatch *pb.Match) domain.Match {
 	user2ID, _ := uuid.Parse(pbMatch.User2Id)
 	matchID, _ := uuid.Parse(pbMatch.Id)
 
-	return domain.Match{
+	match := domain.Match{
 		ID:        matchID,
 		User1ID:   user1ID,
 		User2ID:   user2ID,
 		IsActive:  pbMatch.IsActive,
 		MatchedAt: pbMatch.MatchedAt.AsTime(),
 	}
+
+	// Обрабатываем expires_at, если оно есть
+	if pbMatch.ExpiresAt != nil {
+		expiresAt := pbMatch.ExpiresAt.AsTime()
+		match.ExpiresAt = &expiresAt
+	}
+
+	return match
 }

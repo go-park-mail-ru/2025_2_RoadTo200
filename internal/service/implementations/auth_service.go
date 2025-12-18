@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/constants"
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/errors"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
@@ -13,16 +14,18 @@ import (
 )
 
 type AuthService struct {
-	userRepo    interfaces.UserRepository
-	sessionRepo interfaces.SessionRepository
-	logger      logger.Log
+	userRepo       interfaces.UserRepository
+	sessionRepo    interfaces.SessionRepository
+	preferenceRepo interfaces.UserPreferenceRepository
+	logger         logger.Log
 }
 
-func NewAuthService(userRepo interfaces.UserRepository, sessionRepo interfaces.SessionRepository, l logger.Log) *AuthService {
+func NewAuthService(userRepo interfaces.UserRepository, sessionRepo interfaces.SessionRepository, preferenceRepo interfaces.UserPreferenceRepository, l logger.Log) *AuthService {
 	return &AuthService{
-		userRepo:    userRepo,
-		sessionRepo: sessionRepo,
-		logger:      l,
+		userRepo:       userRepo,
+		sessionRepo:    sessionRepo,
+		preferenceRepo: preferenceRepo,
+		logger:         l,
 	}
 }
 
@@ -71,6 +74,25 @@ func (s *AuthService) Register(ctx context.Context, email, password, passwordCon
 	if err := s.userRepo.Create(ctx, user); err != nil {
 		s.logger.Errorf("Create user error: %s", err)
 		return nil, nil, err
+	}
+
+	// Создание базовых предпочтений для нового пользователя
+	defaultPreferences := &domain.UserPreference{
+		UserID:     user.ID,
+		ShowGender: constants.GenderPrefBoth, // "both" - показывать всех
+		AgeMin:     18,                        // минимальный возраст
+		AgeMax:     100,                       // максимальный возраст
+		CreatedAt:  time.Now(),
+		UpdatedAt:  time.Now(),
+	}
+
+	if err := s.preferenceRepo.Create(ctx, defaultPreferences); err != nil {
+		s.logger.Errorf("Create default preferences error: %s", err)
+		// Не возвращаем ошибку, чтобы не блокировать регистрацию
+		// Предпочтения можно будет создать позже
+		s.logger.Warnf("User %s registered without preferences, will be created on first update", user.ID)
+	} else {
+		s.logger.Infof("Default preferences created for user %s", user.ID)
 	}
 
 	// Создание сессии

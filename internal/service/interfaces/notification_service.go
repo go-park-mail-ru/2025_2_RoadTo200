@@ -15,4 +15,6 @@ type NotificationService interface {
 	GetNotifications(ctx context.Context, userID uuid.UUID, limit, offset int) ([]domain.Notification, error)
 	// MarkAsRead помечает уведомление как прочитанное
 	MarkAsRead(ctx context.Context, userID, notificationID uuid.UUID) error
+	// DeleteUserNotifications удаляет все уведомления (лайк, суперлайк, мэтч) между двумя пользователями
+	DeleteUserNotifications(ctx context.Context, user1ID, user2ID uuid.UUID) error
 }

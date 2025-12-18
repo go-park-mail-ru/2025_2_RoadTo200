@@ -497,7 +497,7 @@
                         "SessionToken": []
                     }
                 ],
-                "description": "Возвращает список мэтчей текущего пользователя",
+                "description": "Возвращает список мэтчей текущего пользователя. Каждый мэтч содержит expires_at - время истечения 24-часового окна (NULL если кто-то уже написал сообщение, мэтч активен навсегда)",
                 "produces": [
                     "application/json"
                 ],
@@ -526,9 +526,9 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Список мэтчей",
+                        "description": "Список мэтчей с expires_at для таймера",
                         "schema": {
-                            "$ref": "#/definitions/dto.MatchResponse"
+                            "$ref": "#/definitions/dto.MatchesResponse"
                         }
                     },
                     "401": {
@@ -2378,6 +2378,10 @@
         "domain.Match": {
             "type": "object",
             "properties": {
+                "expires_at": {
+                    "description": "NULL если кто-то написал сообщение (матч активен навсегда)",
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
                 },
@@ -2428,12 +2432,6 @@
                     "type": "integer"
                 },
                 "age_min": {
-                    "type": "integer"
-                },
-                "global_search": {
-                    "type": "boolean"
-                },
-                "max_distance": {
                     "type": "integer"
                 },
                 "show_gender": {
@@ -2723,6 +2721,26 @@
                 },
                 "user": {
                     "$ref": "#/definitions/domain.User"
+                }
+            }
+        },
+        "dto.MatchesResponse": {
+            "type": "object",
+            "properties": {
+                "limit": {
+                    "type": "integer"
+                },
+                "matches": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.MatchResponse"
+                    }
+                },
+                "offset": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
                 }
             }
         },

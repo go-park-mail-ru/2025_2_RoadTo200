@@ -52,9 +52,10 @@ func main() {
 	// Initialize repositories
 	userRepo := postgres.NewUserRepository(pgPool, loggerInst)
 	sessionRepo := redis.NewSessionRepository(redisPool)
+	preferenceRepo := postgres.NewUserPreferenceRepository(pgPool, loggerInst)
 
 	// Initialize auth service
-	authService := serviceImpl.NewAuthService(userRepo, sessionRepo, loggerInst)
+	authService := serviceImpl.NewAuthService(userRepo, sessionRepo, preferenceRepo, loggerInst)
 
 	// Create gRPC server
 	authServer := server.NewAuthServer(authService, loggerInst)

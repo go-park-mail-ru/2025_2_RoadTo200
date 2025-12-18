@@ -8,7 +8,7 @@ import (
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/dto"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/middleware"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
+	service "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/utils"
 	"github.com/google/uuid"
 )
@@ -27,13 +27,13 @@ func NewMatchHandler(matchService service.MatchService, l logger.Log) *MatchHand
 
 // GetUserMatches godoc
 // @Summary Получить мэтчи пользователя
-// @Description Возвращает список мэтчей текущего пользователя
+// @Description Возвращает список мэтчей текущего пользователя. Каждый мэтч содержит expires_at - время истечения 24-часового окна (NULL если кто-то уже написал сообщение, мэтч активен навсегда)
 // @Tags matches
 // @Produce json
 // @Security SessionToken
 // @Param limit query int false "Лимит мэтчей (максимум 50)" default(20) minimum(1) maximum(50)
 // @Param offset query int false "Смещение для пагинации" default(0) minimum(0)
-// @Success 200 {object} dto.MatchResponse "Список мэтчей"
+// @Success 200 {object} dto.MatchesResponse "Список мэтчей с expires_at для таймера"
 // @Failure 401 {object} map[string]string "Не авторизован"
 // @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
 // @Router /api/match [get]

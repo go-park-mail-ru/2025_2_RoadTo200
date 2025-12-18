@@ -429,6 +429,7 @@ type Match struct {
 	User2Id       string                 `protobuf:"bytes,3,opt,name=user2_id,json=user2Id,proto3" json:"user2_id,omitempty"`
 	IsActive      bool                   `protobuf:"varint,4,opt,name=is_active,json=isActive,proto3" json:"is_active,omitempty"`
 	MatchedAt     *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=matched_at,json=matchedAt,proto3" json:"matched_at,omitempty"`
+	ExpiresAt     *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"` // NULL если кто-то написал сообщение (матч активен навсегда)
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -494,6 +495,13 @@ func (x *Match) GetIsActive() bool {
 func (x *Match) GetMatchedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.MatchedAt
+	}
+	return nil
+}
+
+func (x *Match) GetExpiresAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ExpiresAt
 	}
 	return nil
 }
@@ -852,8 +860,6 @@ type UpdatePreferencesRequest struct {
 	ShowGender    *string                `protobuf:"bytes,2,opt,name=show_gender,json=showGender,proto3,oneof" json:"show_gender,omitempty"`
 	AgeMin        *int32                 `protobuf:"varint,3,opt,name=age_min,json=ageMin,proto3,oneof" json:"age_min,omitempty"`
 	AgeMax        *int32                 `protobuf:"varint,4,opt,name=age_max,json=ageMax,proto3,oneof" json:"age_max,omitempty"`
-	MaxDistance   *int32                 `protobuf:"varint,5,opt,name=max_distance,json=maxDistance,proto3,oneof" json:"max_distance,omitempty"`
-	GlobalSearch  *bool                  `protobuf:"varint,6,opt,name=global_search,json=globalSearch,proto3,oneof" json:"global_search,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -914,20 +920,6 @@ func (x *UpdatePreferencesRequest) GetAgeMax() int32 {
 		return *x.AgeMax
 	}
 	return 0
-}
-
-func (x *UpdatePreferencesRequest) GetMaxDistance() int32 {
-	if x != nil && x.MaxDistance != nil {
-		return *x.MaxDistance
-	}
-	return 0
-}
-
-func (x *UpdatePreferencesRequest) GetGlobalSearch() bool {
-	if x != nil && x.GlobalSearch != nil {
-		return *x.GlobalSearch
-	}
-	return false
 }
 
 type UpdatePreferencesResponse struct {
@@ -3443,14 +3435,16 @@ const file_proto_core_core_proto_rawDesc = "" +
 	"updated_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"9\n" +
 	"\bInterest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x14\n" +
-	"\x05theme\x18\x02 \x01(\tR\x05theme\"\xa5\x01\n" +
+	"\x05theme\x18\x02 \x01(\tR\x05theme\"\xe0\x01\n" +
 	"\x05Match\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x19\n" +
 	"\buser1_id\x18\x02 \x01(\tR\auser1Id\x12\x19\n" +
 	"\buser2_id\x18\x03 \x01(\tR\auser2Id\x12\x1b\n" +
 	"\tis_active\x18\x04 \x01(\bR\bisActive\x129\n" +
 	"\n" +
-	"matched_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tmatchedAt\",\n" +
+	"matched_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tmatchedAt\x129\n" +
+	"\n" +
+	"expires_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\",\n" +
 	"\x11GetProfileRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\"Z\n" +
 	"\x1eGetProfileWithRelationsRequest\x12\x1b\n" +
@@ -3493,22 +3487,18 @@ const file_proto_core_core_proto_rawDesc = "" +
 	"\n" +
 	"_longitude\"5\n" +
 	"\x19UpdateProfileInfoResponse\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess\"\xb2\x02\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\"\xbd\x01\n" +
 	"\x18UpdatePreferencesRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\x12$\n" +
 	"\vshow_gender\x18\x02 \x01(\tH\x00R\n" +
 	"showGender\x88\x01\x01\x12\x1c\n" +
 	"\aage_min\x18\x03 \x01(\x05H\x01R\x06ageMin\x88\x01\x01\x12\x1c\n" +
-	"\aage_max\x18\x04 \x01(\x05H\x02R\x06ageMax\x88\x01\x01\x12&\n" +
-	"\fmax_distance\x18\x05 \x01(\x05H\x03R\vmaxDistance\x88\x01\x01\x12(\n" +
-	"\rglobal_search\x18\x06 \x01(\bH\x04R\fglobalSearch\x88\x01\x01B\x0e\n" +
+	"\aage_max\x18\x04 \x01(\x05H\x02R\x06ageMax\x88\x01\x01B\x0e\n" +
 	"\f_show_genderB\n" +
 	"\n" +
 	"\b_age_minB\n" +
 	"\n" +
-	"\b_age_maxB\x0f\n" +
-	"\r_max_distanceB\x10\n" +
-	"\x0e_global_search\"5\n" +
+	"\b_age_max\"5\n" +
 	"\x19UpdatePreferencesResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\"I\n" +
 	"\x16UpdateInterestsRequest\x12\x17\n" +
@@ -3780,81 +3770,82 @@ var file_proto_core_core_proto_depIdxs = []int32{
 	55, // 5: core.UserPreference.created_at:type_name -> google.protobuf.Timestamp
 	55, // 6: core.UserPreference.updated_at:type_name -> google.protobuf.Timestamp
 	55, // 7: core.Match.matched_at:type_name -> google.protobuf.Timestamp
-	0,  // 8: core.GetProfileResponse.user:type_name -> core.User
-	2,  // 9: core.GetProfileResponse.preferences:type_name -> core.UserPreference
-	1,  // 10: core.GetProfileResponse.photos:type_name -> core.UserPhoto
-	3,  // 11: core.GetProfileResponse.interests:type_name -> core.Interest
-	55, // 12: core.UpdateProfileInfoRequest.birth_date:type_name -> google.protobuf.Timestamp
-	1,  // 13: core.UploadPhotoResponse.photo:type_name -> core.UserPhoto
-	3,  // 14: core.FeedUser.interests:type_name -> core.Interest
-	22, // 15: core.GetFeedResponse.users:type_name -> core.FeedUser
-	4,  // 16: core.MatchResponse.match:type_name -> core.Match
-	0,  // 17: core.MatchResponse.user:type_name -> core.User
-	27, // 18: core.GetUserMatchesResponse.matches:type_name -> core.MatchResponse
-	55, // 19: core.Strike.created_at:type_name -> google.protobuf.Timestamp
-	55, // 20: core.Strike.updated_at:type_name -> google.protobuf.Timestamp
-	32, // 21: core.CreateStrikeResponse.strike:type_name -> core.Strike
-	32, // 22: core.GetStrikeResponse.strike:type_name -> core.Strike
-	32, // 23: core.GetStrikesByUserIDResponse.strikes:type_name -> core.Strike
-	32, // 24: core.GetStrikesByTypeResponse.strikes:type_name -> core.Strike
-	55, // 25: core.GetStrikesByDateRangeRequest.from:type_name -> google.protobuf.Timestamp
-	55, // 26: core.GetStrikesByDateRangeRequest.to:type_name -> google.protobuf.Timestamp
-	32, // 27: core.GetStrikesByDateRangeResponse.strikes:type_name -> core.Strike
-	32, // 28: core.UpdateStrikeStatusResponse.strike:type_name -> core.Strike
-	55, // 29: core.StrikeStats.last_strike_at:type_name -> google.protobuf.Timestamp
-	47, // 30: core.StrikeStats.strike_types:type_name -> core.StrikeTypeStat
-	48, // 31: core.GetUserStrikeStatsResponse.stats:type_name -> core.StrikeStats
-	5,  // 32: core.CoreService.GetProfile:input_type -> core.GetProfileRequest
-	6,  // 33: core.CoreService.GetProfileWithRelations:input_type -> core.GetProfileWithRelationsRequest
-	8,  // 34: core.CoreService.UpdateProfileInfo:input_type -> core.UpdateProfileInfoRequest
-	10, // 35: core.CoreService.UpdatePreferences:input_type -> core.UpdatePreferencesRequest
-	12, // 36: core.CoreService.UpdateInterests:input_type -> core.UpdateInterestsRequest
-	14, // 37: core.CoreService.DeletePhoto:input_type -> core.DeletePhotoRequest
-	16, // 38: core.CoreService.SetPrimaryPhoto:input_type -> core.SetPrimaryPhotoRequest
-	18, // 39: core.CoreService.ReorderPhotos:input_type -> core.ReorderPhotosRequest
-	20, // 40: core.CoreService.UploadPhoto:input_type -> core.UploadPhotoRequest
-	51, // 41: core.CoreService.ChangePassword:input_type -> core.ChangePasswordRequest
-	53, // 42: core.CoreService.DeleteAccount:input_type -> core.DeleteAccountRequest
-	23, // 43: core.CoreService.GetFeed:input_type -> core.GetFeedRequest
-	25, // 44: core.CoreService.ProcessSwipe:input_type -> core.ProcessSwipeRequest
-	28, // 45: core.CoreService.GetUserMatches:input_type -> core.GetUserMatchesRequest
-	30, // 46: core.CoreService.Unmatch:input_type -> core.UnmatchRequest
-	33, // 47: core.CoreService.CreateStrike:input_type -> core.CreateStrikeRequest
-	35, // 48: core.CoreService.GetStrike:input_type -> core.GetStrikeRequest
-	37, // 49: core.CoreService.GetStrikesByUserID:input_type -> core.GetStrikesByUserIDRequest
-	39, // 50: core.CoreService.GetStrikesByType:input_type -> core.GetStrikesByTypeRequest
-	41, // 51: core.CoreService.GetStrikesByDateRange:input_type -> core.GetStrikesByDateRangeRequest
-	43, // 52: core.CoreService.UpdateStrikeStatus:input_type -> core.UpdateStrikeStatusRequest
-	45, // 53: core.CoreService.DeleteStrike:input_type -> core.DeleteStrikeRequest
-	49, // 54: core.CoreService.GetUserStrikeStats:input_type -> core.GetUserStrikeStatsRequest
-	7,  // 55: core.CoreService.GetProfile:output_type -> core.GetProfileResponse
-	7,  // 56: core.CoreService.GetProfileWithRelations:output_type -> core.GetProfileResponse
-	9,  // 57: core.CoreService.UpdateProfileInfo:output_type -> core.UpdateProfileInfoResponse
-	11, // 58: core.CoreService.UpdatePreferences:output_type -> core.UpdatePreferencesResponse
-	13, // 59: core.CoreService.UpdateInterests:output_type -> core.UpdateInterestsResponse
-	15, // 60: core.CoreService.DeletePhoto:output_type -> core.DeletePhotoResponse
-	17, // 61: core.CoreService.SetPrimaryPhoto:output_type -> core.SetPrimaryPhotoResponse
-	19, // 62: core.CoreService.ReorderPhotos:output_type -> core.ReorderPhotosResponse
-	21, // 63: core.CoreService.UploadPhoto:output_type -> core.UploadPhotoResponse
-	52, // 64: core.CoreService.ChangePassword:output_type -> core.ChangePasswordResponse
-	54, // 65: core.CoreService.DeleteAccount:output_type -> core.DeleteAccountResponse
-	24, // 66: core.CoreService.GetFeed:output_type -> core.GetFeedResponse
-	26, // 67: core.CoreService.ProcessSwipe:output_type -> core.ProcessSwipeResponse
-	29, // 68: core.CoreService.GetUserMatches:output_type -> core.GetUserMatchesResponse
-	31, // 69: core.CoreService.Unmatch:output_type -> core.UnmatchResponse
-	34, // 70: core.CoreService.CreateStrike:output_type -> core.CreateStrikeResponse
-	36, // 71: core.CoreService.GetStrike:output_type -> core.GetStrikeResponse
-	38, // 72: core.CoreService.GetStrikesByUserID:output_type -> core.GetStrikesByUserIDResponse
-	40, // 73: core.CoreService.GetStrikesByType:output_type -> core.GetStrikesByTypeResponse
-	42, // 74: core.CoreService.GetStrikesByDateRange:output_type -> core.GetStrikesByDateRangeResponse
-	44, // 75: core.CoreService.UpdateStrikeStatus:output_type -> core.UpdateStrikeStatusResponse
-	46, // 76: core.CoreService.DeleteStrike:output_type -> core.DeleteStrikeResponse
-	50, // 77: core.CoreService.GetUserStrikeStats:output_type -> core.GetUserStrikeStatsResponse
-	55, // [55:78] is the sub-list for method output_type
-	32, // [32:55] is the sub-list for method input_type
-	32, // [32:32] is the sub-list for extension type_name
-	32, // [32:32] is the sub-list for extension extendee
-	0,  // [0:32] is the sub-list for field type_name
+	55, // 8: core.Match.expires_at:type_name -> google.protobuf.Timestamp
+	0,  // 9: core.GetProfileResponse.user:type_name -> core.User
+	2,  // 10: core.GetProfileResponse.preferences:type_name -> core.UserPreference
+	1,  // 11: core.GetProfileResponse.photos:type_name -> core.UserPhoto
+	3,  // 12: core.GetProfileResponse.interests:type_name -> core.Interest
+	55, // 13: core.UpdateProfileInfoRequest.birth_date:type_name -> google.protobuf.Timestamp
+	1,  // 14: core.UploadPhotoResponse.photo:type_name -> core.UserPhoto
+	3,  // 15: core.FeedUser.interests:type_name -> core.Interest
+	22, // 16: core.GetFeedResponse.users:type_name -> core.FeedUser
+	4,  // 17: core.MatchResponse.match:type_name -> core.Match
+	0,  // 18: core.MatchResponse.user:type_name -> core.User
+	27, // 19: core.GetUserMatchesResponse.matches:type_name -> core.MatchResponse
+	55, // 20: core.Strike.created_at:type_name -> google.protobuf.Timestamp
+	55, // 21: core.Strike.updated_at:type_name -> google.protobuf.Timestamp
+	32, // 22: core.CreateStrikeResponse.strike:type_name -> core.Strike
+	32, // 23: core.GetStrikeResponse.strike:type_name -> core.Strike
+	32, // 24: core.GetStrikesByUserIDResponse.strikes:type_name -> core.Strike
+	32, // 25: core.GetStrikesByTypeResponse.strikes:type_name -> core.Strike
+	55, // 26: core.GetStrikesByDateRangeRequest.from:type_name -> google.protobuf.Timestamp
+	55, // 27: core.GetStrikesByDateRangeRequest.to:type_name -> google.protobuf.Timestamp
+	32, // 28: core.GetStrikesByDateRangeResponse.strikes:type_name -> core.Strike
+	32, // 29: core.UpdateStrikeStatusResponse.strike:type_name -> core.Strike
+	55, // 30: core.StrikeStats.last_strike_at:type_name -> google.protobuf.Timestamp
+	47, // 31: core.StrikeStats.strike_types:type_name -> core.StrikeTypeStat
+	48, // 32: core.GetUserStrikeStatsResponse.stats:type_name -> core.StrikeStats
+	5,  // 33: core.CoreService.GetProfile:input_type -> core.GetProfileRequest
+	6,  // 34: core.CoreService.GetProfileWithRelations:input_type -> core.GetProfileWithRelationsRequest
+	8,  // 35: core.CoreService.UpdateProfileInfo:input_type -> core.UpdateProfileInfoRequest
+	10, // 36: core.CoreService.UpdatePreferences:input_type -> core.UpdatePreferencesRequest
+	12, // 37: core.CoreService.UpdateInterests:input_type -> core.UpdateInterestsRequest
+	14, // 38: core.CoreService.DeletePhoto:input_type -> core.DeletePhotoRequest
+	16, // 39: core.CoreService.SetPrimaryPhoto:input_type -> core.SetPrimaryPhotoRequest
+	18, // 40: core.CoreService.ReorderPhotos:input_type -> core.ReorderPhotosRequest
+	20, // 41: core.CoreService.UploadPhoto:input_type -> core.UploadPhotoRequest
+	51, // 42: core.CoreService.ChangePassword:input_type -> core.ChangePasswordRequest
+	53, // 43: core.CoreService.DeleteAccount:input_type -> core.DeleteAccountRequest
+	23, // 44: core.CoreService.GetFeed:input_type -> core.GetFeedRequest
+	25, // 45: core.CoreService.ProcessSwipe:input_type -> core.ProcessSwipeRequest
+	28, // 46: core.CoreService.GetUserMatches:input_type -> core.GetUserMatchesRequest
+	30, // 47: core.CoreService.Unmatch:input_type -> core.UnmatchRequest
+	33, // 48: core.CoreService.CreateStrike:input_type -> core.CreateStrikeRequest
+	35, // 49: core.CoreService.GetStrike:input_type -> core.GetStrikeRequest
+	37, // 50: core.CoreService.GetStrikesByUserID:input_type -> core.GetStrikesByUserIDRequest
+	39, // 51: core.CoreService.GetStrikesByType:input_type -> core.GetStrikesByTypeRequest
+	41, // 52: core.CoreService.GetStrikesByDateRange:input_type -> core.GetStrikesByDateRangeRequest
+	43, // 53: core.CoreService.UpdateStrikeStatus:input_type -> core.UpdateStrikeStatusRequest
+	45, // 54: core.CoreService.DeleteStrike:input_type -> core.DeleteStrikeRequest
+	49, // 55: core.CoreService.GetUserStrikeStats:input_type -> core.GetUserStrikeStatsRequest
+	7,  // 56: core.CoreService.GetProfile:output_type -> core.GetProfileResponse
+	7,  // 57: core.CoreService.GetProfileWithRelations:output_type -> core.GetProfileResponse
+	9,  // 58: core.CoreService.UpdateProfileInfo:output_type -> core.UpdateProfileInfoResponse
+	11, // 59: core.CoreService.UpdatePreferences:output_type -> core.UpdatePreferencesResponse
+	13, // 60: core.CoreService.UpdateInterests:output_type -> core.UpdateInterestsResponse
+	15, // 61: core.CoreService.DeletePhoto:output_type -> core.DeletePhotoResponse
+	17, // 62: core.CoreService.SetPrimaryPhoto:output_type -> core.SetPrimaryPhotoResponse
+	19, // 63: core.CoreService.ReorderPhotos:output_type -> core.ReorderPhotosResponse
+	21, // 64: core.CoreService.UploadPhoto:output_type -> core.UploadPhotoResponse
+	52, // 65: core.CoreService.ChangePassword:output_type -> core.ChangePasswordResponse
+	54, // 66: core.CoreService.DeleteAccount:output_type -> core.DeleteAccountResponse
+	24, // 67: core.CoreService.GetFeed:output_type -> core.GetFeedResponse
+	26, // 68: core.CoreService.ProcessSwipe:output_type -> core.ProcessSwipeResponse
+	29, // 69: core.CoreService.GetUserMatches:output_type -> core.GetUserMatchesResponse
+	31, // 70: core.CoreService.Unmatch:output_type -> core.UnmatchResponse
+	34, // 71: core.CoreService.CreateStrike:output_type -> core.CreateStrikeResponse
+	36, // 72: core.CoreService.GetStrike:output_type -> core.GetStrikeResponse
+	38, // 73: core.CoreService.GetStrikesByUserID:output_type -> core.GetStrikesByUserIDResponse
+	40, // 74: core.CoreService.GetStrikesByType:output_type -> core.GetStrikesByTypeResponse
+	42, // 75: core.CoreService.GetStrikesByDateRange:output_type -> core.GetStrikesByDateRangeResponse
+	44, // 76: core.CoreService.UpdateStrikeStatus:output_type -> core.UpdateStrikeStatusResponse
+	46, // 77: core.CoreService.DeleteStrike:output_type -> core.DeleteStrikeResponse
+	50, // 78: core.CoreService.GetUserStrikeStats:output_type -> core.GetUserStrikeStatsResponse
+	56, // [56:79] is the sub-list for method output_type
+	33, // [33:56] is the sub-list for method input_type
+	33, // [33:33] is the sub-list for extension type_name
+	33, // [33:33] is the sub-list for extension extendee
+	0,  // [0:33] is the sub-list for field type_name
 }
 
 func init() { file_proto_core_core_proto_init() }

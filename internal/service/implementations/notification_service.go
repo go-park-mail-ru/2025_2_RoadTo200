@@ -171,3 +171,16 @@ func (s *NotificationService) MarkAsRead(ctx context.Context, userID, notificati
 
 	return nil
 }
+
+// DeleteUserNotifications удаляет все уведомления (лайк, суперлайк, мэтч) между двумя пользователями
+func (s *NotificationService) DeleteUserNotifications(ctx context.Context, user1ID, user2ID uuid.UUID) error {
+	s.logger.Infof("Deleting all notifications (like/super_like/match) between users: %s and %s", user1ID, user2ID)
+
+	if err := s.notificationRepo.DeleteUserNotifications(ctx, user1ID, user2ID); err != nil {
+		s.logger.Errorf("Failed to delete user notifications: %v", err)
+		return fmt.Errorf("failed to delete user notifications: %w", err)
+	}
+
+	s.logger.Infof("Successfully deleted all notifications between users: %s and %s", user1ID, user2ID)
+	return nil
+}

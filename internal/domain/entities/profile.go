@@ -34,9 +34,7 @@ type ProfileUpdateRequest struct {
 
 // PreferencesUpdateRequest запрос на обновление предпочтений
 type PreferencesUpdateRequest struct {
-	ShowGender   constants.GenderPreference `json:"show_gender,omitempty"`
-	AgeMin       int                        `json:"age_min,omitempty"`
-	AgeMax       int                        `json:"age_max,omitempty"`
-	MaxDistance  int                        `json:"max_distance,omitempty"`
-	GlobalSearch bool                       `json:"global_search,omitempty"`
+	ShowGender constants.GenderPreference `json:"show_gender,omitempty"`
+	AgeMin     int                        `json:"age_min,omitempty"`
+	AgeMax     int                        `json:"age_max,omitempty"`
 }

@@ -131,13 +131,20 @@ func FeedUsersToProto(feedUsers []dto.FeedUser) []*pb.FeedUser {
 }
 
 func MatchToProto(match domain.Match) *pb.Match {
-	return &pb.Match{
+	pbMatch := &pb.Match{
 		Id:        match.ID.String(),
 		User1Id:   match.User1ID.String(),
 		User2Id:   match.User2ID.String(),
 		IsActive:  match.IsActive,
 		MatchedAt: timestamppb.New(match.MatchedAt),
 	}
+
+	// Добавляем expires_at, если оно не nil
+	if match.ExpiresAt != nil {
+		pbMatch.ExpiresAt = timestamppb.New(*match.ExpiresAt)
+	}
+
+	return pbMatch
 }
 
 func MatchResponseToProto(matchResp dto.MatchResponse) *pb.MatchResponse {
@@ -212,12 +219,6 @@ func ProtoToPreferencesUpdateRequest(req *pb.UpdatePreferencesRequest) *domain.P
 	}
 	if req.AgeMax != nil {
 		updateData.AgeMax = int(*req.AgeMax)
-	}
-	if req.MaxDistance != nil {
-		updateData.MaxDistance = int(*req.MaxDistance)
-	}
-	if req.GlobalSearch != nil {
-		updateData.GlobalSearch = *req.GlobalSearch
 	}
 
 	return updateData

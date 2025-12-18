@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/config"
 	coreServer "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/core-service/server"
@@ -96,6 +97,39 @@ func main() {
 
 	loggerInst.Info(fmt.Sprintf("Core Service listening on port %s", cfg.CoreService.Port))
 
+	// Запускаем фоновую задачу для деактивации истекших мэтчей
+	stopMatchCleaner := make(chan struct{})
+	go func() {
+		ticker := time.NewTicker(5 * time.Minute) // Проверяем каждые 5 минут
+		defer ticker.Stop()
+
+		loggerInst.Info("🕐 Match expiration cleaner started (checks every 5 minutes)")
+
+		for {
+			select {
+			case <-ticker.C:
+				deactivatedMatches, err := matchRepo.DeactivateExpiredMatches(context.Background())
+				if err != nil {
+					loggerInst.Errorf("Failed to deactivate expired matches: %v", err)
+				} else if len(deactivatedMatches) > 0 {
+					loggerInst.Infof("✅ Deactivated %d expired matches", len(deactivatedMatches))
+					
+					// Удаляем уведомления для всех деактивированных мэтчей
+					for _, match := range deactivatedMatches {
+						if err := notificationService.DeleteUserNotifications(context.Background(), match.User1ID, match.User2ID); err != nil {
+							loggerInst.Warnf("Failed to delete notifications for deactivated match %s: %v", match.ID, err)
+						} else {
+							loggerInst.Infof("Deleted notifications for deactivated match %s (users: %s, %s)", match.ID, match.User1ID, match.User2ID)
+						}
+					}
+				}
+			case <-stopMatchCleaner:
+				loggerInst.Info("Match expiration cleaner stopped")
+				return
+			}
+		}
+	}()
+
 	// Graceful shutdown
 	go func() {
 		if err := grpcServer.Serve(lis); err != nil {
@@ -109,6 +143,7 @@ func main() {
 	<-quit
 
 	loggerInst.Info("Shutting down Core Service...")
+	close(stopMatchCleaner) // Останавливаем cleaner
 	grpcServer.GracefulStop()
 	loggerInst.Info("Core Service stopped")
 }

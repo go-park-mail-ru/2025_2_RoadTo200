@@ -13,4 +13,5 @@ type NotificationRepository interface {
 	GetUnreadCount(ctx context.Context, userID uuid.UUID) (int, error)
 	MarkAsRead(ctx context.Context, notificationID uuid.UUID) error
 	MarkAllAsRead(ctx context.Context, userID uuid.UUID) error
+	DeleteUserNotifications(ctx context.Context, user1ID, user2ID uuid.UUID) error
 }

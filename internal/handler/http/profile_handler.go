@@ -255,21 +255,23 @@ func (h *ProfileHandler) UploadPhotos(w http.ResponseWriter, r *http.Request) {
 // @Failure 404 {object} map[string]string "Профиль не найден"
 // @Router /api/profile/info [put]
 func (h *ProfileHandler) UpdateProfileInfo(w http.ResponseWriter, r *http.Request) {
-	h.logger.Trace("profileHandler.UpdateProfileInfo")
+	h.logger.Infof("profileHandler.UpdateProfileInfo called: method=%s, path=%s", r.Method, r.URL.Path)
 
 	userID, err := h.getContext(w, r)
 	if err != nil {
-		h.logger.Warnf("getContext: %v", err)
+		h.logger.Warnf("getContext failed: %v", err)
 		return
 	}
 
+	h.logger.Infof("UpdateProfileInfo: userID=%s", userID)
+
 	var req domain.ProfileUpdateRequest
 	if err := utils.ReadJSON(r, &req); err != nil {
-		h.logger.Warnf("handleJSONRequest: %v", err)
+		h.logger.Warnf("handleJSONRequest failed: %v", err)
 		utils.WriteJSONError(w, http.StatusBadRequest, "invalid JSON")
 		return
 	}
-	h.logger.Debugf("handleJSONRequest: %v", req)
+	h.logger.Infof("UpdateProfileInfo request parsed: %+v", req)
 
 	if err := h.profileService.UpdateProfileInfo(r.Context(), userID, &req); err != nil {
 		h.logger.Errorf("updateProfileInfo: %v", err)
@@ -297,28 +299,32 @@ func (h *ProfileHandler) UpdateProfileInfo(w http.ResponseWriter, r *http.Reques
 // @Failure 401 {object} map[string]string "Не авторизован"
 // @Router /api/profile/preferences [put]
 func (h *ProfileHandler) UpdatePreferences(w http.ResponseWriter, r *http.Request) {
-	h.logger.Trace("profileHandler.UpdatePreferences")
+	h.logger.Infof("profileHandler.UpdatePreferences called: method=%s, path=%s", r.Method, r.URL.Path)
 
 	userID, err := h.getContext(w, r)
 	if err != nil {
-		h.logger.Warnf("getContext: %v", err)
+		h.logger.Warnf("getContext failed: %v", err)
 		return
 	}
+
+	h.logger.Infof("UpdatePreferences: userID=%s", userID)
 
 	var req domain.PreferencesUpdateRequest
 	if err := utils.ReadJSON(r, &req); err != nil {
-		h.logger.Warnf("handleJSONRequest: %v", err)
+		h.logger.Warnf("handleJSONRequest failed: %v", err)
 		utils.WriteJSONError(w, http.StatusBadRequest, "invalid JSON")
 		return
 	}
-	h.logger.Debugf("handleJSONRequest: %v", req)
+	h.logger.Infof("UpdatePreferences request parsed: show_gender=%s, age_min=%d, age_max=%d",
+		req.ShowGender, req.AgeMin, req.AgeMax)
 
 	if err := h.profileService.UpdatePreferences(r.Context(), userID, &req); err != nil {
-		h.logger.Errorf("updatePreferences: %v", err)
+		h.logger.Errorf("UpdatePreferences service error: %v", err)
 		utils.WriteJSONError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
+	h.logger.Infof("UpdatePreferences completed successfully for userID=%s", userID)
 	utils.WriteJSON(w, http.StatusOK, dto.SuccessResponse{Message: "Preferences updated successfully"})
 }
 
@@ -335,7 +341,7 @@ func (h *ProfileHandler) UpdatePreferences(w http.ResponseWriter, r *http.Reques
 // @Failure 401 {object} map[string]string "Не авторизован"
 // @Router /api/profile/interests [put]
 func (h *ProfileHandler) UpdateInterests(w http.ResponseWriter, r *http.Request) {
-	h.logger.Trace("profileHandler.UpdateInterests")
+	h.logger.Infof("profileHandler.UpdateInterests called: method=%s, path=%s", r.Method, r.URL.Path)
 
 	userID, err := h.getContext(w, r)
 	if err != nil {

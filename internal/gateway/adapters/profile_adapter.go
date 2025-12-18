@@ -139,11 +139,6 @@ func (a *ProfileServiceAdapter) UpdatePreferences(ctx context.Context, userID uu
 		ageMax := int32(updateData.AgeMax)
 		req.AgeMax = &ageMax
 	}
-	if updateData.MaxDistance != 0 {
-		maxDist := int32(updateData.MaxDistance)
-		req.MaxDistance = &maxDist
-	}
-	req.GlobalSearch = &updateData.GlobalSearch
 
 	_, err := a.client.UpdatePreferences(ctx, req)
 	return err

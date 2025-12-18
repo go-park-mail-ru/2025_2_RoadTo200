@@ -48,10 +48,15 @@ func (r *NotificationRepository) Create(ctx context.Context, notification *domai
 
 func (r *NotificationRepository) GetByUserID(ctx context.Context, userID uuid.UUID, limit, offset int) ([]domain.Notification, error) {
 	query := `
-		SELECT id, user_id, type, from_user_id, match_id, is_read, created_at
-		FROM notification
-		WHERE user_id = $1
-		ORDER BY created_at DESC
+		SELECT n.id, n.user_id, n.type, n.from_user_id, n.match_id, n.is_read, n.created_at
+		FROM notification n
+		LEFT JOIN match m ON n.match_id = m.id
+		WHERE n.user_id = $1
+		  AND (
+			n.type != 'match'::notification_type_enum 
+			OR (n.type = 'match'::notification_type_enum AND (m.id IS NULL OR m.is_active = TRUE))
+		  )
+		ORDER BY n.created_at DESC
 		LIMIT $2 OFFSET $3`
 
 	rows, err := r.pool.Query(ctx, query, userID, limit, offset)
@@ -104,4 +109,29 @@ func (r *NotificationRepository) MarkAllAsRead(ctx context.Context, userID uuid.
 
 	_, err := r.pool.Exec(ctx, query, userID)
 	return err
+}
+
+// DeleteUserNotifications удаляет все уведомления (лайк, суперлайк, мэтч) между двумя пользователями
+func (r *NotificationRepository) DeleteUserNotifications(ctx context.Context, user1ID, user2ID uuid.UUID) error {
+	// Удаляем все уведомления (like, super_like, match) для обоих пользователей
+	// Проверяем оба направления: user1 -> user2 и user2 -> user1
+	query := `
+		DELETE FROM notification 
+		WHERE type IN ('like'::notification_type_enum, 'super_like'::notification_type_enum, 'match'::notification_type_enum)
+		  AND (
+			(user_id = $1 AND from_user_id = $2) 
+			OR (user_id = $2 AND from_user_id = $1)
+		  )`
+
+	result, err := r.pool.Exec(ctx, query, user1ID, user2ID)
+	if err != nil {
+		return fmt.Errorf("failed to delete user notifications: %w", err)
+	}
+
+	// Логируем количество удаленных уведомлений
+	if result.RowsAffected() > 0 {
+		fmt.Printf("Deleted %d notifications (like/super_like/match) between users %s and %s\n", result.RowsAffected(), user1ID, user2ID)
+	}
+
+	return nil
 }

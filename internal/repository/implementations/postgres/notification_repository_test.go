@@ -148,7 +148,7 @@ func TestNotificationRepository_GetByUserID(t *testing.T) {
 						expectedNotifications[0].FromUserID, expectedNotifications[0].MatchID, expectedNotifications[0].IsRead, expectedNotifications[0].CreatedAt).
 					AddRow(expectedNotifications[1].ID, expectedNotifications[1].UserID, expectedNotifications[1].Type,
 						expectedNotifications[1].FromUserID, expectedNotifications[1].MatchID, expectedNotifications[1].IsRead, expectedNotifications[1].CreatedAt)
-				mock.ExpectQuery(`SELECT id, user_id, type, from_user_id, match_id, is_read, created_at FROM notification`).
+				mock.ExpectQuery(`SELECT n\.id, n\.user_id, n\.type, n\.from_user_id, n\.match_id, n\.is_read, n\.created_at.*FROM notification n.*LEFT JOIN match m.*WHERE n\.user_id.*`).
 					WithArgs(userID, limit, offset).
 					WillReturnRows(rows)
 			},
@@ -162,7 +162,7 @@ func TestNotificationRepository_GetByUserID(t *testing.T) {
 			offset: offset,
 			setupMock: func(mock pgxmock.PgxPoolIface) {
 				rows := mock.NewRows([]string{"id", "user_id", "type", "from_user_id", "match_id", "is_read", "created_at"})
-				mock.ExpectQuery(`SELECT id, user_id, type, from_user_id, match_id, is_read, created_at FROM notification`).
+				mock.ExpectQuery(`SELECT n\.id, n\.user_id, n\.type, n\.from_user_id, n\.match_id, n\.is_read, n\.created_at.*FROM notification n.*LEFT JOIN match m.*WHERE n\.user_id.*`).
 					WithArgs(userID, limit, offset).
 					WillReturnRows(rows)
 			},
@@ -175,7 +175,7 @@ func TestNotificationRepository_GetByUserID(t *testing.T) {
 			limit:  limit,
 			offset: offset,
 			setupMock: func(mock pgxmock.PgxPoolIface) {
-				mock.ExpectQuery(`SELECT id, user_id, type, from_user_id, match_id, is_read, created_at FROM notification`).
+				mock.ExpectQuery(`SELECT n\.id, n\.user_id, n\.type, n\.from_user_id, n\.match_id, n\.is_read, n\.created_at.*FROM notification n.*LEFT JOIN match m.*WHERE n\.user_id.*`).
 					WithArgs(userID, limit, offset).
 					WillReturnError(assert.AnError)
 			},

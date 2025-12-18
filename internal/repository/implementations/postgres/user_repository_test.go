@@ -705,7 +705,7 @@ func TestUserRepository_GetUsersForFeed(t *testing.T) {
 		)
 	}
 
-	mock.ExpectQuery("SELECT id, email, phone, name, password, birth_date, gender, bio, city, artist, quote, is_verified, is_premium, super_likes_count, last_active, created_at, updated_at FROM \"user\" u").
+	mock.ExpectQuery(`SELECT u\.id, u\.email, u\.phone, u\.name, u\.password, u\.birth_date, u\.gender, u\.bio,.*FROM "user" u.*WHERE u\.id.*AND NOT EXISTS.*AND EXISTS.*ORDER BY u\.last_active DESC.*LIMIT.*OFFSET`).
 		WithArgs(userID, limit, offset).
 		WillReturnRows(rows)
 
@@ -731,7 +731,7 @@ func TestUserRepository_GetUsersForFeed_Error(t *testing.T) {
 	limit := 10
 	offset := 0
 
-	mock.ExpectQuery("SELECT id, email, phone, name, password, birth_date, gender, bio, city, artist, quote, is_verified, is_premium, super_likes_count, last_active, created_at, updated_at FROM \"user\" u").
+	mock.ExpectQuery(`SELECT u\.id, u\.email, u\.phone, u\.name, u\.password, u\.birth_date, u\.gender, u\.bio,.*FROM "user" u.*WHERE u\.id.*AND NOT EXISTS.*AND EXISTS.*ORDER BY u\.last_active DESC.*LIMIT.*OFFSET`).
 		WithArgs(userID, limit, offset).
 		WillReturnError(pgx.ErrTxClosed)
 
@@ -761,7 +761,7 @@ func TestUserRepository_GetUsersForFeed_ScanError(t *testing.T) {
 		"invalid-uuid", "email@test.com", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, // Invalid UUID to cause scan error
 	)
 
-	mock.ExpectQuery("SELECT id, email, phone, name, password, birth_date, gender, bio, city, artist, quote, is_verified, is_premium, super_likes_count, last_active, created_at, updated_at FROM \"user\" u").
+	mock.ExpectQuery(`SELECT u\.id, u\.email, u\.phone, u\.name, u\.password, u\.birth_date, u\.gender, u\.bio,.*FROM "user" u.*WHERE u\.id.*AND NOT EXISTS.*AND EXISTS.*ORDER BY u\.last_active DESC.*LIMIT.*OFFSET`).
 		WithArgs(userID, limit, offset).
 		WillReturnRows(rows)
 

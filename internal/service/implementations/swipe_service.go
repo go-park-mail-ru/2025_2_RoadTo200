@@ -114,20 +114,42 @@ func (s *SwipeService) ProcessSwipe(ctx context.Context, swiperID uuid.UUID, req
 		s.logger.Debugf("Mutual like check result (super_like): hasMutualLike=%v", hasMutualLike)
 
 		if hasMutualLike {
-			// Создаем мэтч
-			match := &domain.Match{
-				User1ID:   swiperID,
-				User2ID:   card,
-				IsActive:  true,
-				MatchedAt: time.Now(),
-			}
-
-			if err := s.matchRepo.Create(ctx, match); err != nil {
-				s.logger.Errorf("Failed to create match for super_like: %v", err)
+			// Проверяем, не существует ли уже мэтч между этими пользователями
+			existingMatch, err := s.matchRepo.GetByUsers(ctx, swiperID, card)
+			if err != nil {
+				s.logger.Errorf("Failed to check existing match for super_like: %v", err)
 				return nil, err
 			}
 
-			s.logger.Infof("Match created from super_like: user1=%s, user2=%s, matchID=%s", swiperID, card, match.ID)
+			var match *domain.Match
+			if existingMatch != nil {
+				// Мэтч уже существует, используем его
+				s.logger.Infof("Match already exists for super_like: user1=%s, user2=%s, matchID=%s", swiperID, card, existingMatch.ID)
+				match = existingMatch
+			} else {
+				// Создаем новый мэтч
+				match = &domain.Match{
+					User1ID:   swiperID,
+					User2ID:   card,
+					IsActive:  true,
+					MatchedAt: time.Now(),
+				}
+
+				if err := s.matchRepo.Create(ctx, match); err != nil {
+					s.logger.Errorf("Failed to create match for super_like: %v", err)
+					return nil, err
+				}
+
+				s.logger.Infof("Match created from super_like: user1=%s, user2=%s, matchID=%s", swiperID, card, match.ID)
+			}
+
+			// Удаляем все старые уведомления (лайк, суперлайк, мэтч) между этими пользователями
+			if s.notificationService != nil {
+				if err := s.notificationService.DeleteUserNotifications(ctx, swiperID, card); err != nil {
+					s.logger.Warnf("Failed to delete old user notifications for super_like: %v", err)
+					// Не прерываем выполнение, продолжаем отправку новых уведомлений
+				}
+			}
 
 			// Отправляем уведомления о матче обоим пользователям
 			matchIDPtr := &match.ID
@@ -177,19 +199,41 @@ func (s *SwipeService) ProcessSwipe(ctx context.Context, swiperID uuid.UUID, req
 		s.logger.Debugf("Mutual like check result: hasMutualLike=%v", hasMutualLike)
 
 		if hasMutualLike {
-			// Создаем мэтч
-			match := &domain.Match{
-				User1ID:   swiperID,
-				User2ID:   card,
-				IsActive:  true,
-				MatchedAt: time.Now(),
-			}
-
-			if err := s.matchRepo.Create(ctx, match); err != nil {
+			// Проверяем, не существует ли уже мэтч между этими пользователями
+			existingMatch, err := s.matchRepo.GetByUsers(ctx, swiperID, card)
+			if err != nil {
+				s.logger.Errorf("Failed to check existing match: %v", err)
 				return nil, err
 			}
 
-			s.logger.Infof("Match created: user1=%s, user2=%s, matchID=%s", swiperID, card, match.ID)
+			var match *domain.Match
+			if existingMatch != nil {
+				// Мэтч уже существует, используем его
+				s.logger.Infof("Match already exists: user1=%s, user2=%s, matchID=%s", swiperID, card, existingMatch.ID)
+				match = existingMatch
+			} else {
+				// Создаем новый мэтч
+				match = &domain.Match{
+					User1ID:   swiperID,
+					User2ID:   card,
+					IsActive:  true,
+					MatchedAt: time.Now(),
+				}
+
+				if err := s.matchRepo.Create(ctx, match); err != nil {
+					return nil, err
+				}
+
+				s.logger.Infof("Match created: user1=%s, user2=%s, matchID=%s", swiperID, card, match.ID)
+			}
+
+			// Удаляем все старые уведомления (лайк, суперлайк, мэтч) между этими пользователями
+			if s.notificationService != nil {
+				if err := s.notificationService.DeleteUserNotifications(ctx, swiperID, card); err != nil {
+					s.logger.Warnf("Failed to delete old user notifications: %v", err)
+					// Не прерываем выполнение, продолжаем отправку новых уведомлений
+				}
+			}
 
 			// Отправляем уведомления о матче обоим пользователям
 			// НЕ отправляем уведомление о лайке, только о матче

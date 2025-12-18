@@ -315,9 +315,8 @@ func TestProfileService_UpdatePreferences_Success(t *testing.T) {
 	userID := uuid.New()
 
 	updateData := &domain.PreferencesUpdateRequest{
-		AgeMin:      18,
-		AgeMax:      35,
-		MaxDistance: 50,
+		AgeMin: 18,
+		AgeMax: 35,
 	}
 
 	// Expectations

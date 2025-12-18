@@ -228,14 +228,13 @@ func (s *ProfileService) UpdatePreferences(ctx context.Context, userID uuid.UUID
 		s.logger.Debugf("Create preferences with empty user: %v", userID)
 		isNew = true
 		preferences = &domain.UserPreference{
-			UserID:       userID,
-			ShowGender:   constants.GenderPrefMale,
-			AgeMin:       constants.MinAge,
-			AgeMax:       constants.MaxAge,
-			MaxDistance:  100,
-			GlobalSearch: false,
-			CreatedAt:    time.Now(),
-			UpdatedAt:    time.Now(),
+			UserID:     userID,
+			ShowGender: constants.GenderPrefMale,
+			AgeMin:     constants.MinAge,
+			AgeMax:     constants.MaxAge,
+			// MaxDistance и GlobalSearch оставляем пустыми (не используются)
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
 		}
 	}
 
@@ -249,10 +248,6 @@ func (s *ProfileService) UpdatePreferences(ctx context.Context, userID uuid.UUID
 	if updateData.AgeMax > 0 {
 		preferences.AgeMax = updateData.AgeMax
 	}
-	if updateData.MaxDistance > 0 {
-		preferences.MaxDistance = updateData.MaxDistance
-	}
-	preferences.GlobalSearch = updateData.GlobalSearch
 	preferences.UpdatedAt = time.Now()
 
 	// Сохраняем
@@ -535,6 +530,19 @@ func (s *ProfileService) ValidateProfileUpdate(ctx context.Context, updateData *
 
 // ValidatePreferencesUpdate валидация предпочтений
 func (s *ProfileService) ValidatePreferencesUpdate(ctx context.Context, updateData *domain.PreferencesUpdateRequest) error {
+	// Валидация пола
+	if updateData.ShowGender != "" {
+		validGenders := map[constants.GenderPreference]struct{}{
+			constants.GenderPrefBoth:   {},
+			constants.GenderPrefMale:   {},
+			constants.GenderPrefFemale: {},
+		}
+		if _, ok := validGenders[updateData.ShowGender]; !ok {
+			return fmt.Errorf("invalid gender preference: %s (allowed: both, male, female)", updateData.ShowGender)
+		}
+	}
+
+	// Валидация возраста
 	if updateData.AgeMin > 0 && updateData.AgeMax > 0 {
 		if updateData.AgeMin < constants.MinAge {
 			return fmt.Errorf("minimum age must be at least %d", constants.MinAge)
@@ -544,15 +552,6 @@ func (s *ProfileService) ValidatePreferencesUpdate(ctx context.Context, updateDa
 		}
 		if updateData.AgeMin >= updateData.AgeMax {
 			return fmt.Errorf("minimum age must be less than maximum age")
-		}
-	}
-
-	if updateData.MaxDistance > 0 {
-		if updateData.MaxDistance < constants.MinDistance {
-			return fmt.Errorf("distance must be at least %d km", constants.MinDistance)
-		}
-		if updateData.MaxDistance > constants.MaxDistance {
-			return fmt.Errorf("distance cannot exceed %d km", constants.MaxDistance)
 		}
 	}
 

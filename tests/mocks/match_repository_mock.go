@@ -71,6 +71,21 @@ func (mr *MockMatchRepositoryMockRecorder) Create(ctx, match any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockMatchRepository)(nil).Create), ctx, match)
 }
 
+// DeactivateExpiredMatches mocks base method.
+func (m *MockMatchRepository) DeactivateExpiredMatches(ctx context.Context) (int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeactivateExpiredMatches", ctx)
+	ret0, _ := ret[0].(int)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DeactivateExpiredMatches indicates an expected call of DeactivateExpiredMatches.
+func (mr *MockMatchRepositoryMockRecorder) DeactivateExpiredMatches(ctx any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeactivateExpiredMatches", reflect.TypeOf((*MockMatchRepository)(nil).DeactivateExpiredMatches), ctx)
+}
+
 // Delete mocks base method.
 func (m *MockMatchRepository) Delete(ctx context.Context, user1ID, user2ID uuid.UUID) error {
 	m.ctrl.T.Helper()

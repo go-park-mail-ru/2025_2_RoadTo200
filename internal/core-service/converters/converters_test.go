@@ -232,12 +232,16 @@ func TestFeedUsersToProto(t *testing.T) {
 }
 
 func TestMatchToProto(t *testing.T) {
+	matchedAt := time.Now()
+	expiresAt := matchedAt.Add(24 * time.Hour)
+	
 	match := domain.Match{
 		ID:        uuid.New(),
 		User1ID:   uuid.New(),
 		User2ID:   uuid.New(),
 		IsActive:  true,
-		MatchedAt: time.Now(),
+		MatchedAt: matchedAt,
+		ExpiresAt: &expiresAt,
 	}
 
 	result := MatchToProto(match)
@@ -247,6 +251,26 @@ func TestMatchToProto(t *testing.T) {
 	assert.Equal(t, match.User1ID.String(), result.User1Id)
 	assert.Equal(t, match.User2ID.String(), result.User2Id)
 	assert.Equal(t, match.IsActive, result.IsActive)
+	assert.NotNil(t, result.ExpiresAt)
+	assert.Equal(t, expiresAt.Unix(), result.ExpiresAt.AsTime().Unix())
+}
+
+func TestMatchToProto_WithNilExpiresAt(t *testing.T) {
+	matchedAt := time.Now()
+	
+	match := domain.Match{
+		ID:        uuid.New(),
+		User1ID:   uuid.New(),
+		User2ID:   uuid.New(),
+		IsActive:  true,
+		MatchedAt: matchedAt,
+		ExpiresAt: nil, // Матч активен навсегда
+	}
+
+	result := MatchToProto(match)
+
+	assert.NotNil(t, result)
+	assert.Nil(t, result.ExpiresAt) // Должно быть nil
 }
 
 func TestMatchResponseToProto(t *testing.T) {
