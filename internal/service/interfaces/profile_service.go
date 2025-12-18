@@ -25,6 +25,10 @@ type ProfileService interface {
 	SetPrimaryPhoto(ctx context.Context, userID uuid.UUID, photoID uuid.UUID) error
 	ReorderPhotos(ctx context.Context, userID uuid.UUID, photoIDs []uuid.UUID) error
 
+	// Account management
+	ChangePassword(ctx context.Context, userID uuid.UUID, oldPassword, newPassword, newPasswordConfirm string) error
+	DeleteAccount(ctx context.Context, userID uuid.UUID) error
+
 	// Валидация
 	ValidateProfileUpdate(ctx context.Context, updateData *domain.ProfileUpdateRequest) error
 	ValidatePreferencesUpdate(ctx context.Context, updateData *domain.PreferencesUpdateRequest) error

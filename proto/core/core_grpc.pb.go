@@ -28,6 +28,8 @@ const (
 	CoreService_SetPrimaryPhoto_FullMethodName         = "/core.CoreService/SetPrimaryPhoto"
 	CoreService_ReorderPhotos_FullMethodName           = "/core.CoreService/ReorderPhotos"
 	CoreService_UploadPhoto_FullMethodName             = "/core.CoreService/UploadPhoto"
+	CoreService_ChangePassword_FullMethodName          = "/core.CoreService/ChangePassword"
+	CoreService_DeleteAccount_FullMethodName           = "/core.CoreService/DeleteAccount"
 	CoreService_GetFeed_FullMethodName                 = "/core.CoreService/GetFeed"
 	CoreService_ProcessSwipe_FullMethodName            = "/core.CoreService/ProcessSwipe"
 	CoreService_GetUserMatches_FullMethodName          = "/core.CoreService/GetUserMatches"
@@ -58,6 +60,8 @@ type CoreServiceClient interface {
 	SetPrimaryPhoto(ctx context.Context, in *SetPrimaryPhotoRequest, opts ...grpc.CallOption) (*SetPrimaryPhotoResponse, error)
 	ReorderPhotos(ctx context.Context, in *ReorderPhotosRequest, opts ...grpc.CallOption) (*ReorderPhotosResponse, error)
 	UploadPhoto(ctx context.Context, in *UploadPhotoRequest, opts ...grpc.CallOption) (*UploadPhotoResponse, error)
+	ChangePassword(ctx context.Context, in *ChangePasswordRequest, opts ...grpc.CallOption) (*ChangePasswordResponse, error)
+	DeleteAccount(ctx context.Context, in *DeleteAccountRequest, opts ...grpc.CallOption) (*DeleteAccountResponse, error)
 	// Feed operations
 	GetFeed(ctx context.Context, in *GetFeedRequest, opts ...grpc.CallOption) (*GetFeedResponse, error)
 	// Swipe operations
@@ -168,6 +172,26 @@ func (c *coreServiceClient) UploadPhoto(ctx context.Context, in *UploadPhotoRequ
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(UploadPhotoResponse)
 	err := c.cc.Invoke(ctx, CoreService_UploadPhoto_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *coreServiceClient) ChangePassword(ctx context.Context, in *ChangePasswordRequest, opts ...grpc.CallOption) (*ChangePasswordResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ChangePasswordResponse)
+	err := c.cc.Invoke(ctx, CoreService_ChangePassword_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *coreServiceClient) DeleteAccount(ctx context.Context, in *DeleteAccountRequest, opts ...grpc.CallOption) (*DeleteAccountResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteAccountResponse)
+	err := c.cc.Invoke(ctx, CoreService_DeleteAccount_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -310,6 +334,8 @@ type CoreServiceServer interface {
 	SetPrimaryPhoto(context.Context, *SetPrimaryPhotoRequest) (*SetPrimaryPhotoResponse, error)
 	ReorderPhotos(context.Context, *ReorderPhotosRequest) (*ReorderPhotosResponse, error)
 	UploadPhoto(context.Context, *UploadPhotoRequest) (*UploadPhotoResponse, error)
+	ChangePassword(context.Context, *ChangePasswordRequest) (*ChangePasswordResponse, error)
+	DeleteAccount(context.Context, *DeleteAccountRequest) (*DeleteAccountResponse, error)
 	// Feed operations
 	GetFeed(context.Context, *GetFeedRequest) (*GetFeedResponse, error)
 	// Swipe operations
@@ -362,6 +388,12 @@ func (UnimplementedCoreServiceServer) ReorderPhotos(context.Context, *ReorderPho
 }
 func (UnimplementedCoreServiceServer) UploadPhoto(context.Context, *UploadPhotoRequest) (*UploadPhotoResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UploadPhoto not implemented")
+}
+func (UnimplementedCoreServiceServer) ChangePassword(context.Context, *ChangePasswordRequest) (*ChangePasswordResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ChangePassword not implemented")
+}
+func (UnimplementedCoreServiceServer) DeleteAccount(context.Context, *DeleteAccountRequest) (*DeleteAccountResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteAccount not implemented")
 }
 func (UnimplementedCoreServiceServer) GetFeed(context.Context, *GetFeedRequest) (*GetFeedResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetFeed not implemented")
@@ -578,6 +610,42 @@ func _CoreService_UploadPhoto_Handler(srv interface{}, ctx context.Context, dec 
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CoreServiceServer).UploadPhoto(ctx, req.(*UploadPhotoRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CoreService_ChangePassword_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChangePasswordRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoreServiceServer).ChangePassword(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CoreService_ChangePassword_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoreServiceServer).ChangePassword(ctx, req.(*ChangePasswordRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CoreService_DeleteAccount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteAccountRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoreServiceServer).DeleteAccount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CoreService_DeleteAccount_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoreServiceServer).DeleteAccount(ctx, req.(*DeleteAccountRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -840,6 +908,14 @@ var CoreService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UploadPhoto",
 			Handler:    _CoreService_UploadPhoto_Handler,
+		},
+		{
+			MethodName: "ChangePassword",
+			Handler:    _CoreService_ChangePassword_Handler,
+		},
+		{
+			MethodName: "DeleteAccount",
+			Handler:    _CoreService_DeleteAccount_Handler,
 		},
 		{
 			MethodName: "GetFeed",

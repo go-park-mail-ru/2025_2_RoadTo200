@@ -16,6 +16,7 @@ import (
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
 	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type ProfileService struct {
@@ -632,4 +633,92 @@ func (s *ProfileService) reorderRemainingPhotos(ctx context.Context, userID uuid
 	}
 
 	return s.userPhotoRepo.UpdateDisplayOrder(ctx, userID, photos)
+}
+
+// ChangePassword изменяет пароль пользователя
+func (s *ProfileService) ChangePassword(ctx context.Context, userID uuid.UUID, oldPassword, newPassword, newPasswordConfirm string) error {
+	s.logger.Infof("ChangePassword called: userID=%s", userID)
+
+	// Проверяем что новый пароль и подтверждение совпадают
+	if newPassword != newPasswordConfirm {
+		return errors.ErrPasswordsDontMatch
+	}
+
+	// Проверяем минимальную длину нового пароля
+	if len(newPassword) < 6 {
+		return errors.ErrPasswordTooShort
+	}
+
+	// Получаем текущего пользователя
+	user, err := s.userRepo.GetByID(ctx, userID)
+	if err != nil {
+		s.logger.Errorf("Failed to get user: %v", err)
+		return err
+	}
+	if user == nil {
+		return errors.ErrProfileNotFound
+	}
+
+	// Проверяем старый пароль
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(oldPassword)); err != nil {
+		s.logger.Warnf("Old password verification failed for userID=%s", userID)
+		return fmt.Errorf("old password is incorrect")
+	}
+
+	// Хешируем новый пароль
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+	if err != nil {
+		s.logger.Errorf("Failed to hash new password: %v", err)
+		return fmt.Errorf("failed to hash password: %w", err)
+	}
+
+	// Обновляем пароль
+	user.Password = string(hashedPassword)
+	user.UpdatedAt = time.Now()
+
+	if err := s.userRepo.Update(ctx, user); err != nil {
+		s.logger.Errorf("Failed to update user password: %v", err)
+		return err
+	}
+
+	s.logger.Infof("Password changed successfully for userID=%s", userID)
+	return nil
+}
+
+// DeleteAccount удаляет аккаунт пользователя
+func (s *ProfileService) DeleteAccount(ctx context.Context, userID uuid.UUID) error {
+	s.logger.Infof("DeleteAccount called: userID=%s", userID)
+
+	// Проверяем что пользователь существует
+	user, err := s.userRepo.GetByID(ctx, userID)
+	if err != nil {
+		s.logger.Errorf("Failed to get user: %v", err)
+		return err
+	}
+	if user == nil {
+		return errors.ErrProfileNotFound
+	}
+
+	// Удаляем фотографии из хранилища
+	photos, err := s.userPhotoRepo.GetByUserID(ctx, userID)
+	if err != nil {
+		s.logger.Warnf("Failed to get user photos: %v", err)
+		// Продолжаем удаление даже если не удалось получить фото
+	} else {
+		for _, photo := range photos {
+			if err := s.fileStorage.DeleteByURL(ctx, photo.PhotoURL); err != nil {
+				s.logger.Errorf("Failed to delete photo file: %v", err)
+				// Продолжаем даже если не удалось удалить файл
+			}
+		}
+	}
+
+	// Удаляем пользователя (каскадное удаление в БД должно удалить связанные данные)
+	if err := s.userRepo.Delete(ctx, userID); err != nil {
+		s.logger.Errorf("Failed to delete user: %v", err)
+		return err
+	}
+
+	s.logger.Infof("Account deleted successfully for userID=%s", userID)
+	return nil
 }

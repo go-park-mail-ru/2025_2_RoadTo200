@@ -73,6 +73,8 @@ func (a *App) setupProtectedRoutes() {
 	a.server.PUT("/api/profile/photo/{id}", a.handlers.Profile.SetPrimaryPhoto)
 	a.server.DELETE("/api/profile/photo/{id}", a.handlers.Profile.DeletePhoto)
 	a.server.POST("/api/profile/photo", a.handlers.Profile.UploadPhotos)
+	a.server.PUT("/api/profile/password", a.handlers.Profile.ChangePassword)
+	a.server.DELETE("/api/profile", a.handlers.Profile.DeleteAccount)
 
 	// Feed endpoints
 	a.server.GET("/api/feed", a.handlers.Feed.GetFeed)

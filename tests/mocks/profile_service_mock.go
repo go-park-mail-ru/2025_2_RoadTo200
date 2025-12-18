@@ -43,6 +43,34 @@ func (m *MockProfileService) EXPECT() *MockProfileServiceMockRecorder {
 	return m.recorder
 }
 
+// ChangePassword mocks base method.
+func (m *MockProfileService) ChangePassword(ctx context.Context, userID uuid.UUID, oldPassword, newPassword, newPasswordConfirm string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ChangePassword", ctx, userID, oldPassword, newPassword, newPasswordConfirm)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ChangePassword indicates an expected call of ChangePassword.
+func (mr *MockProfileServiceMockRecorder) ChangePassword(ctx, userID, oldPassword, newPassword, newPasswordConfirm any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ChangePassword", reflect.TypeOf((*MockProfileService)(nil).ChangePassword), ctx, userID, oldPassword, newPassword, newPasswordConfirm)
+}
+
+// DeleteAccount mocks base method.
+func (m *MockProfileService) DeleteAccount(ctx context.Context, userID uuid.UUID) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteAccount", ctx, userID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteAccount indicates an expected call of DeleteAccount.
+func (mr *MockProfileServiceMockRecorder) DeleteAccount(ctx, userID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteAccount", reflect.TypeOf((*MockProfileService)(nil).DeleteAccount), ctx, userID)
+}
+
 // DeletePhoto mocks base method.
 func (m *MockProfileService) DeletePhoto(ctx context.Context, userID, photoID uuid.UUID) error {
 	m.ctrl.T.Helper()

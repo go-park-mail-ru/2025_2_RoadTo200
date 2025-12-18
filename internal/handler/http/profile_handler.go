@@ -450,3 +450,82 @@ func (h *ProfileHandler) SetPrimaryPhoto(w http.ResponseWriter, r *http.Request)
 
 	utils.WriteJSON(w, http.StatusOK, dto.SuccessResponse{Message: "Primary photo set successfully"})
 }
+
+// ChangePassword godoc
+// @Summary Сменить пароль
+// @Description Изменяет пароль текущего пользователя
+// @Tags profile
+// @Accept json
+// @Produce json
+// @Security SessionToken
+// @Param request body dto.ChangePasswordRequest true "Данные для смены пароля"
+// @Success 200 {object} dto.SuccessResponse "Пароль успешно изменен"
+// @Failure 400 {object} map[string]string "Неверный запрос или пароли не совпадают"
+// @Failure 401 {object} map[string]string "Не авторизован"
+// @Failure 403 {object} map[string]string "Неверный старый пароль"
+// @Router /api/profile/password [put]
+func (h *ProfileHandler) ChangePassword(w http.ResponseWriter, r *http.Request) {
+	h.logger.Trace("profileHandler.ChangePassword")
+
+	userID, err := h.getContext(w, r)
+	if err != nil {
+		h.logger.Warnf("getContext: %v", err)
+		return
+	}
+
+	var req dto.ChangePasswordRequest
+	if err := utils.ReadJSON(r, &req); err != nil {
+		h.logger.Warnf("handleJSONRequest: %v", err)
+		utils.WriteJSONError(w, http.StatusBadRequest, "invalid JSON")
+		return
+	}
+
+	if err := h.profileService.ChangePassword(r.Context(), userID, req.OldPassword, req.NewPassword, req.NewPasswordConfirm); err != nil {
+		h.logger.Errorf("ChangePassword: %v", err)
+		status := http.StatusBadRequest
+		if strings.Contains(err.Error(), "old password is incorrect") {
+			status = http.StatusForbidden
+		}
+		utils.WriteJSONError(w, status, err.Error())
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, dto.SuccessResponse{Message: "Password changed successfully"})
+}
+
+// DeleteAccount godoc
+// @Summary Удалить аккаунт
+// @Description Удаляет аккаунт текущего пользователя
+// @Tags profile
+// @Produce json
+// @Security SessionToken
+// @Success 200 {object} dto.SuccessResponse "Аккаунт успешно удален"
+// @Failure 401 {object} map[string]string "Не авторизован"
+// @Failure 404 {object} map[string]string "Профиль не найден"
+// @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
+// @Router /api/profile [delete]
+func (h *ProfileHandler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
+	h.logger.Trace("profileHandler.DeleteAccount")
+
+	userID, err := middleware.GetUserIDFromContext(r.Context())
+	if err != nil {
+		h.logger.Warnf("GetUserFromContext: %v", err)
+		utils.WriteJSONError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	if err := h.profileService.DeleteAccount(r.Context(), userID); err != nil {
+		h.logger.Errorf("DeleteAccount: %v", err)
+		status := http.StatusInternalServerError
+		if errors.Is(err, expectation.ErrProfileNotFound) {
+			status = http.StatusNotFound
+		}
+		utils.WriteJSONError(w, status, err.Error())
+		return
+	}
+
+	// Удаляем сессию после успешного удаления аккаунта
+	utils.ClearSessionCookie(w)
+
+	utils.WriteJSON(w, http.StatusOK, dto.SuccessResponse{Message: "Account deleted successfully"})
+}

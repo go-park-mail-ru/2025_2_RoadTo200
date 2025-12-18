@@ -18,6 +18,8 @@ service CoreService {
   rpc SetPrimaryPhoto(SetPrimaryPhotoRequest) returns (SetPrimaryPhotoResponse);
   rpc ReorderPhotos(ReorderPhotosRequest) returns (ReorderPhotosResponse);
   rpc UploadPhoto(UploadPhotoRequest) returns (UploadPhotoResponse);
+  rpc ChangePassword(ChangePasswordRequest) returns (ChangePasswordResponse);
+  rpc DeleteAccount(DeleteAccountRequest) returns (DeleteAccountResponse);
   
   // Feed operations
   rpc GetFeed(GetFeedRequest) returns (GetFeedResponse);
@@ -368,4 +370,25 @@ message GetUserStrikeStatsRequest {
 
 message GetUserStrikeStatsResponse {
   StrikeStats stats = 1;
+}
+
+// ============= Account Management Messages =============
+
+message ChangePasswordRequest {
+  string user_id = 1;
+  string old_password = 2;
+  string new_password = 3;
+  string new_password_confirm = 4;
+}
+
+message ChangePasswordResponse {
+  string message = 1;
+}
+
+message DeleteAccountRequest {
+  string user_id = 1;
+}
+
+message DeleteAccountResponse {
+  string message = 1;
 }

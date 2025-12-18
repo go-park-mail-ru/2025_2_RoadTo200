@@ -43,3 +43,10 @@ type ProfileResponse struct {
 	IsLiked     *bool       `json:"is_liked,omitempty"`   // Лайкнул ли текущий пользователь этого пользователя
 	IsMatched   *bool       `json:"is_matched,omitempty"` // Есть ли матч между текущим и этим пользователем
 }
+
+// ChangePasswordRequest запрос на смену пароля
+type ChangePasswordRequest struct {
+	OldPassword        string `json:"old_password" binding:"required" example:"oldpassword123"`
+	NewPassword        string `json:"new_password" binding:"required" example:"newpassword123"`
+	NewPasswordConfirm string `json:"new_password_confirm" binding:"required" example:"newpassword123"`
+}

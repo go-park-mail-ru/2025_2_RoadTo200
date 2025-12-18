@@ -248,3 +248,20 @@ func (a *ProfileServiceAdapter) ValidatePreferencesUpdate(ctx context.Context, u
 	// Validation stays in Gateway
 	return nil
 }
+
+func (a *ProfileServiceAdapter) ChangePassword(ctx context.Context, userID uuid.UUID, oldPassword, newPassword, newPasswordConfirm string) error {
+	_, err := a.client.ChangePassword(ctx, &pb.ChangePasswordRequest{
+		UserId:             userID.String(),
+		OldPassword:        oldPassword,
+		NewPassword:        newPassword,
+		NewPasswordConfirm: newPasswordConfirm,
+	})
+	return err
+}
+
+func (a *ProfileServiceAdapter) DeleteAccount(ctx context.Context, userID uuid.UUID) error {
+	_, err := a.client.DeleteAccount(ctx, &pb.DeleteAccountRequest{
+		UserId: userID.String(),
+	})
+	return err
+}

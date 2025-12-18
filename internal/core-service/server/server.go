@@ -35,6 +35,42 @@ func (s *CoreServer) UploadPhoto(ctx context.Context, req *pb.UploadPhotoRequest
 	}, nil
 }
 
+func (s *CoreServer) ChangePassword(ctx context.Context, req *pb.ChangePasswordRequest) (*pb.ChangePasswordResponse, error) {
+	s.logger.Infof("ChangePassword called for user_id: %s", req.UserId)
+
+	userID, err := uuid.Parse(req.UserId)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid user_id: %v", err)
+	}
+
+	if err := s.profileService.ChangePassword(ctx, userID, req.OldPassword, req.NewPassword, req.NewPasswordConfirm); err != nil {
+		s.logger.Errorf("ChangePassword error: %v", err)
+		return nil, status.Errorf(codes.Internal, "failed to change password: %v", err)
+	}
+
+	return &pb.ChangePasswordResponse{
+		Message: "Password changed successfully",
+	}, nil
+}
+
+func (s *CoreServer) DeleteAccount(ctx context.Context, req *pb.DeleteAccountRequest) (*pb.DeleteAccountResponse, error) {
+	s.logger.Infof("DeleteAccount called for user_id: %s", req.UserId)
+
+	userID, err := uuid.Parse(req.UserId)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid user_id: %v", err)
+	}
+
+	if err := s.profileService.DeleteAccount(ctx, userID); err != nil {
+		s.logger.Errorf("DeleteAccount error: %v", err)
+		return nil, status.Errorf(codes.Internal, "failed to delete account: %v", err)
+	}
+
+	return &pb.DeleteAccountResponse{
+		Message: "Account deleted successfully",
+	}, nil
+}
+
 type CoreServer struct {
 	pb.UnimplementedCoreServiceServer
 	profileService service.ProfileService

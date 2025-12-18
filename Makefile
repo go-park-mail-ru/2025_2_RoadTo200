@@ -189,6 +189,7 @@ mocks:
 	@mockgen -source=internal/service/interfaces/swipe_service.go -destination=tests/mocks/swipe_service_mock.go -package=mocks
 	@mockgen -source=internal/service/interfaces/notification_service.go -destination=tests/mocks/notification_service_mock.go -package=mocks
 	@mockgen -source=internal/service/interfaces/payment_service.go -destination=tests/mocks/payment_service_mock.go -package=mocks
+	@mockgen -source=proto/core/core_grpc.pb.go -destination=tests/mocks/core_grpc_client_mock.go -package=mocks
 	@echo "Mock generation complete!"
 
 .PHONY: run run-auth run-core run-chat test test-coverage \
