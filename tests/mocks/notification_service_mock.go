@@ -43,6 +43,20 @@ func (m *MockNotificationService) EXPECT() *MockNotificationServiceMockRecorder 
 	return m.recorder
 }
 
+// DeleteUserNotifications mocks base method.
+func (m *MockNotificationService) DeleteUserNotifications(ctx context.Context, user1ID, user2ID uuid.UUID) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteUserNotifications", ctx, user1ID, user2ID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteUserNotifications indicates an expected call of DeleteUserNotifications.
+func (mr *MockNotificationServiceMockRecorder) DeleteUserNotifications(ctx, user1ID, user2ID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteUserNotifications", reflect.TypeOf((*MockNotificationService)(nil).DeleteUserNotifications), ctx, user1ID, user2ID)
+}
+
 // GetNotifications mocks base method.
 func (m *MockNotificationService) GetNotifications(ctx context.Context, userID uuid.UUID, limit, offset int) ([]domain.Notification, error) {
 	m.ctrl.T.Helper()

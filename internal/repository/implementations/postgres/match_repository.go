@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 
@@ -34,8 +35,15 @@ func (r *MatchRepository) Create(ctx context.Context, match *domain.Match) error
 		VALUES ($1, $2, $3, NOW() + INTERVAL '24 hours')
 		RETURNING id, matched_at, expires_at`
 
+	var expiresAt sql.NullTime
 	err := r.pool.QueryRow(ctx, query, user1ID, user2ID, match.IsActive).
-		Scan(&match.ID, &match.MatchedAt, &match.ExpiresAt)
+		Scan(&match.ID, &match.MatchedAt, &expiresAt)
+	if err != nil {
+		return err
+	}
+	if expiresAt.Valid {
+		match.ExpiresAt = &expiresAt.Time
+	}
 
 	if err != nil {
 		return err
@@ -81,9 +89,19 @@ func (r *MatchRepository) GetByUsers(ctx context.Context, user1ID, user2ID uuid.
 	var match domain.Match
 	query := `SELECT id, user1_id, user2_id, is_active, matched_at, expires_at FROM match WHERE user1_id = $1 AND user2_id = $2`
 
+	var expiresAt sql.NullTime
 	err := r.pool.QueryRow(ctx, query, user1ID, user2ID).Scan(
-		&match.ID, &match.User1ID, &match.User2ID, &match.IsActive, &match.MatchedAt, &match.ExpiresAt,
+		&match.ID, &match.User1ID, &match.User2ID, &match.IsActive, &match.MatchedAt, &expiresAt,
 	)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	if expiresAt.Valid {
+		match.ExpiresAt = &expiresAt.Time
+	}
 
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -112,16 +130,20 @@ func (r *MatchRepository) GetUserMatches(ctx context.Context, userID uuid.UUID, 
 	var matches []domain.Match
 	for rows.Next() {
 		var match domain.Match
+		var expiresAt sql.NullTime
 		err := rows.Scan(
 			&match.ID,
 			&match.User1ID,
 			&match.User2ID,
 			&match.IsActive,
 			&match.MatchedAt,
-			&match.ExpiresAt,
+			&expiresAt,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan match: %w", err)
+		}
+		if expiresAt.Valid {
+			match.ExpiresAt = &expiresAt.Time
 		}
 		matches = append(matches, match)
 	}
@@ -195,8 +217,12 @@ func (r *MatchRepository) DeactivateExpiredMatches(ctx context.Context) ([]domai
 	var deactivatedMatches []domain.Match
 	for rows.Next() {
 		var match domain.Match
-		if err := rows.Scan(&match.ID, &match.User1ID, &match.User2ID, &match.IsActive, &match.MatchedAt, &match.ExpiresAt); err != nil {
+		var expiresAt sql.NullTime
+		if err := rows.Scan(&match.ID, &match.User1ID, &match.User2ID, &match.IsActive, &match.MatchedAt, &expiresAt); err != nil {
 			return deactivatedMatches, fmt.Errorf("failed to scan match: %w", err)
+		}
+		if expiresAt.Valid {
+			match.ExpiresAt = &expiresAt.Time
 		}
 		deactivatedMatches = append(deactivatedMatches, match)
 	}

@@ -72,10 +72,10 @@ func (mr *MockMatchRepositoryMockRecorder) Create(ctx, match any) *gomock.Call {
 }
 
 // DeactivateExpiredMatches mocks base method.
-func (m *MockMatchRepository) DeactivateExpiredMatches(ctx context.Context) (int, error) {
+func (m *MockMatchRepository) DeactivateExpiredMatches(ctx context.Context) ([]domain.Match, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeactivateExpiredMatches", ctx)
-	ret0, _ := ret[0].(int)
+	ret0, _ := ret[0].([]domain.Match)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
