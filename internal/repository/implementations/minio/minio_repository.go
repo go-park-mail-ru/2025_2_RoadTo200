@@ -64,6 +64,13 @@ func (m *StorageRepository) DeleteByURL(ctx context.Context, url string) error {
 }
 
 func (m *StorageRepository) GetURL(ctx context.Context, filename string) string {
+	// Проверяем, содержит ли адрес уже протокол
+	if strings.HasPrefix(m.address, "http://") || strings.HasPrefix(m.address, "https://") {
+		// Адрес уже содержит протокол, используем его как есть
+		return fmt.Sprintf("%s/%s/%s", m.address, m.bucketName, filename)
+	}
+	
+	// Адрес без протокола, добавляем его
 	protocol := "http"
 	if m.useSSL {
 		protocol = "https"
