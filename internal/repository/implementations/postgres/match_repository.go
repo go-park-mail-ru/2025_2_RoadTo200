@@ -32,10 +32,10 @@ func (r *MatchRepository) Create(ctx context.Context, match *domain.Match) error
 	query := `
 		INSERT INTO match (user1_id, user2_id, is_active)
 		VALUES ($1, $2, $3)
-		RETURNING matched_at`
+		RETURNING id, matched_at`
 
 	err := r.pool.QueryRow(ctx, query, user1ID, user2ID, match.IsActive).
-		Scan(&match.MatchedAt)
+		Scan(&match.ID, &match.MatchedAt)
 
 	if err != nil {
 		return err
@@ -162,7 +162,8 @@ func (r *MatchRepository) CheckMutualLike(ctx context.Context, user1ID, user2ID 
 			INNER JOIN swipe s2 ON s1.swiper_user_id = s2.target_user_id AND s1.target_user_id = s2.swiper_user_id
 			WHERE s1.swiper_user_id = $1 AND s1.target_user_id = $2
 			AND s2.swiper_user_id = $2 AND s2.target_user_id = $1
-			AND s1.swipe_type = 'like' AND s2.swipe_type = 'like'
+			AND s1.swipe_type IN ('like', 'super_like')
+			AND s2.swipe_type IN ('like', 'super_like')
 		)`
 
 	var exists bool

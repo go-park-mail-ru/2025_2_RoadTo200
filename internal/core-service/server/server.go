@@ -87,6 +87,43 @@ func (s *CoreServer) GetProfile(ctx context.Context, req *pb.GetProfileRequest) 
 	}, nil
 }
 
+func (s *CoreServer) GetProfileWithRelations(ctx context.Context, req *pb.GetProfileWithRelationsRequest) (*pb.GetProfileResponse, error) {
+	s.logger.Infof("GetProfileWithRelations called: viewer_id=%s, target_id=%s", req.ViewerId, req.TargetId)
+
+	viewerID, err := uuid.Parse(req.ViewerId)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid viewer_id: %v", err)
+	}
+
+	targetID, err := uuid.Parse(req.TargetId)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid target_id: %v", err)
+	}
+
+	profileResp, err := s.profileService.GetProfileWithRelations(ctx, viewerID, targetID)
+	if err != nil {
+		s.logger.Errorf("GetProfileWithRelations error: %v", err)
+		return nil, status.Errorf(codes.Internal, "failed to get profile: %v", err)
+	}
+
+	pbResp := &pb.GetProfileResponse{
+		User:        converters.UserToProto(profileResp.User),
+		Preferences: converters.PreferenceToProto(profileResp.Preferences),
+		Photos:      converters.PhotosToProto(profileResp.Photos),
+		Interests:   converters.InterestsToProto(profileResp.Interests),
+	}
+
+	// Добавляем информацию об отношениях, если она есть
+	if profileResp.IsLiked != nil {
+		pbResp.IsLiked = profileResp.IsLiked
+	}
+	if profileResp.IsMatched != nil {
+		pbResp.IsMatched = profileResp.IsMatched
+	}
+
+	return pbResp, nil
+}
+
 func (s *CoreServer) UpdateProfileInfo(ctx context.Context, req *pb.UpdateProfileInfoRequest) (*pb.UpdateProfileInfoResponse, error) {
 	s.logger.Infof("UpdateProfileInfo called for user_id: %s", req.UserId)
 

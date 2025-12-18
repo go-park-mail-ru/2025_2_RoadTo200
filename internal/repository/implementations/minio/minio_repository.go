@@ -68,7 +68,6 @@ func (m *StorageRepository) GetURL(ctx context.Context, filename string) string 
 	if m.useSSL {
 		protocol = "https"
 	}
-
 	return fmt.Sprintf("%s://%s/%s/%s", protocol, m.address, m.bucketName, filename)
 }
 

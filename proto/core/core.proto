@@ -10,6 +10,7 @@ import "google/protobuf/timestamp.proto";
 service CoreService {
   // Profile operations
   rpc GetProfile(GetProfileRequest) returns (GetProfileResponse);
+  rpc GetProfileWithRelations(GetProfileWithRelationsRequest) returns (GetProfileResponse);
   rpc UpdateProfileInfo(UpdateProfileInfoRequest) returns (UpdateProfileInfoResponse);
   rpc UpdatePreferences(UpdatePreferencesRequest) returns (UpdatePreferencesResponse);
   rpc UpdateInterests(UpdateInterestsRequest) returns (UpdateInterestsResponse);
@@ -53,6 +54,8 @@ message User {
   optional string artist = 9;
   optional string quote = 10;
   bool is_verified = 11;
+  bool is_premium = 15;
+  int32 super_likes_count = 16;
   google.protobuf.Timestamp last_active = 12;
   google.protobuf.Timestamp created_at = 13;
   google.protobuf.Timestamp updated_at = 14;
@@ -97,11 +100,18 @@ message GetProfileRequest {
   string user_id = 1;
 }
 
+message GetProfileWithRelationsRequest {
+  string viewer_id = 1;  // ID пользователя, который смотрит профиль
+  string target_id = 2;  // ID пользователя, чей профиль смотрят
+}
+
 message GetProfileResponse {
   User user = 1;
   UserPreference preferences = 2;
   repeated UserPhoto photos = 3;
   repeated Interest interests = 4;
+  optional bool is_liked = 5;    // Лайкнул ли viewer этого пользователя
+  optional bool is_matched = 6;  // Есть ли матч между viewer и этим пользователем
 }
 
 message UpdateProfileInfoRequest {

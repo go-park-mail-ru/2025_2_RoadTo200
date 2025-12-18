@@ -1,5 +1,7 @@
 package domain
 
+//go:generate easyjson -all -no_std_marshalers match.go
+
 import (
 	"time"
 

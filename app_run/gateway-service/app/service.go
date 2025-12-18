@@ -41,6 +41,9 @@ func (a *App) initServices() error {
 		Match:   adapters.NewMatchServiceAdapter(coreClient),
 		Chat:    adapters.NewChatServiceAdapter(chatClient, a.logger),
 		Strike:  adapters.NewStrikeServiceAdapter(coreClient),
+		// TODO: Implement Payment and Notification adapters when they become available
+		Payment:      nil, // adapters.NewPaymentServiceAdapter(coreClient),
+		Notification: nil, // adapters.NewNotificationServiceAdapter(coreClient),
 	}
 	return nil
 }

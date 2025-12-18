@@ -1,5 +1,7 @@
 package dto
 
+//go:generate easyjson -all -no_std_marshalers session_dto.go
+
 // SessionResponse represents session check response
 type SessionResponse struct {
 	Authenticated bool                 `json:"authenticated" example:"true"`

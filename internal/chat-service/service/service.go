@@ -5,33 +5,38 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/constants"
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/errors"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/dto"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
+	serviceInterfaces "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 )
 
 type ChatService struct {
-	messageRepo interfaces.MessageRepository
-	matchRepo   interfaces.MatchRepository
-	redisClient *redis.Client
-	logger      logger.Log
+	messageRepo         interfaces.MessageRepository
+	matchRepo           interfaces.MatchRepository
+	notificationService serviceInterfaces.NotificationService
+	redisClient         *redis.Client
+	logger              logger.Log
 }
 
 func NewChatService(
 	messageRepo interfaces.MessageRepository,
 	matchRepo interfaces.MatchRepository,
+	notificationService serviceInterfaces.NotificationService,
 	redisClient *redis.Client,
 	logger logger.Log,
 ) *ChatService {
 	return &ChatService{
-		messageRepo: messageRepo,
-		matchRepo:   matchRepo,
-		redisClient: redisClient,
-		logger:      logger,
+		messageRepo:         messageRepo,
+		matchRepo:           matchRepo,
+		notificationService: notificationService,
+		redisClient:         redisClient,
+		logger:              logger,
 	}
 }
 
@@ -81,6 +86,19 @@ func (s *ChatService) SendMessage(ctx context.Context, senderID uuid.UUID, req *
 	if err := s.publishMessage(ctx, message); err != nil {
 		s.logger.Warnf("Failed to publish message to Redis: %v", err)
 		// Don't fail the request, message is already saved
+	}
+
+	// 6. Send notification to receiver about new message
+	if s.notificationService != nil {
+		senderIDPtr := &senderID
+		if err := s.notificationService.SendNotification(ctx, receiverID, constants.NotificationTypeMessage, senderIDPtr, nil); err != nil {
+			s.logger.Warnf("Failed to send message notification: %v", err)
+			// Don't fail the request, message is already saved and published
+		} else {
+			s.logger.Infof("Message notification sent: from=%s, to=%s", senderID, receiverID)
+		}
+	} else {
+		s.logger.Warn("NotificationService is nil, skipping message notification")
 	}
 
 	return message, nil

@@ -12,16 +12,23 @@ import (
 	"google.golang.org/grpc"
 )
 
-func NewGrpcServer(port int) *grpc.Server {
+const (
+	// MaxMessageSize максимальный размер сообщения gRPC (15MB для поддержки файлов до 10MB)
+	MaxMessageSize = 15 * 1024 * 1024
+)
+
+func NewGrpcServer(port int, logger logger.Log) *grpc.Server {
 	reg := prometheus.NewRegistry()
 
 	// Регистрируем стандартные метрики
 	grpcMetrics := grpc_prometheus.NewServerMetrics()
 
-	// Создаем gRPC сервер с метриками
+	// Создаем gRPC сервер с метриками и увеличенным лимитом размера сообщений
 	server := grpc.NewServer(
 		grpc.StreamInterceptor(grpcMetrics.StreamServerInterceptor()),
 		grpc.UnaryInterceptor(grpcMetrics.UnaryServerInterceptor()),
+		grpc.MaxRecvMsgSize(MaxMessageSize),
+		grpc.MaxSendMsgSize(MaxMessageSize),
 	)
 
 	// Инициализируем метрики

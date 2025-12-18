@@ -26,9 +26,9 @@ const (
 type PlanType string
 
 const (
-	PlanTypePremium  PlanType = "premium"
-	PlanTypeGold     PlanType = "gold"
-	PlanTypePlatinum PlanType = "platinum"
+	PlanTypeWeek    PlanType = "week"
+	PlanTypeMonth   PlanType = "month"
+	PlanTypeQuarter PlanType = "quarter"
 )
 
 const (
@@ -81,4 +81,13 @@ const (
 	StrikeStatusApproved StrikeStatus = "approved"
 	StrikeStatusRejected StrikeStatus = "rejected"
 	StrikeStatusResolved StrikeStatus = "resolved"
+)
+
+type NotificationType string
+
+const (
+	NotificationTypeMatch     NotificationType = "match"
+	NotificationTypeSuperLike NotificationType = "super_like"
+	NotificationTypeLike      NotificationType = "like"
+	NotificationTypeMessage   NotificationType = "message"
 )
