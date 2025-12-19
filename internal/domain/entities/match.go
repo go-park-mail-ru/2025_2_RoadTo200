@@ -14,5 +14,5 @@ type Match struct {
 	User2ID   uuid.UUID  `json:"user2_id" db:"user2_id"`
 	IsActive  bool       `json:"is_active" db:"is_active"`
 	MatchedAt time.Time  `json:"matched_at" db:"matched_at"`
-	ExpiresAt *time.Time `json:"-" db:"expires_at"` // NULL если кто-то написал сообщение (матч активен навсегда)
+	ExpiresAt *time.Time `json:"expires_at" db:"expires_at"` // NULL если кто-то написал сообщение (матч активен навсегда)
 }

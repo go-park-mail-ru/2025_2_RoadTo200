@@ -38,8 +38,10 @@ func (r *NotificationRepository) Create(ctx context.Context, notification *domai
 		// Детальная информация об ошибке - выводим полный текст ошибки
 		errMsg := fmt.Sprintf("failed to insert notification: user_id=%s, type=%s, from_user_id=%v, match_id=%v, error=%v",
 			notification.UserID, notification.Type, notification.FromUserID, notification.MatchID, err)
-		// Выводим в stderr для гарантированного логирования
-		fmt.Fprintf(os.Stderr, "NOTIFICATION REPO ERROR: %s\n", errMsg)
+		// Выводим в stderr для гарантированного логирования (только если не в тестах)
+		if os.Getenv("TESTING") == "" {
+			fmt.Fprintf(os.Stderr, "NOTIFICATION REPO ERROR: %s\n", errMsg)
+		}
 		return fmt.Errorf("%s: %w", errMsg, err)
 	}
 

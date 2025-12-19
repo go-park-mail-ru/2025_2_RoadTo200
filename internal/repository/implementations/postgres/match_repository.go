@@ -229,3 +229,44 @@ func (r *MatchRepository) DeactivateExpiredMatches(ctx context.Context) ([]domai
 
 	return deactivatedMatches, nil
 }
+
+// SetExpiresAtNull устанавливает expires_at в NULL для матча (когда начинается чат)
+func (r *MatchRepository) SetExpiresAtNull(ctx context.Context, user1ID, user2ID uuid.UUID) error {
+	fmt.Printf("[MatchRepository.SetExpiresAtNull] Called with user1ID=%s, user2ID=%s\n", user1ID, user2ID)
+
+	// Приводим к consistent порядку
+	originalUser1ID, originalUser2ID := user1ID, user2ID
+	if user1ID.String() > user2ID.String() {
+		user1ID, user2ID = user2ID, user1ID
+		fmt.Printf("[MatchRepository.SetExpiresAtNull] Reordered: user1ID=%s, user2ID=%s\n", user1ID, user2ID)
+	} else {
+		fmt.Printf("[MatchRepository.SetExpiresAtNull] No reordering needed: user1ID=%s, user2ID=%s\n", user1ID, user2ID)
+	}
+
+	query := `
+		UPDATE match
+		SET expires_at = NULL
+		WHERE user1_id = $1 AND user2_id = $2 AND expires_at IS NOT NULL`
+
+	fmt.Printf("[MatchRepository.SetExpiresAtNull] Executing query: UPDATE match SET expires_at = NULL WHERE user1_id = %s AND user2_id = %s AND expires_at IS NOT NULL\n", user1ID, user2ID)
+
+	result, err := r.pool.Exec(ctx, query, user1ID, user2ID)
+	if err != nil {
+		fmt.Printf("[MatchRepository.SetExpiresAtNull] ERROR: Query execution failed: %v\n", err)
+		return fmt.Errorf("failed to set expires_at to null: %w", err)
+	}
+
+	rowsAffected := result.RowsAffected()
+	fmt.Printf("[MatchRepository.SetExpiresAtNull] Query executed successfully. Rows affected: %d\n", rowsAffected)
+
+	if rowsAffected == 0 {
+		fmt.Printf("[MatchRepository.SetExpiresAtNull] WARNING: No rows affected. Possible reasons:\n")
+		fmt.Printf("  - Match with user1_id=%s and user2_id=%s not found\n", user1ID, user2ID)
+		fmt.Printf("  - Match already has expires_at = NULL\n")
+		fmt.Printf("  - Original IDs were: user1ID=%s, user2ID=%s\n", originalUser1ID, originalUser2ID)
+	} else {
+		fmt.Printf("[MatchRepository.SetExpiresAtNull] SUCCESS: Match expires_at set to NULL (%d row(s) updated)\n", rowsAffected)
+	}
+
+	return nil
+}

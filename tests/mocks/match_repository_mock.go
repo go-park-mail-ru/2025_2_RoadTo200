@@ -145,6 +145,20 @@ func (mr *MockMatchRepositoryMockRecorder) GetUserMatches(ctx, userID, limit, of
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserMatches", reflect.TypeOf((*MockMatchRepository)(nil).GetUserMatches), ctx, userID, limit, offset)
 }
 
+// SetExpiresAtNull mocks base method.
+func (m *MockMatchRepository) SetExpiresAtNull(ctx context.Context, user1ID, user2ID uuid.UUID) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetExpiresAtNull", ctx, user1ID, user2ID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SetExpiresAtNull indicates an expected call of SetExpiresAtNull.
+func (mr *MockMatchRepositoryMockRecorder) SetExpiresAtNull(ctx, user1ID, user2ID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetExpiresAtNull", reflect.TypeOf((*MockMatchRepository)(nil).SetExpiresAtNull), ctx, user1ID, user2ID)
+}
+
 // UpdateActive mocks base method.
 func (m *MockMatchRepository) UpdateActive(ctx context.Context, user1ID, user2ID uuid.UUID, isActive bool) error {
 	m.ctrl.T.Helper()

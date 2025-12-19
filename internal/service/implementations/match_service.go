@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
+	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/errors"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/dto"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
@@ -13,11 +13,12 @@ import (
 )
 
 type MatchService struct {
-	matchRepo interfaces.MatchRepository
-	userRepo  interfaces.UserRepository
-	swipeRepo interfaces.SwipeRepository
-	photoRepo interfaces.UserPhotoRepository // Добавляем репозиторий фотографий
-	logger    logger.Log
+	matchRepo   interfaces.MatchRepository
+	userRepo    interfaces.UserRepository
+	swipeRepo   interfaces.SwipeRepository
+	photoRepo   interfaces.UserPhotoRepository // Добавляем репозиторий фотографий
+	messageRepo interfaces.MessageRepository   // Добавляем репозиторий сообщений
+	logger      logger.Log
 }
 
 func NewMatchService(
@@ -25,14 +26,16 @@ func NewMatchService(
 	userRepo interfaces.UserRepository,
 	swipeRepo interfaces.SwipeRepository,
 	photoRepo interfaces.UserPhotoRepository, // Добавляем параметр
+	messageRepo interfaces.MessageRepository, // Добавляем репозиторий сообщений
 	l logger.Log,
 ) *MatchService {
 	return &MatchService{
-		matchRepo: matchRepo,
-		userRepo:  userRepo,
-		swipeRepo: swipeRepo,
-		photoRepo: photoRepo, // Инициализируем
-		logger:    l,
+		matchRepo:   matchRepo,
+		userRepo:    userRepo,
+		swipeRepo:   swipeRepo,
+		photoRepo:   photoRepo, // Инициализируем
+		messageRepo: messageRepo,
+		logger:      l,
 	}
 }
 
@@ -106,6 +109,25 @@ func (s *MatchService) GetUserMatches(ctx context.Context, userID uuid.UUID, lim
 		if !ok {
 			s.logger.Warnf("User not found for match: %v\n", match)
 			continue
+		}
+
+		// Проверяем наличие сообщений в матче
+		hasMessages, err := s.messageRepo.HasMessages(ctx, match.ID)
+		if err != nil {
+			s.logger.Warnf("Failed to check messages for match %s: %v", match.ID, err)
+			// Продолжаем обработку, даже если проверка не удалась
+		} else if hasMessages {
+			// Если есть сообщения, но expires_at не null, синхронизируем БД
+			if match.ExpiresAt != nil {
+				s.logger.Infof("Match %s has messages but expires_at is not null, syncing...", match.ID)
+				if err := s.matchRepo.SetExpiresAtNull(ctx, match.User1ID, match.User2ID); err != nil {
+					s.logger.Warnf("Failed to set expires_at to null for match %s: %v", match.ID, err)
+				} else {
+					s.logger.Infof("Successfully synced expires_at to null for match %s", match.ID)
+				}
+			}
+			// Устанавливаем expires_at = null в объекте для ответа
+			match.ExpiresAt = nil
 		}
 
 		// Логируем expires_at для отладки
