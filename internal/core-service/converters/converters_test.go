@@ -236,7 +236,7 @@ func TestFeedUsersToProto(t *testing.T) {
 func TestMatchToProto(t *testing.T) {
 	matchedAt := time.Now()
 	expiresAt := matchedAt.Add(24 * time.Hour)
-	
+
 	match := domain.Match{
 		ID:        uuid.New(),
 		User1ID:   uuid.New(),
@@ -259,7 +259,7 @@ func TestMatchToProto(t *testing.T) {
 
 func TestMatchToProto_WithNilExpiresAt(t *testing.T) {
 	matchedAt := time.Now()
-	
+
 	match := domain.Match{
 		ID:        uuid.New(),
 		User1ID:   uuid.New(),
@@ -328,11 +328,13 @@ func TestMatchResponsesToProto(t *testing.T) {
 // ============= Proto → Domain Tests =============
 
 func TestProtoToProfileUpdateRequest(t *testing.T) {
+	email := "newemail@example.com"
 	name := "Updated Name"
 	phone := "9876543210"
 	bio := "New bio"
 
 	req := &pb.UpdateProfileInfoRequest{
+		Email:     &email,
 		Name:      &name,
 		Phone:     &phone,
 		BirthDate: timestamppb.New(time.Date(1995, 5, 5, 0, 0, 0, 0, time.UTC)),
@@ -343,6 +345,8 @@ func TestProtoToProfileUpdateRequest(t *testing.T) {
 	result := ProtoToProfileUpdateRequest(req)
 
 	assert.NotNil(t, result)
+	assert.NotNil(t, result.Email)
+	assert.Equal(t, email, *result.Email)
 	assert.Equal(t, name, result.Name)
 	assert.NotNil(t, result.Phone)
 	assert.Equal(t, phone, *result.Phone)

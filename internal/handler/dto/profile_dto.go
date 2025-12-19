@@ -9,7 +9,6 @@ import (
 	"github.com/google/uuid"
 )
 
-// TODO: Разбить на составляющие
 // UpdateProfileRequest общий запрос на изменение профиля
 type UpdateProfileRequest struct {
 	// Для updateInfo

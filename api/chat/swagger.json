@@ -2668,6 +2668,9 @@
                 "city": {
                     "type": "string"
                 },
+                "email": {
+                    "type": "string"
+                },
                 "gender": {
                     "$ref": "#/definitions/constants.Gender"
                 },

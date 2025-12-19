@@ -689,6 +689,7 @@ func (x *GetProfileResponse) GetIsMatched() bool {
 type UpdateProfileInfoRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Email         *string                `protobuf:"bytes,12,opt,name=email,proto3,oneof" json:"email,omitempty"`
 	Name          *string                `protobuf:"bytes,2,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	Phone         *string                `protobuf:"bytes,3,opt,name=phone,proto3,oneof" json:"phone,omitempty"`
 	BirthDate     *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=birth_date,json=birthDate,proto3,oneof" json:"birth_date,omitempty"`
@@ -736,6 +737,13 @@ func (*UpdateProfileInfoRequest) Descriptor() ([]byte, []int) {
 func (x *UpdateProfileInfoRequest) GetUserId() string {
 	if x != nil {
 		return x.UserId
+	}
+	return ""
+}
+
+func (x *UpdateProfileInfoRequest) GetEmail() string {
+	if x != nil && x.Email != nil {
+		return *x.Email
 	}
 	return ""
 }
@@ -4060,21 +4068,24 @@ const file_proto_core_core_proto_rawDesc = "" +
 	"\n" +
 	"is_matched\x18\x06 \x01(\bH\x01R\tisMatched\x88\x01\x01B\v\n" +
 	"\t_is_likedB\r\n" +
-	"\v_is_matched\"\xde\x03\n" +
+	"\v_is_matched\"\x83\x04\n" +
 	"\x18UpdateProfileInfoRequest\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x17\n" +
-	"\x04name\x18\x02 \x01(\tH\x00R\x04name\x88\x01\x01\x12\x19\n" +
-	"\x05phone\x18\x03 \x01(\tH\x01R\x05phone\x88\x01\x01\x12>\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x19\n" +
+	"\x05email\x18\f \x01(\tH\x00R\x05email\x88\x01\x01\x12\x17\n" +
+	"\x04name\x18\x02 \x01(\tH\x01R\x04name\x88\x01\x01\x12\x19\n" +
+	"\x05phone\x18\x03 \x01(\tH\x02R\x05phone\x88\x01\x01\x12>\n" +
 	"\n" +
-	"birth_date\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampH\x02R\tbirthDate\x88\x01\x01\x12\x1b\n" +
-	"\x06gender\x18\x05 \x01(\tH\x03R\x06gender\x88\x01\x01\x12\x15\n" +
-	"\x03bio\x18\x06 \x01(\tH\x04R\x03bio\x88\x01\x01\x12\x1b\n" +
-	"\x06artist\x18\a \x01(\tH\x05R\x06artist\x88\x01\x01\x12\x19\n" +
-	"\x05quote\x18\b \x01(\tH\x06R\x05quote\x88\x01\x01\x12\x17\n" +
-	"\x04city\x18\v \x01(\tH\aR\x04city\x88\x01\x01\x12\x1f\n" +
-	"\blatitude\x18\t \x01(\x01H\bR\blatitude\x88\x01\x01\x12!\n" +
+	"birth_date\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampH\x03R\tbirthDate\x88\x01\x01\x12\x1b\n" +
+	"\x06gender\x18\x05 \x01(\tH\x04R\x06gender\x88\x01\x01\x12\x15\n" +
+	"\x03bio\x18\x06 \x01(\tH\x05R\x03bio\x88\x01\x01\x12\x1b\n" +
+	"\x06artist\x18\a \x01(\tH\x06R\x06artist\x88\x01\x01\x12\x19\n" +
+	"\x05quote\x18\b \x01(\tH\aR\x05quote\x88\x01\x01\x12\x17\n" +
+	"\x04city\x18\v \x01(\tH\bR\x04city\x88\x01\x01\x12\x1f\n" +
+	"\blatitude\x18\t \x01(\x01H\tR\blatitude\x88\x01\x01\x12!\n" +
 	"\tlongitude\x18\n" +
-	" \x01(\x01H\tR\tlongitude\x88\x01\x01B\a\n" +
+	" \x01(\x01H\n" +
+	"R\tlongitude\x88\x01\x01B\b\n" +
+	"\x06_emailB\a\n" +
 	"\x05_nameB\b\n" +
 	"\x06_phoneB\r\n" +
 	"\v_birth_dateB\t\n" +

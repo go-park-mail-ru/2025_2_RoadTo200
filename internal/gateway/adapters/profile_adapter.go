@@ -86,6 +86,9 @@ func (a *ProfileServiceAdapter) UpdateProfileInfo(ctx context.Context, userID uu
 		UserId: userID.String(),
 	}
 
+	if updateData.Email != nil {
+		req.Email = updateData.Email
+	}
 	if updateData.Name != "" {
 		req.Name = &updateData.Name
 	}

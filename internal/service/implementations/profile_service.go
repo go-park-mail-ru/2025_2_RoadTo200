@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"mime/multipart"
+	"regexp"
 
 	"path/filepath"
 	"strings"
@@ -174,6 +175,21 @@ func (s *ProfileService) UpdateProfileInfo(ctx context.Context, userID uuid.UUID
 	}
 
 	// Применяем изменения
+	// Проверка и обновление email с проверкой уникальности
+	if updateData.Email != nil && *updateData.Email != "" {
+		// Проверяем, изменился ли email
+		if user.Email != *updateData.Email {
+			// Проверяем, не занят ли новый email другим пользователем
+			existingUser, err := s.userRepo.GetByEmail(ctx, *updateData.Email)
+			if err != nil {
+				return err
+			}
+			if existingUser != nil && existingUser.ID != userID {
+				return errors.ErrUserAlreadyExists
+			}
+			user.Email = *updateData.Email
+		}
+	}
 	if updateData.Name != "" {
 		user.Name = updateData.Name
 	}
@@ -510,6 +526,14 @@ func (s *ProfileService) ReorderPhotos(ctx context.Context, userID uuid.UUID, ph
 
 // ValidateProfileUpdate валидация данных профиля
 func (s *ProfileService) ValidateProfileUpdate(ctx context.Context, updateData *domain.ProfileUpdateRequest) error {
+	// Валидация email формата
+	if updateData.Email != nil && *updateData.Email != "" {
+		emailRegex := regexp.MustCompile(`^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$`)
+		if !emailRegex.MatchString(strings.ToUpper(*updateData.Email)) {
+			return fmt.Errorf("invalid email format")
+		}
+	}
+
 	if updateData.Name != "" && len(updateData.Name) > constants.MaxNameLength {
 		return fmt.Errorf("name too long, max %d characters", constants.MaxNameLength)
 	}

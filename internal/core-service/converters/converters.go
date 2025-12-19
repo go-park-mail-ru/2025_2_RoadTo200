@@ -172,6 +172,9 @@ func MatchResponsesToProto(matchResps []dto.MatchResponse) []*pb.MatchResponse {
 func ProtoToProfileUpdateRequest(req *pb.UpdateProfileInfoRequest) *domain.ProfileUpdateRequest {
 	updateData := &domain.ProfileUpdateRequest{}
 
+	if req.Email != nil {
+		updateData.Email = req.Email
+	}
 	if req.Name != nil {
 		updateData.Name = *req.Name
 	}
