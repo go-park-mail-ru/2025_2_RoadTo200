@@ -32,12 +32,53 @@ func (a *ProfileServiceAdapter) GetProfile(ctx context.Context, userID uuid.UUID
 		return nil, err
 	}
 
-	return &domain.ProfileResponse{
+	profile := &domain.ProfileResponse{
 		User:        coreProtoToUser(resp.User),
 		Preferences: coreProtoToUserPreference(resp.Preferences),
 		Photos:      coreProtoToUserPhotos(resp.Photos),
 		Interests:   coreProtoToInterests(resp.Interests),
-	}, nil
+	}
+
+	// Добавляем информацию об отношениях, если она есть
+	if resp.IsLiked != nil {
+		isLiked := *resp.IsLiked
+		profile.IsLiked = &isLiked
+	}
+	if resp.IsMatched != nil {
+		isMatched := *resp.IsMatched
+		profile.IsMatched = &isMatched
+	}
+
+	return profile, nil
+}
+
+func (a *ProfileServiceAdapter) GetProfileWithRelations(ctx context.Context, viewerID, targetID uuid.UUID) (*domain.ProfileResponse, error) {
+	resp, err := a.client.GetProfileWithRelations(ctx, &pb.GetProfileWithRelationsRequest{
+		ViewerId: viewerID.String(),
+		TargetId: targetID.String(),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	profile := &domain.ProfileResponse{
+		User:        coreProtoToUser(resp.User),
+		Preferences: coreProtoToUserPreference(resp.Preferences),
+		Photos:      coreProtoToUserPhotos(resp.Photos),
+		Interests:   coreProtoToInterests(resp.Interests),
+	}
+
+	// Добавляем информацию об отношениях, если она есть
+	if resp.IsLiked != nil {
+		isLiked := *resp.IsLiked
+		profile.IsLiked = &isLiked
+	}
+	if resp.IsMatched != nil {
+		isMatched := *resp.IsMatched
+		profile.IsMatched = &isMatched
+	}
+
+	return profile, nil
 }
 
 func (a *ProfileServiceAdapter) UpdateProfileInfo(ctx context.Context, userID uuid.UUID, updateData *domain.ProfileUpdateRequest) error {
@@ -98,11 +139,6 @@ func (a *ProfileServiceAdapter) UpdatePreferences(ctx context.Context, userID uu
 		ageMax := int32(updateData.AgeMax)
 		req.AgeMax = &ageMax
 	}
-	if updateData.MaxDistance != 0 {
-		maxDist := int32(updateData.MaxDistance)
-		req.MaxDistance = &maxDist
-	}
-	req.GlobalSearch = &updateData.GlobalSearch
 
 	_, err := a.client.UpdatePreferences(ctx, req)
 	return err
@@ -206,4 +242,21 @@ func (a *ProfileServiceAdapter) ValidateProfileUpdate(ctx context.Context, updat
 func (a *ProfileServiceAdapter) ValidatePreferencesUpdate(ctx context.Context, updateData *domain.PreferencesUpdateRequest) error {
 	// Validation stays in Gateway
 	return nil
+}
+
+func (a *ProfileServiceAdapter) ChangePassword(ctx context.Context, userID uuid.UUID, oldPassword, newPassword, newPasswordConfirm string) error {
+	_, err := a.client.ChangePassword(ctx, &pb.ChangePasswordRequest{
+		UserId:             userID.String(),
+		OldPassword:        oldPassword,
+		NewPassword:        newPassword,
+		NewPasswordConfirm: newPasswordConfirm,
+	})
+	return err
+}
+
+func (a *ProfileServiceAdapter) DeleteAccount(ctx context.Context, userID uuid.UUID) error {
+	_, err := a.client.DeleteAccount(ctx, &pb.DeleteAccountRequest{
+		UserId: userID.String(),
+	})
+	return err
 }

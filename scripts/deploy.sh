@@ -1,9 +1,6 @@
 #!/bin/bash
 
-HOST=$1
-if [[ -z $HOST ]]; then
-  HOST=ubuntu.vk # Хост ОС. Пример: user@ххх.хх.хх.ххх
-fi
+HOST=ubuntu.vk # Хост ОС. Пример: user@ххх.хх.хх.ххх
 DOCS=1     # Флаг сборки документации
 CONF=1     # Флаг отправки конфигурации
 MIGR=1

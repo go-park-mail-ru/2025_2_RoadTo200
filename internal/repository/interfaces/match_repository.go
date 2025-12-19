@@ -15,4 +15,5 @@ type MatchRepository interface {
 	UpdateActive(ctx context.Context, user1ID, user2ID uuid.UUID, isActive bool) error
 	Delete(ctx context.Context, user1ID, user2ID uuid.UUID) error
 	CheckMutualLike(ctx context.Context, user1ID, user2ID uuid.UUID) (bool, error)
+	DeactivateExpiredMatches(ctx context.Context) ([]domain.Match, error)
 }

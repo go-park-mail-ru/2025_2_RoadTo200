@@ -20,9 +20,10 @@ func TestAuthService_Register_Success(t *testing.T) {
 
 	mockUserRepo := mocks.NewMockUserRepository(ctrl)
 	mockSessionRepo := mocks.NewMockSessionRepository(ctrl)
+	mockPreferenceRepo := mocks.NewMockUserPreferenceRepository(ctrl)
 	mockLogger := mocks.NewMockLogger()
 
-	service := NewAuthService(mockUserRepo, mockSessionRepo, mockLogger)
+	service := NewAuthService(mockUserRepo, mockSessionRepo, mockPreferenceRepo, mockLogger)
 
 	email := "test@example.com"
 	password := "123456"
@@ -42,6 +43,10 @@ func TestAuthService_Register_Success(t *testing.T) {
 			assert.Equal(t, email, user.Email)
 			return nil
 		})
+
+	mockPreferenceRepo.EXPECT().
+		Create(ctx, gomock.Any()).
+		Return(nil)
 
 	mockSessionRepo.EXPECT().
 		Set(ctx, gomock.Any()).
@@ -65,7 +70,7 @@ func TestAuthService_Register_UserAlreadyExists(t *testing.T) {
 	mockUserRepo := mocks.NewMockUserRepository(ctrl)
 	mockSessionRepo := mocks.NewMockSessionRepository(ctrl)
 
-	service := NewAuthService(mockUserRepo, mockSessionRepo, mocks.NewMockLogger())
+	service := NewAuthService(mockUserRepo, mockSessionRepo, mocks.NewMockUserPreferenceRepository(ctrl), mocks.NewMockLogger())
 
 	email := "existing@example.com"
 	existingUser := &domain.User{Email: email}
@@ -93,7 +98,7 @@ func TestAuthService_Register_PasswordMismatch(t *testing.T) {
 	mockUserRepo := mocks.NewMockUserRepository(ctrl)
 	mockSessionRepo := mocks.NewMockSessionRepository(ctrl)
 
-	service := NewAuthService(mockUserRepo, mockSessionRepo, mocks.NewMockLogger())
+	service := NewAuthService(mockUserRepo, mockSessionRepo, mocks.NewMockUserPreferenceRepository(ctrl), mocks.NewMockLogger())
 
 	// Вызов метода с разными паролями
 	ctx := context.Background()
@@ -113,7 +118,7 @@ func TestAuthService_Register_ShortPassword(t *testing.T) {
 	mockUserRepo := mocks.NewMockUserRepository(ctrl)
 	mockSessionRepo := mocks.NewMockSessionRepository(ctrl)
 
-	service := NewAuthService(mockUserRepo, mockSessionRepo, mocks.NewMockLogger())
+	service := NewAuthService(mockUserRepo, mockSessionRepo, mocks.NewMockUserPreferenceRepository(ctrl), mocks.NewMockLogger())
 
 	// Вызов метода с коротким паролем
 	ctx := context.Background()
@@ -133,7 +138,7 @@ func TestAuthService_Login_Success(t *testing.T) {
 	mockUserRepo := mocks.NewMockUserRepository(ctrl)
 	mockSessionRepo := mocks.NewMockSessionRepository(ctrl)
 
-	service := NewAuthService(mockUserRepo, mockSessionRepo, mocks.NewMockLogger())
+	service := NewAuthService(mockUserRepo, mockSessionRepo, mocks.NewMockUserPreferenceRepository(ctrl), mocks.NewMockLogger())
 
 	email := "test@example.com"
 	password := "123456"
@@ -177,7 +182,7 @@ func TestAuthService_Login_InvalidCredentials(t *testing.T) {
 	mockUserRepo := mocks.NewMockUserRepository(ctrl)
 	mockSessionRepo := mocks.NewMockSessionRepository(ctrl)
 
-	service := NewAuthService(mockUserRepo, mockSessionRepo, mocks.NewMockLogger())
+	service := NewAuthService(mockUserRepo, mockSessionRepo, mocks.NewMockUserPreferenceRepository(ctrl), mocks.NewMockLogger())
 
 	email := "test@example.com"
 
@@ -204,7 +209,7 @@ func TestAuthService_Login_WrongPassword(t *testing.T) {
 	mockUserRepo := mocks.NewMockUserRepository(ctrl)
 	mockSessionRepo := mocks.NewMockSessionRepository(ctrl)
 
-	service := NewAuthService(mockUserRepo, mockSessionRepo, mocks.NewMockLogger())
+	service := NewAuthService(mockUserRepo, mockSessionRepo, mocks.NewMockUserPreferenceRepository(ctrl), mocks.NewMockLogger())
 
 	email := "test@example.com"
 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte("correctpassword"), bcrypt.DefaultCost)
@@ -237,7 +242,7 @@ func TestAuthService_Logout_Success(t *testing.T) {
 	mockUserRepo := mocks.NewMockUserRepository(ctrl)
 	mockSessionRepo := mocks.NewMockSessionRepository(ctrl)
 
-	service := NewAuthService(mockUserRepo, mockSessionRepo, mocks.NewMockLogger())
+	service := NewAuthService(mockUserRepo, mockSessionRepo, mocks.NewMockUserPreferenceRepository(ctrl), mocks.NewMockLogger())
 
 	token := "valid-session-token"
 	session := &domain.Session{
@@ -268,7 +273,7 @@ func TestAuthService_Logout_SessionNotFound(t *testing.T) {
 	mockUserRepo := mocks.NewMockUserRepository(ctrl)
 	mockSessionRepo := mocks.NewMockSessionRepository(ctrl)
 
-	service := NewAuthService(mockUserRepo, mockSessionRepo, mocks.NewMockLogger())
+	service := NewAuthService(mockUserRepo, mockSessionRepo, mocks.NewMockUserPreferenceRepository(ctrl), mocks.NewMockLogger())
 
 	token := "non-existent-token"
 
@@ -293,7 +298,7 @@ func TestAuthService_Logout_DeleteError(t *testing.T) {
 	mockUserRepo := mocks.NewMockUserRepository(ctrl)
 	mockSessionRepo := mocks.NewMockSessionRepository(ctrl)
 
-	service := NewAuthService(mockUserRepo, mockSessionRepo, mocks.NewMockLogger())
+	service := NewAuthService(mockUserRepo, mockSessionRepo, mocks.NewMockUserPreferenceRepository(ctrl), mocks.NewMockLogger())
 
 	token := "valid-token"
 	session := &domain.Session{
@@ -326,7 +331,7 @@ func TestAuthService_ValidateSession_Success(t *testing.T) {
 	mockUserRepo := mocks.NewMockUserRepository(ctrl)
 	mockSessionRepo := mocks.NewMockSessionRepository(ctrl)
 
-	service := NewAuthService(mockUserRepo, mockSessionRepo, mocks.NewMockLogger())
+	service := NewAuthService(mockUserRepo, mockSessionRepo, mocks.NewMockUserPreferenceRepository(ctrl), mocks.NewMockLogger())
 
 	token := "valid-token"
 	userEmail := "test@example.com"
@@ -370,7 +375,7 @@ func TestAuthService_ValidateSession_SessionNotFound(t *testing.T) {
 	mockUserRepo := mocks.NewMockUserRepository(ctrl)
 	mockSessionRepo := mocks.NewMockSessionRepository(ctrl)
 
-	service := NewAuthService(mockUserRepo, mockSessionRepo, mocks.NewMockLogger())
+	service := NewAuthService(mockUserRepo, mockSessionRepo, mocks.NewMockUserPreferenceRepository(ctrl), mocks.NewMockLogger())
 
 	token := "non-existent-token"
 
@@ -431,7 +436,7 @@ func TestAuthService_ValidateSession_UserNotFound(t *testing.T) {
 	mockUserRepo := mocks.NewMockUserRepository(ctrl)
 	mockSessionRepo := mocks.NewMockSessionRepository(ctrl)
 
-	service := NewAuthService(mockUserRepo, mockSessionRepo, mocks.NewMockLogger())
+	service := NewAuthService(mockUserRepo, mockSessionRepo, mocks.NewMockUserPreferenceRepository(ctrl), mocks.NewMockLogger())
 
 	token := "valid-token"
 	userEmail := "deleted@example.com"

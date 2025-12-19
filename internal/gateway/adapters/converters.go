@@ -17,15 +17,17 @@ func coreProtoToUser(pbUser *pb.User) *domain.User {
 	id, _ := uuid.Parse(pbUser.Id)
 
 	user := &domain.User{
-		ID:         id,
-		Email:      pbUser.Email,
-		Name:       pbUser.Name,
-		BirthDate:  pbUser.BirthDate.AsTime(),
-		Gender:     constants.Gender(pbUser.Gender),
-		IsVerified: pbUser.IsVerified,
-		LastActive: pbUser.LastActive.AsTime(),
-		CreatedAt:  pbUser.CreatedAt.AsTime(),
-		UpdatedAt:  pbUser.UpdatedAt.AsTime(),
+		ID:              id,
+		Email:           pbUser.Email,
+		Name:            pbUser.Name,
+		BirthDate:       pbUser.BirthDate.AsTime(),
+		Gender:          constants.Gender(pbUser.Gender),
+		IsVerified:      pbUser.IsVerified,
+		IsPremium:       pbUser.IsPremium,
+		SuperLikesCount: int(pbUser.SuperLikesCount),
+		LastActive:      pbUser.LastActive.AsTime(),
+		CreatedAt:       pbUser.CreatedAt.AsTime(),
+		UpdatedAt:       pbUser.UpdatedAt.AsTime(),
 	}
 
 	if pbUser.Phone != nil {
@@ -110,11 +112,19 @@ func coreProtoToMatch(pbMatch *pb.Match) domain.Match {
 	user2ID, _ := uuid.Parse(pbMatch.User2Id)
 	matchID, _ := uuid.Parse(pbMatch.Id)
 
-	return domain.Match{
+	match := domain.Match{
 		ID:        matchID,
 		User1ID:   user1ID,
 		User2ID:   user2ID,
 		IsActive:  pbMatch.IsActive,
 		MatchedAt: pbMatch.MatchedAt.AsTime(),
 	}
+
+	// Обрабатываем expires_at, если оно есть
+	if pbMatch.ExpiresAt != nil {
+		expiresAt := pbMatch.ExpiresAt.AsTime()
+		match.ExpiresAt = &expiresAt
+	}
+
+	return match
 }

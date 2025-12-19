@@ -63,6 +63,10 @@ func TestFeedService_GetFeed_Success(t *testing.T) {
 		Return(users, nil)
 
 	mockPrefRepo.EXPECT().
+		GetByUserID(ctx, userID).
+		Return(nil, nil) // Пользователь без предпочтений
+
+	mockPrefRepo.EXPECT().
 		GetInterests(ctx, feedUserID).
 		Return(interests, nil)
 
@@ -109,6 +113,10 @@ func TestFeedService_GetFeed_EmptyResult(t *testing.T) {
 		GetUsersForFeed(ctx, userID, 15, 0).
 		Return([]domain.User{}, nil)
 
+	mockPrefRepo.EXPECT().
+		GetByUserID(ctx, userID).
+		Return(nil, nil) // Пользователь без предпочтений
+
 	mockUserRepo.EXPECT().
 		UpdateLastActive(ctx, userID).
 		Return(nil).
@@ -143,6 +151,10 @@ func TestFeedService_GetFeed_GetUsersError(t *testing.T) {
 		GetUsersForFeed(ctx, userID, 15, 0).
 		Return(nil, expectedErr)
 
+	mockPrefRepo.EXPECT().
+		GetByUserID(ctx, userID).
+		Return(nil, nil) // Пользователь без предпочтений
+
 	// Execute
 	feedUsers, err := service.GetFeed(ctx, userID, 15, 0)
 
@@ -170,6 +182,10 @@ func TestFeedService_GetFeed_InvalidLimit(t *testing.T) {
 	mockUserRepo.EXPECT().
 		GetUsersForFeed(ctx, userID, 15, 0).
 		Return([]domain.User{}, nil)
+
+	mockPrefRepo.EXPECT().
+		GetByUserID(ctx, userID).
+		Return(nil, nil) // Пользователь без предпочтений
 
 	mockUserRepo.EXPECT().
 		UpdateLastActive(ctx, userID).
@@ -202,6 +218,10 @@ func TestFeedService_GetFeed_InvalidOffset(t *testing.T) {
 	mockUserRepo.EXPECT().
 		GetUsersForFeed(ctx, userID, 15, 0).
 		Return([]domain.User{}, nil)
+
+	mockPrefRepo.EXPECT().
+		GetByUserID(ctx, userID).
+		Return(nil, nil) // Пользователь без предпочтений
 
 	mockUserRepo.EXPECT().
 		UpdateLastActive(ctx, userID).
@@ -244,6 +264,10 @@ func TestFeedService_GetFeed_GetPhotosError(t *testing.T) {
 	mockUserRepo.EXPECT().
 		GetUsersForFeed(ctx, userID, 15, 0).
 		Return(users, nil)
+
+	mockPrefRepo.EXPECT().
+		GetByUserID(ctx, userID).
+		Return(nil, nil) // Пользователь без предпочтений
 
 	mockPrefRepo.EXPECT().
 		GetInterests(ctx, feedUserID).

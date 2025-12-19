@@ -22,8 +22,8 @@ func TestChatService_SendMessage_Success(t *testing.T) {
 	mockMatchRepo := mocks.NewMockMatchRepository(ctrl)
 	mockLogger := mocks.NewMockLogger()
 
-	// Pass nil for redisClient as we're not testing pub/sub
-	service := NewChatService(mockMessageRepo, mockMatchRepo, nil, mockLogger)
+	// Pass nil for notificationService and redisClient as we're not testing pub/sub
+	service := NewChatService(mockMessageRepo, mockMatchRepo, nil, nil, mockLogger)
 
 	ctx := context.Background()
 	senderID := uuid.New()
@@ -76,7 +76,7 @@ func TestChatService_SendMessage_MatchNotFound(t *testing.T) {
 	mockMatchRepo := mocks.NewMockMatchRepository(ctrl)
 	mockLogger := mocks.NewMockLogger()
 
-	service := NewChatService(mockMessageRepo, mockMatchRepo, nil, mockLogger)
+	service := NewChatService(mockMessageRepo, mockMatchRepo, nil, nil, mockLogger)
 
 	ctx := context.Background()
 	senderID := uuid.New()
@@ -109,7 +109,7 @@ func TestChatService_SendMessage_MatchNotActive(t *testing.T) {
 	mockMatchRepo := mocks.NewMockMatchRepository(ctrl)
 	mockLogger := mocks.NewMockLogger()
 
-	service := NewChatService(mockMessageRepo, mockMatchRepo, nil, mockLogger)
+	service := NewChatService(mockMessageRepo, mockMatchRepo, nil, nil, mockLogger)
 
 	ctx := context.Background()
 	senderID := uuid.New()
@@ -151,7 +151,7 @@ func TestChatService_SendMessage_NotParticipant(t *testing.T) {
 	mockMatchRepo := mocks.NewMockMatchRepository(ctrl)
 	mockLogger := mocks.NewMockLogger()
 
-	service := NewChatService(mockMessageRepo, mockMatchRepo, nil, mockLogger)
+	service := NewChatService(mockMessageRepo, mockMatchRepo, nil, nil, mockLogger)
 
 	ctx := context.Background()
 	senderID := uuid.New() // Not part of match
@@ -194,7 +194,7 @@ func TestChatService_GetMessages_Success(t *testing.T) {
 	mockMatchRepo := mocks.NewMockMatchRepository(ctrl)
 	mockLogger := mocks.NewMockLogger()
 
-	service := NewChatService(mockMessageRepo, mockMatchRepo, nil, mockLogger)
+	service := NewChatService(mockMessageRepo, mockMatchRepo, nil, nil, mockLogger)
 
 	ctx := context.Background()
 	userID := uuid.New()
@@ -244,7 +244,7 @@ func TestChatService_GetMessages_NotParticipant(t *testing.T) {
 	mockMatchRepo := mocks.NewMockMatchRepository(ctrl)
 	mockLogger := mocks.NewMockLogger()
 
-	service := NewChatService(mockMessageRepo, mockMatchRepo, nil, mockLogger)
+	service := NewChatService(mockMessageRepo, mockMatchRepo, nil, nil, mockLogger)
 
 	ctx := context.Background()
 	userID := uuid.New() // Not part of match
@@ -282,7 +282,7 @@ func TestChatService_MarkAsRead_Success(t *testing.T) {
 	mockMatchRepo := mocks.NewMockMatchRepository(ctrl)
 	mockLogger := mocks.NewMockLogger()
 
-	service := NewChatService(mockMessageRepo, mockMatchRepo, nil, mockLogger)
+	service := NewChatService(mockMessageRepo, mockMatchRepo, nil, nil, mockLogger)
 
 	ctx := context.Background()
 	userID := uuid.New()
@@ -321,7 +321,7 @@ func TestChatService_MarkAsRead_NotParticipant(t *testing.T) {
 	mockMatchRepo := mocks.NewMockMatchRepository(ctrl)
 	mockLogger := mocks.NewMockLogger()
 
-	service := NewChatService(mockMessageRepo, mockMatchRepo, nil, mockLogger)
+	service := NewChatService(mockMessageRepo, mockMatchRepo, nil, nil, mockLogger)
 
 	ctx := context.Background()
 	userID := uuid.New() // Not part of match
@@ -358,7 +358,7 @@ func TestChatService_GetConversations_Success(t *testing.T) {
 	mockMatchRepo := mocks.NewMockMatchRepository(ctrl)
 	mockLogger := mocks.NewMockLogger()
 
-	service := NewChatService(mockMessageRepo, mockMatchRepo, nil, mockLogger)
+	service := NewChatService(mockMessageRepo, mockMatchRepo, nil, nil, mockLogger)
 
 	ctx := context.Background()
 	userID := uuid.New()
@@ -393,7 +393,7 @@ func TestChatService_GetUnreadCount_Success(t *testing.T) {
 	mockMatchRepo := mocks.NewMockMatchRepository(ctrl)
 	mockLogger := mocks.NewMockLogger()
 
-	service := NewChatService(mockMessageRepo, mockMatchRepo, nil, mockLogger)
+	service := NewChatService(mockMessageRepo, mockMatchRepo, nil, nil, mockLogger)
 
 	ctx := context.Background()
 	userID := uuid.New()
@@ -419,7 +419,7 @@ func TestChatService_GetConversations_WithSearch(t *testing.T) {
 	mockMatchRepo := mocks.NewMockMatchRepository(ctrl)
 	mockLogger := mocks.NewMockLogger()
 
-	service := NewChatService(mockMessageRepo, mockMatchRepo, nil, mockLogger)
+	service := NewChatService(mockMessageRepo, mockMatchRepo, nil, nil, mockLogger)
 
 	ctx := context.Background()
 	userID := uuid.New()

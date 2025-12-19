@@ -513,7 +513,7 @@
                         "SessionToken": []
                     }
                 ],
-                "description": "Возвращает список мэтчей текущего пользователя",
+                "description": "Возвращает список мэтчей текущего пользователя. Каждый мэтч содержит expires_at - время истечения 24-часового окна (NULL если кто-то уже написал сообщение, мэтч активен навсегда)",
                 "produces": [
                     "application/json"
                 ],
@@ -542,9 +542,9 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Список мэтчей",
+                        "description": "Список мэтчей с expires_at для таймера",
                         "schema": {
-                            "$ref": "#/definitions/dto.MatchResponse"
+                            "$ref": "#/definitions/dto.MatchesResponse"
                         }
                     },
                     "401": {
@@ -643,6 +643,214 @@
                 }
             }
         },
+        "/api/notifications": {
+            "get": {
+                "security": [
+                    {
+                        "SessionToken": []
+                    }
+                ],
+                "description": "Возвращает список уведомлений текущего пользователя с пагинацией",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notifications"
+                ],
+                "summary": "Получить список уведомлений",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Количество уведомлений (по умолчанию 20)",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Смещение (по умолчанию 0)",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Список уведомлений",
+                        "schema": {
+                            "$ref": "#/definitions/dto.NotificationsResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Не авторизован",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/notifications/{notification_id}/read": {
+            "put": {
+                "security": [
+                    {
+                        "SessionToken": []
+                    }
+                ],
+                "description": "Помечает указанное уведомление как прочитанное",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notifications"
+                ],
+                "summary": "Пометить уведомление как прочитанное",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID уведомления",
+                        "name": "notification_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Уведомление помечено как прочитанное",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный ID уведомления",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Не авторизован",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Уведомление не найдено",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/payment/create": {
+            "post": {
+                "security": [
+                    {
+                        "SessionToken": []
+                    }
+                ],
+                "description": "Создает ссылку для оплаты выбранного плана премиум-подписки",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "payment"
+                ],
+                "summary": "Создать ссылку на оплату премиум-подписки",
+                "parameters": [
+                    {
+                        "description": "Данные для создания платежа",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreatePaymentRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ссылка на оплату",
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreatePaymentResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Не авторизован",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "У пользователя уже есть активная подписка",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/profile": {
             "get": {
                 "security": [
@@ -663,6 +871,56 @@
                         "description": "Профиль пользователя",
                         "schema": {
                             "$ref": "#/definitions/dto.ProfileResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Не авторизован",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Профиль не найден",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "SessionToken": []
+                    }
+                ],
+                "description": "Удаляет аккаунт текущего пользователя",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "profile"
+                ],
+                "summary": "Удалить аккаунт",
+                "responses": {
+                    "200": {
+                        "description": "Аккаунт успешно удален",
+                        "schema": {
+                            "$ref": "#/definitions/dto.SuccessResponse"
                         }
                     },
                     "401": {
@@ -811,6 +1069,72 @@
                     },
                     "401": {
                         "description": "Не авторизован",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/profile/password": {
+            "put": {
+                "security": [
+                    {
+                        "SessionToken": []
+                    }
+                ],
+                "description": "Изменяет пароль текущего пользователя",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "profile"
+                ],
+                "summary": "Сменить пароль",
+                "parameters": [
+                    {
+                        "description": "Данные для смены пароля",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ChangePasswordRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Пароль успешно изменен",
+                        "schema": {
+                            "$ref": "#/definitions/dto.SuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос или пароли не совпадают",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Не авторизован",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Неверный старый пароль",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -1070,6 +1394,76 @@
                     },
                     "401": {
                         "description": "Не авторизован",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/profile/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "SessionToken": []
+                    }
+                ],
+                "description": "Возвращает полную информацию о профиле указанного пользователя",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "profile"
+                ],
+                "summary": "Получить профиль пользователя по ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID пользователя",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Профиль пользователя",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ProfileResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный ID пользователя",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Не авторизован",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Профиль не найден",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -1844,6 +2238,41 @@
                     }
                 }
             }
+        },
+        "/notificate_premium": {
+            "post": {
+                "description": "Обрабатывает уведомление о поступлении платежа от ЮMoney",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "text/plain"
+                ],
+                "tags": [
+                    "payment"
+                ],
+                "summary": "Обработать webhook от ЮMoney",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -1896,6 +2325,21 @@
                 "InterestTypeFriendship",
                 "InterestTypeCulture",
                 "InterestTypeCinema"
+            ]
+        },
+        "constants.NotificationType": {
+            "type": "string",
+            "enum": [
+                "match",
+                "super_like",
+                "like",
+                "message"
+            ],
+            "x-enum-varnames": [
+                "NotificationTypeMatch",
+                "NotificationTypeSuperLike",
+                "NotificationTypeLike",
+                "NotificationTypeMessage"
             ]
         },
         "constants.StrikeStatus": {
@@ -1967,6 +2411,32 @@
                 }
             }
         },
+        "domain.Notification": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "from_user_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_read": {
+                    "type": "boolean"
+                },
+                "match_id": {
+                    "type": "string"
+                },
+                "type": {
+                    "$ref": "#/definitions/constants.NotificationType"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
         "domain.PreferencesUpdateRequest": {
             "type": "object",
             "properties": {
@@ -1974,12 +2444,6 @@
                     "type": "integer"
                 },
                 "age_min": {
-                    "type": "integer"
-                },
-                "global_search": {
-                    "type": "boolean"
-                },
-                "max_distance": {
                     "type": "integer"
                 },
                 "show_gender": {
@@ -2049,6 +2513,9 @@
                 "id": {
                     "type": "string"
                 },
+                "is_premium": {
+                    "type": "boolean"
+                },
                 "is_verified": {
                     "type": "boolean"
                 },
@@ -2063,6 +2530,9 @@
                 },
                 "quote": {
                     "type": "string"
+                },
+                "super_likes_count": {
+                    "type": "integer"
                 },
                 "updated_at": {
                     "type": "string"
@@ -2089,6 +2559,58 @@
                 },
                 "user_id": {
                     "type": "string"
+                }
+            }
+        },
+        "dto.ChangePasswordRequest": {
+            "type": "object",
+            "required": [
+                "new_password",
+                "new_password_confirm",
+                "old_password"
+            ],
+            "properties": {
+                "new_password": {
+                    "type": "string",
+                    "example": "newpassword123"
+                },
+                "new_password_confirm": {
+                    "type": "string",
+                    "example": "newpassword123"
+                },
+                "old_password": {
+                    "type": "string",
+                    "example": "oldpassword123"
+                }
+            }
+        },
+        "dto.CreatePaymentRequest": {
+            "description": "Запрос для создания ссылки на оплату премиум-подписки",
+            "type": "object",
+            "required": [
+                "amount",
+                "planId"
+            ],
+            "properties": {
+                "amount": {
+                    "description": "Сумма платежа",
+                    "type": "number",
+                    "example": 1000
+                },
+                "planId": {
+                    "description": "ID плана: week, month, quarter",
+                    "type": "string",
+                    "example": "week"
+                }
+            }
+        },
+        "dto.CreatePaymentResponse": {
+            "type": "object",
+            "properties": {
+                "payment_url": {
+                    "description": "Ссылка для редиректа на оплату",
+                    "type": "string",
+                    "example": "https://yoomoney.ru/quickpay/confirm?receiver=..."
                 }
             }
         },
@@ -2141,6 +2663,9 @@
                     "items": {
                         "$ref": "#/definitions/domain.Interest"
                     }
+                },
+                "is_premium": {
+                    "type": "boolean"
                 },
                 "name": {
                     "type": "string"
@@ -2214,10 +2739,58 @@
                 }
             }
         },
+        "dto.MatchesResponse": {
+            "type": "object",
+            "properties": {
+                "limit": {
+                    "type": "integer"
+                },
+                "matches": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.MatchResponse"
+                    }
+                },
+                "offset": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.NotificationsResponse": {
+            "type": "object",
+            "properties": {
+                "limit": {
+                    "type": "integer"
+                },
+                "notifications": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.Notification"
+                    }
+                },
+                "offset": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
         "dto.ProfileResponse": {
             "type": "object",
             "properties": {
                 "interests": {},
+                "is_liked": {
+                    "description": "Лайкнул ли текущий пользователь этого пользователя",
+                    "type": "boolean"
+                },
+                "is_matched": {
+                    "description": "Есть ли матч между текущим и этим пользователем",
+                    "type": "boolean"
+                },
                 "photos": {},
                 "preferences": {},
                 "user": {}

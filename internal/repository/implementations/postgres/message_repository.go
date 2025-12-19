@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"time"
 
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
@@ -20,19 +21,40 @@ func NewMessageRepository(pool interfaces.PgxIface) *MessageRepository {
 
 // Create new message
 func (r *MessageRepository) Create(ctx context.Context, message *domain.Message) error {
+	// Начинаем транзакцию
+	tx, err := r.pool.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
+	// Вставляем сообщение
 	query := `
 		INSERT INTO message (match_id, sender_id, receiver_id, content, is_read)
 		VALUES ($1, $2, $3, $4, $5)
 		RETURNING id, created_at`
 
-	err := r.pool.QueryRow(ctx, query,
+	err = tx.QueryRow(ctx, query,
 		message.MatchID, message.SenderID, message.ReceiverID, message.Content, message.IsRead).
 		Scan(&message.ID, &message.CreatedAt)
 
 	if err != nil {
 		return err
 	}
-	return nil
+
+	// Обновляем match: убираем expires_at (устанавливаем NULL), так как кто-то написал сообщение
+	// Матч теперь активен навсегда
+	updateMatchQuery := `
+		UPDATE match 
+		SET expires_at = NULL 
+		WHERE id = $1 AND expires_at IS NOT NULL`
+
+	_, err = tx.Exec(ctx, updateMatchQuery, message.MatchID)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit(ctx)
 }
 
 // GetByMatchID returns message history for a match with pagination
@@ -88,7 +110,8 @@ func (r *MessageRepository) GetUnreadCount(ctx context.Context, userID uuid.UUID
 		JOIN match mt ON m.match_id = mt.id
 		WHERE (mt.user1_id = $1 OR mt.user2_id = $1)
 		AND m.receiver_id = $1
-		AND m.is_read = FALSE`
+		AND m.is_read = FALSE
+		AND mt.is_active = TRUE`
 
 	var count int
 	err := r.pool.QueryRow(ctx, query, userID).Scan(&count)
@@ -109,8 +132,8 @@ func (r *MessageRepository) GetConversations(ctx context.Context, userID uuid.UU
 			END as other_user_id,
 			u.name as other_user_name,
 			COALESCE(p.photo_url, '') as other_user_photo,
-			COALESCE(msg.content, '') as last_message,
-			COALESCE(msg.created_at, '1970-01-01'::timestamp) as last_message_time,
+			msg.content as last_message,
+			msg.created_at as last_message_time,
 			(SELECT COUNT(*) FROM message m2 
 			 WHERE m2.match_id = m.id AND m2.receiver_id = $1 AND m2.is_read = FALSE) as unread_count
 		FROM match m
@@ -121,7 +144,7 @@ func (r *MessageRepository) GetConversations(ctx context.Context, userID uuid.UU
 		LEFT JOIN LATERAL (
 			SELECT photo_url 
 			FROM user_photo 
-			WHERE user_id = u.id AND is_approved = TRUE
+			WHERE user_id = u.id 
 			ORDER BY display_order ASC 
 			LIMIT 1
 		) p ON true
@@ -132,22 +155,19 @@ func (r *MessageRepository) GetConversations(ctx context.Context, userID uuid.UU
 			ORDER BY created_at DESC 
 			LIMIT 1
 		) msg ON true
-		WHERE (m.user1_id = $1 OR m.user2_id = $1) 
-		  AND m.is_active = true`
+		WHERE (m.user1_id = $1 OR m.user2_id = $1)
+		  AND m.is_active = TRUE
+	`
 
 	args := []interface{}{userID}
-
-	// Добавляем частичный поиск по имени (case-insensitive)
 	if searchQuery != "" {
 		query += " AND u.name ILIKE $2"
 		args = append(args, "%"+searchQuery+"%")
 	}
 
 	query += `
-		ORDER BY CASE 
-			WHEN msg.created_at IS NULL THEN 1 
-			ELSE 0 
-		END, msg.created_at DESC`
+		ORDER BY msg.created_at DESC NULLS LAST
+	`
 
 	rows, err := r.pool.Query(ctx, query, args...)
 	if err != nil {
@@ -158,18 +178,22 @@ func (r *MessageRepository) GetConversations(ctx context.Context, userID uuid.UU
 	var conversations []domain.Conversation
 	for rows.Next() {
 		var conv domain.Conversation
+		var lastMessage *string
+		var lastMessageTime *time.Time
 
 		err := rows.Scan(
-			&conv.MatchID,
-			&conv.OtherUserID,
-			&conv.OtherUserName,
-			&conv.OtherUserPhoto,
-			&conv.LastMessage,
-			&conv.LastMessageTime,
-			&conv.UnreadCount,
+			&conv.MatchID, &conv.OtherUserID, &conv.OtherUserName, &conv.OtherUserPhoto,
+			&lastMessage, &lastMessageTime, &conv.UnreadCount,
 		)
 		if err != nil {
 			return nil, err
+		}
+
+		if lastMessage != nil {
+			conv.LastMessage = *lastMessage
+		}
+		if lastMessageTime != nil {
+			conv.LastMessageTime = *lastMessageTime
 		}
 
 		conversations = append(conversations, conv)

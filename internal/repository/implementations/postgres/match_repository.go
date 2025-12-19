@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 
@@ -30,12 +31,19 @@ func (r *MatchRepository) Create(ctx context.Context, match *domain.Match) error
 	}
 
 	query := `
-		INSERT INTO match (user1_id, user2_id, is_active)
-		VALUES ($1, $2, $3)
-		RETURNING matched_at`
+		INSERT INTO match (user1_id, user2_id, is_active, expires_at)
+		VALUES ($1, $2, $3, NOW() + INTERVAL '24 hours')
+		RETURNING id, matched_at, expires_at`
 
+	var expiresAt sql.NullTime
 	err := r.pool.QueryRow(ctx, query, user1ID, user2ID, match.IsActive).
-		Scan(&match.MatchedAt)
+		Scan(&match.ID, &match.MatchedAt, &expiresAt)
+	if err != nil {
+		return err
+	}
+	if expiresAt.Valid {
+		match.ExpiresAt = &expiresAt.Time
+	}
 
 	if err != nil {
 		return err
@@ -48,7 +56,7 @@ func (r *MatchRepository) Create(ctx context.Context, match *domain.Match) error
 
 func (r *MatchRepository) GetByID(ctx context.Context, matchID uuid.UUID) (*domain.Match, error) {
 	query := `
-		SELECT id, user1_id, user2_id, is_active, matched_at
+		SELECT id, user1_id, user2_id, is_active, matched_at, expires_at
 		FROM match
 		WHERE id = $1
 	`
@@ -60,6 +68,7 @@ func (r *MatchRepository) GetByID(ctx context.Context, matchID uuid.UUID) (*doma
 		&match.User2ID,
 		&match.IsActive,
 		&match.MatchedAt,
+		&match.ExpiresAt,
 	)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -78,11 +87,21 @@ func (r *MatchRepository) GetByUsers(ctx context.Context, user1ID, user2ID uuid.
 	}
 
 	var match domain.Match
-	query := `SELECT id, user1_id, user2_id, is_active, matched_at FROM match WHERE user1_id = $1 AND user2_id = $2`
+	query := `SELECT id, user1_id, user2_id, is_active, matched_at, expires_at FROM match WHERE user1_id = $1 AND user2_id = $2`
 
+	var expiresAt sql.NullTime
 	err := r.pool.QueryRow(ctx, query, user1ID, user2ID).Scan(
-		&match.ID, &match.User1ID, &match.User2ID, &match.IsActive, &match.MatchedAt,
+		&match.ID, &match.User1ID, &match.User2ID, &match.IsActive, &match.MatchedAt, &expiresAt,
 	)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	if expiresAt.Valid {
+		match.ExpiresAt = &expiresAt.Time
+	}
 
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -95,7 +114,7 @@ func (r *MatchRepository) GetByUsers(ctx context.Context, user1ID, user2ID uuid.
 
 func (r *MatchRepository) GetUserMatches(ctx context.Context, userID uuid.UUID, limit, offset int) ([]domain.Match, error) {
 	query := `
-        SELECT id, user1_id, user2_id, is_active, matched_at 
+        SELECT id, user1_id, user2_id, is_active, matched_at, expires_at
         FROM match 
         WHERE (user1_id = $1 OR user2_id = $1) 
         AND is_active = true
@@ -111,15 +130,20 @@ func (r *MatchRepository) GetUserMatches(ctx context.Context, userID uuid.UUID, 
 	var matches []domain.Match
 	for rows.Next() {
 		var match domain.Match
+		var expiresAt sql.NullTime
 		err := rows.Scan(
 			&match.ID,
 			&match.User1ID,
 			&match.User2ID,
 			&match.IsActive,
 			&match.MatchedAt,
+			&expiresAt,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan match: %w", err)
+		}
+		if expiresAt.Valid {
+			match.ExpiresAt = &expiresAt.Time
 		}
 		matches = append(matches, match)
 	}
@@ -162,7 +186,8 @@ func (r *MatchRepository) CheckMutualLike(ctx context.Context, user1ID, user2ID 
 			INNER JOIN swipe s2 ON s1.swiper_user_id = s2.target_user_id AND s1.target_user_id = s2.swiper_user_id
 			WHERE s1.swiper_user_id = $1 AND s1.target_user_id = $2
 			AND s2.swiper_user_id = $2 AND s2.target_user_id = $1
-			AND s1.swipe_type = 'like' AND s2.swipe_type = 'like'
+			AND s1.swipe_type IN ('like', 'super_like')
+			AND s2.swipe_type IN ('like', 'super_like')
 		)`
 
 	var exists bool
@@ -171,4 +196,36 @@ func (r *MatchRepository) CheckMutualLike(ctx context.Context, user1ID, user2ID 
 		return false, err
 	}
 	return exists, nil
+}
+
+// DeactivateExpiredMatches деактивирует мэтчи, у которых истекло 24-часовое окно
+func (r *MatchRepository) DeactivateExpiredMatches(ctx context.Context) ([]domain.Match, error) {
+	query := `
+		UPDATE match 
+		SET is_active = FALSE 
+		WHERE expires_at IS NOT NULL 
+		  AND expires_at < NOW() 
+		  AND is_active = TRUE
+		RETURNING id, user1_id, user2_id, is_active, matched_at, expires_at`
+
+	rows, err := r.pool.Query(ctx, query)
+	if err != nil {
+		return nil, fmt.Errorf("failed to deactivate expired matches: %w", err)
+	}
+	defer rows.Close()
+
+	var deactivatedMatches []domain.Match
+	for rows.Next() {
+		var match domain.Match
+		var expiresAt sql.NullTime
+		if err := rows.Scan(&match.ID, &match.User1ID, &match.User2ID, &match.IsActive, &match.MatchedAt, &expiresAt); err != nil {
+			return deactivatedMatches, fmt.Errorf("failed to scan match: %w", err)
+		}
+		if expiresAt.Valid {
+			match.ExpiresAt = &expiresAt.Time
+		}
+		deactivatedMatches = append(deactivatedMatches, match)
+	}
+
+	return deactivatedMatches, nil
 }

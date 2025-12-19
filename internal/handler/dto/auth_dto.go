@@ -1,5 +1,7 @@
 package dto
 
+//go:generate easyjson -all -no_std_marshalers auth_dto.go
+
 // RegisterRequest represents registration request
 // @Description Запрос для регистрации нового пользователя
 type RegisterRequest struct {

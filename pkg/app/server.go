@@ -48,8 +48,12 @@ func (a *App) setupPublicRoutes() {
 	a.server.POST("/api/login", a.handlers.Auth.Login)
 	a.server.GET("/api/session", a.handlers.Session.GetSession)
 
-	// WebSocket route (auth handled internally)
+	// WebSocket routes (auth handled internally)
 	a.server.GET("/ws/chat", a.handlers.WebSocket.HandleConnection)
+	a.server.GET("/ws/notifications", a.handlers.NotificationWS.HandleConnection)
+
+	// Payment webhook (no auth required, but signature is verified)
+	a.server.POST("/api/notificate_premium", a.handlers.Payment.HandleWebhook)
 }
 
 // Protected routes (require auth)
@@ -62,12 +66,15 @@ func (a *App) setupProtectedRoutes() {
 
 	// Profile endpoints
 	a.server.GET("/api/profile", a.handlers.Profile.GetProfile)
+	a.server.GET("/api/profile/{id}", a.handlers.Profile.GetProfileByID)
 	a.server.PUT("/api/profile/info", a.handlers.Profile.UpdateProfileInfo)
-	a.server.PUT("/api/profile/preference", a.handlers.Profile.UpdatePreferences)
+	a.server.PUT("/api/profile/preferences", a.handlers.Profile.UpdatePreferences)
 	a.server.PUT("/api/profile/interest", a.handlers.Profile.UpdateInterests)
 	a.server.PUT("/api/profile/photo/{id}", a.handlers.Profile.SetPrimaryPhoto)
 	a.server.DELETE("/api/profile/photo/{id}", a.handlers.Profile.DeletePhoto)
 	a.server.POST("/api/profile/photo", a.handlers.Profile.UploadPhotos)
+	a.server.PUT("/api/profile/password", a.handlers.Profile.ChangePassword)
+	a.server.DELETE("/api/profile", a.handlers.Profile.DeleteAccount)
 
 	// Feed endpoints
 	a.server.GET("/api/feed", a.handlers.Feed.GetFeed)
@@ -94,6 +101,13 @@ func (a *App) setupProtectedRoutes() {
 	a.server.GET("/api/strike/type/{type}", a.handlers.Strike.GetStrikesByType)
 	a.server.GET("/api/strike/range", a.handlers.Strike.GetStrikesByDateRange)
 	a.server.GET("/api/strike/user/{user_id}/stat", a.handlers.Strike.GetUserStrikeStats)
+
+	// Payment endpoints
+	a.server.POST("/api/payment/create", a.handlers.Payment.CreatePayment)
+
+	// Notification endpoints
+	a.server.GET("/api/notifications", a.handlers.Notification.GetNotifications)
+	a.server.PUT("/api/notifications/{notification_id}/read", a.handlers.Notification.MarkAsRead)
 }
 
 func (a *App) runServer() {

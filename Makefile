@@ -1,8 +1,8 @@
 #GOOS=linux
 #GOARCH=amd64
 
-run:
-	go run ./cmd/server/main.go
+run-gateway:
+	GOOS=linux GOARCH=amd64 go build -o ./.build/server ./cmd/server/main.go
 
 run-auth:
 	CONFIG_PATH=config/auth-config.yaml go run ./cmd/auth/main.go
@@ -12,6 +12,15 @@ run-core:
 
 run-chat:
 	CONFIG_PATH=config/chat-config.yaml go run ./cmd/chat/main.go
+
+# Запуск всех сервисов параллельно
+run:
+	@echo "Starting all services..."
+	@CONFIG_PATH=config/auth-config.yaml go run ./cmd/auth/main.go &
+	@CONFIG_PATH=config/core-config.yaml go run ./cmd/core/main.go &
+	@CONFIG_PATH=config/chat-config.yaml go run ./cmd/chat/main.go &
+	@echo "All services started in background"
+	@echo "Use 'pkill -f \"go run ./cmd\"' to stop all services"
 
 # Запуск всех тестов
 test:
@@ -26,93 +35,30 @@ test-coverage:
 	@echo ""
 	@echo "Generating coverage report..."
 	@go test ./... -coverprofile=coverage.out 2>&1 | grep -v "compile: version" | grep -v "no test files" > /dev/null
+	@echo "Filtering out generated files (easyjson, mocks)..."
+	@grep -v "_easyjson.go\|_mock.go\|_mocks.go\|mock_" coverage.out > coverage_filtered.out || true
+	@mv coverage_filtered.out coverage.out 2>/dev/null || true
 	@echo ""
 	@echo "=== TOTAL COVERAGE ==="
 	@go tool cover -func=coverage.out | grep total | awk '{printf "Total: %s\n", $$3}'
 	@echo ""
 	@echo "=== COVERAGE BY COMPONENT ==="
 	@echo "Repositories:"
-	@go tool cover -func=coverage.out | grep "repository/implementations" | awk '{sum+=$$NF; count++} END {if(count>0) printf "  %.1f%% (%d files)\n", sum/count, count; else print "  No coverage"}'
+	@go tool cover -func=coverage.out | grep "repository/implementations" | grep -v "_easyjson\|_mock" | awk '{sum+=$$NF; count++} END {if(count>0) printf "  %.1f%% (%d files)\n", sum/count, count; else print "  No coverage"}'
 	@echo "Services:"
-	@go tool cover -func=coverage.out | grep "service/implementations" | awk '{sum+=$$NF; count++} END {if(count>0) printf "  %.1f%% (%d files)\n", sum/count, count; else print "  No coverage"}'  
+	@go tool cover -func=coverage.out | grep "service/implementations" | grep -v "_easyjson\|_mock" | awk '{sum+=$$NF; count++} END {if(count>0) printf "  %.1f%% (%d files)\n", sum/count, count; else print "  No coverage"}'  
 	@echo "Middleware:"
-	@go tool cover -func=coverage.out | grep "handler/middleware" | awk '{sum+=$$NF; count++} END {if(count>0) printf "  %.1f%% (%d files)\n", sum/count, count; else print "  No coverage"}'
+	@go tool cover -func=coverage.out | grep "handler/middleware" | grep -v "_easyjson\|_mock" | awk '{sum+=$$NF; count++} END {if(count>0) printf "  %.1f%% (%d files)\n", sum/count, count; else print "  No coverage"}'
 	@echo "Converters:"
-	@go tool cover -func=coverage.out | grep "converters" | awk '{sum+=$$NF; count++} END {if(count>0) printf "  %.1f%% (%d files)\n", sum/count, count; else print "  No coverage"}'
+	@go tool cover -func=coverage.out | grep "converters" | grep -v "_easyjson\|_mock" | awk '{sum+=$$NF; count++} END {if(count>0) printf "  %.1f%% (%d files)\n", sum/count, count; else print "  No coverage"}'
 	@echo "Handlers:"
-	@go tool cover -func=coverage.out | grep "handler/http" | awk '{sum+=$$NF; count++} END {if(count>0) printf "  %.1f%% (%d files)\n", sum/count, count; else print "  No coverage"}'
+	@go tool cover -func=coverage.out | grep "handler/http" | grep -v "_easyjson\|_mock" | awk '{sum+=$$NF; count++} END {if(count>0) printf "  %.1f%% (%d files)\n", sum/count, count; else print "  No coverage"}'
 	@echo "Adapters:"
-	@go tool cover -func=coverage.out | grep "adapters" | awk '{sum+=$$NF; count++} END {if(count>0) printf "  %.1f%% (%d files)\n", sum/count, count; else print "  No coverage"}'
+	@go tool cover -func=coverage.out | grep "adapters" | grep -v "_easyjson\|_mock" | awk '{sum+=$$NF; count++} END {if(count>0) printf "  %.1f%% (%d files)\n", sum/count, count; else print "  No coverage"}'
 	@echo ""
 	@echo "Full report: coverage.out"
 	@echo "HTML report: go tool cover -html=coverage.out"
 
-# Test только Converters
-test-converters:
-	@echo "Running converter tests..."
-	@go test -v ./internal/core-service/converters/...
-	@go test -v ./internal/chat-service/converters/...
-	@go test -v ./internal/gateway/adapters/... -run TestCoreProto
-
-# Test с покрытием для Converters
-test-converters-coverage:
-	@echo "Running converter tests with coverage..."
-	@go test -cover ./internal/core-service/converters/...
-	@go test -cover ./internal/chat-service/converters/...
-	@go test -cover ./internal/gateway/adapters/... -run TestCoreProto
-	@echo "\nDetailed coverage:"
-	@go test -coverprofile=coverage-converters.out ./internal/core-service/converters/... ./internal/chat-service/converters/... ./internal/gateway/adapters/...
-	@go tool cover -func=coverage-converters.out | grep total
-
-# Test только Repository (БД)
-test-repository:
-	@echo "Running repository tests..."
-	@go test -v ./internal/repository/implementations/postgres/...
-	@go test -v ./internal/repository/implementations/redis/...
-	@go test -v ./internal/repository/implementations/minio/...
-
-# Test с покрытием для Repository
-test-repository-coverage:
-	@echo "Running repository tests with coverage..."
-	@go test -cover ./internal/repository/implementations/postgres/...
-	@go test -cover ./internal/repository/implementations/redis/...
-	@go test -cover ./internal/repository/implementations/minio/...
-	@echo "\nDetailed coverage:"
-	@go test -coverprofile=coverage-repository.out ./internal/repository/implementations/...
-	@go tool cover -func=coverage-repository.out | grep total
-
-# Test только Service (бизнес-логика)
-test-service:
-	@echo "Running service tests..."
-	@go test -v ./internal/service/implementations/...
-
-# Test с покрытием для Service
-test-service-coverage:
-	@echo "Running service tests with coverage..."
-	@go test -cover ./internal/service/implementations/...
-	@echo "\nDetailed coverage:"
-	@go test -coverprofile=coverage-service.out ./internal/service/implementations/...
-	@go tool cover -func=coverage-service.out | grep total
-
-# Test только Middleware
-test-middleware:
-	@echo "Running middleware tests..."
-	@go test ./internal/handler/middleware/... -v
-
-# Test Middleware с покрытием
-test-middleware-coverage:
-	@echo "Running middleware tests with coverage..."
-	@go test ./internal/handler/middleware/... -cover
-
-# Test только Handlers
-test-handler:
-	@echo "Running handler tests..."
-	@go test ./internal/handler/http/... -v
-
-# Test Handlers с покрытием
-test-handler-coverage:
-	@echo "Running handler tests with coverage..."
-	@go test ./internal/handler/http/... -cover
 
 build-docs:
 	swag init -g ./cmd/auth/main.go -o api/auth/
@@ -120,13 +66,13 @@ build-docs:
 	swag init -g ./cmd/chat/main.go -o api/chat/
 	swag init -g ./cmd/server/main.go -o api/server/
 
-build:
+build: generate
 	go build -o ./.build/auth ./cmd/auth/main.go
 	go build -o ./.build/core ./cmd/core/main.go
 	go build -o ./.build/chat ./cmd/chat/main.go
 	go build -o ./.build/server ./cmd/server/main.go
 
-build-bin:
+build-bin: generate
 	GOOS=linux GOARCH=amd64 go build -o ./.build/auth ./cmd/auth/main.go
 	GOOS=linux GOARCH=amd64 go build -o ./.build/core ./cmd/core/main.go
 	GOOS=linux GOARCH=amd64 go build -o ./.build/chat ./cmd/chat/main.go
@@ -150,12 +96,53 @@ proto-gen:
 		--go-grpc_out=. --go-grpc_opt=paths=source_relative \
 		proto/auth/auth.proto proto/core/core.proto proto/chat/chat.proto
 
+# Generate easyjson code for all DTO and domain entities
+generate:
+	@echo "Installing easyjson if not present..."
+	@which easyjson > /dev/null || go install github.com/mailru/easyjson/easyjson@latest
+	@echo "Generating easyjson code..."
+	@go generate ./internal/handler/dto/...
+	@go generate ./internal/domain/entities/...
+	@echo "Applying fixes for UserPreference MarshalEasyJSON (pointer method)..."
+	@if [ -f internal/domain/entities/user_preference_easyjson.go ]; then \
+		if grep -q "func (v UserPreference) MarshalEasyJSON" internal/domain/entities/user_preference_easyjson.go; then \
+			python3 -c "import re; f=open('internal/domain/entities/user_preference_easyjson.go', 'r'); content=f.read(); f.close(); content=re.sub(r'func \(v UserPreference\) MarshalEasyJSON\(w \*jwriter\.Writer\) \{\s+easyjson82fcc681EncodeGithubComGoParkMailRu20252RoadTo200BackendInternalDomainEntities\(w, v\)\s+\}', 'func (v *UserPreference) MarshalEasyJSON(w *jwriter.Writer) {\n\tif v == nil {\n\t\tw.RawString(\"null\")\n\t\treturn\n\t}\n\teasyjson82fcc681EncodeGithubComGoParkMailRu20252RoadTo200BackendInternalDomainEntities(w, *v)\n}', content, flags=re.MULTILINE|re.DOTALL); f=open('internal/domain/entities/user_preference_easyjson.go', 'w'); f.write(content); f.close()" 2>/dev/null || \
+			python -c "import re; f=open('internal/domain/entities/user_preference_easyjson.go', 'r'); content=f.read(); f.close(); content=re.sub(r'func \(v UserPreference\) MarshalEasyJSON\(w \*jwriter\.Writer\) \{\s+easyjson82fcc681EncodeGithubComGoParkMailRu20252RoadTo200BackendInternalDomainEntities\(w, v\)\s+\}', 'func (v *UserPreference) MarshalEasyJSON(w *jwriter.Writer) {\n\tif v == nil {\n\t\tw.RawString(\"null\")\n\t\treturn\n\t}\n\teasyjson82fcc681EncodeGithubComGoParkMailRu20252RoadTo200BackendInternalDomainEntities(w, *v)\n}', content, flags=re.MULTILINE|re.DOTALL); f=open('internal/domain/entities/user_preference_easyjson.go', 'w'); f.write(content); f.close()" 2>/dev/null || true; \
+		fi; \
+	fi
+	@echo "Easyjson generation complete!"
+
+# Generate mocks for all interfaces
+mocks:
+	@echo "Installing mockgen if not present..."
+	@which mockgen > /dev/null || go install go.uber.org/mock/mockgen@latest
+	@echo "Generating mocks..."
+	@mockgen -source=internal/repository/interfaces/user_repository.go -destination=tests/mocks/user_repository_mock.go -package=mocks
+	@mockgen -source=internal/repository/interfaces/subscription_repository.go -destination=tests/mocks/subscription_repository_mock.go -package=mocks
+	@mockgen -source=internal/repository/interfaces/match_repository.go -destination=tests/mocks/match_repository_mock.go -package=mocks
+	@mockgen -source=internal/repository/interfaces/message_repository.go -destination=tests/mocks/message_repository_mock.go -package=mocks
+	@mockgen -source=internal/repository/interfaces/session_repository.go -destination=tests/mocks/session_repository_mock.go -package=mocks
+	@mockgen -source=internal/repository/interfaces/strike_repository.go -destination=tests/mocks/strike_repository_mock.go -package=mocks
+	@mockgen -source=internal/repository/interfaces/swipe_repository.go -destination=tests/mocks/swipe_repository_mock.go -package=mocks
+	@mockgen -source=internal/repository/interfaces/notification_repository.go -destination=tests/mocks/notification_repository_mock.go -package=mocks
+	@mockgen -source=internal/service/interfaces/auth_service.go -destination=tests/mocks/auth_service_mock.go -package=mocks
+	@mockgen -source=internal/service/interfaces/chat_service.go -destination=tests/mocks/chat_service_mock.go -package=mocks
+	@mockgen -source=internal/service/interfaces/feed_service.go -destination=tests/mocks/feed_service_mock.go -package=mocks
+	@mockgen -source=internal/service/interfaces/match_service.go -destination=tests/mocks/match_service_mock.go -package=mocks
+	@mockgen -source=internal/service/interfaces/profile_service.go -destination=tests/mocks/profile_service_mock.go -package=mocks
+	@mockgen -source=internal/service/interfaces/strike_service.go -destination=tests/mocks/strike_service_mock.go -package=mocks
+	@mockgen -source=internal/service/interfaces/swipe_service.go -destination=tests/mocks/swipe_service_mock.go -package=mocks
+	@mockgen -source=internal/service/interfaces/notification_service.go -destination=tests/mocks/notification_service_mock.go -package=mocks
+	@mockgen -source=internal/service/interfaces/payment_service.go -destination=tests/mocks/payment_service_mock.go -package=mocks
+	@mockgen -source=proto/core/core_grpc.pb.go -destination=tests/mocks/core_grpc_client_mock.go -package=mocks
+	@echo "Mock generation complete!"
+
 .PHONY: run run-auth run-core run-chat test test-coverage \
 	test-converters test-converters-coverage \
 	test-repository test-repository-coverage \
 	test-service test-service-coverage \
 	test-middleware test-middleware-coverage \
 	test-handler test-handler-coverage \
-	build-docs build build-bin clean fmt tidy deploy proto-gen
+	build-docs build build-bin clean fmt tidy deploy proto-gen generate mocks
 down:
 	docker stop $(docker ps -q)

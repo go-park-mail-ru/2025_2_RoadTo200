@@ -108,6 +108,13 @@ func (s *MatchService) GetUserMatches(ctx context.Context, userID uuid.UUID, lim
 			continue
 		}
 
+		// Логируем expires_at для отладки
+		if match.ExpiresAt != nil {
+			s.logger.Debugf("Match %s expires_at: %v", match.ID, *match.ExpiresAt)
+		} else {
+			s.logger.Debugf("Match %s expires_at: null (active forever)", match.ID)
+		}
+
 		// Получаем фотографии для этого пользователя
 		photos := userPhotos[matchedUserID]
 

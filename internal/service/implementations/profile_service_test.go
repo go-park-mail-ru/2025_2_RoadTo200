@@ -21,10 +21,12 @@ func TestProfileService_GetProfile_Success(t *testing.T) {
 	mockUserRepo := mocks.NewMockUserRepository(ctrl)
 	mockPhotoRepo := mocks.NewMockUserPhotoRepository(ctrl)
 	mockPrefRepo := mocks.NewMockUserPreferenceRepository(ctrl)
+	mockSwipeRepo := mocks.NewMockSwipeRepository(ctrl)
+	mockMatchRepo := mocks.NewMockMatchRepository(ctrl)
 	mockFileStorage := mocks.NewMockFileStorage(ctrl)
 	mockLogger := mocks.NewMockLogger()
 
-	service := NewProfileService(mockUserRepo, mockPhotoRepo, mockPrefRepo, mockFileStorage, mockLogger)
+	service := NewProfileService(mockUserRepo, mockPhotoRepo, mockPrefRepo, mockSwipeRepo, mockMatchRepo, mockFileStorage, mockLogger)
 
 	ctx := context.Background()
 	userID := uuid.New()
@@ -102,10 +104,12 @@ func TestProfileService_GetProfile_UserNotFound(t *testing.T) {
 	mockUserRepo := mocks.NewMockUserRepository(ctrl)
 	mockPhotoRepo := mocks.NewMockUserPhotoRepository(ctrl)
 	mockPrefRepo := mocks.NewMockUserPreferenceRepository(ctrl)
+	mockSwipeRepo := mocks.NewMockSwipeRepository(ctrl)
+	mockMatchRepo := mocks.NewMockMatchRepository(ctrl)
 	mockFileStorage := mocks.NewMockFileStorage(ctrl)
 	mockLogger := mocks.NewMockLogger()
 
-	service := NewProfileService(mockUserRepo, mockPhotoRepo, mockPrefRepo, mockFileStorage, mockLogger)
+	service := NewProfileService(mockUserRepo, mockPhotoRepo, mockPrefRepo, mockSwipeRepo, mockMatchRepo, mockFileStorage, mockLogger)
 
 	ctx := context.Background()
 	userID := uuid.New()
@@ -131,10 +135,12 @@ func TestProfileService_UpdateProfileInfo_Success(t *testing.T) {
 	mockUserRepo := mocks.NewMockUserRepository(ctrl)
 	mockPhotoRepo := mocks.NewMockUserPhotoRepository(ctrl)
 	mockPrefRepo := mocks.NewMockUserPreferenceRepository(ctrl)
+	mockSwipeRepo := mocks.NewMockSwipeRepository(ctrl)
+	mockMatchRepo := mocks.NewMockMatchRepository(ctrl)
 	mockFileStorage := mocks.NewMockFileStorage(ctrl)
 	mockLogger := mocks.NewMockLogger()
 
-	service := NewProfileService(mockUserRepo, mockPhotoRepo, mockPrefRepo, mockFileStorage, mockLogger)
+	service := NewProfileService(mockUserRepo, mockPhotoRepo, mockPrefRepo, mockSwipeRepo, mockMatchRepo, mockFileStorage, mockLogger)
 
 	ctx := context.Background()
 	userID := uuid.New()
@@ -174,10 +180,12 @@ func TestProfileService_UpdateInterests_Success(t *testing.T) {
 	mockUserRepo := mocks.NewMockUserRepository(ctrl)
 	mockPhotoRepo := mocks.NewMockUserPhotoRepository(ctrl)
 	mockPrefRepo := mocks.NewMockUserPreferenceRepository(ctrl)
+	mockSwipeRepo := mocks.NewMockSwipeRepository(ctrl)
+	mockMatchRepo := mocks.NewMockMatchRepository(ctrl)
 	mockFileStorage := mocks.NewMockFileStorage(ctrl)
 	mockLogger := mocks.NewMockLogger()
 
-	service := NewProfileService(mockUserRepo, mockPhotoRepo, mockPrefRepo, mockFileStorage, mockLogger)
+	service := NewProfileService(mockUserRepo, mockPhotoRepo, mockPrefRepo, mockSwipeRepo, mockMatchRepo, mockFileStorage, mockLogger)
 
 	ctx := context.Background()
 	userID := uuid.New()
@@ -213,10 +221,12 @@ func TestProfileService_DeletePhoto_Success(t *testing.T) {
 	mockUserRepo := mocks.NewMockUserRepository(ctrl)
 	mockPhotoRepo := mocks.NewMockUserPhotoRepository(ctrl)
 	mockPrefRepo := mocks.NewMockUserPreferenceRepository(ctrl)
+	mockSwipeRepo := mocks.NewMockSwipeRepository(ctrl)
+	mockMatchRepo := mocks.NewMockMatchRepository(ctrl)
 	mockFileStorage := mocks.NewMockFileStorage(ctrl)
 	mockLogger := mocks.NewMockLogger()
 
-	service := NewProfileService(mockUserRepo, mockPhotoRepo, mockPrefRepo, mockFileStorage, mockLogger)
+	service := NewProfileService(mockUserRepo, mockPhotoRepo, mockPrefRepo, mockSwipeRepo, mockMatchRepo, mockFileStorage, mockLogger)
 
 	ctx := context.Background()
 	userID := uuid.New()
@@ -263,10 +273,12 @@ func TestProfileService_DeletePhoto_PhotoNotFound(t *testing.T) {
 	mockUserRepo := mocks.NewMockUserRepository(ctrl)
 	mockPhotoRepo := mocks.NewMockUserPhotoRepository(ctrl)
 	mockPrefRepo := mocks.NewMockUserPreferenceRepository(ctrl)
+	mockSwipeRepo := mocks.NewMockSwipeRepository(ctrl)
+	mockMatchRepo := mocks.NewMockMatchRepository(ctrl)
 	mockFileStorage := mocks.NewMockFileStorage(ctrl)
 	mockLogger := mocks.NewMockLogger()
 
-	service := NewProfileService(mockUserRepo, mockPhotoRepo, mockPrefRepo, mockFileStorage, mockLogger)
+	service := NewProfileService(mockUserRepo, mockPhotoRepo, mockPrefRepo, mockSwipeRepo, mockMatchRepo, mockFileStorage, mockLogger)
 
 	ctx := context.Background()
 	userID := uuid.New()
@@ -292,18 +304,19 @@ func TestProfileService_UpdatePreferences_Success(t *testing.T) {
 	mockUserRepo := mocks.NewMockUserRepository(ctrl)
 	mockPhotoRepo := mocks.NewMockUserPhotoRepository(ctrl)
 	mockPrefRepo := mocks.NewMockUserPreferenceRepository(ctrl)
+	mockSwipeRepo := mocks.NewMockSwipeRepository(ctrl)
+	mockMatchRepo := mocks.NewMockMatchRepository(ctrl)
 	mockFileStorage := mocks.NewMockFileStorage(ctrl)
 	mockLogger := mocks.NewMockLogger()
 
-	service := NewProfileService(mockUserRepo, mockPhotoRepo, mockPrefRepo, mockFileStorage, mockLogger)
+	service := NewProfileService(mockUserRepo, mockPhotoRepo, mockPrefRepo, mockSwipeRepo, mockMatchRepo, mockFileStorage, mockLogger)
 
 	ctx := context.Background()
 	userID := uuid.New()
 
 	updateData := &domain.PreferencesUpdateRequest{
-		AgeMin:      18,
-		AgeMax:      35,
-		MaxDistance: 50,
+		AgeMin: 18,
+		AgeMax: 35,
 	}
 
 	// Expectations

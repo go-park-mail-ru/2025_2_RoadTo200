@@ -11,25 +11,24 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/pashagolub/pgxmock/v4"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestSubscriptionRepository_Create(t *testing.T) {
 	mock, err := pgxmock.NewPool()
-	require.NoError(t, err)
+	assert.NoError(t, err)
 	defer mock.Close()
 
 	repo := NewSubscriptionRepository(mock)
 
 	subscription := &domain.Subscription{
 		UserID:    uuid.New(),
-		PlanType:  constants.PlanTypePremium,
+		PlanType:  constants.PlanTypeMonth,
 		StartDate: time.Now(),
 		EndDate:   time.Now().AddDate(0, 1, 0), // 1 month later
 		IsActive:  true,
 	}
 
-	mock.ExpectExec("INSERT INTO subscription").
+	mock.ExpectExec(`INSERT INTO subscription`).
 		WithArgs(
 			subscription.UserID, subscription.PlanType, subscription.StartDate,
 			subscription.EndDate, subscription.IsActive,
@@ -43,20 +42,20 @@ func TestSubscriptionRepository_Create(t *testing.T) {
 
 func TestSubscriptionRepository_Create_Error(t *testing.T) {
 	mock, err := pgxmock.NewPool()
-	require.NoError(t, err)
+	assert.NoError(t, err)
 	defer mock.Close()
 
 	repo := NewSubscriptionRepository(mock)
 
 	subscription := &domain.Subscription{
 		UserID:    uuid.New(),
-		PlanType:  constants.PlanTypePremium,
+		PlanType:  constants.PlanTypeMonth,
 		StartDate: time.Now(),
 		EndDate:   time.Now().AddDate(0, 1, 0),
 		IsActive:  true,
 	}
 
-	mock.ExpectExec("INSERT INTO subscription").
+	mock.ExpectExec(`INSERT INTO subscription`).
 		WithArgs(
 			subscription.UserID, subscription.PlanType, subscription.StartDate,
 			subscription.EndDate, subscription.IsActive,
@@ -70,7 +69,7 @@ func TestSubscriptionRepository_Create_Error(t *testing.T) {
 
 func TestSubscriptionRepository_GetByUserID(t *testing.T) {
 	mock, err := pgxmock.NewPool()
-	require.NoError(t, err)
+	assert.NoError(t, err)
 	defer mock.Close()
 
 	repo := NewSubscriptionRepository(mock)
@@ -78,7 +77,7 @@ func TestSubscriptionRepository_GetByUserID(t *testing.T) {
 	userID := uuid.New()
 	expectedSubscription := &domain.Subscription{
 		UserID:    userID,
-		PlanType:  constants.PlanTypePremium,
+		PlanType:  constants.PlanTypeMonth,
 		StartDate: time.Now().AddDate(0, -1, 0), // Started 1 month ago
 		EndDate:   time.Now().AddDate(0, 0, 15), // Ends in 15 days
 		IsActive:  true,
@@ -106,7 +105,7 @@ func TestSubscriptionRepository_GetByUserID(t *testing.T) {
 
 func TestSubscriptionRepository_GetByUserID_NotFound(t *testing.T) {
 	mock, err := pgxmock.NewPool()
-	require.NoError(t, err)
+	assert.NoError(t, err)
 	defer mock.Close()
 
 	repo := NewSubscriptionRepository(mock)
@@ -125,7 +124,7 @@ func TestSubscriptionRepository_GetByUserID_NotFound(t *testing.T) {
 
 func TestSubscriptionRepository_GetByUserID_Error(t *testing.T) {
 	mock, err := pgxmock.NewPool()
-	require.NoError(t, err)
+	assert.NoError(t, err)
 	defer mock.Close()
 
 	repo := NewSubscriptionRepository(mock)
@@ -144,14 +143,14 @@ func TestSubscriptionRepository_GetByUserID_Error(t *testing.T) {
 
 func TestSubscriptionRepository_Update(t *testing.T) {
 	mock, err := pgxmock.NewPool()
-	require.NoError(t, err)
+	assert.NoError(t, err)
 	defer mock.Close()
 
 	repo := NewSubscriptionRepository(mock)
 
 	subscription := &domain.Subscription{
 		UserID:    uuid.New(),
-		PlanType:  constants.PlanTypePremium,
+		PlanType:  constants.PlanTypeMonth,
 		StartDate: time.Now(),
 		EndDate:   time.Now().AddDate(0, 2, 0), // 2 months later
 		IsActive:  false,
@@ -171,14 +170,14 @@ func TestSubscriptionRepository_Update(t *testing.T) {
 
 func TestSubscriptionRepository_Update_Error(t *testing.T) {
 	mock, err := pgxmock.NewPool()
-	require.NoError(t, err)
+	assert.NoError(t, err)
 	defer mock.Close()
 
 	repo := NewSubscriptionRepository(mock)
 
 	subscription := &domain.Subscription{
 		UserID:    uuid.New(),
-		PlanType:  constants.PlanTypePremium,
+		PlanType:  constants.PlanTypeMonth,
 		StartDate: time.Now(),
 		EndDate:   time.Now().AddDate(0, 2, 0),
 		IsActive:  false,
@@ -198,7 +197,7 @@ func TestSubscriptionRepository_Update_Error(t *testing.T) {
 
 func TestSubscriptionRepository_Delete(t *testing.T) {
 	mock, err := pgxmock.NewPool()
-	require.NoError(t, err)
+	assert.NoError(t, err)
 	defer mock.Close()
 
 	repo := NewSubscriptionRepository(mock)
@@ -216,7 +215,7 @@ func TestSubscriptionRepository_Delete(t *testing.T) {
 
 func TestSubscriptionRepository_Delete_Error(t *testing.T) {
 	mock, err := pgxmock.NewPool()
-	require.NoError(t, err)
+	assert.NoError(t, err)
 	defer mock.Close()
 
 	repo := NewSubscriptionRepository(mock)
@@ -234,7 +233,7 @@ func TestSubscriptionRepository_Delete_Error(t *testing.T) {
 
 func TestSubscriptionRepository_GetActiveSubscription(t *testing.T) {
 	mock, err := pgxmock.NewPool()
-	require.NoError(t, err)
+	assert.NoError(t, err)
 	defer mock.Close()
 
 	repo := NewSubscriptionRepository(mock)
@@ -243,7 +242,7 @@ func TestSubscriptionRepository_GetActiveSubscription(t *testing.T) {
 	currentTime := time.Now()
 	expectedSubscription := &domain.Subscription{
 		UserID:    userID,
-		PlanType:  constants.PlanTypePremium,
+		PlanType:  constants.PlanTypeMonth,
 		StartDate: currentTime.AddDate(0, -1, 0),
 		EndDate:   currentTime.AddDate(0, 0, 15), // Active for 15 more days
 		IsActive:  true,
@@ -272,7 +271,7 @@ func TestSubscriptionRepository_GetActiveSubscription(t *testing.T) {
 
 func TestSubscriptionRepository_GetActiveSubscription_NotFound(t *testing.T) {
 	mock, err := pgxmock.NewPool()
-	require.NoError(t, err)
+	assert.NoError(t, err)
 	defer mock.Close()
 
 	repo := NewSubscriptionRepository(mock)
@@ -291,7 +290,7 @@ func TestSubscriptionRepository_GetActiveSubscription_NotFound(t *testing.T) {
 
 func TestSubscriptionRepository_GetActiveSubscription_Expired(t *testing.T) {
 	mock, err := pgxmock.NewPool()
-	require.NoError(t, err)
+	assert.NoError(t, err)
 	defer mock.Close()
 
 	repo := NewSubscriptionRepository(mock)
@@ -311,7 +310,7 @@ func TestSubscriptionRepository_GetActiveSubscription_Expired(t *testing.T) {
 
 func TestSubscriptionRepository_GetActiveSubscription_Inactive(t *testing.T) {
 	mock, err := pgxmock.NewPool()
-	require.NoError(t, err)
+	assert.NoError(t, err)
 	defer mock.Close()
 
 	repo := NewSubscriptionRepository(mock)
@@ -331,7 +330,7 @@ func TestSubscriptionRepository_GetActiveSubscription_Inactive(t *testing.T) {
 
 func TestSubscriptionRepository_GetActiveSubscription_Error(t *testing.T) {
 	mock, err := pgxmock.NewPool()
-	require.NoError(t, err)
+	assert.NoError(t, err)
 	defer mock.Close()
 
 	repo := NewSubscriptionRepository(mock)
@@ -350,7 +349,7 @@ func TestSubscriptionRepository_GetActiveSubscription_Error(t *testing.T) {
 
 func TestSubscriptionRepository_Integration_CRUD(t *testing.T) {
 	mock, err := pgxmock.NewPool()
-	require.NoError(t, err)
+	assert.NoError(t, err)
 	defer mock.Close()
 
 	repo := NewSubscriptionRepository(mock)
@@ -360,7 +359,7 @@ func TestSubscriptionRepository_Integration_CRUD(t *testing.T) {
 	// Test Create
 	subscription := &domain.Subscription{
 		UserID:    userID,
-		PlanType:  constants.PlanTypePremium,
+		PlanType:  constants.PlanTypeMonth,
 		StartDate: time.Now(),
 		EndDate:   time.Now().AddDate(0, 1, 0),
 		IsActive:  true,
@@ -379,7 +378,7 @@ func TestSubscriptionRepository_Integration_CRUD(t *testing.T) {
 	// Test GetByUserID
 	expectedSubscription := &domain.Subscription{
 		UserID:    userID,
-		PlanType:  constants.PlanTypePremium,
+		PlanType:  constants.PlanTypeMonth,
 		StartDate: subscription.StartDate,
 		EndDate:   subscription.EndDate,
 		IsActive:  true,
@@ -404,7 +403,7 @@ func TestSubscriptionRepository_Integration_CRUD(t *testing.T) {
 	// Test Update
 	updatedSubscription := &domain.Subscription{
 		UserID:    userID,
-		PlanType:  constants.PlanTypePremium,
+		PlanType:  constants.PlanTypeMonth,
 		StartDate: time.Now(),
 		EndDate:   time.Now().AddDate(0, 2, 0),
 		IsActive:  false,

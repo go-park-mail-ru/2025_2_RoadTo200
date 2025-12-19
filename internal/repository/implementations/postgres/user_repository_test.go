@@ -30,17 +30,19 @@ func TestUserRepository_Create(t *testing.T) {
 	quote := "Test Quote"
 
 	user := &domain.User{
-		Email:      "test@example.com",
-		Phone:      &phone,
-		Name:       "Test User",
-		Password:   "hashed_password",
-		BirthDate:  time.Now().Add(-20 * 365 * 24 * time.Hour),
-		Gender:     constants.GenderMale,
-		Bio:        &bio,
-		City:       &city,
-		Artist:     &artist,
-		Quote:      &quote,
-		IsVerified: false,
+		Email:            "test@example.com",
+		Phone:            &phone,
+		Name:             "Test User",
+		Password:         "hashed_password",
+		BirthDate:        time.Now().Add(-20 * 365 * 24 * time.Hour),
+		Gender:           constants.GenderMale,
+		Bio:              &bio,
+		City:             &city,
+		Artist:           &artist,
+		Quote:            &quote,
+		IsVerified:       false,
+		IsPremium:        false,
+		SuperLikesCount:  0,
 	}
 
 	rows := mock.NewRows([]string{"id", "created_at", "updated_at", "last_active"}).
@@ -50,6 +52,7 @@ func TestUserRepository_Create(t *testing.T) {
 		WithArgs(
 			user.Email, user.Phone, user.Name, user.Password, user.BirthDate,
 			user.Gender, user.Bio, user.City, user.Artist, user.Quote, user.IsVerified,
+			user.IsPremium, user.SuperLikesCount,
 		).
 		WillReturnRows(rows)
 
@@ -74,23 +77,26 @@ func TestUserRepository_Create_Error(t *testing.T) {
 	quote := "Test Quote"
 
 	user := &domain.User{
-		Email:      "test@example.com",
-		Phone:      &phone,
-		Name:       "Test User",
-		Password:   "hashed_password",
-		BirthDate:  time.Now().Add(-20 * 365 * 24 * time.Hour),
-		Gender:     constants.GenderMale,
-		Bio:        &bio,
-		City:       &city,
-		Artist:     &artist,
-		Quote:      &quote,
-		IsVerified: false,
+		Email:            "test@example.com",
+		Phone:            &phone,
+		Name:             "Test User",
+		Password:         "hashed_password",
+		BirthDate:        time.Now().Add(-20 * 365 * 24 * time.Hour),
+		Gender:           constants.GenderMale,
+		Bio:              &bio,
+		City:             &city,
+		Artist:           &artist,
+		Quote:            &quote,
+		IsVerified:       false,
+		IsPremium:        false,
+		SuperLikesCount:  0,
 	}
 
 	mock.ExpectQuery("INSERT INTO \"user\"").
 		WithArgs(
 			user.Email, user.Phone, user.Name, user.Password, user.BirthDate,
 			user.Gender, user.Bio, user.City, user.Artist, user.Quote, user.IsVerified,
+			user.IsPremium, user.SuperLikesCount,
 		).
 		WillReturnError(pgx.ErrTxClosed)
 
@@ -115,34 +121,36 @@ func TestUserRepository_GetByID(t *testing.T) {
 	quote := "Test Quote"
 
 	expectedUser := &domain.User{
-		ID:         userID,
-		Email:      "test@example.com",
-		Phone:      &phone,
-		Name:       "Test User",
-		Password:   "hashed_password",
-		BirthDate:  time.Now().Add(-20 * 365 * 24 * time.Hour),
-		Gender:     constants.GenderMale,
-		Bio:        &bio,
-		City:       &city,
-		Artist:     &artist,
-		Quote:      &quote,
-		IsVerified: true,
-		LastActive: time.Now(),
-		CreatedAt:  time.Now(),
-		UpdatedAt:  time.Now(),
+		ID:               userID,
+		Email:            "test@example.com",
+		Phone:            &phone,
+		Name:             "Test User",
+		Password:         "hashed_password",
+		BirthDate:        time.Now().Add(-20 * 365 * 24 * time.Hour),
+		Gender:           constants.GenderMale,
+		Bio:              &bio,
+		City:             &city,
+		Artist:           &artist,
+		Quote:            &quote,
+		IsVerified:       true,
+		IsPremium:        false,
+		SuperLikesCount:  0,
+		LastActive:       time.Now(),
+		CreatedAt:        time.Now(),
+		UpdatedAt:        time.Now(),
 	}
 
 	rows := mock.NewRows([]string{
 		"id", "email", "phone", "name", "password", "birth_date", "gender",
-		"bio", "city", "artist", "quote", "is_verified", "last_active", "created_at", "updated_at",
+		"bio", "city", "artist", "quote", "is_verified", "is_premium", "super_likes_count", "last_active", "created_at", "updated_at",
 	}).AddRow(
 		expectedUser.ID, expectedUser.Email, expectedUser.Phone, expectedUser.Name,
 		expectedUser.Password, expectedUser.BirthDate, expectedUser.Gender, expectedUser.Bio,
 		expectedUser.City, expectedUser.Artist, expectedUser.Quote, expectedUser.IsVerified,
-		expectedUser.LastActive, expectedUser.CreatedAt, expectedUser.UpdatedAt,
+		expectedUser.IsPremium, expectedUser.SuperLikesCount, expectedUser.LastActive, expectedUser.CreatedAt, expectedUser.UpdatedAt,
 	)
 
-	mock.ExpectQuery("SELECT id, email, phone, name, password, birth_date, gender, bio, city, artist, quote, is_verified, last_active, created_at, updated_at FROM \"user\" WHERE id = \\$1").
+	mock.ExpectQuery("SELECT id, email, phone, name, password, birth_date, gender, bio, city, artist, quote, is_verified, is_premium, super_likes_count, last_active, created_at, updated_at FROM \"user\" WHERE id = \\$1").
 		WithArgs(userID).
 		WillReturnRows(rows)
 
@@ -168,7 +176,7 @@ func TestUserRepository_GetByID_NotFound(t *testing.T) {
 
 	userID := uuid.New()
 
-	mock.ExpectQuery("SELECT id, email, phone, name, password, birth_date, gender, bio, city, artist, quote, is_verified, last_active, created_at, updated_at FROM \"user\" WHERE id = \\$1").
+	mock.ExpectQuery("SELECT id, email, phone, name, password, birth_date, gender, bio, city, artist, quote, is_verified, is_premium, super_likes_count, last_active, created_at, updated_at FROM \"user\" WHERE id = \\$1").
 		WithArgs(userID).
 		WillReturnError(pgx.ErrNoRows)
 
@@ -188,7 +196,7 @@ func TestUserRepository_GetByID_Error(t *testing.T) {
 
 	userID := uuid.New()
 
-	mock.ExpectQuery("SELECT id, email, phone, name, password, birth_date, gender, bio, city, artist, quote, is_verified, last_active, created_at, updated_at FROM \"user\" WHERE id = \\$1").
+	mock.ExpectQuery("SELECT id, email, phone, name, password, birth_date, gender, bio, city, artist, quote, is_verified, is_premium, super_likes_count, last_active, created_at, updated_at FROM \"user\" WHERE id = \\$1").
 		WithArgs(userID).
 		WillReturnError(pgx.ErrTxClosed)
 
@@ -215,34 +223,36 @@ func TestUserRepository_GetByEmail(t *testing.T) {
 	email := "test@example.com"
 
 	expectedUser := &domain.User{
-		ID:         userID,
-		Email:      email,
-		Phone:      &phone,
-		Name:       "Test User",
-		Password:   "hashed_password",
-		BirthDate:  time.Now().Add(-20 * 365 * 24 * time.Hour),
-		Gender:     constants.GenderMale,
-		Bio:        &bio,
-		City:       &city,
-		Artist:     &artist,
-		Quote:      &quote,
-		IsVerified: true,
-		LastActive: time.Now(),
-		CreatedAt:  time.Now(),
-		UpdatedAt:  time.Now(),
+		ID:               userID,
+		Email:            email,
+		Phone:            &phone,
+		Name:             "Test User",
+		Password:         "hashed_password",
+		BirthDate:        time.Now().Add(-20 * 365 * 24 * time.Hour),
+		Gender:           constants.GenderMale,
+		Bio:              &bio,
+		City:             &city,
+		Artist:           &artist,
+		Quote:            &quote,
+		IsVerified:       true,
+		IsPremium:        false,
+		SuperLikesCount:  0,
+		LastActive:       time.Now(),
+		CreatedAt:        time.Now(),
+		UpdatedAt:        time.Now(),
 	}
 
 	rows := mock.NewRows([]string{
 		"id", "email", "phone", "name", "password", "birth_date", "gender",
-		"bio", "city", "artist", "quote", "is_verified", "last_active", "created_at", "updated_at",
+		"bio", "city", "artist", "quote", "is_verified", "is_premium", "super_likes_count", "last_active", "created_at", "updated_at",
 	}).AddRow(
 		expectedUser.ID, expectedUser.Email, expectedUser.Phone, expectedUser.Name,
 		expectedUser.Password, expectedUser.BirthDate, expectedUser.Gender, expectedUser.Bio,
 		expectedUser.City, expectedUser.Artist, expectedUser.Quote, expectedUser.IsVerified,
-		expectedUser.LastActive, expectedUser.CreatedAt, expectedUser.UpdatedAt,
+		expectedUser.IsPremium, expectedUser.SuperLikesCount, expectedUser.LastActive, expectedUser.CreatedAt, expectedUser.UpdatedAt,
 	)
 
-	mock.ExpectQuery("SELECT id, email, phone, name, password, birth_date, gender, bio, city, artist, quote, is_verified, last_active, created_at, updated_at FROM \"user\" WHERE email = \\$1").
+	mock.ExpectQuery("SELECT id, email, phone, name, password, birth_date, gender, bio, city, artist, quote, is_verified, is_premium, super_likes_count, last_active, created_at, updated_at FROM \"user\" WHERE email = \\$1").
 		WithArgs(email).
 		WillReturnRows(rows)
 
@@ -264,7 +274,7 @@ func TestUserRepository_GetByEmail_NotFound(t *testing.T) {
 
 	email := "test@example.com"
 
-	mock.ExpectQuery("SELECT id, email, phone, name, password, birth_date, gender, bio, city, artist, quote, is_verified, last_active, created_at, updated_at FROM \"user\" WHERE email = \\$1").
+	mock.ExpectQuery("SELECT id, email, phone, name, password, birth_date, gender, bio, city, artist, quote, is_verified, is_premium, super_likes_count, last_active, created_at, updated_at FROM \"user\" WHERE email = \\$1").
 		WithArgs(email).
 		WillReturnError(pgx.ErrNoRows)
 
@@ -290,34 +300,36 @@ func TestUserRepository_GetByPhone(t *testing.T) {
 	quote := "Test Quote"
 
 	expectedUser := &domain.User{
-		ID:         userID,
-		Email:      "test@example.com",
-		Phone:      &phone,
-		Name:       "Test User",
-		Password:   "hashed_password",
-		BirthDate:  time.Now().Add(-20 * 365 * 24 * time.Hour),
-		Gender:     constants.GenderMale,
-		Bio:        &bio,
-		City:       &city,
-		Artist:     &artist,
-		Quote:      &quote,
-		IsVerified: true,
-		LastActive: time.Now(),
-		CreatedAt:  time.Now(),
-		UpdatedAt:  time.Now(),
+		ID:               userID,
+		Email:            "test@example.com",
+		Phone:            &phone,
+		Name:             "Test User",
+		Password:         "hashed_password",
+		BirthDate:        time.Now().Add(-20 * 365 * 24 * time.Hour),
+		Gender:           constants.GenderMale,
+		Bio:              &bio,
+		City:             &city,
+		Artist:           &artist,
+		Quote:            &quote,
+		IsVerified:       true,
+		IsPremium:        false,
+		SuperLikesCount:  0,
+		LastActive:       time.Now(),
+		CreatedAt:        time.Now(),
+		UpdatedAt:        time.Now(),
 	}
 
 	rows := mock.NewRows([]string{
 		"id", "email", "phone", "name", "password", "birth_date", "gender",
-		"bio", "city", "artist", "quote", "is_verified", "last_active", "created_at", "updated_at",
+		"bio", "city", "artist", "quote", "is_verified", "is_premium", "super_likes_count", "last_active", "created_at", "updated_at",
 	}).AddRow(
 		expectedUser.ID, expectedUser.Email, expectedUser.Phone, expectedUser.Name,
 		expectedUser.Password, expectedUser.BirthDate, expectedUser.Gender, expectedUser.Bio,
 		expectedUser.City, expectedUser.Artist, expectedUser.Quote, expectedUser.IsVerified,
-		expectedUser.LastActive, expectedUser.CreatedAt, expectedUser.UpdatedAt,
+		expectedUser.IsPremium, expectedUser.SuperLikesCount, expectedUser.LastActive, expectedUser.CreatedAt, expectedUser.UpdatedAt,
 	)
 
-	mock.ExpectQuery("SELECT \\* FROM \"user\" WHERE phone = \\$1").
+	mock.ExpectQuery("SELECT id, email, phone, name, password, birth_date, gender, bio, city, artist, quote, is_verified, is_premium, super_likes_count, last_active, created_at, updated_at FROM \"user\" WHERE phone = \\$1").
 		WithArgs(phone).
 		WillReturnRows(rows)
 
@@ -339,7 +351,7 @@ func TestUserRepository_GetByPhone_NotFound(t *testing.T) {
 
 	phone := "+1234567890"
 
-	mock.ExpectQuery("SELECT \\* FROM \"user\" WHERE phone = \\$1").
+	mock.ExpectQuery("SELECT id, email, phone, name, password, birth_date, gender, bio, city, artist, quote, is_verified, is_premium, super_likes_count, last_active, created_at, updated_at FROM \"user\" WHERE phone = \\$1").
 		WithArgs(phone).
 		WillReturnError(pgx.ErrNoRows)
 
@@ -364,18 +376,20 @@ func TestUserRepository_Update(t *testing.T) {
 	quote := "Updated Quote"
 
 	user := &domain.User{
-		ID:         uuid.New(),
-		Email:      "updated@example.com",
-		Phone:      &phone,
-		Name:       "Updated User",
-		Password:   "new_hashed_password",
-		BirthDate:  time.Now().Add(-25 * 365 * 24 * time.Hour),
-		Gender:     constants.GenderFemale,
-		Bio:        &bio,
-		City:       &city,
-		Artist:     &artist,
-		Quote:      &quote,
-		IsVerified: true,
+		ID:               uuid.New(),
+		Email:            "updated@example.com",
+		Phone:            &phone,
+		Name:             "Updated User",
+		Password:         "new_hashed_password",
+		BirthDate:        time.Now().Add(-25 * 365 * 24 * time.Hour),
+		Gender:           constants.GenderFemale,
+		Bio:              &bio,
+		City:             &city,
+		Artist:           &artist,
+		Quote:            &quote,
+		IsVerified:       true,
+		IsPremium:        false,
+		SuperLikesCount:  0,
 	}
 
 	rows := mock.NewRows([]string{"updated_at"}).AddRow(time.Now())
@@ -383,7 +397,8 @@ func TestUserRepository_Update(t *testing.T) {
 	mock.ExpectQuery("UPDATE \"user\"").
 		WithArgs(
 			user.Email, user.Phone, user.Name, user.Password, user.BirthDate,
-			user.Gender, user.Bio, user.City, user.Artist, user.Quote, user.IsVerified, user.ID,
+			user.Gender, user.Bio, user.City, user.Artist, user.Quote, user.IsVerified,
+			user.IsPremium, user.SuperLikesCount, user.ID,
 		).
 		WillReturnRows(rows)
 
@@ -408,24 +423,27 @@ func TestUserRepository_Update_Error(t *testing.T) {
 	quote := "Updated Quote"
 
 	user := &domain.User{
-		ID:         uuid.New(),
-		Email:      "updated@example.com",
-		Phone:      &phone,
-		Name:       "Updated User",
-		Password:   "new_hashed_password",
-		BirthDate:  time.Now().Add(-25 * 365 * 24 * time.Hour),
-		Gender:     constants.GenderFemale,
-		Bio:        &bio,
-		City:       &city,
-		Artist:     &artist,
-		Quote:      &quote,
-		IsVerified: true,
+		ID:               uuid.New(),
+		Email:            "updated@example.com",
+		Phone:            &phone,
+		Name:             "Updated User",
+		Password:         "new_hashed_password",
+		BirthDate:        time.Now().Add(-25 * 365 * 24 * time.Hour),
+		Gender:           constants.GenderFemale,
+		Bio:              &bio,
+		City:             &city,
+		Artist:           &artist,
+		Quote:            &quote,
+		IsVerified:       true,
+		IsPremium:        false,
+		SuperLikesCount:  0,
 	}
 
 	mock.ExpectQuery("UPDATE \"user\"").
 		WithArgs(
 			user.Email, user.Phone, user.Name, user.Password, user.BirthDate,
-			user.Gender, user.Bio, user.City, user.Artist, user.Quote, user.IsVerified, user.ID,
+			user.Gender, user.Bio, user.City, user.Artist, user.Quote, user.IsVerified,
+			user.IsPremium, user.SuperLikesCount, user.ID,
 		).
 		WillReturnError(pgx.ErrTxClosed)
 
@@ -529,54 +547,58 @@ func TestUserRepository_GetUsersByIDs(t *testing.T) {
 
 	expectedUsers := []domain.User{
 		{
-			ID:         userIDs[0],
-			Email:      "user1@example.com",
-			Phone:      &phone,
-			Name:       "User 1",
-			Password:   "password1",
-			BirthDate:  time.Now().Add(-20 * 365 * 24 * time.Hour),
-			Gender:     constants.GenderMale,
-			Bio:        &bio,
-			City:       &city,
-			Artist:     &artist,
-			Quote:      &quote,
-			IsVerified: true,
-			LastActive: time.Now(),
-			CreatedAt:  time.Now(),
-			UpdatedAt:  time.Now(),
+			ID:               userIDs[0],
+			Email:            "user1@example.com",
+			Phone:            &phone,
+			Name:             "User 1",
+			Password:         "password1",
+			BirthDate:        time.Now().Add(-20 * 365 * 24 * time.Hour),
+			Gender:           constants.GenderMale,
+			Bio:              &bio,
+			City:             &city,
+			Artist:           &artist,
+			Quote:            &quote,
+			IsVerified:       true,
+			IsPremium:        false,
+			SuperLikesCount:  0,
+			LastActive:       time.Now(),
+			CreatedAt:        time.Now(),
+			UpdatedAt:        time.Now(),
 		},
 		{
-			ID:         userIDs[1],
-			Email:      "user2@example.com",
-			Phone:      &phone,
-			Name:       "User 2",
-			Password:   "password2",
-			BirthDate:  time.Now().Add(-25 * 365 * 24 * time.Hour),
-			Gender:     constants.GenderFemale,
-			Bio:        &bio,
-			City:       &city,
-			Artist:     &artist,
-			Quote:      &quote,
-			IsVerified: true,
-			LastActive: time.Now(),
-			CreatedAt:  time.Now(),
-			UpdatedAt:  time.Now(),
+			ID:               userIDs[1],
+			Email:            "user2@example.com",
+			Phone:            &phone,
+			Name:             "User 2",
+			Password:         "password2",
+			BirthDate:        time.Now().Add(-25 * 365 * 24 * time.Hour),
+			Gender:           constants.GenderFemale,
+			Bio:              &bio,
+			City:             &city,
+			Artist:           &artist,
+			Quote:            &quote,
+			IsVerified:       true,
+			IsPremium:        false,
+			SuperLikesCount:  0,
+			LastActive:       time.Now(),
+			CreatedAt:        time.Now(),
+			UpdatedAt:        time.Now(),
 		},
 	}
 
 	rows := mock.NewRows([]string{
 		"id", "email", "phone", "name", "password", "birth_date", "gender",
-		"bio", "city", "artist", "quote", "is_verified", "last_active", "created_at", "updated_at",
+		"bio", "city", "artist", "quote", "is_verified", "is_premium", "super_likes_count", "last_active", "created_at", "updated_at",
 	})
 	for _, user := range expectedUsers {
 		rows.AddRow(
 			user.ID, user.Email, user.Phone, user.Name, user.Password, user.BirthDate,
 			user.Gender, user.Bio, user.City, user.Artist, user.Quote, user.IsVerified,
-			user.LastActive, user.CreatedAt, user.UpdatedAt,
+			user.IsPremium, user.SuperLikesCount, user.LastActive, user.CreatedAt, user.UpdatedAt,
 		)
 	}
 
-	mock.ExpectQuery("SELECT id, email, phone, name, password, birth_date, gender, bio, city, artist, quote, is_verified, last_active, created_at, updated_at FROM \"user\" WHERE id IN").
+	mock.ExpectQuery("SELECT id, email, phone, name, password, birth_date, gender, bio, city, artist, quote, is_verified, is_premium, super_likes_count, last_active, created_at, updated_at FROM \"user\" WHERE id IN").
 		WithArgs(userIDs[0], userIDs[1]).
 		WillReturnRows(rows)
 
@@ -613,12 +635,12 @@ func TestUserRepository_GetUsersByIDs_ScanError(t *testing.T) {
 	// Создаем данные, которые вызовут ошибку сканирования
 	rows := mock.NewRows([]string{
 		"id", "email", "phone", "name", "password", "birth_date", "gender",
-		"bio", "city", "artist", "quote", "is_verified", "last_active", "created_at", "updated_at",
+		"bio", "city", "artist", "quote", "is_verified", "is_premium", "super_likes_count", "last_active", "created_at", "updated_at",
 	}).AddRow(
-		"invalid-uuid", "email@test.com", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, // Invalid UUID to cause scan error
+		"invalid-uuid", "email@test.com", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, // Invalid UUID to cause scan error
 	)
 
-	mock.ExpectQuery("SELECT id, email, phone, name, password, birth_date, gender, bio, city, artist, quote, is_verified, last_active, created_at, updated_at FROM \"user\" WHERE id IN").
+	mock.ExpectQuery("SELECT id, email, phone, name, password, birth_date, gender, bio, city, artist, quote, is_verified, is_premium, super_likes_count, last_active, created_at, updated_at FROM \"user\" WHERE id IN").
 		WithArgs(userIDs[0]).
 		WillReturnRows(rows)
 
@@ -651,37 +673,39 @@ func TestUserRepository_GetUsersForFeed(t *testing.T) {
 
 	expectedUsers := []domain.User{
 		{
-			ID:         otherUserID,
-			Email:      "other@example.com",
-			Phone:      &phone,
-			Name:       "Other User",
-			Password:   "password",
-			BirthDate:  time.Now().Add(-20 * 365 * 24 * time.Hour),
-			Gender:     constants.GenderMale,
-			Bio:        &bio,
-			City:       &city,
-			Artist:     &artist,
-			Quote:      &quote,
-			IsVerified: true,
-			LastActive: time.Now(),
-			CreatedAt:  time.Now(),
-			UpdatedAt:  time.Now(),
+			ID:               otherUserID,
+			Email:            "other@example.com",
+			Phone:            &phone,
+			Name:             "Other User",
+			Password:         "password",
+			BirthDate:        time.Now().Add(-20 * 365 * 24 * time.Hour),
+			Gender:           constants.GenderMale,
+			Bio:              &bio,
+			City:             &city,
+			Artist:           &artist,
+			Quote:            &quote,
+			IsVerified:       true,
+			IsPremium:        false,
+			SuperLikesCount:  0,
+			LastActive:       time.Now(),
+			CreatedAt:        time.Now(),
+			UpdatedAt:        time.Now(),
 		},
 	}
 
 	rows := mock.NewRows([]string{
 		"id", "email", "phone", "name", "password", "birth_date", "gender",
-		"bio", "city", "artist", "quote", "is_verified", "last_active", "created_at", "updated_at",
+		"bio", "city", "artist", "quote", "is_verified", "is_premium", "super_likes_count", "last_active", "created_at", "updated_at",
 	})
 	for _, user := range expectedUsers {
 		rows.AddRow(
 			user.ID, user.Email, user.Phone, user.Name, user.Password, user.BirthDate,
 			user.Gender, user.Bio, user.City, user.Artist, user.Quote, user.IsVerified,
-			user.LastActive, user.CreatedAt, user.UpdatedAt,
+			user.IsPremium, user.SuperLikesCount, user.LastActive, user.CreatedAt, user.UpdatedAt,
 		)
 	}
 
-	mock.ExpectQuery("SELECT id, email, phone, name, password, birth_date, gender, bio, city, artist, quote, is_verified, last_active, created_at, updated_at FROM \"user\" u").
+	mock.ExpectQuery(`SELECT u\.id, u\.email, u\.phone, u\.name, u\.password, u\.birth_date, u\.gender, u\.bio,.*FROM "user" u.*WHERE u\.id.*AND NOT EXISTS.*AND EXISTS.*ORDER BY u\.last_active DESC.*LIMIT.*OFFSET`).
 		WithArgs(userID, limit, offset).
 		WillReturnRows(rows)
 
@@ -707,7 +731,7 @@ func TestUserRepository_GetUsersForFeed_Error(t *testing.T) {
 	limit := 10
 	offset := 0
 
-	mock.ExpectQuery("SELECT id, email, phone, name, password, birth_date, gender, bio, city, artist, quote, is_verified, last_active, created_at, updated_at FROM \"user\" u").
+	mock.ExpectQuery(`SELECT u\.id, u\.email, u\.phone, u\.name, u\.password, u\.birth_date, u\.gender, u\.bio,.*FROM "user" u.*WHERE u\.id.*AND NOT EXISTS.*AND EXISTS.*ORDER BY u\.last_active DESC.*LIMIT.*OFFSET`).
 		WithArgs(userID, limit, offset).
 		WillReturnError(pgx.ErrTxClosed)
 
@@ -732,12 +756,12 @@ func TestUserRepository_GetUsersForFeed_ScanError(t *testing.T) {
 	// Создаем данные, которые вызовут ошибку сканирования
 	rows := mock.NewRows([]string{
 		"id", "email", "phone", "name", "password", "birth_date", "gender",
-		"bio", "city", "artist", "quote", "is_verified", "last_active", "created_at", "updated_at",
+		"bio", "city", "artist", "quote", "is_verified", "is_premium", "super_likes_count", "last_active", "created_at", "updated_at",
 	}).AddRow(
-		"invalid-uuid", "email@test.com", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, // Invalid UUID to cause scan error
+		"invalid-uuid", "email@test.com", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, // Invalid UUID to cause scan error
 	)
 
-	mock.ExpectQuery("SELECT id, email, phone, name, password, birth_date, gender, bio, city, artist, quote, is_verified, last_active, created_at, updated_at FROM \"user\" u").
+	mock.ExpectQuery(`SELECT u\.id, u\.email, u\.phone, u\.name, u\.password, u\.birth_date, u\.gender, u\.bio,.*FROM "user" u.*WHERE u\.id.*AND NOT EXISTS.*AND EXISTS.*ORDER BY u\.last_active DESC.*LIMIT.*OFFSET`).
 		WithArgs(userID, limit, offset).
 		WillReturnRows(rows)
 

@@ -294,6 +294,7 @@ func TestCoreProtoToMatch(t *testing.T) {
 	user1ID := uuid.New()
 	user2ID := uuid.New()
 	matchedAt := time.Now()
+	expiresAt := matchedAt.Add(24 * time.Hour)
 
 	pbMatch := &pb.Match{
 		Id:        matchID.String(),
@@ -301,6 +302,7 @@ func TestCoreProtoToMatch(t *testing.T) {
 		User2Id:   user2ID.String(),
 		IsActive:  true,
 		MatchedAt: timestamppb.New(matchedAt),
+		ExpiresAt: timestamppb.New(expiresAt),
 	}
 
 	result := coreProtoToMatch(pbMatch)
@@ -309,6 +311,32 @@ func TestCoreProtoToMatch(t *testing.T) {
 	assert.Equal(t, user1ID, result.User1ID)
 	assert.Equal(t, user2ID, result.User2ID)
 	assert.True(t, result.IsActive)
+	assert.NotNil(t, result.ExpiresAt)
+	assert.Equal(t, expiresAt.Unix(), result.ExpiresAt.Unix())
+}
+
+func TestCoreProtoToMatch_WithNilExpiresAt(t *testing.T) {
+	matchID := uuid.New()
+	user1ID := uuid.New()
+	user2ID := uuid.New()
+	matchedAt := time.Now()
+
+	pbMatch := &pb.Match{
+		Id:        matchID.String(),
+		User1Id:   user1ID.String(),
+		User2Id:   user2ID.String(),
+		IsActive:  true,
+		MatchedAt: timestamppb.New(matchedAt),
+		ExpiresAt: nil, // Матч активен навсегда
+	}
+
+	result := coreProtoToMatch(pbMatch)
+
+	assert.Equal(t, matchID, result.ID)
+	assert.Equal(t, user1ID, result.User1ID)
+	assert.Equal(t, user2ID, result.User2ID)
+	assert.True(t, result.IsActive)
+	assert.Nil(t, result.ExpiresAt)
 }
 
 // Helper function

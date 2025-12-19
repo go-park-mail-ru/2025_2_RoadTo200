@@ -22,7 +22,7 @@ app:
     base: PG_BASE
     user: PG_USER
     password: PG_PSWD
-#    migrated: true
+    #migrated: true
     migrations: ./data/migrations
 
   redis:

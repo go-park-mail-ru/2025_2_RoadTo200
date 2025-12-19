@@ -244,27 +244,52 @@ func TestStorageRepository_DeleteByURL(t *testing.T) {
 func TestStorageRepository_GetURL(t *testing.T) {
 	tests := []struct {
 		name     string
+		address  string
 		filename string
 		useSSL   bool
 		wantURL  string
 	}{
 		{
 			name:     "HTTP URL",
+			address:  "localhost:9000",
 			filename: "test.jpg",
 			useSSL:   false,
 			wantURL:  "http://localhost:9000/test-bucket/test.jpg",
 		},
 		{
 			name:     "HTTPS URL",
+			address:  "localhost:9000",
 			filename: "test.jpg",
 			useSSL:   true,
 			wantURL:  "https://localhost:9000/test-bucket/test.jpg",
 		},
 		{
 			name:     "with path",
+			address:  "localhost:9000",
 			filename: "path/to/test.jpg",
 			useSSL:   false,
 			wantURL:  "http://localhost:9000/test-bucket/path/to/test.jpg",
+		},
+		{
+			name:     "address with http protocol",
+			address:  "http://terabithia.online",
+			filename: "test.jpg",
+			useSSL:   false,
+			wantURL:  "http://terabithia.online/test-bucket/test.jpg",
+		},
+		{
+			name:     "address with https protocol",
+			address:  "https://terabithia.online",
+			filename: "test.jpg",
+			useSSL:   true,
+			wantURL:  "https://terabithia.online/test-bucket/test.jpg",
+		},
+		{
+			name:     "address with https protocol and path",
+			address:  "https://terabithia.online",
+			filename: "user-id/photo.jpg",
+			useSSL:   true,
+			wantURL:  "https://terabithia.online/test-bucket/user-id/photo.jpg",
 		},
 	}
 
@@ -272,7 +297,7 @@ func TestStorageRepository_GetURL(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			cfg := &config.MinIOConfig{
 				BucketName: "test-bucket",
-				Address:    "localhost:9000",
+				Address:    tt.address,
 				UseSSL:     tt.useSSL,
 			}
 

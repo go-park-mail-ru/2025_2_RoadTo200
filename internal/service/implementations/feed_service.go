@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/constants"
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
+	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/dto"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/repository/interfaces"
@@ -44,7 +44,17 @@ func (s *FeedService) GetFeed(ctx context.Context, userID uuid.UUID, limit, offs
 		offset = 0
 	}
 
-	s.logger.Debugf("Getting feed for userID: %v with limit: %d and offset: %d\n", userID, limit, offset)
+	s.logger.Infof("Getting feed for userID: %v with limit: %d and offset: %d", userID, limit, offset)
+
+	// Получаем предпочтения пользователя для отладки
+	prefs, err := s.prefRepo.GetByUserID(ctx, userID)
+	if err != nil {
+		s.logger.Warnf("Failed to get user preferences for feed: %v", err)
+	} else if prefs != nil {
+		s.logger.Infof("User preferences: show_gender=%s, age_min=%d, age_max=%d", prefs.ShowGender, prefs.AgeMin, prefs.AgeMax)
+	} else {
+		s.logger.Warnf("User has no preferences set")
+	}
 
 	// Получаем пользователей для ленты
 	users, err := s.userRepo.GetUsersForFeed(ctx, userID, limit, offset)
@@ -52,7 +62,7 @@ func (s *FeedService) GetFeed(ctx context.Context, userID uuid.UUID, limit, offs
 		s.logger.Errorf("Getting users for feed failed: %v", err)
 		return nil, err
 	}
-	s.logger.Debugf("Retrieved %d users for feed\n", len(users))
+	s.logger.Infof("Retrieved %d users for feed", len(users))
 
 	// Преобразуем в формат для ленты
 	feedUsers := make([]dto.FeedUser, 0, len(users))
@@ -80,6 +90,7 @@ func (s *FeedService) GetFeed(ctx context.Context, userID uuid.UUID, limit, offs
 // convertToFeedUser преобразует доменного пользователя в формат для ленты
 func (s *FeedService) convertToFeedUser(ctx context.Context, user domain.User) (dto.FeedUser, error) {
 	s.logger.Trace("convertToFeedUser")
+
 	// Вычисляем возраст
 	age := calculateAge(user.BirthDate)
 
@@ -97,6 +108,9 @@ func (s *FeedService) convertToFeedUser(ctx context.Context, user domain.User) (
 		Description: getDescription(user.Bio),
 		Images:      images,
 		PhotosCount: len(images),
+		Artist:      user.Artist,
+		Quote:       user.Quote,
+		IsPremium:   user.IsPremium,
 	}, nil
 }
 

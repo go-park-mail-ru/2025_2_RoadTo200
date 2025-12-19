@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"encoding/json"
 	"errors"
 	"net/http"
 	"strconv"
@@ -66,7 +65,7 @@ func (h *StrikeHandler) CreateStrike(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var strikeReq dto.StrikeCreateRequest
-	if err := json.NewDecoder(r.Body).Decode(&strikeReq); err != nil {
+	if err := utils.ReadJSON(r, &strikeReq); err != nil {
 		h.logger.Warnf("CreateStrike: invalid JSON: %v", err)
 		utils.WriteJSONError(w, http.StatusBadRequest, "invalid JSON")
 		return
@@ -340,7 +339,7 @@ func (h *StrikeHandler) UpdateStrikeStatus(w http.ResponseWriter, r *http.Reques
 	}
 
 	var statusReq dto.StrikeStatusUpdateRequest
-	if err := json.NewDecoder(r.Body).Decode(&statusReq); err != nil {
+	if err := utils.ReadJSON(r, &statusReq); err != nil {
 		h.logger.Warnf("UpdateStrikeStatus: invalid JSON: %v", err)
 		utils.WriteJSONError(w, http.StatusBadRequest, "invalid JSON")
 		return

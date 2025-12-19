@@ -1,14 +1,13 @@
 package handler
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/errors"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/dto"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/middleware"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/logger"
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
+	service "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/utils"
 )
 
@@ -49,7 +48,7 @@ func (h *SwipeHandler) ProcessSwipe(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var req dto.SwipeRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+	if err := utils.ReadJSON(r, &req); err != nil {
 		h.logger.Warnf("Decode request body: %v", err)
 		utils.WriteJSONError(w, http.StatusBadRequest, "invalid JSON")
 		return

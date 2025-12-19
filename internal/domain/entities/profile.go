@@ -1,5 +1,7 @@
 package domain
 
+//go:generate easyjson -all -no_std_marshalers profile.go
+
 import (
 	"time"
 
@@ -12,6 +14,8 @@ type ProfileResponse struct {
 	Preferences *UserPreference `json:"preferences,omitempty"`
 	Photos      []UserPhoto     `json:"photos,omitempty"`
 	Interests   []Interest      `json:"interests,omitempty"`
+	IsLiked     *bool           `json:"is_liked,omitempty"`   // Лайкнул ли текущий пользователь этого пользователя
+	IsMatched   *bool           `json:"is_matched,omitempty"` // Есть ли матч между текущим и этим пользователем
 }
 
 // ProfileUpdateRequest запрос на обновление профиля
@@ -30,9 +34,7 @@ type ProfileUpdateRequest struct {
 
 // PreferencesUpdateRequest запрос на обновление предпочтений
 type PreferencesUpdateRequest struct {
-	ShowGender   constants.GenderPreference `json:"show_gender,omitempty"`
-	AgeMin       int                        `json:"age_min,omitempty"`
-	AgeMax       int                        `json:"age_max,omitempty"`
-	MaxDistance  int                        `json:"max_distance,omitempty"`
-	GlobalSearch bool                       `json:"global_search,omitempty"`
+	ShowGender constants.GenderPreference `json:"show_gender,omitempty"`
+	AgeMin     int                        `json:"age_min,omitempty"`
+	AgeMax     int                        `json:"age_max,omitempty"`
 }

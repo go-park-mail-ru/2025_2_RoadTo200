@@ -11,6 +11,7 @@ import (
 type ProfileService interface {
 	// Profile
 	GetProfile(ctx context.Context, userID uuid.UUID) (*domain.ProfileResponse, error)
+	GetProfileWithRelations(ctx context.Context, viewerID, targetID uuid.UUID) (*domain.ProfileResponse, error)
 	UpdateProfileInfo(ctx context.Context, userID uuid.UUID, updateData *domain.ProfileUpdateRequest) error
 
 	// Preferences
@@ -23,6 +24,10 @@ type ProfileService interface {
 	DeletePhoto(ctx context.Context, userID uuid.UUID, photoID uuid.UUID) error
 	SetPrimaryPhoto(ctx context.Context, userID uuid.UUID, photoID uuid.UUID) error
 	ReorderPhotos(ctx context.Context, userID uuid.UUID, photoIDs []uuid.UUID) error
+
+	// Account management
+	ChangePassword(ctx context.Context, userID uuid.UUID, oldPassword, newPassword, newPasswordConfirm string) error
+	DeleteAccount(ctx context.Context, userID uuid.UUID) error
 
 	// Валидация
 	ValidateProfileUpdate(ctx context.Context, updateData *domain.ProfileUpdateRequest) error

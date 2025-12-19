@@ -43,6 +43,34 @@ func (m *MockProfileService) EXPECT() *MockProfileServiceMockRecorder {
 	return m.recorder
 }
 
+// ChangePassword mocks base method.
+func (m *MockProfileService) ChangePassword(ctx context.Context, userID uuid.UUID, oldPassword, newPassword, newPasswordConfirm string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ChangePassword", ctx, userID, oldPassword, newPassword, newPasswordConfirm)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ChangePassword indicates an expected call of ChangePassword.
+func (mr *MockProfileServiceMockRecorder) ChangePassword(ctx, userID, oldPassword, newPassword, newPasswordConfirm any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ChangePassword", reflect.TypeOf((*MockProfileService)(nil).ChangePassword), ctx, userID, oldPassword, newPassword, newPasswordConfirm)
+}
+
+// DeleteAccount mocks base method.
+func (m *MockProfileService) DeleteAccount(ctx context.Context, userID uuid.UUID) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteAccount", ctx, userID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteAccount indicates an expected call of DeleteAccount.
+func (mr *MockProfileServiceMockRecorder) DeleteAccount(ctx, userID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteAccount", reflect.TypeOf((*MockProfileService)(nil).DeleteAccount), ctx, userID)
+}
+
 // DeletePhoto mocks base method.
 func (m *MockProfileService) DeletePhoto(ctx context.Context, userID, photoID uuid.UUID) error {
 	m.ctrl.T.Helper()
@@ -70,6 +98,21 @@ func (m *MockProfileService) GetProfile(ctx context.Context, userID uuid.UUID) (
 func (mr *MockProfileServiceMockRecorder) GetProfile(ctx, userID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProfile", reflect.TypeOf((*MockProfileService)(nil).GetProfile), ctx, userID)
+}
+
+// GetProfileWithRelations mocks base method.
+func (m *MockProfileService) GetProfileWithRelations(ctx context.Context, viewerID, targetID uuid.UUID) (*domain.ProfileResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetProfileWithRelations", ctx, viewerID, targetID)
+	ret0, _ := ret[0].(*domain.ProfileResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetProfileWithRelations indicates an expected call of GetProfileWithRelations.
+func (mr *MockProfileServiceMockRecorder) GetProfileWithRelations(ctx, viewerID, targetID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProfileWithRelations", reflect.TypeOf((*MockProfileService)(nil).GetProfileWithRelations), ctx, viewerID, targetID)
 }
 
 // ReorderPhotos mocks base method.

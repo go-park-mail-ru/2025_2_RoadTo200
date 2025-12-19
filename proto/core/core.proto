@@ -10,6 +10,7 @@ import "google/protobuf/timestamp.proto";
 service CoreService {
   // Profile operations
   rpc GetProfile(GetProfileRequest) returns (GetProfileResponse);
+  rpc GetProfileWithRelations(GetProfileWithRelationsRequest) returns (GetProfileResponse);
   rpc UpdateProfileInfo(UpdateProfileInfoRequest) returns (UpdateProfileInfoResponse);
   rpc UpdatePreferences(UpdatePreferencesRequest) returns (UpdatePreferencesResponse);
   rpc UpdateInterests(UpdateInterestsRequest) returns (UpdateInterestsResponse);
@@ -17,6 +18,8 @@ service CoreService {
   rpc SetPrimaryPhoto(SetPrimaryPhotoRequest) returns (SetPrimaryPhotoResponse);
   rpc ReorderPhotos(ReorderPhotosRequest) returns (ReorderPhotosResponse);
   rpc UploadPhoto(UploadPhotoRequest) returns (UploadPhotoResponse);
+  rpc ChangePassword(ChangePasswordRequest) returns (ChangePasswordResponse);
+  rpc DeleteAccount(DeleteAccountRequest) returns (DeleteAccountResponse);
   
   // Feed operations
   rpc GetFeed(GetFeedRequest) returns (GetFeedResponse);
@@ -53,6 +56,8 @@ message User {
   optional string artist = 9;
   optional string quote = 10;
   bool is_verified = 11;
+  bool is_premium = 15;
+  int32 super_likes_count = 16;
   google.protobuf.Timestamp last_active = 12;
   google.protobuf.Timestamp created_at = 13;
   google.protobuf.Timestamp updated_at = 14;
@@ -89,6 +94,7 @@ message Match {
   string user2_id = 3;
   bool is_active = 4;
   google.protobuf.Timestamp matched_at = 5;
+  google.protobuf.Timestamp expires_at = 6; // NULL если кто-то написал сообщение (матч активен навсегда)
 }
 
 // ============= Profile Messages =============
@@ -97,11 +103,18 @@ message GetProfileRequest {
   string user_id = 1;
 }
 
+message GetProfileWithRelationsRequest {
+  string viewer_id = 1;  // ID пользователя, который смотрит профиль
+  string target_id = 2;  // ID пользователя, чей профиль смотрят
+}
+
 message GetProfileResponse {
   User user = 1;
   UserPreference preferences = 2;
   repeated UserPhoto photos = 3;
   repeated Interest interests = 4;
+  optional bool is_liked = 5;    // Лайкнул ли viewer этого пользователя
+  optional bool is_matched = 6;  // Есть ли матч между viewer и этим пользователем
 }
 
 message UpdateProfileInfoRequest {
@@ -127,8 +140,6 @@ message UpdatePreferencesRequest {
   optional string show_gender = 2;
   optional int32 age_min = 3;
   optional int32 age_max = 4;
-  optional int32 max_distance = 5;
-  optional bool global_search = 6;
 }
 
 message UpdatePreferencesResponse {
@@ -193,7 +204,8 @@ message FeedUser {
   int32 photos_count = 7;
   optional string artist = 8;
   optional string quote = 9;
-  repeated Interest interests = 10;
+  bool is_premium = 10;
+  repeated Interest interests = 11;
 }
 
 message GetFeedRequest {
@@ -358,4 +370,25 @@ message GetUserStrikeStatsRequest {
 
 message GetUserStrikeStatsResponse {
   StrikeStats stats = 1;
+}
+
+// ============= Account Management Messages =============
+
+message ChangePasswordRequest {
+  string user_id = 1;
+  string old_password = 2;
+  string new_password = 3;
+  string new_password_confirm = 4;
+}
+
+message ChangePasswordResponse {
+  string message = 1;
+}
+
+message DeleteAccountRequest {
+  string user_id = 1;
+}
+
+message DeleteAccountResponse {
+  string message = 1;
 }

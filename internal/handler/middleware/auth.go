@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
+	service "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/service/interfaces"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/utils"
 	"github.com/google/uuid"
 )
@@ -27,6 +27,7 @@ var publicEndpoints = map[string]bool{
 	"/swagger":            true,
 	"/swagger/doc.json":   true,
 	"/swagger/index.html": true,
+	"/notificate_premium": true, // Webhook от ЮMoney
 }
 
 func AuthMiddleware(authService service.AuthService) func(http.Handler) http.Handler {

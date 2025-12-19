@@ -19,26 +19,29 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	CoreService_GetProfile_FullMethodName            = "/core.CoreService/GetProfile"
-	CoreService_UpdateProfileInfo_FullMethodName     = "/core.CoreService/UpdateProfileInfo"
-	CoreService_UpdatePreferences_FullMethodName     = "/core.CoreService/UpdatePreferences"
-	CoreService_UpdateInterests_FullMethodName       = "/core.CoreService/UpdateInterests"
-	CoreService_DeletePhoto_FullMethodName           = "/core.CoreService/DeletePhoto"
-	CoreService_SetPrimaryPhoto_FullMethodName       = "/core.CoreService/SetPrimaryPhoto"
-	CoreService_ReorderPhotos_FullMethodName         = "/core.CoreService/ReorderPhotos"
-	CoreService_UploadPhoto_FullMethodName           = "/core.CoreService/UploadPhoto"
-	CoreService_GetFeed_FullMethodName               = "/core.CoreService/GetFeed"
-	CoreService_ProcessSwipe_FullMethodName          = "/core.CoreService/ProcessSwipe"
-	CoreService_GetUserMatches_FullMethodName        = "/core.CoreService/GetUserMatches"
-	CoreService_Unmatch_FullMethodName               = "/core.CoreService/Unmatch"
-	CoreService_CreateStrike_FullMethodName          = "/core.CoreService/CreateStrike"
-	CoreService_GetStrike_FullMethodName             = "/core.CoreService/GetStrike"
-	CoreService_GetStrikesByUserID_FullMethodName    = "/core.CoreService/GetStrikesByUserID"
-	CoreService_GetStrikesByType_FullMethodName      = "/core.CoreService/GetStrikesByType"
-	CoreService_GetStrikesByDateRange_FullMethodName = "/core.CoreService/GetStrikesByDateRange"
-	CoreService_UpdateStrikeStatus_FullMethodName    = "/core.CoreService/UpdateStrikeStatus"
-	CoreService_DeleteStrike_FullMethodName          = "/core.CoreService/DeleteStrike"
-	CoreService_GetUserStrikeStats_FullMethodName    = "/core.CoreService/GetUserStrikeStats"
+	CoreService_GetProfile_FullMethodName              = "/core.CoreService/GetProfile"
+	CoreService_GetProfileWithRelations_FullMethodName = "/core.CoreService/GetProfileWithRelations"
+	CoreService_UpdateProfileInfo_FullMethodName       = "/core.CoreService/UpdateProfileInfo"
+	CoreService_UpdatePreferences_FullMethodName       = "/core.CoreService/UpdatePreferences"
+	CoreService_UpdateInterests_FullMethodName         = "/core.CoreService/UpdateInterests"
+	CoreService_DeletePhoto_FullMethodName             = "/core.CoreService/DeletePhoto"
+	CoreService_SetPrimaryPhoto_FullMethodName         = "/core.CoreService/SetPrimaryPhoto"
+	CoreService_ReorderPhotos_FullMethodName           = "/core.CoreService/ReorderPhotos"
+	CoreService_UploadPhoto_FullMethodName             = "/core.CoreService/UploadPhoto"
+	CoreService_ChangePassword_FullMethodName          = "/core.CoreService/ChangePassword"
+	CoreService_DeleteAccount_FullMethodName           = "/core.CoreService/DeleteAccount"
+	CoreService_GetFeed_FullMethodName                 = "/core.CoreService/GetFeed"
+	CoreService_ProcessSwipe_FullMethodName            = "/core.CoreService/ProcessSwipe"
+	CoreService_GetUserMatches_FullMethodName          = "/core.CoreService/GetUserMatches"
+	CoreService_Unmatch_FullMethodName                 = "/core.CoreService/Unmatch"
+	CoreService_CreateStrike_FullMethodName            = "/core.CoreService/CreateStrike"
+	CoreService_GetStrike_FullMethodName               = "/core.CoreService/GetStrike"
+	CoreService_GetStrikesByUserID_FullMethodName      = "/core.CoreService/GetStrikesByUserID"
+	CoreService_GetStrikesByType_FullMethodName        = "/core.CoreService/GetStrikesByType"
+	CoreService_GetStrikesByDateRange_FullMethodName   = "/core.CoreService/GetStrikesByDateRange"
+	CoreService_UpdateStrikeStatus_FullMethodName      = "/core.CoreService/UpdateStrikeStatus"
+	CoreService_DeleteStrike_FullMethodName            = "/core.CoreService/DeleteStrike"
+	CoreService_GetUserStrikeStats_FullMethodName      = "/core.CoreService/GetUserStrikeStats"
 )
 
 // CoreServiceClient is the client API for CoreService service.
@@ -49,6 +52,7 @@ const (
 type CoreServiceClient interface {
 	// Profile operations
 	GetProfile(ctx context.Context, in *GetProfileRequest, opts ...grpc.CallOption) (*GetProfileResponse, error)
+	GetProfileWithRelations(ctx context.Context, in *GetProfileWithRelationsRequest, opts ...grpc.CallOption) (*GetProfileResponse, error)
 	UpdateProfileInfo(ctx context.Context, in *UpdateProfileInfoRequest, opts ...grpc.CallOption) (*UpdateProfileInfoResponse, error)
 	UpdatePreferences(ctx context.Context, in *UpdatePreferencesRequest, opts ...grpc.CallOption) (*UpdatePreferencesResponse, error)
 	UpdateInterests(ctx context.Context, in *UpdateInterestsRequest, opts ...grpc.CallOption) (*UpdateInterestsResponse, error)
@@ -56,6 +60,8 @@ type CoreServiceClient interface {
 	SetPrimaryPhoto(ctx context.Context, in *SetPrimaryPhotoRequest, opts ...grpc.CallOption) (*SetPrimaryPhotoResponse, error)
 	ReorderPhotos(ctx context.Context, in *ReorderPhotosRequest, opts ...grpc.CallOption) (*ReorderPhotosResponse, error)
 	UploadPhoto(ctx context.Context, in *UploadPhotoRequest, opts ...grpc.CallOption) (*UploadPhotoResponse, error)
+	ChangePassword(ctx context.Context, in *ChangePasswordRequest, opts ...grpc.CallOption) (*ChangePasswordResponse, error)
+	DeleteAccount(ctx context.Context, in *DeleteAccountRequest, opts ...grpc.CallOption) (*DeleteAccountResponse, error)
 	// Feed operations
 	GetFeed(ctx context.Context, in *GetFeedRequest, opts ...grpc.CallOption) (*GetFeedResponse, error)
 	// Swipe operations
@@ -86,6 +92,16 @@ func (c *coreServiceClient) GetProfile(ctx context.Context, in *GetProfileReques
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetProfileResponse)
 	err := c.cc.Invoke(ctx, CoreService_GetProfile_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *coreServiceClient) GetProfileWithRelations(ctx context.Context, in *GetProfileWithRelationsRequest, opts ...grpc.CallOption) (*GetProfileResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetProfileResponse)
+	err := c.cc.Invoke(ctx, CoreService_GetProfileWithRelations_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -156,6 +172,26 @@ func (c *coreServiceClient) UploadPhoto(ctx context.Context, in *UploadPhotoRequ
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(UploadPhotoResponse)
 	err := c.cc.Invoke(ctx, CoreService_UploadPhoto_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *coreServiceClient) ChangePassword(ctx context.Context, in *ChangePasswordRequest, opts ...grpc.CallOption) (*ChangePasswordResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ChangePasswordResponse)
+	err := c.cc.Invoke(ctx, CoreService_ChangePassword_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *coreServiceClient) DeleteAccount(ctx context.Context, in *DeleteAccountRequest, opts ...grpc.CallOption) (*DeleteAccountResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteAccountResponse)
+	err := c.cc.Invoke(ctx, CoreService_DeleteAccount_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -290,6 +326,7 @@ func (c *coreServiceClient) GetUserStrikeStats(ctx context.Context, in *GetUserS
 type CoreServiceServer interface {
 	// Profile operations
 	GetProfile(context.Context, *GetProfileRequest) (*GetProfileResponse, error)
+	GetProfileWithRelations(context.Context, *GetProfileWithRelationsRequest) (*GetProfileResponse, error)
 	UpdateProfileInfo(context.Context, *UpdateProfileInfoRequest) (*UpdateProfileInfoResponse, error)
 	UpdatePreferences(context.Context, *UpdatePreferencesRequest) (*UpdatePreferencesResponse, error)
 	UpdateInterests(context.Context, *UpdateInterestsRequest) (*UpdateInterestsResponse, error)
@@ -297,6 +334,8 @@ type CoreServiceServer interface {
 	SetPrimaryPhoto(context.Context, *SetPrimaryPhotoRequest) (*SetPrimaryPhotoResponse, error)
 	ReorderPhotos(context.Context, *ReorderPhotosRequest) (*ReorderPhotosResponse, error)
 	UploadPhoto(context.Context, *UploadPhotoRequest) (*UploadPhotoResponse, error)
+	ChangePassword(context.Context, *ChangePasswordRequest) (*ChangePasswordResponse, error)
+	DeleteAccount(context.Context, *DeleteAccountRequest) (*DeleteAccountResponse, error)
 	// Feed operations
 	GetFeed(context.Context, *GetFeedRequest) (*GetFeedResponse, error)
 	// Swipe operations
@@ -326,6 +365,9 @@ type UnimplementedCoreServiceServer struct{}
 func (UnimplementedCoreServiceServer) GetProfile(context.Context, *GetProfileRequest) (*GetProfileResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetProfile not implemented")
 }
+func (UnimplementedCoreServiceServer) GetProfileWithRelations(context.Context, *GetProfileWithRelationsRequest) (*GetProfileResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetProfileWithRelations not implemented")
+}
 func (UnimplementedCoreServiceServer) UpdateProfileInfo(context.Context, *UpdateProfileInfoRequest) (*UpdateProfileInfoResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateProfileInfo not implemented")
 }
@@ -346,6 +388,12 @@ func (UnimplementedCoreServiceServer) ReorderPhotos(context.Context, *ReorderPho
 }
 func (UnimplementedCoreServiceServer) UploadPhoto(context.Context, *UploadPhotoRequest) (*UploadPhotoResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UploadPhoto not implemented")
+}
+func (UnimplementedCoreServiceServer) ChangePassword(context.Context, *ChangePasswordRequest) (*ChangePasswordResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ChangePassword not implemented")
+}
+func (UnimplementedCoreServiceServer) DeleteAccount(context.Context, *DeleteAccountRequest) (*DeleteAccountResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteAccount not implemented")
 }
 func (UnimplementedCoreServiceServer) GetFeed(context.Context, *GetFeedRequest) (*GetFeedResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetFeed not implemented")
@@ -418,6 +466,24 @@ func _CoreService_GetProfile_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CoreServiceServer).GetProfile(ctx, req.(*GetProfileRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CoreService_GetProfileWithRelations_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetProfileWithRelationsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoreServiceServer).GetProfileWithRelations(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CoreService_GetProfileWithRelations_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoreServiceServer).GetProfileWithRelations(ctx, req.(*GetProfileWithRelationsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -544,6 +610,42 @@ func _CoreService_UploadPhoto_Handler(srv interface{}, ctx context.Context, dec 
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CoreServiceServer).UploadPhoto(ctx, req.(*UploadPhotoRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CoreService_ChangePassword_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChangePasswordRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoreServiceServer).ChangePassword(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CoreService_ChangePassword_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoreServiceServer).ChangePassword(ctx, req.(*ChangePasswordRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CoreService_DeleteAccount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteAccountRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoreServiceServer).DeleteAccount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CoreService_DeleteAccount_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoreServiceServer).DeleteAccount(ctx, req.(*DeleteAccountRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -776,6 +878,10 @@ var CoreService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _CoreService_GetProfile_Handler,
 		},
 		{
+			MethodName: "GetProfileWithRelations",
+			Handler:    _CoreService_GetProfileWithRelations_Handler,
+		},
+		{
 			MethodName: "UpdateProfileInfo",
 			Handler:    _CoreService_UpdateProfileInfo_Handler,
 		},
@@ -802,6 +908,14 @@ var CoreService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UploadPhoto",
 			Handler:    _CoreService_UploadPhoto_Handler,
+		},
+		{
+			MethodName: "ChangePassword",
+			Handler:    _CoreService_ChangePassword_Handler,
+		},
+		{
+			MethodName: "DeleteAccount",
+			Handler:    _CoreService_DeleteAccount_Handler,
 		},
 		{
 			MethodName: "GetFeed",

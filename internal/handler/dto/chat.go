@@ -1,5 +1,7 @@
 package dto
 
+//go:generate easyjson -all -no_std_marshalers chat.go
+
 import "github.com/google/uuid"
 
 // SendMessageRequest - request to send a message

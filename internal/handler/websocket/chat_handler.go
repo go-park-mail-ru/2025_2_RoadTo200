@@ -98,10 +98,12 @@ func (h *WebSocketHandler) HandleConnection(w http.ResponseWriter, r *http.Reque
 	h.readPump(conn, user.ID)
 }
 
-// subscribe returns a channel that receives real-time messages for the user
+// subscribe returns a channel that receives real-time chat messages for the user
 func (h *WebSocketHandler) subscribe(ctx context.Context, userID uuid.UUID) (<-chan domain.ChatMessage, func(), error) {
-	channelName := fmt.Sprintf("chat:user:%s", userID.String())
-	pubsub := h.redisClient.Subscribe(ctx, channelName)
+	// Подписываемся только на канал чатов
+	chatChannel := fmt.Sprintf("chat:user:%s", userID.String())
+
+	pubsub := h.redisClient.Subscribe(ctx, chatChannel)
 
 	// Wait for confirmation that subscription is created
 	_, err := pubsub.Receive(ctx)
@@ -118,7 +120,7 @@ func (h *WebSocketHandler) subscribe(ctx context.Context, userID uuid.UUID) (<-c
 		for msg := range ch {
 			var chatMsg domain.ChatMessage
 			if err := json.Unmarshal([]byte(msg.Payload), &chatMsg); err != nil {
-				h.logger.Errorf("Failed to unmarshal message: %v", err)
+				h.logger.Errorf("Failed to unmarshal chat message: %v", err)
 				continue
 			}
 			msgChan <- chatMsg

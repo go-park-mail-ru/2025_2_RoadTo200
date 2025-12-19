@@ -11,6 +11,7 @@ import (
 
 	domain "github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/entities"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/domain/errors"
+	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/dto"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/internal/handler/middleware"
 	"github.com/go-park-mail-ru/2025_2_RoadTo200/backend/tests/mocks"
 	"github.com/google/uuid"
@@ -55,11 +56,22 @@ func TestProfileHandler_GetProfile_Success(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, rec.Code)
 
-	var response domain.ProfileResponse
-	json.Unmarshal(rec.Body.Bytes(), &response)
+	var response dto.ProfileResponse
+	// Используем стандартный json для десериализации
+	if err := json.Unmarshal(rec.Body.Bytes(), &response); err != nil {
+		t.Fatalf("Failed to unmarshal response: %v", err)
+	}
 
-	assert.Equal(t, userID, response.User.ID)
-	assert.Equal(t, "test@example.com", response.User.Email)
+	// Проверяем структуру ответа
+	assert.NotNil(t, response.User)
+	if user, ok := response.User.(*domain.User); ok {
+		assert.Equal(t, userID, user.ID)
+		assert.Equal(t, "test@example.com", user.Email)
+	} else if userMap, ok := response.User.(map[string]interface{}); ok {
+		// Если это map (из стандартного json), проверяем так
+		assert.Equal(t, userID.String(), userMap["id"])
+		assert.Equal(t, "test@example.com", userMap["email"])
+	}
 }
 
 func TestProfileHandler_GetProfile_NoUserID(t *testing.T) {
@@ -163,9 +175,9 @@ func TestProfileHandler_UpdatePreferences_Success(t *testing.T) {
 	userID := uuid.New()
 
 	preferencesData := map[string]interface{}{
-		"ageMin":      18,
-		"ageMax":      35,
-		"maxDistance": 50,
+		"age_min":     18,
+		"age_max":     35,
+		"show_gender": "both",
 	}
 	body, _ := json.Marshal(preferencesData)
 

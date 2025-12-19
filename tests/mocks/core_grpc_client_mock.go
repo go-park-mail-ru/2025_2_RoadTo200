@@ -42,6 +42,26 @@ func (m *MockCoreServiceClient) EXPECT() *MockCoreServiceClientMockRecorder {
 	return m.recorder
 }
 
+// ChangePassword mocks base method.
+func (m *MockCoreServiceClient) ChangePassword(ctx context.Context, in *core.ChangePasswordRequest, opts ...grpc.CallOption) (*core.ChangePasswordResponse, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, in}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "ChangePassword", varargs...)
+	ret0, _ := ret[0].(*core.ChangePasswordResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ChangePassword indicates an expected call of ChangePassword.
+func (mr *MockCoreServiceClientMockRecorder) ChangePassword(ctx, in any, opts ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, in}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ChangePassword", reflect.TypeOf((*MockCoreServiceClient)(nil).ChangePassword), varargs...)
+}
+
 // CreateStrike mocks base method.
 func (m *MockCoreServiceClient) CreateStrike(ctx context.Context, in *core.CreateStrikeRequest, opts ...grpc.CallOption) (*core.CreateStrikeResponse, error) {
 	m.ctrl.T.Helper()
@@ -60,6 +80,26 @@ func (mr *MockCoreServiceClientMockRecorder) CreateStrike(ctx, in any, opts ...a
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]any{ctx, in}, opts...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateStrike", reflect.TypeOf((*MockCoreServiceClient)(nil).CreateStrike), varargs...)
+}
+
+// DeleteAccount mocks base method.
+func (m *MockCoreServiceClient) DeleteAccount(ctx context.Context, in *core.DeleteAccountRequest, opts ...grpc.CallOption) (*core.DeleteAccountResponse, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, in}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DeleteAccount", varargs...)
+	ret0, _ := ret[0].(*core.DeleteAccountResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DeleteAccount indicates an expected call of DeleteAccount.
+func (mr *MockCoreServiceClientMockRecorder) DeleteAccount(ctx, in any, opts ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, in}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteAccount", reflect.TypeOf((*MockCoreServiceClient)(nil).DeleteAccount), varargs...)
 }
 
 // DeletePhoto mocks base method.
@@ -140,6 +180,26 @@ func (mr *MockCoreServiceClientMockRecorder) GetProfile(ctx, in any, opts ...any
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]any{ctx, in}, opts...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProfile", reflect.TypeOf((*MockCoreServiceClient)(nil).GetProfile), varargs...)
+}
+
+// GetProfileWithRelations mocks base method.
+func (m *MockCoreServiceClient) GetProfileWithRelations(ctx context.Context, in *core.GetProfileWithRelationsRequest, opts ...grpc.CallOption) (*core.GetProfileResponse, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, in}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetProfileWithRelations", varargs...)
+	ret0, _ := ret[0].(*core.GetProfileResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetProfileWithRelations indicates an expected call of GetProfileWithRelations.
+func (mr *MockCoreServiceClientMockRecorder) GetProfileWithRelations(ctx, in any, opts ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, in}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProfileWithRelations", reflect.TypeOf((*MockCoreServiceClient)(nil).GetProfileWithRelations), varargs...)
 }
 
 // GetStrike mocks base method.
@@ -466,6 +526,21 @@ func (m *MockCoreServiceServer) EXPECT() *MockCoreServiceServerMockRecorder {
 	return m.recorder
 }
 
+// ChangePassword mocks base method.
+func (m *MockCoreServiceServer) ChangePassword(arg0 context.Context, arg1 *core.ChangePasswordRequest) (*core.ChangePasswordResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ChangePassword", arg0, arg1)
+	ret0, _ := ret[0].(*core.ChangePasswordResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ChangePassword indicates an expected call of ChangePassword.
+func (mr *MockCoreServiceServerMockRecorder) ChangePassword(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ChangePassword", reflect.TypeOf((*MockCoreServiceServer)(nil).ChangePassword), arg0, arg1)
+}
+
 // CreateStrike mocks base method.
 func (m *MockCoreServiceServer) CreateStrike(arg0 context.Context, arg1 *core.CreateStrikeRequest) (*core.CreateStrikeResponse, error) {
 	m.ctrl.T.Helper()
@@ -479,6 +554,21 @@ func (m *MockCoreServiceServer) CreateStrike(arg0 context.Context, arg1 *core.Cr
 func (mr *MockCoreServiceServerMockRecorder) CreateStrike(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateStrike", reflect.TypeOf((*MockCoreServiceServer)(nil).CreateStrike), arg0, arg1)
+}
+
+// DeleteAccount mocks base method.
+func (m *MockCoreServiceServer) DeleteAccount(arg0 context.Context, arg1 *core.DeleteAccountRequest) (*core.DeleteAccountResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteAccount", arg0, arg1)
+	ret0, _ := ret[0].(*core.DeleteAccountResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DeleteAccount indicates an expected call of DeleteAccount.
+func (mr *MockCoreServiceServerMockRecorder) DeleteAccount(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteAccount", reflect.TypeOf((*MockCoreServiceServer)(nil).DeleteAccount), arg0, arg1)
 }
 
 // DeletePhoto mocks base method.
@@ -539,6 +629,21 @@ func (m *MockCoreServiceServer) GetProfile(arg0 context.Context, arg1 *core.GetP
 func (mr *MockCoreServiceServerMockRecorder) GetProfile(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProfile", reflect.TypeOf((*MockCoreServiceServer)(nil).GetProfile), arg0, arg1)
+}
+
+// GetProfileWithRelations mocks base method.
+func (m *MockCoreServiceServer) GetProfileWithRelations(arg0 context.Context, arg1 *core.GetProfileWithRelationsRequest) (*core.GetProfileResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetProfileWithRelations", arg0, arg1)
+	ret0, _ := ret[0].(*core.GetProfileResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetProfileWithRelations indicates an expected call of GetProfileWithRelations.
+func (mr *MockCoreServiceServerMockRecorder) GetProfileWithRelations(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProfileWithRelations", reflect.TypeOf((*MockCoreServiceServer)(nil).GetProfileWithRelations), arg0, arg1)
 }
 
 // GetStrike mocks base method.
