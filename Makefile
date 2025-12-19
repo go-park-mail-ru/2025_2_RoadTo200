@@ -61,14 +61,16 @@ test-coverage:
 
 
 build-docs:
-	swag init -g /cmd/auth/main.go -o api/auth/
-	swag init -g /cmd/core/main.go -o api/core/
-	swag init -g /cmd/chat/main.go -o api/chat/
-	swag init -g /cmd/server/main.go -o api/server/
+	swag init -g ./cmd/auth/main.go -o api/auth/
+	swag init -g ./cmd/core/main.go -o api/core/
+	swag init -g ./cmd/chat/main.go -o api/chat/
+	swag init -g ./cmd/server/main.go -o api/server/
 
 build: generate
 	go build -o ./.build/auth ./cmd/auth/main.go
 	go build -o ./.build/core ./cmd/core/main.go
+	go build -o ./.build/chat ./cmd/chat/main.go
+	go build -o ./.build/server ./cmd/server/main.go
 
 build-bin: generate
 	GOOS=linux GOARCH=amd64 go build -o ./.build/auth ./cmd/auth/main.go
@@ -77,7 +79,7 @@ build-bin: generate
 	GOOS=linux GOARCH=amd64 go build -o ./.build/server ./cmd/server/main.go
 
 clean:
-	rm -f app coverage.out
+	rm -f app coverage.out .build
 
 fmt:
 	go fmt ./...
