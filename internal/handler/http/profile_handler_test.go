@@ -175,9 +175,9 @@ func TestProfileHandler_UpdatePreferences_Success(t *testing.T) {
 	userID := uuid.New()
 
 	preferencesData := map[string]interface{}{
-		"ageMin":      18,
-		"ageMax":      35,
-		"maxDistance": 50,
+		"age_min":     18,
+		"age_max":     35,
+		"show_gender": "both",
 	}
 	body, _ := json.Marshal(preferencesData)
 
