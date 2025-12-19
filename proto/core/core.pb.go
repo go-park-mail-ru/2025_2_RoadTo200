@@ -1465,7 +1465,8 @@ type FeedUser struct {
 	PhotosCount   int32                  `protobuf:"varint,7,opt,name=photos_count,json=photosCount,proto3" json:"photos_count,omitempty"`
 	Artist        *string                `protobuf:"bytes,8,opt,name=artist,proto3,oneof" json:"artist,omitempty"`
 	Quote         *string                `protobuf:"bytes,9,opt,name=quote,proto3,oneof" json:"quote,omitempty"`
-	Interests     []*Interest            `protobuf:"bytes,10,rep,name=interests,proto3" json:"interests,omitempty"`
+	IsPremium     bool                   `protobuf:"varint,10,opt,name=is_premium,json=isPremium,proto3" json:"is_premium,omitempty"`
+	Interests     []*Interest            `protobuf:"bytes,11,rep,name=interests,proto3" json:"interests,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1561,6 +1562,13 @@ func (x *FeedUser) GetQuote() string {
 		return *x.Quote
 	}
 	return ""
+}
+
+func (x *FeedUser) GetIsPremium() bool {
+	if x != nil {
+		return x.IsPremium
+	}
+	return false
 }
 
 func (x *FeedUser) GetInterests() []*Interest {
@@ -3526,7 +3534,7 @@ const file_proto_core_core_proto_rawDesc = "" +
 	"\acontent\x18\x02 \x01(\fR\acontent\x12!\n" +
 	"\fcontent_type\x18\x03 \x01(\tR\vcontentType\"<\n" +
 	"\x13UploadPhotoResponse\x12%\n" +
-	"\x05photo\x18\x01 \x01(\v2\x0f.core.UserPhotoR\x05photo\"\xb0\x02\n" +
+	"\x05photo\x18\x01 \x01(\v2\x0f.core.UserPhotoR\x05photo\"\xcf\x02\n" +
 	"\bFeedUser\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x10\n" +
@@ -3536,9 +3544,11 @@ const file_proto_core_core_proto_rawDesc = "" +
 	"\x06images\x18\x06 \x03(\tR\x06images\x12!\n" +
 	"\fphotos_count\x18\a \x01(\x05R\vphotosCount\x12\x1b\n" +
 	"\x06artist\x18\b \x01(\tH\x00R\x06artist\x88\x01\x01\x12\x19\n" +
-	"\x05quote\x18\t \x01(\tH\x01R\x05quote\x88\x01\x01\x12,\n" +
-	"\tinterests\x18\n" +
-	" \x03(\v2\x0e.core.InterestR\tinterestsB\t\n" +
+	"\x05quote\x18\t \x01(\tH\x01R\x05quote\x88\x01\x01\x12\x1d\n" +
+	"\n" +
+	"is_premium\x18\n" +
+	" \x01(\bR\tisPremium\x12,\n" +
+	"\tinterests\x18\v \x03(\v2\x0e.core.InterestR\tinterestsB\t\n" +
 	"\a_artistB\b\n" +
 	"\x06_quote\"W\n" +
 	"\x0eGetFeedRequest\x12\x17\n" +

@@ -109,6 +109,7 @@ func FeedUserToProto(feedUser dto.FeedUser) *pb.FeedUser {
 		Description: feedUser.Description,
 		Images:      feedUser.Images,
 		PhotosCount: int32(feedUser.PhotosCount),
+		IsPremium:   feedUser.IsPremium,
 		Interests:   InterestsToProto(feedUser.Interests),
 	}
 

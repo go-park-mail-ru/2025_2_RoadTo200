@@ -15,6 +15,7 @@ type FeedUser struct {
 	PhotosCount int               `json:"photos_count"`
 	Artist      *string           `db:"artist" json:"artist,omitempty"`
 	Quote       *string           `db:"quote" json:"quote,omitempty"`
+	IsPremium   bool              `json:"is_premium"`
 	Interests   []domain.Interest `json:"interests"`
 }
 

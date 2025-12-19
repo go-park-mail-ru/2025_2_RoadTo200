@@ -201,6 +201,7 @@ func TestFeedUserToProto(t *testing.T) {
 		PhotosCount: 2,
 		Artist:      strPtr("Beatles"),
 		Quote:       strPtr("Be yourself"),
+		IsPremium:   true,
 		Interests: []domain.Interest{
 			{UserID: userID, Theme: constants.InterestTypeWorkout},
 		},
@@ -213,6 +214,7 @@ func TestFeedUserToProto(t *testing.T) {
 	assert.Equal(t, feedUser.Name, result.Name)
 	assert.Equal(t, int32(feedUser.Age), result.Age)
 	assert.Equal(t, feedUser.Gender, result.Gender)
+	assert.Equal(t, feedUser.IsPremium, result.IsPremium)
 	assert.Equal(t, 2, len(result.Images))
 	assert.NotNil(t, result.Artist)
 	assert.NotNil(t, result.Quote)

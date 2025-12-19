@@ -1,8 +1,8 @@
 #GOOS=linux
 #GOARCH=amd64
 
-run:
-	go run ./cmd/server/main.go
+run-gateway:
+	GOOS=linux GOARCH=amd64 go build -o ./.build/server ./cmd/server/main.go
 
 run-auth:
 	CONFIG_PATH=config/auth-config.yaml go run ./cmd/auth/main.go
@@ -12,6 +12,15 @@ run-core:
 
 run-chat:
 	CONFIG_PATH=config/chat-config.yaml go run ./cmd/chat/main.go
+
+# Запуск всех сервисов параллельно
+run:
+	@echo "Starting all services..."
+	@CONFIG_PATH=config/auth-config.yaml go run ./cmd/auth/main.go &
+	@CONFIG_PATH=config/core-config.yaml go run ./cmd/core/main.go &
+	@CONFIG_PATH=config/chat-config.yaml go run ./cmd/chat/main.go &
+	@echo "All services started in background"
+	@echo "Use 'pkill -f \"go run ./cmd\"' to stop all services"
 
 # Запуск всех тестов
 test:
@@ -50,72 +59,6 @@ test-coverage:
 	@echo "Full report: coverage.out"
 	@echo "HTML report: go tool cover -html=coverage.out"
 
-# Test только Converters
-test-converters:
-	@echo "Running converter tests..."
-	@go test -v ./internal/core-service/converters/...
-	@go test -v ./internal/chat-service/converters/...
-	@go test -v ./internal/gateway/adapters/... -run TestCoreProto
-
-# Test с покрытием для Converters
-test-converters-coverage:
-	@echo "Running converter tests with coverage..."
-	@go test -cover ./internal/core-service/converters/...
-	@go test -cover ./internal/chat-service/converters/...
-	@go test -cover ./internal/gateway/adapters/... -run TestCoreProto
-	@echo "\nDetailed coverage:"
-	@go test -coverprofile=coverage-converters.out ./internal/core-service/converters/... ./internal/chat-service/converters/... ./internal/gateway/adapters/...
-	@go tool cover -func=coverage-converters.out | grep total
-
-# Test только Repository (БД)
-test-repository:
-	@echo "Running repository tests..."
-	@go test -v ./internal/repository/implementations/postgres/...
-	@go test -v ./internal/repository/implementations/redis/...
-	@go test -v ./internal/repository/implementations/minio/...
-
-# Test с покрытием для Repository
-test-repository-coverage:
-	@echo "Running repository tests with coverage..."
-	@go test -cover ./internal/repository/implementations/postgres/...
-	@go test -cover ./internal/repository/implementations/redis/...
-	@go test -cover ./internal/repository/implementations/minio/...
-	@echo "\nDetailed coverage:"
-	@go test -coverprofile=coverage-repository.out ./internal/repository/implementations/...
-	@go tool cover -func=coverage-repository.out | grep total
-
-# Test только Service (бизнес-логика)
-test-service:
-	@echo "Running service tests..."
-	@go test -v ./internal/service/implementations/...
-
-# Test с покрытием для Service
-test-service-coverage:
-	@echo "Running service tests with coverage..."
-	@go test -cover ./internal/service/implementations/...
-	@echo "\nDetailed coverage:"
-	@go test -coverprofile=coverage-service.out ./internal/service/implementations/...
-	@go tool cover -func=coverage-service.out | grep total
-
-# Test только Middleware
-test-middleware:
-	@echo "Running middleware tests..."
-	@go test ./internal/handler/middleware/... -v
-
-# Test Middleware с покрытием
-test-middleware-coverage:
-	@echo "Running middleware tests with coverage..."
-	@go test ./internal/handler/middleware/... -cover
-
-# Test только Handlers
-test-handler:
-	@echo "Running handler tests..."
-	@go test ./internal/handler/http/... -v
-
-# Test Handlers с покрытием
-test-handler-coverage:
-	@echo "Running handler tests with coverage..."
-	@go test ./internal/handler/http/... -cover
 
 build-docs:
 	swag init -g /cmd/auth/main.go -o api/auth/

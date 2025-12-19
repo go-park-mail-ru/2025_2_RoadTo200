@@ -204,7 +204,8 @@ message FeedUser {
   int32 photos_count = 7;
   optional string artist = 8;
   optional string quote = 9;
-  repeated Interest interests = 10;
+  bool is_premium = 10;
+  repeated Interest interests = 11;
 }
 
 message GetFeedRequest {

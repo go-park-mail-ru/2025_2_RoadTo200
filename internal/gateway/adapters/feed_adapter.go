@@ -43,6 +43,7 @@ func (a *FeedServiceAdapter) GetFeed(ctx context.Context, userID uuid.UUID, limi
 			PhotosCount: int(pbUser.PhotosCount),
 			Artist:      pbUser.Artist,
 			Quote:       pbUser.Quote,
+			IsPremium:   pbUser.IsPremium,
 			Interests:   coreProtoToInterests(pbUser.Interests),
 		}
 	}

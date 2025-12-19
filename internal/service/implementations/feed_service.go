@@ -90,6 +90,7 @@ func (s *FeedService) GetFeed(ctx context.Context, userID uuid.UUID, limit, offs
 // convertToFeedUser преобразует доменного пользователя в формат для ленты
 func (s *FeedService) convertToFeedUser(ctx context.Context, user domain.User) (dto.FeedUser, error) {
 	s.logger.Trace("convertToFeedUser")
+
 	// Вычисляем возраст
 	age := calculateAge(user.BirthDate)
 
@@ -107,6 +108,9 @@ func (s *FeedService) convertToFeedUser(ctx context.Context, user domain.User) (
 		Description: getDescription(user.Bio),
 		Images:      images,
 		PhotosCount: len(images),
+		Artist:      user.Artist,
+		Quote:       user.Quote,
+		IsPremium:   user.IsPremium,
 	}, nil
 }
 

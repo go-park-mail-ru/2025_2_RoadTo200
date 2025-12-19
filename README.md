@@ -2,10 +2,10 @@
 Репозиторий команды RoadTo200. Проект: Тиндер
 
 ## Состав
-* Егоров Дмитрий
-* Гилязетдинов Кирилл
-* Матвеев Илья
-* Микулин Михаил
+* Егоров Дмитрий - Backend
+* Гилязетдинов Кирилл - Backend
+* Матвеев Илья - Frontend
+* Микулин Михаил - Frontend
 
 ## Менторы
 * Fronted: Нигматуллин Алик
@@ -13,51 +13,13 @@
 * UX: Ченцова Дарья
 * СУБД: Конопкин Евгений 
 
-## API 
-* POST /api/register  – регистрация
-* POST /api/login     – вход
-* GET  /api/session   – проверка авторизации
-* POST /api/logout    – выход
+## Актуальные ссылки
+* Production: https://terabithia.online
+* Swagger: http://217.16.17.116:8080/swagger/index.html#/
+* Figma: https://www.figma.com/design/8uJxLwz0GgxPbsqGhGFCjo/RoadTo200Technopark?node-id=0-1&p=f&t=GDXu4EdVSnY77z0k-0
+* Фронтенд репозиторий: https://github.com/frontend-park-mail-ru/2025_2_RoadTo200
 
-
-## Структура
-#### cmd/server/ - точка входа приложения
-    * main.go - инициализация и запуск
-
-#### internal/domain/ - доменный слой
-    * entities/ - основные сущности (User, Session, Profile, etc.)
-    * errors/ - кастомные ошибки домена
-    * constants/ - константы
-
-#### internal/service/ - бизнес-логика
-    * interfaces/ - интерфейсы сервисов
-    * implementations/ - реализации сервисов
-
-#### internal/handler/ - обработчики HTTP
-    * http/ - HTTP хендлеры
-    * middleware/ - CORS, аутентификация, логирование
-
-#### internal/repository/ - работа с данными
-    * interfaces/ - интерфейсы репозиториев
-    * implementations/ - in-memory, postgres реализации
-
-#### internal/config/ - конфигурация приложения
-#### internal/logger/ - логгер
-
-#### pkg/ - переиспользуемые пакеты
-    * utils/ - утилиты (JSON, валидация)
-    * security/ - хэширование, JWT
-    * httpserver/ - настройка HTTP сервера
-
-#### api/docs/swagger/ - Swagger документация
-
-#### tests/ - тесты
-    * unit/ - юнит-тесты
-    * integration/ - интеграционные тесты
-    * mocks/ - моки для Gomock
-
-### Остальные папки:
-
-#### migrations/ - миграции БД
-#### scripts/ - вспомогательные скрипты
-#### deployments/ - docker-compose, k8s манифесты
+## How to run
+* docker compose up -d
+* Поменять в config/config.yaml mode на dev
+* make run
