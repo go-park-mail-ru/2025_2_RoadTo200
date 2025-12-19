@@ -365,3 +365,26 @@ func ProtoToStrikeStatusUpdateRequest(req *pb.UpdateStrikeStatusRequest) *dto.St
 		Note:        note,
 	}
 }
+
+// ============= Report/Support Converters =============
+
+func SupportTicketResponseToProto(ticket *dto.SupportTicketResponse) *pb.Report {
+	return &pb.Report{
+		Id:        ticket.ID,
+		UserId:    "", // Not available in SupportTicketResponse
+		Category:  ticket.Category,
+		Status:    ticket.Status,
+		CreatedAt: timestamppb.New(ticket.CreatedAt),
+	}
+}
+
+func SupportTicketDetailResponseToProto(ticket *dto.SupportTicketDetailResponse) *pb.ReportDetail {
+	return &pb.ReportDetail{
+		Id:        ticket.ID,
+		Category:  ticket.Category,
+		Text:      ticket.Text,
+		Email:     ticket.Email,
+		Status:    ticket.Status,
+		CreatedAt: timestamppb.New(ticket.CreatedAt),
+	}
+}

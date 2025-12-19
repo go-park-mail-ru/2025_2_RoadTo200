@@ -80,8 +80,8 @@ func (s *AuthService) Register(ctx context.Context, email, password, passwordCon
 	defaultPreferences := &domain.UserPreference{
 		UserID:     user.ID,
 		ShowGender: constants.GenderPrefBoth, // "both" - показывать всех
-		AgeMin:     18,                        // минимальный возраст
-		AgeMax:     100,                       // максимальный возраст
+		AgeMin:     18,                       // минимальный возраст
+		AgeMax:     65,                       // максимальный возраст
 		CreatedAt:  time.Now(),
 		UpdatedAt:  time.Now(),
 	}

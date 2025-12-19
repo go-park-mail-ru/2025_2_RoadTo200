@@ -42,6 +42,10 @@ const (
 	CoreService_UpdateStrikeStatus_FullMethodName      = "/core.CoreService/UpdateStrikeStatus"
 	CoreService_DeleteStrike_FullMethodName            = "/core.CoreService/DeleteStrike"
 	CoreService_GetUserStrikeStats_FullMethodName      = "/core.CoreService/GetUserStrikeStats"
+	CoreService_CreateReport_FullMethodName            = "/core.CoreService/CreateReport"
+	CoreService_GetUserReports_FullMethodName          = "/core.CoreService/GetUserReports"
+	CoreService_GetUserReport_FullMethodName           = "/core.CoreService/GetUserReport"
+	CoreService_GetSupportStats_FullMethodName         = "/core.CoreService/GetSupportStats"
 )
 
 // CoreServiceClient is the client API for CoreService service.
@@ -78,6 +82,11 @@ type CoreServiceClient interface {
 	UpdateStrikeStatus(ctx context.Context, in *UpdateStrikeStatusRequest, opts ...grpc.CallOption) (*UpdateStrikeStatusResponse, error)
 	DeleteStrike(ctx context.Context, in *DeleteStrikeRequest, opts ...grpc.CallOption) (*DeleteStrikeResponse, error)
 	GetUserStrikeStats(ctx context.Context, in *GetUserStrikeStatsRequest, opts ...grpc.CallOption) (*GetUserStrikeStatsResponse, error)
+	// Report/Support methods
+	CreateReport(ctx context.Context, in *CreateReportRequest, opts ...grpc.CallOption) (*CreateReportResponse, error)
+	GetUserReports(ctx context.Context, in *GetUserReportsRequest, opts ...grpc.CallOption) (*GetUserReportsResponse, error)
+	GetUserReport(ctx context.Context, in *GetUserReportRequest, opts ...grpc.CallOption) (*GetUserReportResponse, error)
+	GetSupportStats(ctx context.Context, in *GetSupportStatsRequest, opts ...grpc.CallOption) (*GetSupportStatsResponse, error)
 }
 
 type coreServiceClient struct {
@@ -318,6 +327,46 @@ func (c *coreServiceClient) GetUserStrikeStats(ctx context.Context, in *GetUserS
 	return out, nil
 }
 
+func (c *coreServiceClient) CreateReport(ctx context.Context, in *CreateReportRequest, opts ...grpc.CallOption) (*CreateReportResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateReportResponse)
+	err := c.cc.Invoke(ctx, CoreService_CreateReport_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *coreServiceClient) GetUserReports(ctx context.Context, in *GetUserReportsRequest, opts ...grpc.CallOption) (*GetUserReportsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetUserReportsResponse)
+	err := c.cc.Invoke(ctx, CoreService_GetUserReports_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *coreServiceClient) GetUserReport(ctx context.Context, in *GetUserReportRequest, opts ...grpc.CallOption) (*GetUserReportResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetUserReportResponse)
+	err := c.cc.Invoke(ctx, CoreService_GetUserReport_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *coreServiceClient) GetSupportStats(ctx context.Context, in *GetSupportStatsRequest, opts ...grpc.CallOption) (*GetSupportStatsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetSupportStatsResponse)
+	err := c.cc.Invoke(ctx, CoreService_GetSupportStats_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CoreServiceServer is the server API for CoreService service.
 // All implementations must embed UnimplementedCoreServiceServer
 // for forward compatibility.
@@ -352,6 +401,11 @@ type CoreServiceServer interface {
 	UpdateStrikeStatus(context.Context, *UpdateStrikeStatusRequest) (*UpdateStrikeStatusResponse, error)
 	DeleteStrike(context.Context, *DeleteStrikeRequest) (*DeleteStrikeResponse, error)
 	GetUserStrikeStats(context.Context, *GetUserStrikeStatsRequest) (*GetUserStrikeStatsResponse, error)
+	// Report/Support methods
+	CreateReport(context.Context, *CreateReportRequest) (*CreateReportResponse, error)
+	GetUserReports(context.Context, *GetUserReportsRequest) (*GetUserReportsResponse, error)
+	GetUserReport(context.Context, *GetUserReportRequest) (*GetUserReportResponse, error)
+	GetSupportStats(context.Context, *GetSupportStatsRequest) (*GetSupportStatsResponse, error)
 	mustEmbedUnimplementedCoreServiceServer()
 }
 
@@ -430,6 +484,18 @@ func (UnimplementedCoreServiceServer) DeleteStrike(context.Context, *DeleteStrik
 }
 func (UnimplementedCoreServiceServer) GetUserStrikeStats(context.Context, *GetUserStrikeStatsRequest) (*GetUserStrikeStatsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserStrikeStats not implemented")
+}
+func (UnimplementedCoreServiceServer) CreateReport(context.Context, *CreateReportRequest) (*CreateReportResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateReport not implemented")
+}
+func (UnimplementedCoreServiceServer) GetUserReports(context.Context, *GetUserReportsRequest) (*GetUserReportsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserReports not implemented")
+}
+func (UnimplementedCoreServiceServer) GetUserReport(context.Context, *GetUserReportRequest) (*GetUserReportResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserReport not implemented")
+}
+func (UnimplementedCoreServiceServer) GetSupportStats(context.Context, *GetSupportStatsRequest) (*GetSupportStatsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetSupportStats not implemented")
 }
 func (UnimplementedCoreServiceServer) mustEmbedUnimplementedCoreServiceServer() {}
 func (UnimplementedCoreServiceServer) testEmbeddedByValue()                     {}
@@ -866,6 +932,78 @@ func _CoreService_GetUserStrikeStats_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CoreService_CreateReport_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateReportRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoreServiceServer).CreateReport(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CoreService_CreateReport_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoreServiceServer).CreateReport(ctx, req.(*CreateReportRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CoreService_GetUserReports_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserReportsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoreServiceServer).GetUserReports(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CoreService_GetUserReports_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoreServiceServer).GetUserReports(ctx, req.(*GetUserReportsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CoreService_GetUserReport_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserReportRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoreServiceServer).GetUserReport(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CoreService_GetUserReport_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoreServiceServer).GetUserReport(ctx, req.(*GetUserReportRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CoreService_GetSupportStats_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetSupportStatsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CoreServiceServer).GetSupportStats(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CoreService_GetSupportStats_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CoreServiceServer).GetSupportStats(ctx, req.(*GetSupportStatsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // CoreService_ServiceDesc is the grpc.ServiceDesc for CoreService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -964,6 +1102,22 @@ var CoreService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUserStrikeStats",
 			Handler:    _CoreService_GetUserStrikeStats_Handler,
+		},
+		{
+			MethodName: "CreateReport",
+			Handler:    _CoreService_CreateReport_Handler,
+		},
+		{
+			MethodName: "GetUserReports",
+			Handler:    _CoreService_GetUserReports_Handler,
+		},
+		{
+			MethodName: "GetUserReport",
+			Handler:    _CoreService_GetUserReport_Handler,
+		},
+		{
+			MethodName: "GetSupportStats",
+			Handler:    _CoreService_GetSupportStats_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

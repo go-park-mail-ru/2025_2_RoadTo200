@@ -49,6 +49,7 @@ func (a *App) initServices() error {
 		Match:   adapters.NewMatchServiceAdapter(coreClient),
 		Chat:    adapters.NewChatServiceAdapter(chatClient, a.logger),
 		Strike:  adapters.NewStrikeServiceAdapter(coreClient),
+		Report:  adapters.NewReportServiceAdapter(coreClient),
 		Payment: payment_service.NewPaymentService(
 			a.repositories.User,
 			a.repositories.Subscription,

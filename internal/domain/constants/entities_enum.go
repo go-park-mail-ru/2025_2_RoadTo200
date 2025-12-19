@@ -39,7 +39,7 @@ const (
 	AllowedMimeTypes = "image/jpeg,image/png,image/webp"
 
 	MinAge      = 18
-	MaxAge      = 99
+	MaxAge      = 65
 	MinDistance = 1
 	MaxDistance = 500
 )
@@ -91,3 +91,69 @@ const (
 	NotificationTypeLike      NotificationType = "like"
 	NotificationTypeMessage   NotificationType = "message"
 )
+
+// ReportTheme представляет тему обращения в поддержку
+type ReportTheme string
+
+const (
+	ReportThemeTechnical ReportTheme = "technical"
+	ReportThemeFeature   ReportTheme = "feature"
+	ReportThemeQuestion  ReportTheme = "question"
+	ReportThemeSecurity  ReportTheme = "security"
+	ReportThemeBilling   ReportTheme = "billing"
+	ReportThemeDevice    ReportTheme = "device"
+)
+
+// ReportStatus представляет статус обращения
+type ReportStatus string
+
+const (
+	ReportStatusOpen   ReportStatus = "open"
+	ReportStatusWork   ReportStatus = "work"
+	ReportStatusClosed ReportStatus = "close"
+)
+
+// CategoryMapping маппинг человекочитаемых названий в технические
+var CategoryMapping = map[string]ReportTheme{
+	"Технические проблемы":     ReportThemeTechnical,
+	"Предложения по улучшению": ReportThemeFeature,
+	"Вопросы по использованию": ReportThemeQuestion,
+	"Проблемы с безопасностью": ReportThemeSecurity,
+	"Вопросы по оплате":        ReportThemeBilling,
+	"Проблемы с устройством":   ReportThemeDevice,
+}
+
+// StatusDisplayNames маппинг технических статусов в человекочитаемые
+var StatusDisplayNames = map[ReportStatus]string{
+	ReportStatusOpen:   "Открыто",
+	ReportStatusWork:   "В работе",
+	ReportStatusClosed: "Закрыто",
+}
+
+// IsValidHumanCategory проверяет валидность человекочитаемой категории
+func IsValidHumanCategory(category string) bool {
+	_, exists := CategoryMapping[category]
+	return exists
+}
+
+// HumanCategoryToTheme конвертирует человекочитаемую категорию в тему
+func HumanCategoryToTheme(category string) (ReportTheme, error) {
+	theme := CategoryMapping[category]
+	return theme, nil
+}
+
+// ThemeToHumanCategory конвертирует тему в человекочитаемую категорию
+func ThemeToHumanCategory(theme ReportTheme) string {
+	// Обратный маппинг
+	for human, technical := range CategoryMapping {
+		if technical == theme {
+			return human
+		}
+	}
+	return "Неизвестная категория"
+}
+
+// DefaultReportStatus возвращает статус по умолчанию
+func DefaultReportStatus() ReportStatus {
+	return ReportStatusOpen
+}

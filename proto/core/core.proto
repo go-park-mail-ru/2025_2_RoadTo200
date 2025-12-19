@@ -40,6 +40,12 @@ service CoreService {
   rpc UpdateStrikeStatus(UpdateStrikeStatusRequest) returns (UpdateStrikeStatusResponse);
   rpc DeleteStrike(DeleteStrikeRequest) returns (DeleteStrikeResponse);
   rpc GetUserStrikeStats(GetUserStrikeStatsRequest) returns (GetUserStrikeStatsResponse);
+
+  // Report/Support methods
+  rpc CreateReport(CreateReportRequest) returns (CreateReportResponse);
+  rpc GetUserReports(GetUserReportsRequest) returns (GetUserReportsResponse);
+  rpc GetUserReport(GetUserReportRequest) returns (GetUserReportResponse);
+  rpc GetSupportStats(GetSupportStatsRequest) returns (GetSupportStatsResponse);
 }
 
 // ============= Common Messages =============
@@ -391,4 +397,66 @@ message DeleteAccountRequest {
 
 message DeleteAccountResponse {
   string message = 1;
+}
+
+// ============= Report/Support Messages =============
+
+message CreateReportRequest {
+  string user_id = 1;
+  string category = 2; // technical, feature, question, security, billing, device
+  string text = 3;
+  string email = 4;
+}
+
+message CreateReportResponse {
+  Report report = 1;
+}
+
+message GetUserReportsRequest {
+  string user_id = 1;
+  int32 limit = 2;
+  int32 offset = 3;
+}
+
+message GetUserReportsResponse {
+  repeated Report reports = 1;
+  int32 total = 2;
+}
+
+message GetUserReportRequest {
+  string user_id = 1;
+  string report_id = 2;
+}
+
+message GetUserReportResponse {
+  ReportDetail report = 1;
+}
+
+message GetSupportStatsRequest {
+  // Empty - no parameters needed
+}
+
+message GetSupportStatsResponse {
+  int32 total_tickets = 1;
+  map<string, int32> tickets_by_category = 2;
+  map<string, int32> tickets_by_status = 3;
+  string average_response_time = 4;
+  repeated ReportDetail all_tickets = 5;
+}
+
+message Report {
+  string id = 1;
+  string user_id = 2;
+  string category = 3;
+  string status = 4;
+  google.protobuf.Timestamp created_at = 5;
+}
+
+message ReportDetail {
+  string id = 1;
+  string category = 2;
+  string text = 3;
+  string email = 4;
+  string status = 5;
+  google.protobuf.Timestamp created_at = 6;
 }
