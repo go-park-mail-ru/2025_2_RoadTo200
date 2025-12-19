@@ -14,10 +14,10 @@
 * СУБД: Конопкин Евгений 
 
 ## Актуальные ссылки
-* Production: https://terabithia.online
-* Swagger: http://217.16.17.116:8080/swagger/index.html#/
-* Figma: https://www.figma.com/design/8uJxLwz0GgxPbsqGhGFCjo/RoadTo200Technopark?node-id=0-1&p=f&t=GDXu4EdVSnY77z0k-0
-* Фронтенд репозиторий: https://github.com/frontend-park-mail-ru/2025_2_RoadTo200
+## [Сайт](https://terabithia.online)
+## [Swagger](http://217.16.17.116:8080/swagger/index.html#/)
+## [Figma](https://www.figma.com/design/8uJxLwz0GgxPbsqGhGFCjo/RoadTo200Technopark?node-id=0-1&p=f&t=GDXu4EdVSnY77z0k-0)
+## [Фронтенд репозиторий](https://github.com/frontend-park-mail-ru/2025_2_RoadTo200)
 
 ## How to run
 * docker compose up -d
