@@ -689,6 +689,7 @@ func (x *GetProfileResponse) GetIsMatched() bool {
 type UpdateProfileInfoRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Email         *string                `protobuf:"bytes,12,opt,name=email,proto3,oneof" json:"email,omitempty"`
 	Name          *string                `protobuf:"bytes,2,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	Phone         *string                `protobuf:"bytes,3,opt,name=phone,proto3,oneof" json:"phone,omitempty"`
 	BirthDate     *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=birth_date,json=birthDate,proto3,oneof" json:"birth_date,omitempty"`
@@ -736,6 +737,13 @@ func (*UpdateProfileInfoRequest) Descriptor() ([]byte, []int) {
 func (x *UpdateProfileInfoRequest) GetUserId() string {
 	if x != nil {
 		return x.UserId
+	}
+	return ""
+}
+
+func (x *UpdateProfileInfoRequest) GetEmail() string {
+	if x != nil && x.Email != nil {
+		return *x.Email
 	}
 	return ""
 }
@@ -3386,6 +3394,598 @@ func (x *DeleteAccountResponse) GetMessage() string {
 	return ""
 }
 
+type CreateReportRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Category      string                 `protobuf:"bytes,2,opt,name=category,proto3" json:"category,omitempty"` // technical, feature, question, security, billing, device
+	Text          string                 `protobuf:"bytes,3,opt,name=text,proto3" json:"text,omitempty"`
+	Email         string                 `protobuf:"bytes,4,opt,name=email,proto3" json:"email,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateReportRequest) Reset() {
+	*x = CreateReportRequest{}
+	mi := &file_proto_core_core_proto_msgTypes[55]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateReportRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateReportRequest) ProtoMessage() {}
+
+func (x *CreateReportRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_core_core_proto_msgTypes[55]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateReportRequest.ProtoReflect.Descriptor instead.
+func (*CreateReportRequest) Descriptor() ([]byte, []int) {
+	return file_proto_core_core_proto_rawDescGZIP(), []int{55}
+}
+
+func (x *CreateReportRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *CreateReportRequest) GetCategory() string {
+	if x != nil {
+		return x.Category
+	}
+	return ""
+}
+
+func (x *CreateReportRequest) GetText() string {
+	if x != nil {
+		return x.Text
+	}
+	return ""
+}
+
+func (x *CreateReportRequest) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
+}
+
+type CreateReportResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Report        *Report                `protobuf:"bytes,1,opt,name=report,proto3" json:"report,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateReportResponse) Reset() {
+	*x = CreateReportResponse{}
+	mi := &file_proto_core_core_proto_msgTypes[56]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateReportResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateReportResponse) ProtoMessage() {}
+
+func (x *CreateReportResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_core_core_proto_msgTypes[56]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateReportResponse.ProtoReflect.Descriptor instead.
+func (*CreateReportResponse) Descriptor() ([]byte, []int) {
+	return file_proto_core_core_proto_rawDescGZIP(), []int{56}
+}
+
+func (x *CreateReportResponse) GetReport() *Report {
+	if x != nil {
+		return x.Report
+	}
+	return nil
+}
+
+type GetUserReportsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Limit         int32                  `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`
+	Offset        int32                  `protobuf:"varint,3,opt,name=offset,proto3" json:"offset,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetUserReportsRequest) Reset() {
+	*x = GetUserReportsRequest{}
+	mi := &file_proto_core_core_proto_msgTypes[57]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetUserReportsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetUserReportsRequest) ProtoMessage() {}
+
+func (x *GetUserReportsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_core_core_proto_msgTypes[57]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetUserReportsRequest.ProtoReflect.Descriptor instead.
+func (*GetUserReportsRequest) Descriptor() ([]byte, []int) {
+	return file_proto_core_core_proto_rawDescGZIP(), []int{57}
+}
+
+func (x *GetUserReportsRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *GetUserReportsRequest) GetLimit() int32 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+func (x *GetUserReportsRequest) GetOffset() int32 {
+	if x != nil {
+		return x.Offset
+	}
+	return 0
+}
+
+type GetUserReportsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Reports       []*Report              `protobuf:"bytes,1,rep,name=reports,proto3" json:"reports,omitempty"`
+	Total         int32                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetUserReportsResponse) Reset() {
+	*x = GetUserReportsResponse{}
+	mi := &file_proto_core_core_proto_msgTypes[58]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetUserReportsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetUserReportsResponse) ProtoMessage() {}
+
+func (x *GetUserReportsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_core_core_proto_msgTypes[58]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetUserReportsResponse.ProtoReflect.Descriptor instead.
+func (*GetUserReportsResponse) Descriptor() ([]byte, []int) {
+	return file_proto_core_core_proto_rawDescGZIP(), []int{58}
+}
+
+func (x *GetUserReportsResponse) GetReports() []*Report {
+	if x != nil {
+		return x.Reports
+	}
+	return nil
+}
+
+func (x *GetUserReportsResponse) GetTotal() int32 {
+	if x != nil {
+		return x.Total
+	}
+	return 0
+}
+
+type GetUserReportRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	ReportId      string                 `protobuf:"bytes,2,opt,name=report_id,json=reportId,proto3" json:"report_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetUserReportRequest) Reset() {
+	*x = GetUserReportRequest{}
+	mi := &file_proto_core_core_proto_msgTypes[59]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetUserReportRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetUserReportRequest) ProtoMessage() {}
+
+func (x *GetUserReportRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_core_core_proto_msgTypes[59]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetUserReportRequest.ProtoReflect.Descriptor instead.
+func (*GetUserReportRequest) Descriptor() ([]byte, []int) {
+	return file_proto_core_core_proto_rawDescGZIP(), []int{59}
+}
+
+func (x *GetUserReportRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *GetUserReportRequest) GetReportId() string {
+	if x != nil {
+		return x.ReportId
+	}
+	return ""
+}
+
+type GetUserReportResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Report        *ReportDetail          `protobuf:"bytes,1,opt,name=report,proto3" json:"report,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetUserReportResponse) Reset() {
+	*x = GetUserReportResponse{}
+	mi := &file_proto_core_core_proto_msgTypes[60]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetUserReportResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetUserReportResponse) ProtoMessage() {}
+
+func (x *GetUserReportResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_core_core_proto_msgTypes[60]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetUserReportResponse.ProtoReflect.Descriptor instead.
+func (*GetUserReportResponse) Descriptor() ([]byte, []int) {
+	return file_proto_core_core_proto_rawDescGZIP(), []int{60}
+}
+
+func (x *GetUserReportResponse) GetReport() *ReportDetail {
+	if x != nil {
+		return x.Report
+	}
+	return nil
+}
+
+type GetSupportStatsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetSupportStatsRequest) Reset() {
+	*x = GetSupportStatsRequest{}
+	mi := &file_proto_core_core_proto_msgTypes[61]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetSupportStatsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetSupportStatsRequest) ProtoMessage() {}
+
+func (x *GetSupportStatsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_core_core_proto_msgTypes[61]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetSupportStatsRequest.ProtoReflect.Descriptor instead.
+func (*GetSupportStatsRequest) Descriptor() ([]byte, []int) {
+	return file_proto_core_core_proto_rawDescGZIP(), []int{61}
+}
+
+type GetSupportStatsResponse struct {
+	state               protoimpl.MessageState `protogen:"open.v1"`
+	TotalTickets        int32                  `protobuf:"varint,1,opt,name=total_tickets,json=totalTickets,proto3" json:"total_tickets,omitempty"`
+	TicketsByCategory   map[string]int32       `protobuf:"bytes,2,rep,name=tickets_by_category,json=ticketsByCategory,proto3" json:"tickets_by_category,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`
+	TicketsByStatus     map[string]int32       `protobuf:"bytes,3,rep,name=tickets_by_status,json=ticketsByStatus,proto3" json:"tickets_by_status,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`
+	AverageResponseTime string                 `protobuf:"bytes,4,opt,name=average_response_time,json=averageResponseTime,proto3" json:"average_response_time,omitempty"`
+	AllTickets          []*ReportDetail        `protobuf:"bytes,5,rep,name=all_tickets,json=allTickets,proto3" json:"all_tickets,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *GetSupportStatsResponse) Reset() {
+	*x = GetSupportStatsResponse{}
+	mi := &file_proto_core_core_proto_msgTypes[62]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetSupportStatsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetSupportStatsResponse) ProtoMessage() {}
+
+func (x *GetSupportStatsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_core_core_proto_msgTypes[62]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetSupportStatsResponse.ProtoReflect.Descriptor instead.
+func (*GetSupportStatsResponse) Descriptor() ([]byte, []int) {
+	return file_proto_core_core_proto_rawDescGZIP(), []int{62}
+}
+
+func (x *GetSupportStatsResponse) GetTotalTickets() int32 {
+	if x != nil {
+		return x.TotalTickets
+	}
+	return 0
+}
+
+func (x *GetSupportStatsResponse) GetTicketsByCategory() map[string]int32 {
+	if x != nil {
+		return x.TicketsByCategory
+	}
+	return nil
+}
+
+func (x *GetSupportStatsResponse) GetTicketsByStatus() map[string]int32 {
+	if x != nil {
+		return x.TicketsByStatus
+	}
+	return nil
+}
+
+func (x *GetSupportStatsResponse) GetAverageResponseTime() string {
+	if x != nil {
+		return x.AverageResponseTime
+	}
+	return ""
+}
+
+func (x *GetSupportStatsResponse) GetAllTickets() []*ReportDetail {
+	if x != nil {
+		return x.AllTickets
+	}
+	return nil
+}
+
+type Report struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Category      string                 `protobuf:"bytes,3,opt,name=category,proto3" json:"category,omitempty"`
+	Status        string                 `protobuf:"bytes,4,opt,name=status,proto3" json:"status,omitempty"`
+	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Report) Reset() {
+	*x = Report{}
+	mi := &file_proto_core_core_proto_msgTypes[63]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Report) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Report) ProtoMessage() {}
+
+func (x *Report) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_core_core_proto_msgTypes[63]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Report.ProtoReflect.Descriptor instead.
+func (*Report) Descriptor() ([]byte, []int) {
+	return file_proto_core_core_proto_rawDescGZIP(), []int{63}
+}
+
+func (x *Report) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *Report) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *Report) GetCategory() string {
+	if x != nil {
+		return x.Category
+	}
+	return ""
+}
+
+func (x *Report) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *Report) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+type ReportDetail struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Category      string                 `protobuf:"bytes,2,opt,name=category,proto3" json:"category,omitempty"`
+	Text          string                 `protobuf:"bytes,3,opt,name=text,proto3" json:"text,omitempty"`
+	Email         string                 `protobuf:"bytes,4,opt,name=email,proto3" json:"email,omitempty"`
+	Status        string                 `protobuf:"bytes,5,opt,name=status,proto3" json:"status,omitempty"`
+	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ReportDetail) Reset() {
+	*x = ReportDetail{}
+	mi := &file_proto_core_core_proto_msgTypes[64]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReportDetail) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReportDetail) ProtoMessage() {}
+
+func (x *ReportDetail) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_core_core_proto_msgTypes[64]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReportDetail.ProtoReflect.Descriptor instead.
+func (*ReportDetail) Descriptor() ([]byte, []int) {
+	return file_proto_core_core_proto_rawDescGZIP(), []int{64}
+}
+
+func (x *ReportDetail) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *ReportDetail) GetCategory() string {
+	if x != nil {
+		return x.Category
+	}
+	return ""
+}
+
+func (x *ReportDetail) GetText() string {
+	if x != nil {
+		return x.Text
+	}
+	return ""
+}
+
+func (x *ReportDetail) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
+}
+
+func (x *ReportDetail) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *ReportDetail) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
 var File_proto_core_core_proto protoreflect.FileDescriptor
 
 const file_proto_core_core_proto_rawDesc = "" +
@@ -3468,21 +4068,24 @@ const file_proto_core_core_proto_rawDesc = "" +
 	"\n" +
 	"is_matched\x18\x06 \x01(\bH\x01R\tisMatched\x88\x01\x01B\v\n" +
 	"\t_is_likedB\r\n" +
-	"\v_is_matched\"\xde\x03\n" +
+	"\v_is_matched\"\x83\x04\n" +
 	"\x18UpdateProfileInfoRequest\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x17\n" +
-	"\x04name\x18\x02 \x01(\tH\x00R\x04name\x88\x01\x01\x12\x19\n" +
-	"\x05phone\x18\x03 \x01(\tH\x01R\x05phone\x88\x01\x01\x12>\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x19\n" +
+	"\x05email\x18\f \x01(\tH\x00R\x05email\x88\x01\x01\x12\x17\n" +
+	"\x04name\x18\x02 \x01(\tH\x01R\x04name\x88\x01\x01\x12\x19\n" +
+	"\x05phone\x18\x03 \x01(\tH\x02R\x05phone\x88\x01\x01\x12>\n" +
 	"\n" +
-	"birth_date\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampH\x02R\tbirthDate\x88\x01\x01\x12\x1b\n" +
-	"\x06gender\x18\x05 \x01(\tH\x03R\x06gender\x88\x01\x01\x12\x15\n" +
-	"\x03bio\x18\x06 \x01(\tH\x04R\x03bio\x88\x01\x01\x12\x1b\n" +
-	"\x06artist\x18\a \x01(\tH\x05R\x06artist\x88\x01\x01\x12\x19\n" +
-	"\x05quote\x18\b \x01(\tH\x06R\x05quote\x88\x01\x01\x12\x17\n" +
-	"\x04city\x18\v \x01(\tH\aR\x04city\x88\x01\x01\x12\x1f\n" +
-	"\blatitude\x18\t \x01(\x01H\bR\blatitude\x88\x01\x01\x12!\n" +
+	"birth_date\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampH\x03R\tbirthDate\x88\x01\x01\x12\x1b\n" +
+	"\x06gender\x18\x05 \x01(\tH\x04R\x06gender\x88\x01\x01\x12\x15\n" +
+	"\x03bio\x18\x06 \x01(\tH\x05R\x03bio\x88\x01\x01\x12\x1b\n" +
+	"\x06artist\x18\a \x01(\tH\x06R\x06artist\x88\x01\x01\x12\x19\n" +
+	"\x05quote\x18\b \x01(\tH\aR\x05quote\x88\x01\x01\x12\x17\n" +
+	"\x04city\x18\v \x01(\tH\bR\x04city\x88\x01\x01\x12\x1f\n" +
+	"\blatitude\x18\t \x01(\x01H\tR\blatitude\x88\x01\x01\x12!\n" +
 	"\tlongitude\x18\n" +
-	" \x01(\x01H\tR\tlongitude\x88\x01\x01B\a\n" +
+	" \x01(\x01H\n" +
+	"R\tlongitude\x88\x01\x01B\b\n" +
+	"\x06_emailB\a\n" +
 	"\x05_nameB\b\n" +
 	"\x06_phoneB\r\n" +
 	"\v_birth_dateB\t\n" +
@@ -3673,7 +4276,55 @@ const file_proto_core_core_proto_rawDesc = "" +
 	"\x14DeleteAccountRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\tR\x06userId\"1\n" +
 	"\x15DeleteAccountResponse\x12\x18\n" +
-	"\amessage\x18\x01 \x01(\tR\amessage2\xee\r\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage\"t\n" +
+	"\x13CreateReportRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1a\n" +
+	"\bcategory\x18\x02 \x01(\tR\bcategory\x12\x12\n" +
+	"\x04text\x18\x03 \x01(\tR\x04text\x12\x14\n" +
+	"\x05email\x18\x04 \x01(\tR\x05email\"<\n" +
+	"\x14CreateReportResponse\x12$\n" +
+	"\x06report\x18\x01 \x01(\v2\f.core.ReportR\x06report\"^\n" +
+	"\x15GetUserReportsRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x14\n" +
+	"\x05limit\x18\x02 \x01(\x05R\x05limit\x12\x16\n" +
+	"\x06offset\x18\x03 \x01(\x05R\x06offset\"V\n" +
+	"\x16GetUserReportsResponse\x12&\n" +
+	"\areports\x18\x01 \x03(\v2\f.core.ReportR\areports\x12\x14\n" +
+	"\x05total\x18\x02 \x01(\x05R\x05total\"L\n" +
+	"\x14GetUserReportRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1b\n" +
+	"\treport_id\x18\x02 \x01(\tR\breportId\"C\n" +
+	"\x15GetUserReportResponse\x12*\n" +
+	"\x06report\x18\x01 \x01(\v2\x12.core.ReportDetailR\x06report\"\x18\n" +
+	"\x16GetSupportStatsRequest\"\xf7\x03\n" +
+	"\x17GetSupportStatsResponse\x12#\n" +
+	"\rtotal_tickets\x18\x01 \x01(\x05R\ftotalTickets\x12d\n" +
+	"\x13tickets_by_category\x18\x02 \x03(\v24.core.GetSupportStatsResponse.TicketsByCategoryEntryR\x11ticketsByCategory\x12^\n" +
+	"\x11tickets_by_status\x18\x03 \x03(\v22.core.GetSupportStatsResponse.TicketsByStatusEntryR\x0fticketsByStatus\x122\n" +
+	"\x15average_response_time\x18\x04 \x01(\tR\x13averageResponseTime\x123\n" +
+	"\vall_tickets\x18\x05 \x03(\v2\x12.core.ReportDetailR\n" +
+	"allTickets\x1aD\n" +
+	"\x16TicketsByCategoryEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\x05R\x05value:\x028\x01\x1aB\n" +
+	"\x14TicketsByStatusEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\x05R\x05value:\x028\x01\"\xa0\x01\n" +
+	"\x06Report\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
+	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x1a\n" +
+	"\bcategory\x18\x03 \x01(\tR\bcategory\x12\x16\n" +
+	"\x06status\x18\x04 \x01(\tR\x06status\x129\n" +
+	"\n" +
+	"created_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\xb7\x01\n" +
+	"\fReportDetail\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1a\n" +
+	"\bcategory\x18\x02 \x01(\tR\bcategory\x12\x12\n" +
+	"\x04text\x18\x03 \x01(\tR\x04text\x12\x14\n" +
+	"\x05email\x18\x04 \x01(\tR\x05email\x12\x16\n" +
+	"\x06status\x18\x05 \x01(\tR\x06status\x129\n" +
+	"\n" +
+	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt2\x9c\x10\n" +
 	"\vCoreService\x12?\n" +
 	"\n" +
 	"GetProfile\x12\x17.core.GetProfileRequest\x1a\x18.core.GetProfileResponse\x12Y\n" +
@@ -3698,7 +4349,11 @@ const file_proto_core_core_proto_rawDesc = "" +
 	"\x15GetStrikesByDateRange\x12\".core.GetStrikesByDateRangeRequest\x1a#.core.GetStrikesByDateRangeResponse\x12W\n" +
 	"\x12UpdateStrikeStatus\x12\x1f.core.UpdateStrikeStatusRequest\x1a .core.UpdateStrikeStatusResponse\x12E\n" +
 	"\fDeleteStrike\x12\x19.core.DeleteStrikeRequest\x1a\x1a.core.DeleteStrikeResponse\x12W\n" +
-	"\x12GetUserStrikeStats\x12\x1f.core.GetUserStrikeStatsRequest\x1a .core.GetUserStrikeStatsResponseBDZBgithub.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/proto/coreb\x06proto3"
+	"\x12GetUserStrikeStats\x12\x1f.core.GetUserStrikeStatsRequest\x1a .core.GetUserStrikeStatsResponse\x12E\n" +
+	"\fCreateReport\x12\x19.core.CreateReportRequest\x1a\x1a.core.CreateReportResponse\x12K\n" +
+	"\x0eGetUserReports\x12\x1b.core.GetUserReportsRequest\x1a\x1c.core.GetUserReportsResponse\x12H\n" +
+	"\rGetUserReport\x12\x1a.core.GetUserReportRequest\x1a\x1b.core.GetUserReportResponse\x12N\n" +
+	"\x0fGetSupportStats\x12\x1c.core.GetSupportStatsRequest\x1a\x1d.core.GetSupportStatsResponseBDZBgithub.com/go-park-mail-ru/2025_2_RoadTo200/backend/pkg/proto/coreb\x06proto3"
 
 var (
 	file_proto_core_core_proto_rawDescOnce sync.Once
@@ -3712,7 +4367,7 @@ func file_proto_core_core_proto_rawDescGZIP() []byte {
 	return file_proto_core_core_proto_rawDescData
 }
 
-var file_proto_core_core_proto_msgTypes = make([]protoimpl.MessageInfo, 55)
+var file_proto_core_core_proto_msgTypes = make([]protoimpl.MessageInfo, 67)
 var file_proto_core_core_proto_goTypes = []any{
 	(*User)(nil),                           // 0: core.User
 	(*UserPhoto)(nil),                      // 1: core.UserPhoto
@@ -3769,93 +4424,121 @@ var file_proto_core_core_proto_goTypes = []any{
 	(*ChangePasswordResponse)(nil),         // 52: core.ChangePasswordResponse
 	(*DeleteAccountRequest)(nil),           // 53: core.DeleteAccountRequest
 	(*DeleteAccountResponse)(nil),          // 54: core.DeleteAccountResponse
-	(*timestamppb.Timestamp)(nil),          // 55: google.protobuf.Timestamp
+	(*CreateReportRequest)(nil),            // 55: core.CreateReportRequest
+	(*CreateReportResponse)(nil),           // 56: core.CreateReportResponse
+	(*GetUserReportsRequest)(nil),          // 57: core.GetUserReportsRequest
+	(*GetUserReportsResponse)(nil),         // 58: core.GetUserReportsResponse
+	(*GetUserReportRequest)(nil),           // 59: core.GetUserReportRequest
+	(*GetUserReportResponse)(nil),          // 60: core.GetUserReportResponse
+	(*GetSupportStatsRequest)(nil),         // 61: core.GetSupportStatsRequest
+	(*GetSupportStatsResponse)(nil),        // 62: core.GetSupportStatsResponse
+	(*Report)(nil),                         // 63: core.Report
+	(*ReportDetail)(nil),                   // 64: core.ReportDetail
+	nil,                                    // 65: core.GetSupportStatsResponse.TicketsByCategoryEntry
+	nil,                                    // 66: core.GetSupportStatsResponse.TicketsByStatusEntry
+	(*timestamppb.Timestamp)(nil),          // 67: google.protobuf.Timestamp
 }
 var file_proto_core_core_proto_depIdxs = []int32{
-	55, // 0: core.User.birth_date:type_name -> google.protobuf.Timestamp
-	55, // 1: core.User.last_active:type_name -> google.protobuf.Timestamp
-	55, // 2: core.User.created_at:type_name -> google.protobuf.Timestamp
-	55, // 3: core.User.updated_at:type_name -> google.protobuf.Timestamp
-	55, // 4: core.UserPhoto.created_at:type_name -> google.protobuf.Timestamp
-	55, // 5: core.UserPreference.created_at:type_name -> google.protobuf.Timestamp
-	55, // 6: core.UserPreference.updated_at:type_name -> google.protobuf.Timestamp
-	55, // 7: core.Match.matched_at:type_name -> google.protobuf.Timestamp
-	55, // 8: core.Match.expires_at:type_name -> google.protobuf.Timestamp
+	67, // 0: core.User.birth_date:type_name -> google.protobuf.Timestamp
+	67, // 1: core.User.last_active:type_name -> google.protobuf.Timestamp
+	67, // 2: core.User.created_at:type_name -> google.protobuf.Timestamp
+	67, // 3: core.User.updated_at:type_name -> google.protobuf.Timestamp
+	67, // 4: core.UserPhoto.created_at:type_name -> google.protobuf.Timestamp
+	67, // 5: core.UserPreference.created_at:type_name -> google.protobuf.Timestamp
+	67, // 6: core.UserPreference.updated_at:type_name -> google.protobuf.Timestamp
+	67, // 7: core.Match.matched_at:type_name -> google.protobuf.Timestamp
+	67, // 8: core.Match.expires_at:type_name -> google.protobuf.Timestamp
 	0,  // 9: core.GetProfileResponse.user:type_name -> core.User
 	2,  // 10: core.GetProfileResponse.preferences:type_name -> core.UserPreference
 	1,  // 11: core.GetProfileResponse.photos:type_name -> core.UserPhoto
 	3,  // 12: core.GetProfileResponse.interests:type_name -> core.Interest
-	55, // 13: core.UpdateProfileInfoRequest.birth_date:type_name -> google.protobuf.Timestamp
+	67, // 13: core.UpdateProfileInfoRequest.birth_date:type_name -> google.protobuf.Timestamp
 	1,  // 14: core.UploadPhotoResponse.photo:type_name -> core.UserPhoto
 	3,  // 15: core.FeedUser.interests:type_name -> core.Interest
 	22, // 16: core.GetFeedResponse.users:type_name -> core.FeedUser
 	4,  // 17: core.MatchResponse.match:type_name -> core.Match
 	0,  // 18: core.MatchResponse.user:type_name -> core.User
 	27, // 19: core.GetUserMatchesResponse.matches:type_name -> core.MatchResponse
-	55, // 20: core.Strike.created_at:type_name -> google.protobuf.Timestamp
-	55, // 21: core.Strike.updated_at:type_name -> google.protobuf.Timestamp
+	67, // 20: core.Strike.created_at:type_name -> google.protobuf.Timestamp
+	67, // 21: core.Strike.updated_at:type_name -> google.protobuf.Timestamp
 	32, // 22: core.CreateStrikeResponse.strike:type_name -> core.Strike
 	32, // 23: core.GetStrikeResponse.strike:type_name -> core.Strike
 	32, // 24: core.GetStrikesByUserIDResponse.strikes:type_name -> core.Strike
 	32, // 25: core.GetStrikesByTypeResponse.strikes:type_name -> core.Strike
-	55, // 26: core.GetStrikesByDateRangeRequest.from:type_name -> google.protobuf.Timestamp
-	55, // 27: core.GetStrikesByDateRangeRequest.to:type_name -> google.protobuf.Timestamp
+	67, // 26: core.GetStrikesByDateRangeRequest.from:type_name -> google.protobuf.Timestamp
+	67, // 27: core.GetStrikesByDateRangeRequest.to:type_name -> google.protobuf.Timestamp
 	32, // 28: core.GetStrikesByDateRangeResponse.strikes:type_name -> core.Strike
 	32, // 29: core.UpdateStrikeStatusResponse.strike:type_name -> core.Strike
-	55, // 30: core.StrikeStats.last_strike_at:type_name -> google.protobuf.Timestamp
+	67, // 30: core.StrikeStats.last_strike_at:type_name -> google.protobuf.Timestamp
 	47, // 31: core.StrikeStats.strike_types:type_name -> core.StrikeTypeStat
 	48, // 32: core.GetUserStrikeStatsResponse.stats:type_name -> core.StrikeStats
-	5,  // 33: core.CoreService.GetProfile:input_type -> core.GetProfileRequest
-	6,  // 34: core.CoreService.GetProfileWithRelations:input_type -> core.GetProfileWithRelationsRequest
-	8,  // 35: core.CoreService.UpdateProfileInfo:input_type -> core.UpdateProfileInfoRequest
-	10, // 36: core.CoreService.UpdatePreferences:input_type -> core.UpdatePreferencesRequest
-	12, // 37: core.CoreService.UpdateInterests:input_type -> core.UpdateInterestsRequest
-	14, // 38: core.CoreService.DeletePhoto:input_type -> core.DeletePhotoRequest
-	16, // 39: core.CoreService.SetPrimaryPhoto:input_type -> core.SetPrimaryPhotoRequest
-	18, // 40: core.CoreService.ReorderPhotos:input_type -> core.ReorderPhotosRequest
-	20, // 41: core.CoreService.UploadPhoto:input_type -> core.UploadPhotoRequest
-	51, // 42: core.CoreService.ChangePassword:input_type -> core.ChangePasswordRequest
-	53, // 43: core.CoreService.DeleteAccount:input_type -> core.DeleteAccountRequest
-	23, // 44: core.CoreService.GetFeed:input_type -> core.GetFeedRequest
-	25, // 45: core.CoreService.ProcessSwipe:input_type -> core.ProcessSwipeRequest
-	28, // 46: core.CoreService.GetUserMatches:input_type -> core.GetUserMatchesRequest
-	30, // 47: core.CoreService.Unmatch:input_type -> core.UnmatchRequest
-	33, // 48: core.CoreService.CreateStrike:input_type -> core.CreateStrikeRequest
-	35, // 49: core.CoreService.GetStrike:input_type -> core.GetStrikeRequest
-	37, // 50: core.CoreService.GetStrikesByUserID:input_type -> core.GetStrikesByUserIDRequest
-	39, // 51: core.CoreService.GetStrikesByType:input_type -> core.GetStrikesByTypeRequest
-	41, // 52: core.CoreService.GetStrikesByDateRange:input_type -> core.GetStrikesByDateRangeRequest
-	43, // 53: core.CoreService.UpdateStrikeStatus:input_type -> core.UpdateStrikeStatusRequest
-	45, // 54: core.CoreService.DeleteStrike:input_type -> core.DeleteStrikeRequest
-	49, // 55: core.CoreService.GetUserStrikeStats:input_type -> core.GetUserStrikeStatsRequest
-	7,  // 56: core.CoreService.GetProfile:output_type -> core.GetProfileResponse
-	7,  // 57: core.CoreService.GetProfileWithRelations:output_type -> core.GetProfileResponse
-	9,  // 58: core.CoreService.UpdateProfileInfo:output_type -> core.UpdateProfileInfoResponse
-	11, // 59: core.CoreService.UpdatePreferences:output_type -> core.UpdatePreferencesResponse
-	13, // 60: core.CoreService.UpdateInterests:output_type -> core.UpdateInterestsResponse
-	15, // 61: core.CoreService.DeletePhoto:output_type -> core.DeletePhotoResponse
-	17, // 62: core.CoreService.SetPrimaryPhoto:output_type -> core.SetPrimaryPhotoResponse
-	19, // 63: core.CoreService.ReorderPhotos:output_type -> core.ReorderPhotosResponse
-	21, // 64: core.CoreService.UploadPhoto:output_type -> core.UploadPhotoResponse
-	52, // 65: core.CoreService.ChangePassword:output_type -> core.ChangePasswordResponse
-	54, // 66: core.CoreService.DeleteAccount:output_type -> core.DeleteAccountResponse
-	24, // 67: core.CoreService.GetFeed:output_type -> core.GetFeedResponse
-	26, // 68: core.CoreService.ProcessSwipe:output_type -> core.ProcessSwipeResponse
-	29, // 69: core.CoreService.GetUserMatches:output_type -> core.GetUserMatchesResponse
-	31, // 70: core.CoreService.Unmatch:output_type -> core.UnmatchResponse
-	34, // 71: core.CoreService.CreateStrike:output_type -> core.CreateStrikeResponse
-	36, // 72: core.CoreService.GetStrike:output_type -> core.GetStrikeResponse
-	38, // 73: core.CoreService.GetStrikesByUserID:output_type -> core.GetStrikesByUserIDResponse
-	40, // 74: core.CoreService.GetStrikesByType:output_type -> core.GetStrikesByTypeResponse
-	42, // 75: core.CoreService.GetStrikesByDateRange:output_type -> core.GetStrikesByDateRangeResponse
-	44, // 76: core.CoreService.UpdateStrikeStatus:output_type -> core.UpdateStrikeStatusResponse
-	46, // 77: core.CoreService.DeleteStrike:output_type -> core.DeleteStrikeResponse
-	50, // 78: core.CoreService.GetUserStrikeStats:output_type -> core.GetUserStrikeStatsResponse
-	56, // [56:79] is the sub-list for method output_type
-	33, // [33:56] is the sub-list for method input_type
-	33, // [33:33] is the sub-list for extension type_name
-	33, // [33:33] is the sub-list for extension extendee
-	0,  // [0:33] is the sub-list for field type_name
+	63, // 33: core.CreateReportResponse.report:type_name -> core.Report
+	63, // 34: core.GetUserReportsResponse.reports:type_name -> core.Report
+	64, // 35: core.GetUserReportResponse.report:type_name -> core.ReportDetail
+	65, // 36: core.GetSupportStatsResponse.tickets_by_category:type_name -> core.GetSupportStatsResponse.TicketsByCategoryEntry
+	66, // 37: core.GetSupportStatsResponse.tickets_by_status:type_name -> core.GetSupportStatsResponse.TicketsByStatusEntry
+	64, // 38: core.GetSupportStatsResponse.all_tickets:type_name -> core.ReportDetail
+	67, // 39: core.Report.created_at:type_name -> google.protobuf.Timestamp
+	67, // 40: core.ReportDetail.created_at:type_name -> google.protobuf.Timestamp
+	5,  // 41: core.CoreService.GetProfile:input_type -> core.GetProfileRequest
+	6,  // 42: core.CoreService.GetProfileWithRelations:input_type -> core.GetProfileWithRelationsRequest
+	8,  // 43: core.CoreService.UpdateProfileInfo:input_type -> core.UpdateProfileInfoRequest
+	10, // 44: core.CoreService.UpdatePreferences:input_type -> core.UpdatePreferencesRequest
+	12, // 45: core.CoreService.UpdateInterests:input_type -> core.UpdateInterestsRequest
+	14, // 46: core.CoreService.DeletePhoto:input_type -> core.DeletePhotoRequest
+	16, // 47: core.CoreService.SetPrimaryPhoto:input_type -> core.SetPrimaryPhotoRequest
+	18, // 48: core.CoreService.ReorderPhotos:input_type -> core.ReorderPhotosRequest
+	20, // 49: core.CoreService.UploadPhoto:input_type -> core.UploadPhotoRequest
+	51, // 50: core.CoreService.ChangePassword:input_type -> core.ChangePasswordRequest
+	53, // 51: core.CoreService.DeleteAccount:input_type -> core.DeleteAccountRequest
+	23, // 52: core.CoreService.GetFeed:input_type -> core.GetFeedRequest
+	25, // 53: core.CoreService.ProcessSwipe:input_type -> core.ProcessSwipeRequest
+	28, // 54: core.CoreService.GetUserMatches:input_type -> core.GetUserMatchesRequest
+	30, // 55: core.CoreService.Unmatch:input_type -> core.UnmatchRequest
+	33, // 56: core.CoreService.CreateStrike:input_type -> core.CreateStrikeRequest
+	35, // 57: core.CoreService.GetStrike:input_type -> core.GetStrikeRequest
+	37, // 58: core.CoreService.GetStrikesByUserID:input_type -> core.GetStrikesByUserIDRequest
+	39, // 59: core.CoreService.GetStrikesByType:input_type -> core.GetStrikesByTypeRequest
+	41, // 60: core.CoreService.GetStrikesByDateRange:input_type -> core.GetStrikesByDateRangeRequest
+	43, // 61: core.CoreService.UpdateStrikeStatus:input_type -> core.UpdateStrikeStatusRequest
+	45, // 62: core.CoreService.DeleteStrike:input_type -> core.DeleteStrikeRequest
+	49, // 63: core.CoreService.GetUserStrikeStats:input_type -> core.GetUserStrikeStatsRequest
+	55, // 64: core.CoreService.CreateReport:input_type -> core.CreateReportRequest
+	57, // 65: core.CoreService.GetUserReports:input_type -> core.GetUserReportsRequest
+	59, // 66: core.CoreService.GetUserReport:input_type -> core.GetUserReportRequest
+	61, // 67: core.CoreService.GetSupportStats:input_type -> core.GetSupportStatsRequest
+	7,  // 68: core.CoreService.GetProfile:output_type -> core.GetProfileResponse
+	7,  // 69: core.CoreService.GetProfileWithRelations:output_type -> core.GetProfileResponse
+	9,  // 70: core.CoreService.UpdateProfileInfo:output_type -> core.UpdateProfileInfoResponse
+	11, // 71: core.CoreService.UpdatePreferences:output_type -> core.UpdatePreferencesResponse
+	13, // 72: core.CoreService.UpdateInterests:output_type -> core.UpdateInterestsResponse
+	15, // 73: core.CoreService.DeletePhoto:output_type -> core.DeletePhotoResponse
+	17, // 74: core.CoreService.SetPrimaryPhoto:output_type -> core.SetPrimaryPhotoResponse
+	19, // 75: core.CoreService.ReorderPhotos:output_type -> core.ReorderPhotosResponse
+	21, // 76: core.CoreService.UploadPhoto:output_type -> core.UploadPhotoResponse
+	52, // 77: core.CoreService.ChangePassword:output_type -> core.ChangePasswordResponse
+	54, // 78: core.CoreService.DeleteAccount:output_type -> core.DeleteAccountResponse
+	24, // 79: core.CoreService.GetFeed:output_type -> core.GetFeedResponse
+	26, // 80: core.CoreService.ProcessSwipe:output_type -> core.ProcessSwipeResponse
+	29, // 81: core.CoreService.GetUserMatches:output_type -> core.GetUserMatchesResponse
+	31, // 82: core.CoreService.Unmatch:output_type -> core.UnmatchResponse
+	34, // 83: core.CoreService.CreateStrike:output_type -> core.CreateStrikeResponse
+	36, // 84: core.CoreService.GetStrike:output_type -> core.GetStrikeResponse
+	38, // 85: core.CoreService.GetStrikesByUserID:output_type -> core.GetStrikesByUserIDResponse
+	40, // 86: core.CoreService.GetStrikesByType:output_type -> core.GetStrikesByTypeResponse
+	42, // 87: core.CoreService.GetStrikesByDateRange:output_type -> core.GetStrikesByDateRangeResponse
+	44, // 88: core.CoreService.UpdateStrikeStatus:output_type -> core.UpdateStrikeStatusResponse
+	46, // 89: core.CoreService.DeleteStrike:output_type -> core.DeleteStrikeResponse
+	50, // 90: core.CoreService.GetUserStrikeStats:output_type -> core.GetUserStrikeStatsResponse
+	56, // 91: core.CoreService.CreateReport:output_type -> core.CreateReportResponse
+	58, // 92: core.CoreService.GetUserReports:output_type -> core.GetUserReportsResponse
+	60, // 93: core.CoreService.GetUserReport:output_type -> core.GetUserReportResponse
+	62, // 94: core.CoreService.GetSupportStats:output_type -> core.GetSupportStatsResponse
+	68, // [68:95] is the sub-list for method output_type
+	41, // [41:68] is the sub-list for method input_type
+	41, // [41:41] is the sub-list for extension type_name
+	41, // [41:41] is the sub-list for extension extendee
+	0,  // [0:41] is the sub-list for field type_name
 }
 
 func init() { file_proto_core_core_proto_init() }
@@ -3875,7 +4558,7 @@ func file_proto_core_core_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_core_core_proto_rawDesc), len(file_proto_core_core_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   55,
+			NumMessages:   67,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

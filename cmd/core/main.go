@@ -71,20 +71,23 @@ func main() {
 	preferenceRepo := postgres.NewUserPreferenceRepository(pgPool, loggerInst)
 	swipeRepo := postgres.NewSwipeRepository(pgPool)
 	matchRepo := postgres.NewMatchRepository(pgPool)
+	messageRepo := postgres.NewMessageRepository(pgPool)
 	storageRepo := minio.NewStorageRepository(minioClient, &cfg.MinIO)
 	strikeRepo := postgres.NewStrikeRepository(pgPool)
 	notificationRepo := postgres.NewNotificationRepository(pgPool)
+	reportRepo := postgres.NewReportRepository(pgPool)
 
 	// Initialize services
 	profileService := serviceImpl.NewProfileService(userRepo, photoRepo, preferenceRepo, swipeRepo, matchRepo, storageRepo, loggerInst)
 	feedService := serviceImpl.NewFeedService(userRepo, preferenceRepo, photoRepo, loggerInst)
 	notificationService := serviceImpl.NewNotificationService(notificationRepo, redisPubSub, loggerInst)
 	swipeService := serviceImpl.NewSwipeService(swipeRepo, matchRepo, userRepo, notificationService, loggerInst)
-	matchService := serviceImpl.NewMatchService(matchRepo, userRepo, swipeRepo, photoRepo, loggerInst)
+	matchService := serviceImpl.NewMatchService(matchRepo, userRepo, swipeRepo, photoRepo, messageRepo, loggerInst)
 	strikeServie := serviceImpl.NewStrikeService(strikeRepo, userRepo, loggerInst)
+	supportService := serviceImpl.NewSupportService(reportRepo, loggerInst)
 
 	// Create gRPC server
-	coreServiceServer := coreServer.NewCoreServer(profileService, feedService, swipeService, matchService, strikeServie, loggerInst)
+	coreServiceServer := coreServer.NewCoreServer(profileService, feedService, swipeService, matchService, strikeServie, supportService, loggerInst)
 	grpcServer := gServer.NewGrpcServer(cfg.Port)
 
 	pb.RegisterCoreServiceServer(grpcServer, coreServiceServer)
@@ -113,7 +116,7 @@ func main() {
 					loggerInst.Errorf("Failed to deactivate expired matches: %v", err)
 				} else if len(deactivatedMatches) > 0 {
 					loggerInst.Infof("✅ Deactivated %d expired matches", len(deactivatedMatches))
-					
+
 					// Удаляем уведомления для всех деактивированных мэтчей
 					for _, match := range deactivatedMatches {
 						if err := notificationService.DeleteUserNotifications(context.Background(), match.User1ID, match.User2ID); err != nil {

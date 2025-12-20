@@ -19,5 +19,6 @@ func (a *App) initHandlers() {
 		Strike:         handler.NewStrikeHandler(a.services.Strike, a.logger),
 		Payment:        handler.NewPaymentHandler(a.services.Payment, a.logger),
 		Notification:   handler.NewNotificationHandler(a.services.Notification, a.logger),
+		Report:         handler.NewSupportHandler(a.services.Report, a.logger),
 	}
 }

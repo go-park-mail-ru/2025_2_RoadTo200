@@ -21,9 +21,10 @@ func TestMatchService_GetUserMatches_Success(t *testing.T) {
 	mockUserRepo := mocks.NewMockUserRepository(ctrl)
 	mockSwipeRepo := mocks.NewMockSwipeRepository(ctrl)
 	mockPhotoRepo := mocks.NewMockUserPhotoRepository(ctrl)
+	mockMessageRepo := mocks.NewMockMessageRepository(ctrl)
 	mockLogger := mocks.NewMockLogger()
 
-	service := NewMatchService(mockMatchRepo, mockUserRepo, mockSwipeRepo, mockPhotoRepo, mockLogger)
+	service := NewMatchService(mockMatchRepo, mockUserRepo, mockSwipeRepo, mockPhotoRepo, mockMessageRepo, mockLogger)
 
 	ctx := context.Background()
 	userID := uuid.New()
@@ -70,6 +71,10 @@ func TestMatchService_GetUserMatches_Success(t *testing.T) {
 		GetByUserID(ctx, otherUserID).
 		Return(photos, nil)
 
+	mockMessageRepo.EXPECT().
+		HasMessages(ctx, matchID).
+		Return(false, nil)
+
 	// Execute
 	response, err := service.GetUserMatches(ctx, userID, 20, 0)
 
@@ -89,9 +94,10 @@ func TestMatchService_GetUserMatches_NoMatches(t *testing.T) {
 	mockUserRepo := mocks.NewMockUserRepository(ctrl)
 	mockSwipeRepo := mocks.NewMockSwipeRepository(ctrl)
 	mockPhotoRepo := mocks.NewMockUserPhotoRepository(ctrl)
+	mockMessageRepo := mocks.NewMockMessageRepository(ctrl)
 	mockLogger := mocks.NewMockLogger()
 
-	service := NewMatchService(mockMatchRepo, mockUserRepo, mockSwipeRepo, mockPhotoRepo, mockLogger)
+	service := NewMatchService(mockMatchRepo, mockUserRepo, mockSwipeRepo, mockPhotoRepo, mockMessageRepo, mockLogger)
 
 	ctx := context.Background()
 	userID := uuid.New()
@@ -119,9 +125,10 @@ func TestMatchService_GetUserMatches_GetMatchesError(t *testing.T) {
 	mockUserRepo := mocks.NewMockUserRepository(ctrl)
 	mockSwipeRepo := mocks.NewMockSwipeRepository(ctrl)
 	mockPhotoRepo := mocks.NewMockUserPhotoRepository(ctrl)
+	mockMessageRepo := mocks.NewMockMessageRepository(ctrl)
 	mockLogger := mocks.NewMockLogger()
 
-	service := NewMatchService(mockMatchRepo, mockUserRepo, mockSwipeRepo, mockPhotoRepo, mockLogger)
+	service := NewMatchService(mockMatchRepo, mockUserRepo, mockSwipeRepo, mockPhotoRepo, mockMessageRepo, mockLogger)
 
 	ctx := context.Background()
 	userID := uuid.New()
@@ -149,9 +156,10 @@ func TestMatchService_Unmatch_Success(t *testing.T) {
 	mockUserRepo := mocks.NewMockUserRepository(ctrl)
 	mockSwipeRepo := mocks.NewMockSwipeRepository(ctrl)
 	mockPhotoRepo := mocks.NewMockUserPhotoRepository(ctrl)
+	mockMessageRepo := mocks.NewMockMessageRepository(ctrl)
 	mockLogger := mocks.NewMockLogger()
 
-	service := NewMatchService(mockMatchRepo, mockUserRepo, mockSwipeRepo, mockPhotoRepo, mockLogger)
+	service := NewMatchService(mockMatchRepo, mockUserRepo, mockSwipeRepo, mockPhotoRepo, mockMessageRepo, mockLogger)
 
 	ctx := context.Background()
 	userID := uuid.New()
@@ -189,9 +197,10 @@ func TestMatchService_Unmatch_MatchNotFound(t *testing.T) {
 	mockUserRepo := mocks.NewMockUserRepository(ctrl)
 	mockSwipeRepo := mocks.NewMockSwipeRepository(ctrl)
 	mockPhotoRepo := mocks.NewMockUserPhotoRepository(ctrl)
+	mockMessageRepo := mocks.NewMockMessageRepository(ctrl)
 	mockLogger := mocks.NewMockLogger()
 
-	service := NewMatchService(mockMatchRepo, mockUserRepo, mockSwipeRepo, mockPhotoRepo, mockLogger)
+	service := NewMatchService(mockMatchRepo, mockUserRepo, mockSwipeRepo, mockPhotoRepo, mockMessageRepo, mockLogger)
 
 	ctx := context.Background()
 	userID := uuid.New()
@@ -218,9 +227,10 @@ func TestMatchService_Unmatch_GetByUsersError(t *testing.T) {
 	mockUserRepo := mocks.NewMockUserRepository(ctrl)
 	mockSwipeRepo := mocks.NewMockSwipeRepository(ctrl)
 	mockPhotoRepo := mocks.NewMockUserPhotoRepository(ctrl)
+	mockMessageRepo := mocks.NewMockMessageRepository(ctrl)
 	mockLogger := mocks.NewMockLogger()
 
-	service := NewMatchService(mockMatchRepo, mockUserRepo, mockSwipeRepo, mockPhotoRepo, mockLogger)
+	service := NewMatchService(mockMatchRepo, mockUserRepo, mockSwipeRepo, mockPhotoRepo, mockMessageRepo, mockLogger)
 
 	ctx := context.Background()
 	userID := uuid.New()

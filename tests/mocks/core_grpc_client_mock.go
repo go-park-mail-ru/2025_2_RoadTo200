@@ -62,6 +62,26 @@ func (mr *MockCoreServiceClientMockRecorder) ChangePassword(ctx, in any, opts ..
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ChangePassword", reflect.TypeOf((*MockCoreServiceClient)(nil).ChangePassword), varargs...)
 }
 
+// CreateReport mocks base method.
+func (m *MockCoreServiceClient) CreateReport(ctx context.Context, in *core.CreateReportRequest, opts ...grpc.CallOption) (*core.CreateReportResponse, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, in}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "CreateReport", varargs...)
+	ret0, _ := ret[0].(*core.CreateReportResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateReport indicates an expected call of CreateReport.
+func (mr *MockCoreServiceClientMockRecorder) CreateReport(ctx, in any, opts ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, in}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateReport", reflect.TypeOf((*MockCoreServiceClient)(nil).CreateReport), varargs...)
+}
+
 // CreateStrike mocks base method.
 func (m *MockCoreServiceClient) CreateStrike(ctx context.Context, in *core.CreateStrikeRequest, opts ...grpc.CallOption) (*core.CreateStrikeResponse, error) {
 	m.ctrl.T.Helper()
@@ -282,6 +302,26 @@ func (mr *MockCoreServiceClientMockRecorder) GetStrikesByUserID(ctx, in any, opt
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetStrikesByUserID", reflect.TypeOf((*MockCoreServiceClient)(nil).GetStrikesByUserID), varargs...)
 }
 
+// GetSupportStats mocks base method.
+func (m *MockCoreServiceClient) GetSupportStats(ctx context.Context, in *core.GetSupportStatsRequest, opts ...grpc.CallOption) (*core.GetSupportStatsResponse, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, in}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetSupportStats", varargs...)
+	ret0, _ := ret[0].(*core.GetSupportStatsResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSupportStats indicates an expected call of GetSupportStats.
+func (mr *MockCoreServiceClientMockRecorder) GetSupportStats(ctx, in any, opts ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, in}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSupportStats", reflect.TypeOf((*MockCoreServiceClient)(nil).GetSupportStats), varargs...)
+}
+
 // GetUserMatches mocks base method.
 func (m *MockCoreServiceClient) GetUserMatches(ctx context.Context, in *core.GetUserMatchesRequest, opts ...grpc.CallOption) (*core.GetUserMatchesResponse, error) {
 	m.ctrl.T.Helper()
@@ -300,6 +340,46 @@ func (mr *MockCoreServiceClientMockRecorder) GetUserMatches(ctx, in any, opts ..
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]any{ctx, in}, opts...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserMatches", reflect.TypeOf((*MockCoreServiceClient)(nil).GetUserMatches), varargs...)
+}
+
+// GetUserReport mocks base method.
+func (m *MockCoreServiceClient) GetUserReport(ctx context.Context, in *core.GetUserReportRequest, opts ...grpc.CallOption) (*core.GetUserReportResponse, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, in}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetUserReport", varargs...)
+	ret0, _ := ret[0].(*core.GetUserReportResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserReport indicates an expected call of GetUserReport.
+func (mr *MockCoreServiceClientMockRecorder) GetUserReport(ctx, in any, opts ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, in}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserReport", reflect.TypeOf((*MockCoreServiceClient)(nil).GetUserReport), varargs...)
+}
+
+// GetUserReports mocks base method.
+func (m *MockCoreServiceClient) GetUserReports(ctx context.Context, in *core.GetUserReportsRequest, opts ...grpc.CallOption) (*core.GetUserReportsResponse, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, in}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetUserReports", varargs...)
+	ret0, _ := ret[0].(*core.GetUserReportsResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserReports indicates an expected call of GetUserReports.
+func (mr *MockCoreServiceClientMockRecorder) GetUserReports(ctx, in any, opts ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, in}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserReports", reflect.TypeOf((*MockCoreServiceClient)(nil).GetUserReports), varargs...)
 }
 
 // GetUserStrikeStats mocks base method.
@@ -541,6 +621,21 @@ func (mr *MockCoreServiceServerMockRecorder) ChangePassword(arg0, arg1 any) *gom
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ChangePassword", reflect.TypeOf((*MockCoreServiceServer)(nil).ChangePassword), arg0, arg1)
 }
 
+// CreateReport mocks base method.
+func (m *MockCoreServiceServer) CreateReport(arg0 context.Context, arg1 *core.CreateReportRequest) (*core.CreateReportResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateReport", arg0, arg1)
+	ret0, _ := ret[0].(*core.CreateReportResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateReport indicates an expected call of CreateReport.
+func (mr *MockCoreServiceServerMockRecorder) CreateReport(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateReport", reflect.TypeOf((*MockCoreServiceServer)(nil).CreateReport), arg0, arg1)
+}
+
 // CreateStrike mocks base method.
 func (m *MockCoreServiceServer) CreateStrike(arg0 context.Context, arg1 *core.CreateStrikeRequest) (*core.CreateStrikeResponse, error) {
 	m.ctrl.T.Helper()
@@ -706,6 +801,21 @@ func (mr *MockCoreServiceServerMockRecorder) GetStrikesByUserID(arg0, arg1 any) 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetStrikesByUserID", reflect.TypeOf((*MockCoreServiceServer)(nil).GetStrikesByUserID), arg0, arg1)
 }
 
+// GetSupportStats mocks base method.
+func (m *MockCoreServiceServer) GetSupportStats(arg0 context.Context, arg1 *core.GetSupportStatsRequest) (*core.GetSupportStatsResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetSupportStats", arg0, arg1)
+	ret0, _ := ret[0].(*core.GetSupportStatsResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSupportStats indicates an expected call of GetSupportStats.
+func (mr *MockCoreServiceServerMockRecorder) GetSupportStats(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSupportStats", reflect.TypeOf((*MockCoreServiceServer)(nil).GetSupportStats), arg0, arg1)
+}
+
 // GetUserMatches mocks base method.
 func (m *MockCoreServiceServer) GetUserMatches(arg0 context.Context, arg1 *core.GetUserMatchesRequest) (*core.GetUserMatchesResponse, error) {
 	m.ctrl.T.Helper()
@@ -719,6 +829,36 @@ func (m *MockCoreServiceServer) GetUserMatches(arg0 context.Context, arg1 *core.
 func (mr *MockCoreServiceServerMockRecorder) GetUserMatches(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserMatches", reflect.TypeOf((*MockCoreServiceServer)(nil).GetUserMatches), arg0, arg1)
+}
+
+// GetUserReport mocks base method.
+func (m *MockCoreServiceServer) GetUserReport(arg0 context.Context, arg1 *core.GetUserReportRequest) (*core.GetUserReportResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserReport", arg0, arg1)
+	ret0, _ := ret[0].(*core.GetUserReportResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserReport indicates an expected call of GetUserReport.
+func (mr *MockCoreServiceServerMockRecorder) GetUserReport(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserReport", reflect.TypeOf((*MockCoreServiceServer)(nil).GetUserReport), arg0, arg1)
+}
+
+// GetUserReports mocks base method.
+func (m *MockCoreServiceServer) GetUserReports(arg0 context.Context, arg1 *core.GetUserReportsRequest) (*core.GetUserReportsResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserReports", arg0, arg1)
+	ret0, _ := ret[0].(*core.GetUserReportsResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserReports indicates an expected call of GetUserReports.
+func (mr *MockCoreServiceServerMockRecorder) GetUserReports(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserReports", reflect.TypeOf((*MockCoreServiceServer)(nil).GetUserReports), arg0, arg1)
 }
 
 // GetUserStrikeStats mocks base method.

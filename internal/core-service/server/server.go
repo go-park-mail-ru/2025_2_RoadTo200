@@ -78,6 +78,7 @@ type CoreServer struct {
 	swipeService   service.SwipeService
 	matchService   service.MatchService
 	strikeService  service.StrikeService
+	supportService service.SupportService
 	logger         logger.Log
 }
 
@@ -87,6 +88,7 @@ func NewCoreServer(
 	swipeService service.SwipeService,
 	matchService service.MatchService,
 	strikeServie service.StrikeService,
+	supportService service.SupportService,
 	logger logger.Log,
 ) *CoreServer {
 	return &CoreServer{
@@ -95,6 +97,7 @@ func NewCoreServer(
 		swipeService:   swipeService,
 		matchService:   matchService,
 		strikeService:  strikeServie,
+		supportService: supportService,
 		logger:         logger,
 	}
 }
@@ -553,4 +556,111 @@ func (s *CoreServer) GetUserStrikeStats(ctx context.Context, req *pb.GetUserStri
 	return &pb.GetUserStrikeStatsResponse{
 		Stats: converters.StrikeStatsToProto(stats),
 	}, nil
+}
+
+// ============= Report/Support Methods =============
+
+func (s *CoreServer) CreateReport(ctx context.Context, req *pb.CreateReportRequest) (*pb.CreateReportResponse, error) {
+	s.logger.Infof("CreateReport called for user_id: %s", req.UserId)
+
+	userID, err := uuid.Parse(req.UserId)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid user_id: %v", err)
+	}
+
+	ticketRequest := &dto.SupportTicketRequest{
+		Category: req.Category,
+		Text:     req.Text,
+		Email:    req.Email,
+	}
+
+	ticket, err := s.supportService.CreateTicket(userID, ticketRequest)
+	if err != nil {
+		s.logger.Errorf("CreateReport error: %v", err)
+		return nil, status.Errorf(codes.Internal, "failed to create report: %v", err)
+	}
+
+	return &pb.CreateReportResponse{
+		Report: converters.SupportTicketResponseToProto(ticket),
+	}, nil
+}
+
+func (s *CoreServer) GetUserReports(ctx context.Context, req *pb.GetUserReportsRequest) (*pb.GetUserReportsResponse, error) {
+	s.logger.Infof("GetUserReports called for user_id: %s, limit: %d, offset: %d", req.UserId, req.Limit, req.Offset)
+
+	userID, err := uuid.Parse(req.UserId)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid user_id: %v", err)
+	}
+
+	tickets, err := s.supportService.GetUserTickets(userID, int(req.Limit), int(req.Offset))
+	if err != nil {
+		s.logger.Errorf("GetUserReports error: %v", err)
+		return nil, status.Errorf(codes.Internal, "failed to get user reports: %v", err)
+	}
+
+	pbReports := make([]*pb.Report, len(tickets.Tickets))
+	for i, ticket := range tickets.Tickets {
+		pbReports[i] = converters.SupportTicketResponseToProto(&ticket)
+	}
+
+	return &pb.GetUserReportsResponse{
+		Reports: pbReports,
+		Total:   int32(tickets.Total),
+	}, nil
+}
+
+func (s *CoreServer) GetUserReport(ctx context.Context, req *pb.GetUserReportRequest) (*pb.GetUserReportResponse, error) {
+	s.logger.Infof("GetUserReport called for user_id: %s, report_id: %s", req.UserId, req.ReportId)
+
+	userID, err := uuid.Parse(req.UserId)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid user_id: %v", err)
+	}
+
+	reportID, err := uuid.Parse(req.ReportId)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "invalid report_id: %v", err)
+	}
+
+	ticket, err := s.supportService.GetUserTicket(userID, reportID)
+	if err != nil {
+		s.logger.Errorf("GetUserReport error: %v", err)
+		return nil, status.Errorf(codes.Internal, "failed to get user report: %v", err)
+	}
+
+	return &pb.GetUserReportResponse{
+		Report: converters.SupportTicketDetailResponseToProto(ticket),
+	}, nil
+}
+
+func (s *CoreServer) GetSupportStats(ctx context.Context, req *pb.GetSupportStatsRequest) (*pb.GetSupportStatsResponse, error) {
+	s.logger.Infof("GetSupportStats called")
+
+	stats, err := s.supportService.GetSupportStats()
+	if err != nil {
+		s.logger.Errorf("GetSupportStats error: %v", err)
+		return nil, status.Errorf(codes.Internal, "failed to get support stats: %v", err)
+	}
+
+	pbTickets := make([]*pb.ReportDetail, len(stats.AllTickets))
+	for i, ticket := range stats.AllTickets {
+		pbTickets[i] = converters.SupportTicketDetailResponseToProto(&ticket)
+	}
+
+	return &pb.GetSupportStatsResponse{
+		TotalTickets:        int32(stats.TotalTickets),
+		TicketsByCategory:   convertIntMapToInt32(stats.TicketsByCategory),
+		TicketsByStatus:     convertIntMapToInt32(stats.TicketsByStatus),
+		AverageResponseTime: stats.AverageResponseTime,
+		AllTickets:          pbTickets,
+	}, nil
+}
+
+func convertIntMapToInt32(m map[string]int) map[string]int32 {
+	result := make(map[string]int32, len(m))
+	for k, v := range m {
+		result[k] = int32(v)
+	}
+	return result
 }

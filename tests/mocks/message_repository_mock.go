@@ -101,6 +101,21 @@ func (mr *MockMessageRepositoryMockRecorder) GetUnreadCount(ctx, userID any) *go
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUnreadCount", reflect.TypeOf((*MockMessageRepository)(nil).GetUnreadCount), ctx, userID)
 }
 
+// HasMessages mocks base method.
+func (m *MockMessageRepository) HasMessages(ctx context.Context, matchID uuid.UUID) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "HasMessages", ctx, matchID)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// HasMessages indicates an expected call of HasMessages.
+func (mr *MockMessageRepositoryMockRecorder) HasMessages(ctx, matchID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HasMessages", reflect.TypeOf((*MockMessageRepository)(nil).HasMessages), ctx, matchID)
+}
+
 // MarkAsRead mocks base method.
 func (m *MockMessageRepository) MarkAsRead(ctx context.Context, matchID, receiverID uuid.UUID) error {
 	m.ctrl.T.Helper()

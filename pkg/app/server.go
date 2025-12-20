@@ -108,6 +108,11 @@ func (a *App) setupProtectedRoutes() {
 	// Notification endpoints
 	a.server.GET("/api/notifications", a.handlers.Notification.GetNotifications)
 	a.server.PUT("/api/notifications/{notification_id}/read", a.handlers.Notification.MarkAsRead)
+
+	// Report endpoints
+	a.server.POST("/api/report", a.handlers.Report.CreateSupportTicket)
+	a.server.GET("/api/report", a.handlers.Report.GetUserSupportTickets)
+	a.server.GET("/api/report/{id}", a.handlers.Report.GetUserSupportTicket)
 }
 
 func (a *App) runServer() {

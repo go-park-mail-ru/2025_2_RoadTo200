@@ -20,6 +20,7 @@ type ProfileResponse struct {
 
 // ProfileUpdateRequest запрос на обновление профиля
 type ProfileUpdateRequest struct {
+	Email     *string          `json:"email,omitempty"`
 	Name      string           `json:"name,omitempty"`
 	Phone     *string          `json:"phone,omitempty"`
 	BirthDate *time.Time       `json:"birth_date,omitempty"`

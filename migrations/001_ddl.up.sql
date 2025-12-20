@@ -56,7 +56,7 @@ CREATE TABLE user_preference
     user_id       UUID PRIMARY KEY REFERENCES "user" (id) ON DELETE CASCADE,
     show_gender   gender_preference_enum NOT NULL DEFAULT 'both',
     age_min       SMALLINT               NOT NULL DEFAULT 18,
-    age_max       SMALLINT               NOT NULL DEFAULT 99,
+    age_max       SMALLINT               NOT NULL DEFAULT 65,
     max_distance  INT                    NOT NULL DEFAULT 100,
     global_search BOOLEAN                NOT NULL DEFAULT FALSE,
     created_at    TIMESTAMPTZ            NOT NULL DEFAULT NOW(),

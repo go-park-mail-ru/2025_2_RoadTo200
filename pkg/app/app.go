@@ -44,6 +44,7 @@ type Repositories struct {
 	User         interfaces.UserRepository
 	Strike       interfaces.StrikeRepository
 	Notification interfaces.NotificationRepository
+	Report       interfaces.ReportRepository
 }
 
 type Services struct {
@@ -55,6 +56,7 @@ type Services struct {
 	Chat         service.ChatService
 	Strike       service.StrikeService
 	Payment      service.PaymentService
+	Report       service.SupportService
 	Notification service.NotificationService
 }
 
@@ -71,6 +73,7 @@ type Handlers struct {
 	Strike         *handler.StrikeHandler
 	Payment        *handler.PaymentHandler
 	Notification   *handler.NotificationHandler
+	Report         *handler.SupportHandler
 }
 
 func Run() {

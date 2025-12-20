@@ -221,3 +221,20 @@ func (r *MessageRepository) GetConversations(ctx context.Context, userID uuid.UU
 
 	return conversations, nil
 }
+
+// HasMessages checks if match has at least one message
+func (r *MessageRepository) HasMessages(ctx context.Context, matchID uuid.UUID) (bool, error) {
+	query := `
+		SELECT EXISTS(
+			SELECT 1 FROM message 
+			WHERE match_id = $1
+		)`
+
+	var exists bool
+	err := r.pool.QueryRow(ctx, query, matchID).Scan(&exists)
+	if err != nil {
+		return false, fmt.Errorf("failed to check messages: %w", err)
+	}
+
+	return exists, nil
+}

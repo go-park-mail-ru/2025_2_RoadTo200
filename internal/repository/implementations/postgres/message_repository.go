@@ -42,18 +42,6 @@ func (r *MessageRepository) Create(ctx context.Context, message *domain.Message)
 		return err
 	}
 
-	// Обновляем match: убираем expires_at (устанавливаем NULL), так как кто-то написал сообщение
-	// Матч теперь активен навсегда
-	updateMatchQuery := `
-		UPDATE match 
-		SET expires_at = NULL 
-		WHERE id = $1 AND expires_at IS NOT NULL`
-
-	_, err = tx.Exec(ctx, updateMatchQuery, message.MatchID)
-	if err != nil {
-		return err
-	}
-
 	return tx.Commit(ctx)
 }
 
@@ -200,4 +188,21 @@ func (r *MessageRepository) GetConversations(ctx context.Context, userID uuid.UU
 	}
 
 	return conversations, nil
+}
+
+// HasMessages checks if match has at least one message
+func (r *MessageRepository) HasMessages(ctx context.Context, matchID uuid.UUID) (bool, error) {
+	query := `
+		SELECT EXISTS(
+			SELECT 1 FROM message 
+			WHERE match_id = $1
+		)`
+
+	var exists bool
+	err := r.pool.QueryRow(ctx, query, matchID).Scan(&exists)
+	if err != nil {
+		return false, err
+	}
+
+	return exists, nil
 }
