@@ -1,14 +1,14 @@
-Running 2m test @ http://localhost:8080/api/register
-  10 threads and 1000 connections
+Running 1m test @ https://terabithia.online/api/register
+  10 threads and 30 connections
   Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency     0.00us    0.00us   0.00us    -nan%
-    Req/Sec    67.71     88.22   444.00     79.76%
+    Latency     1.40s   558.43ms   1.89s    73.08%
+    Req/Sec     2.30      3.81    20.00     90.20%
   Latency Distribution
-     50%    0.00us
-     75%    0.00us
-     90%    0.00us
-     99%    0.00us
-  14812 requests in 1.67m, 8.20MB read
-  Socket errors: connect 0, read 0, write 0, timeout 14812
-Requests/sec:    148.00
-Transfer/sec:     83.90KB
+     50%    1.67s 
+     75%    1.84s 
+     90%    1.85s 
+     99%    1.89s 
+  728 requests in 1.00m, 566.90KB read
+  Socket errors: connect 0, read 0, write 0, timeout 702
+Requests/sec:     12.12
+Transfer/sec:      9.44KB
