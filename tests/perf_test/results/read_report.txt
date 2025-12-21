@@ -1,0 +1,14 @@
+Running 2m test @ http://localhost:8080/api/login
+  10 threads and 1000 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     0.00us    0.00us   0.00us    -nan%
+    Req/Sec    60.34     60.18   350.00     76.87%
+  Latency Distribution
+     50%    0.00us
+     75%    0.00us
+     90%    0.00us
+     99%    0.00us
+  14000 requests in 1.67m, 7.68MB read
+  Socket errors: connect 0, read 0, write 0, timeout 14000
+Requests/sec:    139.86
+Transfer/sec:     78.58KB

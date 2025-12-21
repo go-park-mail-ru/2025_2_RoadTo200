@@ -2,10 +2,10 @@
 -- PostgreSQL database dump
 --
 
-\restrict TFyEf4NebTAG6JSWbZskdkL458KJINCdpYcMedmfGoCVhLOLbWVxtK4UlWQn2AL
+\restrict rIyIofCS2IkLKDQ3CcY6nyDU4JZCGcfwg73KHoketnKstgiqxcLiORySxpVQTe2
 
 -- Dumped from database version 17.6 (Debian 17.6-1.pgdg13+1)
--- Dumped by pg_dump version 17.6 (Debian 17.6-1.pgdg13+1)
+-- Dumped by pg_dump version 17.6
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -80,13 +80,27 @@ CREATE TYPE public.interest_theme_enum AS ENUM (
 ALTER TYPE public.interest_theme_enum OWNER TO admin;
 
 --
+-- Name: notification_type_enum; Type: TYPE; Schema: public; Owner: admin
+--
+
+CREATE TYPE public.notification_type_enum AS ENUM (
+    'match',
+    'super_like',
+    'like',
+    'message'
+);
+
+
+ALTER TYPE public.notification_type_enum OWNER TO admin;
+
+--
 -- Name: plan_type_enum; Type: TYPE; Schema: public; Owner: admin
 --
 
 CREATE TYPE public.plan_type_enum AS ENUM (
-    'premium',
-    'gold',
-    'platinum'
+    'week',
+    'month',
+    'quarter'
 );
 
 
@@ -180,11 +194,19 @@ CREATE TABLE public.match (
     user2_id uuid NOT NULL,
     is_active boolean DEFAULT true NOT NULL,
     matched_at timestamp with time zone DEFAULT now() NOT NULL,
+    expires_at timestamp with time zone,
     CONSTRAINT match_no_self_match_check CHECK ((user1_id <> user2_id))
 );
 
 
 ALTER TABLE public.match OWNER TO admin;
+
+--
+-- Name: COLUMN match.expires_at; Type: COMMENT; Schema: public; Owner: admin
+--
+
+COMMENT ON COLUMN public.match.expires_at IS 'Время истечения 24-часового окна. NULL если кто-то написал сообщение (матч активен навсегда)';
+
 
 --
 -- Name: message; Type: TABLE; Schema: public; Owner: admin
@@ -202,6 +224,23 @@ CREATE TABLE public.message (
 
 
 ALTER TABLE public.message OWNER TO admin;
+
+--
+-- Name: notification; Type: TABLE; Schema: public; Owner: admin
+--
+
+CREATE TABLE public.notification (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    user_id uuid NOT NULL,
+    type public.notification_type_enum NOT NULL,
+    from_user_id uuid,
+    match_id uuid,
+    is_read boolean DEFAULT false NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+ALTER TABLE public.notification OWNER TO admin;
 
 --
 -- Name: schema_migrations; Type: TABLE; Schema: public; Owner: admin
@@ -291,6 +330,8 @@ CREATE TABLE public."user" (
     last_active timestamp with time zone DEFAULT now() NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    is_premium boolean DEFAULT false NOT NULL,
+    super_likes_count integer DEFAULT 3 NOT NULL,
     CONSTRAINT user_age_check CHECK ((birth_date <= ((now() - '18 years'::interval))::date)),
     CONSTRAINT user_artist_check CHECK (((length(artist) >= 1) AND (length(artist) <= 50))),
     CONSTRAINT user_bio_length_check CHECK ((length(TRIM(BOTH FROM bio)) < 255)),
@@ -369,6 +410,14 @@ ALTER TABLE ONLY public.match
 
 ALTER TABLE ONLY public.message
     ADD CONSTRAINT message_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: notification notification_pkey; Type: CONSTRAINT; Schema: public; Owner: admin
+--
+
+ALTER TABLE ONLY public.notification
+    ADD CONSTRAINT notification_pkey PRIMARY KEY (id);
 
 
 --
@@ -452,6 +501,13 @@ ALTER TABLE ONLY public.user_preference
 
 
 --
+-- Name: idx_match_expires_at; Type: INDEX; Schema: public; Owner: admin
+--
+
+CREATE INDEX idx_match_expires_at ON public.match USING btree (expires_at) WHERE ((expires_at IS NOT NULL) AND (is_active = true));
+
+
+--
 -- Name: idx_match_user1_id; Type: INDEX; Schema: public; Owner: admin
 --
 
@@ -498,6 +554,27 @@ CREATE INDEX idx_message_receiver_unread ON public.message USING btree (receiver
 --
 
 CREATE INDEX idx_message_sender_id ON public.message USING btree (sender_id);
+
+
+--
+-- Name: idx_notification_created_at; Type: INDEX; Schema: public; Owner: admin
+--
+
+CREATE INDEX idx_notification_created_at ON public.notification USING btree (created_at DESC);
+
+
+--
+-- Name: idx_notification_user_id; Type: INDEX; Schema: public; Owner: admin
+--
+
+CREATE INDEX idx_notification_user_id ON public.notification USING btree (user_id);
+
+
+--
+-- Name: idx_notification_user_unread; Type: INDEX; Schema: public; Owner: admin
+--
+
+CREATE INDEX idx_notification_user_unread ON public.notification USING btree (user_id, is_read) WHERE (is_read = false);
 
 
 --
@@ -598,6 +675,30 @@ ALTER TABLE ONLY public.message
 
 
 --
+-- Name: notification notification_from_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: admin
+--
+
+ALTER TABLE ONLY public.notification
+    ADD CONSTRAINT notification_from_user_id_fkey FOREIGN KEY (from_user_id) REFERENCES public."user"(id) ON DELETE CASCADE;
+
+
+--
+-- Name: notification notification_match_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: admin
+--
+
+ALTER TABLE ONLY public.notification
+    ADD CONSTRAINT notification_match_id_fkey FOREIGN KEY (match_id) REFERENCES public.match(id) ON DELETE CASCADE;
+
+
+--
+-- Name: notification notification_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: admin
+--
+
+ALTER TABLE ONLY public.notification
+    ADD CONSTRAINT notification_user_id_fkey FOREIGN KEY (user_id) REFERENCES public."user"(id) ON DELETE CASCADE;
+
+
+--
 -- Name: strike strike_moderator_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: admin
 --
 
@@ -665,5 +766,5 @@ ALTER TABLE ONLY public.user_preference
 -- PostgreSQL database dump complete
 --
 
-\unrestrict TFyEf4NebTAG6JSWbZskdkL458KJINCdpYcMedmfGoCVhLOLbWVxtK4UlWQn2AL
+\unrestrict rIyIofCS2IkLKDQ3CcY6nyDU4JZCGcfwg73KHoketnKstgiqxcLiORySxpVQTe2
 
