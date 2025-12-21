@@ -22,4 +22,7 @@ type MessageRepository interface {
 
 	// Get all conversations (matches with last message)
 	GetConversations(ctx context.Context, userID uuid.UUID, searchQuery string) ([]domain.Conversation, error)
+
+	// HasMessages checks if match has at least one message
+	HasMessages(ctx context.Context, matchID uuid.UUID) (bool, error)
 }

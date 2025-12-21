@@ -2378,6 +2378,10 @@
         "domain.Match": {
             "type": "object",
             "properties": {
+                "expires_at": {
+                    "description": "NULL если кто-то написал сообщение (матч активен навсегда)",
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
                 },

@@ -129,18 +129,18 @@ func (s *SwipeService) ProcessSwipe(ctx context.Context, swiperID uuid.UUID, req
 			} else {
 				// Создаем новый мэтч
 				match = &domain.Match{
-					User1ID:   swiperID,
-					User2ID:   card,
-					IsActive:  true,
-					MatchedAt: time.Now(),
-				}
+				User1ID:   swiperID,
+				User2ID:   card,
+				IsActive:  true,
+				MatchedAt: time.Now(),
+			}
 
-				if err := s.matchRepo.Create(ctx, match); err != nil {
-					s.logger.Errorf("Failed to create match for super_like: %v", err)
-					return nil, err
-				}
+			if err := s.matchRepo.Create(ctx, match); err != nil {
+				s.logger.Errorf("Failed to create match for super_like: %v", err)
+				return nil, err
+			}
 
-				s.logger.Infof("Match created from super_like: user1=%s, user2=%s, matchID=%s", swiperID, card, match.ID)
+			s.logger.Infof("Match created from super_like: user1=%s, user2=%s, matchID=%s", swiperID, card, match.ID)
 			}
 
 			// Удаляем все старые уведомления (лайк, суперлайк, мэтч) между этими пользователями
@@ -214,17 +214,17 @@ func (s *SwipeService) ProcessSwipe(ctx context.Context, swiperID uuid.UUID, req
 			} else {
 				// Создаем новый мэтч
 				match = &domain.Match{
-					User1ID:   swiperID,
-					User2ID:   card,
-					IsActive:  true,
-					MatchedAt: time.Now(),
-				}
+				User1ID:   swiperID,
+				User2ID:   card,
+				IsActive:  true,
+				MatchedAt: time.Now(),
+			}
 
-				if err := s.matchRepo.Create(ctx, match); err != nil {
-					return nil, err
-				}
+			if err := s.matchRepo.Create(ctx, match); err != nil {
+				return nil, err
+			}
 
-				s.logger.Infof("Match created: user1=%s, user2=%s, matchID=%s", swiperID, card, match.ID)
+			s.logger.Infof("Match created: user1=%s, user2=%s, matchID=%s", swiperID, card, match.ID)
 			}
 
 			// Удаляем все старые уведомления (лайк, суперлайк, мэтч) между этими пользователями

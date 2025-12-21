@@ -59,6 +59,10 @@ func TestChatService_SendMessage_Success(t *testing.T) {
 			return nil
 		})
 
+	mockMatchRepo.EXPECT().
+		SetExpiresAtNull(ctx, senderID, receiverID).
+		Return(nil)
+
 	// Execute
 	message, err := service.SendMessage(ctx, senderID, request)
 

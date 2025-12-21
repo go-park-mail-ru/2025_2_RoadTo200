@@ -162,13 +162,15 @@ func (h *WebSocketHandler) readPump(conn *websocket.Conn, userID uuid.UUID) {
 			continue
 		}
 
+		h.logger.Infof("[WebSocket] Received message from user %s: matchID=%s, content=%s", userID, req.MatchID, req.Content)
+
 		// Send message via service
 		// Note: We use background context here because the request context might be closed if connection drops?
 		// Actually, we should probably use a context that is tied to the connection lifecycle.
 		// For now, using Background is okay for the service call, but we should handle timeouts.
-		_, err = h.chatService.SendMessage(context.Background(), userID, &req)
+		msg, err := h.chatService.SendMessage(context.Background(), userID, &req)
 		if err != nil {
-			h.logger.Errorf("Failed to send message: %v", err)
+			h.logger.Errorf("[WebSocket] Failed to send message: %v", err)
 			// Optionally send error back to client
 			errMsg := domain.ChatMessage{
 				Type:  "error",
@@ -177,6 +179,8 @@ func (h *WebSocketHandler) readPump(conn *websocket.Conn, userID uuid.UUID) {
 			if data, err := json.Marshal(errMsg); err == nil {
 				conn.WriteMessage(websocket.TextMessage, data)
 			}
+		} else {
+			h.logger.Infof("[WebSocket] Message sent successfully: messageID=%s, matchID=%s", msg.ID, req.MatchID)
 		}
 	}
 }
